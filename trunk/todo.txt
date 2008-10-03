@@ -1,0 +1,110 @@
+TODO
+
+- achterhalen van de pointers naar objecten die in stm zijn geplaatst. At the moment the attach of an object to a
+transaction doesn't give a pointer. Only when the commit is executed, the pointer is available. After the commit
+has taken place, the the assigned pointers could be retrieved.
+
+- what happens when a fresh object is connected to an attached object. Is the fresh object also attached?
+
+-changes in the heap are 'visible' through exceptions. If a read is done before an write, an illegalpointerexception
+could be thrown, if a read is done after a write, an illegalversionexception could be thrown. Question is: is this
+a problem?
+
+- looking for fresh object is not complete
+
+- code instrumentation.
+
+- garbage collection on non used objects
+    - if the object graph remains (instead of ripping it to shreds) the garbage collector can collect all
+    objects that are not attached to the roots. The root objects need to be registered in the heap. But
+    if a graph is not connected to an item, it can be garbage collected. The cool thing is that no new
+    garbage collector needs to be created, we can lift on the garbage collector 
+
+- garbage collection on old versions of objects
+
+IDEAS
+
+- memory indication of numbers of cells and content of each cell.
+
+- improve concurrency: transaction.validate can be done under a readlock. the transaction.makePermanent can be
+executed under a writelock.
+
+-changes in arrays are not seen.
+
+- when an object is modified, just like in oracle, the row can be locked exclusive. At the moment nothing is locked,
+and conflicts are detected when the transaction commits. But with the lock happening as soon as an update occurs,
+the chance of conflicts will decrease (other transactions are not able to make modifications).
+
+- a 'read for update'. When an object is called with the read for update, the object is automatically locked when
+it is read. A version with timeout configuration (no wait) could also be added.
+
+-eenvoudig maken dat de beans opgewired kunnen worden vanuit spring bv.
+
+- add qos statistics to transactiontemplate. 
+
+- instead of waiting for a commit to find out that the transaction can't be comitted, it could be done
+sooner. 
+
+- 'condition' variables. When a transaction does a retry, the cells it has read must be monitored. As soon as
+the value of one of the cells changes, the transaction should be given a new try.
+
+- limit the size of the heap
+    -number of cells
+    -limit history length
+
+- garbage collection on older versions of cells
+
+- garbage collection on non reachable citizens in the stm.
+
+- instead of using a cell per object field, an error could be used. On the first pos the newobjectmarker is found.
+And on each subsequent field is a element of that array. This is just an idea, I have no idea about the impact
+on memory usage of cpu usage. 
+
+- readonly transactions: transactions that don't allow any writes. When to check it? On the commit? Or as soon
+as a write occurs.
+
+- nested transaction icm propagation.
+
+- store the current transaction in a threadlocal? For nested transactions this also can be used (transactions can
+be stacked).
+
+- optimization. The validate method of Transactionized could do duplicate work for a single commit, because this
+method can be called on the same method more than once if the root objects share objects (not uncommon).
+
+- statistics: number of reads/writes to stm from transaction
+
+- add reason why a transaction is aborted
+
+- transaction that only have done a reads, should not increase the commit nr.
+    -all reads and writes should go through the transaction, not drectly to main memory because logging of
+    reads and writes is going to be easier to add.
+
+DONE
+
+- hashset is replaced by an identifyhashset in the transaction of the multiversionedstm.
+
+- statistics: number of created transactions, number of comitted transactions, number of failed transactions
+
+- retrieve the object based on a pointer. One of the problems is that within a single transaction, it should not
+be allowed that 2 instances of the same 'object' exist.
+
+- commit has to be threadsafe: or change (single thread) or read (multiple threads)
+
+- stm version of the wait notify mechamism.
+    -send an event when an update has been done to a specfic address
+
+- the queuetest shows to many consumes of the same message. This looks like a problem.
+
+- the stacktest shows that multiple consumes of same message (0). This looks like a problem. Perhaps this is causing
+the issue with the queuetest as well.
+    -vermoeden at the moment is dat het zit in de multiversionedcell
+
+- memory indication of number of cells
+
+- memory indication of number of cells and versions.
+
+- has the version to be increased after every commit? (even readonly commits).
+
+- numer of readonly transactions is very low
+    - transactions for stacks and queues that retry, are aborted. so the readolytransactioncount is not
+     increased
