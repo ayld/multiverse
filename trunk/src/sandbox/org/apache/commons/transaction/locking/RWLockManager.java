@@ -63,12 +63,12 @@ public class RWLockManager<K, M> extends AbstractLockManager<K, M> implements Lo
 
         // then remove all locks that are no longer needed to avoid out of
         // memory
-        removeUnsuedLocks();
+        removeUnusedLocks();
 
         locksForThreads.remove(Thread.currentThread());
     }
 
-    protected void removeUnsuedLocks() {
+    protected void removeUnusedLocks() {
         Set<Entry<KeyEntry<K, M>, ResourceRWLock>> locksToCheck = allLocks.entrySet();
         for (Entry<KeyEntry<K, M>, ResourceRWLock> entry : locksToCheck) {
             KeyEntry<K, M> keyEntry = entry.getKey();
