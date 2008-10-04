@@ -1,0 +1,20 @@
+<html>
+<body>
+<h1>Transactional Maps</h1>
+<p>Working on maps as if they were databases.
+</p>
+
+ <p>The implementation of this package add transactional control to the <code>java.util.Map</code> interface. Transactional control refers 
+to the procedure that you start a transaction do a number of statements and finally decide to either
+commit the changes, i.e. make them permanent, or rather roll back the transaction by discarding all your changes.
+</p>
+
+<p>You are free to have any number of transactions running on such a map at the same time. 
+	In this case these transactions are said to be running <em>concurrently</em>. 
+	Problems that might occur with concurrent transaction are diverse and implementations differ in how much 
+	spurious phenomena can be observed. Finally, there is a
+	<a
+	href="http://www.cs.umb.edu/cs734/CritiqueANSI_Iso.pdf">great
+	more general article about different isolations</a>.  </p>
+</body>
+</html>

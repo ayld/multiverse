@@ -1,0 +1,17 @@
+<html>
+<body>
+<h1>Apache Commons Transaction</h1>
+<p>Making concurrent programming transactional.
+<p>This package contains the most important interfaces of the whole component. 
+If you want to add transaction control to your resource managers you will have to implement the 
+<a href="TransactionalResourceManager.html">transactional resource manager interface</a>. It is recommended that you start your work by inheriting from
+the <a href="AbstractTransactionalResourceManager.html">abstract transactional resource manager</a>.
+
+
+<p>The user is supposed to control transactionality using the methods of this interface.
+<p>In case you want more than one transactional resource manager to take part in a single transaction use the 
+<a href="Transaction.html">transaction interface</a> along with its <a href="DefaultTransaction.html">default implementation</a>.
+Resource managers that want to participate need to be <a href="ManageableResourceManager.html">manageable resource managers</a>. This interface
+is not supposed to be called by the user, but is used by the complex transaction.
+</body>
+</html>
