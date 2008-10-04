@@ -1,0 +1,11 @@
+#summary How and when deadlock detection for multiverse works.
+
+= Deadlock Detection =
+
+Deadlocks can possibly occur when blocking locks are acquired in a multi-threaded environment. They actually occur when thread A blocks thread B and vice-versa. There is no way to solve a deadlock by either of the two threads, as both are blocked. 
+
+Every system that uses blocking locks that can not guarantee a fixed locking order needs a mechanism to solve deadlocks. Database systems usually have addtional threads that run daedlock detection services. 
+
+In _multiverse_ another approach is taken. _Before_ a thread acquires a certain lock, it checks whether acquiring that lock will eventually lead to a deadlock situation. In this case such a thread is advised to roll back its changes, thus freeing its locks. 
+
+The algorithm used to decide whether there is a deadlock situation works by building a dependency graph between all threads waiting for others and checks whether there is a cycle in it. If so, there is a deadlock condition. As this algorithm s somewhat complex and takes quite some time and optimization has been employed. In a first step a thread tries to acquire a lock with a short timeout. If this fails, the deadlock check is carried out. Thus, most of the time, the deadlock check is not needed.
