@@ -1,9 +1,0 @@
-TODO
-
-- event mechanism needs to be in place
-
-- composed objects are not persisted
-
-- conflict detection doesn't work
-
-- cycle in object structures breaks dehydration
