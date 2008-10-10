@@ -1,9 +1,5 @@
 TODO
 
-- achterhalen van de pointers naar objecten die in stm zijn geplaatst. At the moment the attach of an object to a
-transaction doesn't give a pointer. Only when the commit is executed, the pointer is available. After the commit
-has taken place, the the assigned pointers could be retrieved.
-
 - what happens when a fresh object is connected to an attached object. Is the fresh object also attached?
 
 -changes in the heap are 'visible' through exceptions. If a read is done before an write, an illegalpointerexception
@@ -22,7 +18,15 @@ a problem?
 
 - garbage collection on old versions of objects
 
+- 
+
 IDEAS
+
+- would it be possible to merge dehydratedcitizens? When 2 transactions commit and see that there is a object-level conflict
+ , but not a field level conflict, on a dehydratedcitizen, the transaction aborts and is retried again. But could it be possible to create a new dehydratedcitizen
+that is the merged version of the two cells. Since there is no conflict on field level.. could this give isolation problems?
+
+- statisch about which classes/objects/fields has lead to a write conflict.
 
 - memory indication of numbers of cells and content of each cell.
 
@@ -40,7 +44,7 @@ it is read. A version with timeout configuration (no wait) could also be added.
 
 -eenvoudig maken dat de beans opgewired kunnen worden vanuit spring bv.
 
-- add qos statistics to transactiontemplate. 
+- add qos observation to transactiontemplate.
 
 - instead of waiting for a commit to find out that the transaction can't be comitted, it could be done
 sooner. 
@@ -71,7 +75,7 @@ be stacked).
 - optimization. The validate method of Transactionized could do duplicate work for a single commit, because this
 method can be called on the same method more than once if the root objects share objects (not uncommon).
 
-- statistics: number of reads/writes to stm from transaction
+- observation: number of reads/writes to stm from transaction
 
 - add reason why a transaction is aborted
 
@@ -83,7 +87,7 @@ DONE
 
 - hashset is replaced by an identifyhashset in the transaction of the multiversionedstm.
 
-- statistics: number of created transactions, number of comitted transactions, number of failed transactions
+- observation: number of created transactions, number of comitted transactions, number of failed transactions
 
 - retrieve the object based on a pointer. One of the problems is that within a single transaction, it should not
 be allowed that 2 instances of the same 'object' exist.

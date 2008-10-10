@@ -2,7 +2,7 @@ package org.codehaus.stm.multiversionedstm.examples;
 
 import static org.codehaus.stm.TransactionMethods.retry;
 import org.codehaus.stm.multiversionedstm.Citizen;
-import org.codehaus.stm.multiversionedstm.HydratedCitizen;
+import org.codehaus.stm.multiversionedstm.DehydratedCitizen;
 import org.codehaus.stm.multiversionedstm.MultiversionedStm;
 import org.codehaus.stm.util.EmptyIterator;
 
@@ -89,8 +89,8 @@ public class Stack<E> implements Citizen {
         this.ptr = ptr;
     }
 
-    public HydratedStack ___hydrate() {
-        return new HydratedStack(head);
+    public DehydratedStack ___hydrate() {
+        return new DehydratedStack(head);
     }
 
     public boolean ___isDirty() {
@@ -98,14 +98,14 @@ public class Stack<E> implements Citizen {
     }
 
 
-    public static class HydratedStack implements HydratedCitizen {
+    public static class DehydratedStack implements DehydratedCitizen {
         private final Node head;
 
-        public HydratedStack(Node head) {
+        public DehydratedStack(Node head) {
             this.head = head;
         }
 
-        public Stack dehydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
+        public Stack hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
             Stack stack = new Stack();
             stack.head = head;
             stack.head_initial = head;

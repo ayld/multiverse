@@ -3,30 +3,30 @@ package org.codehaus.stm.multiversionedstm;
 import org.codehaus.stm.multiversionedstm.examples.Person;
 import org.codehaus.stm.transaction.Transaction;
 
-public class Transaction_AttachTest extends AbstractTransactionTest {
+public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
     public void testNull() {
         createActiveTransaction();
 
         try {
-            transaction.attach(null);
+            transaction.attachRoot(null);
             fail();
         } catch (NullPointerException ex) {
         }
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
     }
 
     public void testNonCitizen() {
         createActiveTransaction();
         try {
-            transaction.attach(new String("foo"));
+            transaction.attachRoot(new String("foo"));
             fail();
         } catch (IllegalArgumentException ex) {
         }
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         //todo: check that the current Transaction has not been damaged
     }
@@ -35,22 +35,22 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         createActiveTransaction();
 
         Person freshPerson = new Person();
-        transaction.attach(freshPerson);
+        transaction.attachRoot(freshPerson);
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasTransaction(transaction, freshPerson);
         assertHasPointer(0, freshPerson);
     }
 
     public void testAttachOfDehydratedObject() {
-        long ptr = insert(new Person());
+        long ptr = atomicInsert(new Person());
 
         createActiveTransaction();
-        Person dehydratedPerson = (Person) transaction.read(ptr);
-        transaction.attach(dehydratedPerson);
+        Person dehydratedPerson = (Person) transaction.readRoot(ptr);
+        transaction.attachRoot(dehydratedPerson);
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertHasTransaction(transaction, dehydratedPerson);
         assertHasPointer(ptr, dehydratedPerson);
     }
@@ -59,12 +59,12 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         createActiveTransaction();
 
         Person child = new Person();
-        transaction.attach(child);
+        transaction.attachRoot(child);
 
         Person parent = new Person();
         child.setParent(parent);
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
 
         assertHasTransaction(transaction, child, parent);
@@ -75,10 +75,10 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         createActiveTransaction();
 
         Person person = new Person();
-        transaction.attach(person);
-        transaction.attach(person);
+        transaction.attachRoot(person);
+        transaction.attachRoot(person);
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, person);
     }
@@ -89,8 +89,8 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         Person person = new Person();
         person.setParent(person);
 
-        transaction.attach(person);
-        assertTransactionActive();
+        transaction.attachRoot(person);
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, person);
         assertHasTransaction(transaction, person);
@@ -107,9 +107,9 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         Person person4 = new Person();
         person4.setParent(person3);
 
-        transaction.attach(person4);
+        transaction.attachRoot(person4);
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, person1, person2, person3, person4);
         assertHasTransaction(transaction, person1, person2, person3, person4);
@@ -124,8 +124,8 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         Person child = new Person();
         child.setParent(parent);
 
-        transaction.attach(child);
-        assertTransactionActive();
+        transaction.attachRoot(child);
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, child, parent, grandparent);
         assertHasTransaction(transaction, child, parent, grandparent);
@@ -135,13 +135,13 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         createActiveTransaction();
 
         Person parent = new Person();
-        transaction.attach(parent);
+        transaction.attachRoot(parent);
 
         Person child = new Person();
         child.setParent(parent);
-        transaction.attach(child);
+        transaction.attachRoot(child);
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, child, parent);
         assertHasTransaction(transaction, child, parent);
@@ -153,10 +153,10 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
         Person person1 = new Person();
         Person person2 = new Person();
 
-        transaction.attach(person1);
-        transaction.attach(person2);
+        transaction.attachRoot(person1);
+        transaction.attachRoot(person2);
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, person1, person2);
         assertHasTransaction(transaction, person1, person2);
@@ -165,17 +165,17 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
     public void testAlreadyAttachedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person person = new Person();
-        otherTransaction.attach(person);
+        otherTransaction.attachRoot(person);
 
         createActiveTransaction();
 
         try {
-            transaction.attach(person);
+            transaction.attachRoot(person);
             fail();
         } catch (IllegalStateException ex) {
 
         }
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, person);
         assertHasTransaction(transaction, person);
@@ -184,18 +184,18 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
     public void testReachableObjectAttachedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person parent = new Person();
-        otherTransaction.attach(parent);
+        otherTransaction.attachRoot(parent);
 
         createActiveTransaction();
         Person child = new Person();
         child.setParent(parent);
         try {
-            transaction.attach(child);
+            transaction.attachRoot(child);
             fail();
         } catch (IllegalStateException ex) {
         }
 
-        assertTransactionActive();
+        assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointer(0, parent, child);
         assertHasTransaction(otherTransaction, parent);
@@ -211,12 +211,12 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
 
         Person obj = new Person();
         try {
-            transaction.attach(obj);
+            transaction.attachRoot(obj);
             fail();
         } catch (IllegalStateException ex) {
         }
 
-        assertTransactionAborted();
+        assertTransactionIsAborted();
         assertTransactionHasNoWrites();
         assertNull(obj.___getTransaction());
         assertEquals(0, obj.___getPointer());
@@ -227,12 +227,12 @@ public class Transaction_AttachTest extends AbstractTransactionTest {
 
         Person object = new Person();
         try {
-            transaction.attach(object);
+            transaction.attachRoot(object);
             fail();
         } catch (IllegalStateException ex) {
         }
 
-        assertTransactionComitted();
+        assertTransactionIsCommitted();
         assertTransactionHasNoWrites();
         assertNull(object.___getTransaction());
         assertEquals(0, object.___getPointer());

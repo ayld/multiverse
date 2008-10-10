@@ -33,7 +33,7 @@ public abstract class AbstractStmTest extends TestCase {
     public long insert(Citizen obj) {
         MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
         try {
-            t.attach(obj);
+            t.attachRoot(obj);
             t.commit();
             return obj.___getPointer();
         } catch (RuntimeException ex) {

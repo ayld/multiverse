@@ -107,6 +107,11 @@ public final class MultiversionedHeap {
         return cell.getVersionCount();
     }
 
+    /**
+     * Returns the current number of MultiversionedCells.
+     *
+     * @return the current number of MultiversionedCells.
+     */
     public int getHeapSize() {
         int result = 0;
         for (MultiversionedCell cell : cells.values())

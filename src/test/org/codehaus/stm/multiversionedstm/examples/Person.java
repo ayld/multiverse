@@ -1,6 +1,6 @@
 package org.codehaus.stm.multiversionedstm.examples;
 
-import org.codehaus.stm.multiversionedstm.HydratedCitizen;
+import org.codehaus.stm.multiversionedstm.DehydratedCitizen;
 import org.codehaus.stm.multiversionedstm.MultiversionedStm;
 import org.codehaus.stm.multiversionedstm.Citizen;
 
@@ -27,7 +27,7 @@ public class Person implements Citizen {
     //GENERATED
     private boolean parent_localized = true;
 
-    private HydratedPerson initialHydratedPerson;
+    private DehydratedPerson initialHydratedPerson;
 
     //GENERATED
     private long ptr;
@@ -60,7 +60,7 @@ public class Person implements Citizen {
         //GENERATED
         if (!parent_localized) {
             long parentPtr = initialHydratedPerson.parentPtr;
-            parent = parentPtr == 0 ? null : (Person) transaction.read(parentPtr);
+            parent = parentPtr == 0 ? null : (Person) transaction.readRoot(parentPtr);
             parent_localized = true;
         }
 
@@ -122,28 +122,28 @@ public class Person implements Citizen {
                 (parent_localized && (initialHydratedPerson.parentPtr != (parent == null ? 0 : parent.___getPointer())));
     }
 
-    public HydratedCitizen ___hydrate() {
-        HydratedPerson hydratedPerson = new HydratedPerson();
+    public DehydratedCitizen ___hydrate() {
+        DehydratedPerson hydratedPerson = new DehydratedPerson();
         hydratedPerson.age = age;
         hydratedPerson.name = name;
         hydratedPerson.parentPtr = parent == null ? 0L : parent.___getPointer();
         return hydratedPerson;
     }
 
-    public static class HydratedPerson implements HydratedCitizen {
+    public static class DehydratedPerson implements DehydratedCitizen {
         private int age;
         private String name;
         private long parentPtr;
 
-        public HydratedPerson(){}
+        public DehydratedPerson(){}
 
-        public HydratedPerson(int age, String name, long parentPtr) {
+        public DehydratedPerson(int age, String name, long parentPtr) {
             this.age = age;
             this.name = name;
             this.parentPtr = parentPtr;
         }
 
-        public Citizen dehydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
+        public Citizen hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
             try {
                 Person person = (Person) Person.class.newInstance();
                 //initialization of operational properties
@@ -171,15 +171,15 @@ public class Person implements Citizen {
             if (thatObj == this)
                 return true;
 
-            if (!(thatObj instanceof HydratedPerson))
+            if (!(thatObj instanceof DehydratedPerson))
                 return false;
 
-            HydratedPerson that = (HydratedPerson) thatObj;
+            DehydratedPerson that = (DehydratedPerson) thatObj;
             return that.name == this.name && that.age == this.age && that.parentPtr == this.parentPtr;
         }
 
         public String toString(){
-            return format("HydratedPerson(age=%s,name=%s,parentPtr=%s",age,name,parentPtr);
+            return format("DehydratedPerson(age=%s,name=%s,parentPtr=%s",age,name,parentPtr);
         }
     }
 }

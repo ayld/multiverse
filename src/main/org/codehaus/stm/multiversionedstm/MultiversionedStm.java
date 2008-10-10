@@ -4,7 +4,6 @@ import org.codehaus.stm.Stm;
 import org.codehaus.stm.transaction.AbortedException;
 import org.codehaus.stm.transaction.Transaction;
 import org.codehaus.stm.transaction.TransactionStatus;
-import org.codehaus.stm.util.IdentityHashSet;
 import org.codehaus.stm.util.Latch;
 import static org.codehaus.stm.util.PtrUtils.checkPtr;
 
@@ -115,13 +114,16 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return new MultiversionedTransaction();
     }
 
-    public MultiversionedTransaction startTransaction(long[] addresses, long version) throws InterruptedException {
-        Latch latch = heap.listen(addresses, version);
+    public MultiversionedTransaction startTransaction(Transaction base) throws InterruptedException {
+        if (base == null) throw new NullPointerException();
+        if (!(base instanceof MultiversionedTransaction)) throw new IllegalArgumentException();
+        MultiversionedTransaction mtransaction = (MultiversionedTransaction) base;
+        Latch latch = heap.listen(mtransaction.getReadAddresses(), mtransaction.getVersion());
         latch.await();
         return startTransaction();
     }
 
-    public MultiversionedTransaction tryStartTransaction(long[] addresses, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+    public MultiversionedTransaction tryStartTransaction(Transaction base, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
         throw new RuntimeException();
     }
 
@@ -143,7 +145,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         private volatile TransactionStatus status = TransactionStatus.active;
         private final long version;
-        private final IdentityHashSet<Citizen> newlybornCitizens = new IdentityHashSet<Citizen>();
+        private final Map<Long, Citizen> newlybornCitizens = new HashMap<Long, Citizen>();
+        private final IdentityHashMap<Citizen, Long> invertedNewlybornCitizens = new IdentityHashMap<Citizen, Long>();
         private final Map<Long, Citizen> dehydratedCitizens = new Hashtable<Long, Citizen>();
         private long numberOfWrites = 0;
 
@@ -170,7 +173,11 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return result;
         }
 
-        public Object read(long ptr) {
+        public void deleteRoot(long ptr) {
+            throw new RuntimeException();
+        }
+
+        public Object readRoot(long ptr) {
             //preconditions
             checkPtr(ptr);
             assertTransactionActive();
@@ -181,13 +188,17 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             if (found != null)
                 return found;
 
+            found = newlybornCitizens.get(ptr);
+            if (found != null)
+                return found;
+
             //you always get a not null value. When a non existing value is used, an IllegalPointerException
             // or IllegalVersionException is thrown.
             Object[] content = heap.read(ptr, version);
 
             try {
-                HydratedCitizen hydratedCitizen = (HydratedCitizen) content[0];
-                Citizen citizen = hydratedCitizen.dehydrate(ptr, this);
+                DehydratedCitizen dehydratedCitizen = (DehydratedCitizen) content[0];
+                Citizen citizen = dehydratedCitizen.hydrate(ptr, this);
                 dehydratedCitizens.put(ptr, citizen);
                 return citizen;
             } catch (Exception e) {
@@ -195,7 +206,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        public void attach(Object newlyborn) {
+        public long attachRoot(Object newlyborn) {
             if (newlyborn == null)
                 throw new NullPointerException();
             if (!(newlyborn instanceof Citizen))
@@ -204,17 +215,22 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
             Citizen newlybornCitizen = (Citizen) newlyborn;
             //if the object already is attached, it should be ignored,
-            if (newlybornCitizens.contains(newlybornCitizen))
-                return;
+            if (invertedNewlybornCitizens.containsKey(newlybornCitizen))
+                return newlybornCitizen.___getPointer();
 
             if (newlybornCitizen.___getTransaction() == null) {
+                long ptr = heap.createHandle();
+                newlybornCitizen.___setPointer(ptr);
                 newlybornCitizen.___onAttach(this);
-                newlybornCitizens.add(newlybornCitizen);
+                newlybornCitizens.put(ptr, newlybornCitizen);
+                invertedNewlybornCitizens.put(newlybornCitizen, ptr);
 
                 for (Iterator<Citizen> citizenIterator = newlybornCitizen.___findNewlyborns(); citizenIterator.hasNext();) {
-                    attach(citizenIterator.next());
+                    attachRoot(citizenIterator.next());
                 }
-            } else if (!this.equals(newlybornCitizen.___getTransaction())) {
+
+                return ptr;
+            } else {
                 throw new IllegalStateException("object already is attached to another transaction");
             }
         }
@@ -324,7 +340,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
             validationResults = new IdentityHashMap<Citizen, ValidateStatus>();
 
-            for (Citizen t : transaction.newlybornCitizens)
+            for (Citizen t : transaction.newlybornCitizens.values())
                 validationResults.put(t, ValidateStatus.hasNonconflictingWrites);
 
             boolean writesFound = !transaction.newlybornCitizens.isEmpty();
@@ -350,11 +366,12 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return result;
         }
 
+
         private Iterator<Citizen> iterateOverNewlyborns() {
             Set<Citizen> result = new HashSet<Citizen>();
-            result.addAll(transaction.newlybornCitizens);
+            result.addAll(transaction.newlybornCitizens.values());
 
-            for (Citizen citizen : transaction.newlybornCitizens)
+            for (Citizen citizen : transaction.newlybornCitizens.values())
                 result.addAll(findNewlyborns(citizen));
 
             for (Citizen citizen : transaction.dehydratedCitizens.values())
@@ -370,8 +387,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             for (Citizen obj : transaction.dehydratedCitizens.values()) {
                 if (validationResults.get(obj) == ValidateStatus.hasNonconflictingWrites) {
                     Object[] content = new Object[1];
-                    HydratedCitizen hydratedCitizen = obj.___hydrate();
-                    content[0] = hydratedCitizen;
+                    DehydratedCitizen dehydratedCitizen = obj.___hydrate();
+                    content[0] = dehydratedCitizen;
                     transaction.write(obj.___getPointer(), content);
                 }
             }
