@@ -1,15 +1,15 @@
 package org.codehaus.stm.multiversionedstm;
 
-import org.codehaus.stm.multiversionedstm.AbstractTransactionTest;
+import org.codehaus.stm.AbstractTransactionTest;
 import org.codehaus.stm.multiversionedstm.examples.Person;
 
-public class Transaction_RollbackTest extends AbstractTransactionTest {
+public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
 
     public void testFreshTransaction() {
         createActiveTransaction();
 
         transaction.abort();
-        assertTransactionAborted();
+        assertTransactionIsAborted();
         assertStmVersionHasNotChanged();
         assertTransactionHasNoWrites();
     }
@@ -20,23 +20,23 @@ public class Transaction_RollbackTest extends AbstractTransactionTest {
         long version = stm.getActiveVersion();
 
         createActiveTransaction();
-        transaction.attach(p1);
-        transaction.attach(p2);
+        transaction.attachRoot(p1);
+        transaction.attachRoot(p2);
         transaction.abort();
 
         assertCurrentStmVersion(version);
-        assertTransactionAborted();
+        assertTransactionIsAborted();
         assertEquals(0, p1.___getPointer());
         assertEquals(0, p2.___getPointer());
         assertTransactionHasNoWrites();
     }
 
     public void testChangedMadeOnPrivatedObjectsAreNotCommitted() {
-        long ptr = insert(new Person());
+        long ptr = atomicInsert(new Person());
         long version = stm.getActiveVersion();
 
         createActiveTransaction();
-        Person p = (Person) transaction.read(ptr);
+        Person p = (Person) transaction.readRoot(ptr);
         p.setAge(10);
         p.setName("John Doe");
         p.setParent(new Person());
@@ -44,14 +44,14 @@ public class Transaction_RollbackTest extends AbstractTransactionTest {
 
         assertCurrentStmVersion(version);
         long newVersion = stm.getActiveVersion();
-        assertStmContains(ptr, newVersion,new Person.HydratedPerson(0, null, 0L));
+        assertStmContains(ptr, newVersion,new Person.DehydratedPerson(0, null, 0L));
         assertTransactionHasNoWrites();
     }
 
     public void testAlreadyRolledback() {
         createAbortedTransaction();
         transaction.abort();
-        assertTransactionAborted();
+        assertTransactionIsAborted();
         assertStmVersionHasNotChanged();
         assertTransactionHasNoWrites();
     }
@@ -64,7 +64,7 @@ public class Transaction_RollbackTest extends AbstractTransactionTest {
             fail();
         } catch (IllegalStateException ex) {
         }
-        assertTransactionComitted();
+        assertTransactionIsCommitted();
         assertStmVersionHasNotChanged();
         assertTransactionHasNoWrites();
     }

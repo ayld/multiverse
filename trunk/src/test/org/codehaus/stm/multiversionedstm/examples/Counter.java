@@ -1,7 +1,7 @@
 package org.codehaus.stm.multiversionedstm.examples;
 
 import org.codehaus.stm.multiversionedstm.Citizen;
-import org.codehaus.stm.multiversionedstm.HydratedCitizen;
+import org.codehaus.stm.multiversionedstm.DehydratedCitizen;
 import org.codehaus.stm.multiversionedstm.MultiversionedStm;
 import org.codehaus.stm.util.EmptyIterator;
 
@@ -32,7 +32,7 @@ public class Counter implements Citizen {
 
     //============ generated ==============================
 
-    private HydratedCounter initialHydratedCounter;
+    private DehydratedCounter initialHydratedCounter;
     private MultiversionedStm.MultiversionedTransaction transaction;
     private long ptr;
 
@@ -52,8 +52,8 @@ public class Counter implements Citizen {
         return ptr;
     }
 
-    public HydratedCitizen ___hydrate() {
-        return new HydratedCounter(this);
+    public DehydratedCitizen ___hydrate() {
+        return new DehydratedCounter(this);
     }
 
     public boolean ___isDirty() {
@@ -64,15 +64,15 @@ public class Counter implements Citizen {
         this.ptr = ptr;
     }
 
-    public static class HydratedCounter implements HydratedCitizen {
+    public static class DehydratedCounter implements DehydratedCitizen {
 
         private final long count;
 
-        private HydratedCounter(Counter counter) {
+        private DehydratedCounter(Counter counter) {
             this.count = counter.count;
         }
 
-        public Citizen dehydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
+        public Citizen hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
             Counter counter = new Counter();
             counter.ptr = ptr;
             counter.transaction = transaction;

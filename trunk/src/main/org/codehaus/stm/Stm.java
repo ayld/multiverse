@@ -16,7 +16,7 @@ public interface Stm<T extends Transaction> {
 
     T startTransaction();
 
-    T startTransaction(long[] addresses, long version) throws InterruptedException;
+    T startTransaction(Transaction predecessor) throws InterruptedException;
 
-    T tryStartTransaction(long[] addresses, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
+    T tryStartTransaction(Transaction predecessor, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
 }

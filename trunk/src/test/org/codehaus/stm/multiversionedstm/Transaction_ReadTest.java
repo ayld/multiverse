@@ -2,11 +2,11 @@ package org.codehaus.stm.multiversionedstm;
 
 import org.codehaus.stm.IllegalPointerException;
 import org.codehaus.stm.IllegalVersionException;
-import org.codehaus.stm.multiversionedstm.AbstractTransactionTest;
+import org.codehaus.stm.AbstractTransactionTest;
 import org.codehaus.stm.multiversionedstm.examples.Person;
 import org.codehaus.stm.transaction.Transaction;
 
-public class Transaction_ReadTest extends AbstractTransactionTest {
+public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
     public void testNegativePointer(){
         assertIllegalPointer(-1);
@@ -23,11 +23,11 @@ public class Transaction_ReadTest extends AbstractTransactionTest {
     private void assertIllegalPointer(long ptr){
         createActiveTransaction();
         try {
-            transaction.read(ptr);
+            transaction.readRoot(ptr);
             fail();
         } catch (IllegalPointerException ex) {
         }
-        assertTransactionActive();
+        assertTransactionIsActive();
     }
 
     public void testOnlyTooNewVersionExist() {
@@ -37,16 +37,16 @@ public class Transaction_ReadTest extends AbstractTransactionTest {
         //the current transaction.
         Transaction previousTransaction = stm.startTransaction();
         Person p = new Person();
-        previousTransaction.attach(p);
+        previousTransaction.attachRoot(p);
         previousTransaction.commit();
 
         try {
-            transaction.read(p.___getPointer());
+            transaction.readRoot(p.___getPointer());
             fail();
         } catch (IllegalVersionException ex) {
         }
 
-        assertTransactionActive();
+        assertTransactionIsActive();
     }
 
     public void testReadFromPreviousComittedTransaction() {
@@ -56,7 +56,7 @@ public class Transaction_ReadTest extends AbstractTransactionTest {
         long ptr = createPersonUnderOwnTransaction(name, age);
 
         createActiveTransaction();
-        Object found = transaction.read(ptr);
+        Object found = transaction.readRoot(ptr);
         assertNotNull(found);
         assertTrue(found instanceof Person);
         Person foundPerson = (Person) found;
@@ -73,14 +73,14 @@ public class Transaction_ReadTest extends AbstractTransactionTest {
 
         createActiveTransaction();
         updateAgeUnderOwnTransaction(ptr, age + 1);
-        Person p = (Person) transaction.read(ptr);
+        Person p = (Person) transaction.readRoot(ptr);
         assertEquals(age, p.getAge());
         assertTransactionHasNoWrites();
     }
 
     private void updateAgeUnderOwnTransaction(long ptr, int newage) {
         MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
-        Person person = (Person) t.read(ptr);
+        Person person = (Person) t.readRoot(ptr);
         person.setAge(newage);
         t.commit();
     }
@@ -90,7 +90,7 @@ public class Transaction_ReadTest extends AbstractTransactionTest {
         Person p = new Person();
         p.setAge(age);
         p.setName(name);
-        t.attach(p);
+        t.attachRoot(p);
         t.commit();
         return p.___getPointer();
     }
@@ -99,8 +99,8 @@ public class Transaction_ReadTest extends AbstractTransactionTest {
         long ptr = createPersonUnderOwnTransaction("peter", 32);
 
         createActiveTransaction();
-        Object found1 = transaction.read(ptr);
-        Object found2 = transaction.read(ptr);
+        Object found1 = transaction.readRoot(ptr);
+        Object found2 = transaction.readRoot(ptr);
         assertNotNull(found1);
         assertSame(found1, found2);
         assertTransactionHasNoWrites();
@@ -110,25 +110,25 @@ public class Transaction_ReadTest extends AbstractTransactionTest {
         createAbortedTransaction();
 
         try {
-            transaction.read(1);
+            transaction.readRoot(1);
             fail();
         } catch (IllegalStateException ex) {
         }
 
         assertTransactionHasNoWrites();
-        assertTransactionAborted();
+        assertTransactionIsAborted();
     }
 
     public void testReadWhileComitted() {
         createCommittedTransaction();
 
         try {
-            transaction.read(1);
+            transaction.readRoot(1);
             fail();
         } catch (IllegalStateException ex) {
         }
 
         assertTransactionHasNoWrites();
-        assertTransactionComitted();
+        assertTransactionIsCommitted();
     }
 }

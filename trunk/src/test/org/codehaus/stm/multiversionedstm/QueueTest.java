@@ -1,22 +1,23 @@
 package org.codehaus.stm.multiversionedstm;
 
 import org.codehaus.stm.TransactionTemplate;
+import org.codehaus.stm.AbstractStmTest;
 import org.codehaus.stm.multiversionedstm.examples.Queue;
 import org.codehaus.stm.transaction.Transaction;
 
-public class QueueTest extends AbstractStmTest {
+public class QueueTest extends AbstractMultiversionedStmTest {
     private long queuePtr;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        queuePtr = insert(new Queue());
+        queuePtr = atomicInsert(new Queue());
     }
 
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
+                Queue queue = (Queue) t.readRoot(queuePtr);
                 queue.push(item);
                 return null;
             }
@@ -28,7 +29,7 @@ public class QueueTest extends AbstractStmTest {
     public String atomicPop() {
         return (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
+                Queue queue = (Queue) t.readRoot(queuePtr);
                 return queue.pop();
             }
         }.execute();
@@ -37,7 +38,7 @@ public class QueueTest extends AbstractStmTest {
     public int atomicSize() {
         return (Integer) new TransactionTemplate(stm) {
             protected Integer execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
+                Queue queue = (Queue) t.readRoot(queuePtr);
                 return queue.size();
             }
         }.execute();

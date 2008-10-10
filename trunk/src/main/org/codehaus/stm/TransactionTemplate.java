@@ -32,24 +32,21 @@ public abstract class TransactionTemplate {
     public final Object execute() {
         try {
             boolean success = false;
-            long[] addresses = null;
-            long version = -1;
+            Transaction baseTransaction = null;
             Object result = null;
             do {
-                Transaction transaction = addresses == null ? stm.startTransaction() : stm.startTransaction(addresses, version);
+                Transaction transaction = baseTransaction == null ? stm.startTransaction() : stm.startTransaction(baseTransaction);
                 try {
-                    version = -1;
-                    addresses = null;
+                    baseTransaction = null;
                     result = execute(transaction);
                     transaction.commit();
                     success = true;
                 } catch (RetryException ex) {
-                    System.out.println(Thread.currentThread()+" retried");
+                    //System.out.println(Thread.currentThread() + " retried");
                     transaction.abort();
-                    addresses = transaction.getReadAddresses();
-                    version = transaction.getVersion();
+                    baseTransaction = transaction;
                 } catch (AbortedException ex) {
-                    System.out.println(Thread.currentThread()+" aborted");
+                    //System.out.println(Thread.currentThread() + " aborted");
                     transaction.abort();
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);

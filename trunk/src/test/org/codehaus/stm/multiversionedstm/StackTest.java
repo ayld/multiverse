@@ -6,31 +6,31 @@ import org.codehaus.stm.transaction.Transaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class StackTest extends AbstractStmTest {
+public class StackTest extends AbstractMultiversionedStmTest {
     private long stackPtr;
 
     public void setUp() throws Exception {
         super.setUp();
-        stackPtr = insert(new Stack());
+        stackPtr = atomicInsert(new Stack());
     }
 
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Stack stack = (Stack) t.read(stackPtr);
+                Stack stack = (Stack) t.readRoot(stackPtr);
                 stack.push(item);
                 return null;
             }
         }.execute();
 
-        System.out.println(Thread.currentThread()+ " pushed: "+item);
+        System.out.println(Thread.currentThread() + " pushed: " + item);
     }
 
     public String atomicPop() {
         return (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                System.out.println(Thread.currentThread()+" trying to pop");
-                Stack stack = (Stack) t.read(stackPtr);
+                System.out.println(Thread.currentThread() + " trying to pop");
+                Stack stack = (Stack) t.readRoot(stackPtr);
                 return stack.pop();
             }
         }.execute();
@@ -49,7 +49,7 @@ public class StackTest extends AbstractStmTest {
             public void run() {
                 try {
                     String result = atomicPop();
-                    System.out.println(Thread.currentThread()+" consumed: " + result);
+                    System.out.println(Thread.currentThread() + " consumed: " + result);
                 } catch (RuntimeException ex) {
                     ex.printStackTrace();
                 }
@@ -57,7 +57,7 @@ public class StackTest extends AbstractStmTest {
         }.start();
     }
 
-    public void test2(){
+    public void test2() {
         atomicPop();
     }
 
@@ -122,7 +122,7 @@ public class StackTest extends AbstractStmTest {
         }
 
         public String toString() {
-            return "ProducerThread"+count;
+            return "ProducerThread" + count;
         }
     }
 

@@ -4,26 +4,21 @@ import org.codehaus.stm.multiversionedstm.examples.Stack;
 import org.codehaus.stm.transaction.RetryException;
 import org.codehaus.stm.transaction.Transaction;
 import org.codehaus.stm.transaction.TransactionStatus;
-import org.codehaus.stm.Stm;
-import junit.framework.TestCase;
 
-public class RetryTest extends AbstractStmTest {
+public class RetryTest extends AbstractMultiversionedStmTest {
 
-    public void testPopFromEmptyStack(){
-        long address = insert(new Stack());
+    public void testPopFromEmptyStack() {
+        long address = atomicInsert(new Stack());
 
         Transaction t = stm.startTransaction();
-        Stack stack = (Stack)t.read(address);
+        Stack stack = (Stack) t.readRoot(address);
 
-        try{
+        try {
             stack.pop();
             fail();
-        }catch(RetryException ex){
+        } catch (RetryException ex) {
         }
 
         assertEquals(TransactionStatus.active, t.getStatus());
     }
-
-
-    
 }

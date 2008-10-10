@@ -1,7 +1,7 @@
 package org.codehaus.stm.multiversionedstm.examples;
 
 import org.codehaus.stm.multiversionedstm.Citizen;
-import org.codehaus.stm.multiversionedstm.HydratedCitizen;
+import org.codehaus.stm.multiversionedstm.DehydratedCitizen;
 import org.codehaus.stm.multiversionedstm.MultiversionedStm;
 
 import java.util.Iterator;
@@ -64,29 +64,29 @@ public class Queue<E> implements Citizen {
         this.ptr = ptr;
     }
 
-    public HydratedCitizen ___hydrate() {
-        return new HydratedQueue(this);
+    public DehydratedCitizen ___hydrate() {
+        return new DehydratedQueue(this);
     }
 
     public boolean ___isDirty() {
         return false;
     }
 
-    public static class HydratedQueue implements HydratedCitizen {
+    public static class DehydratedQueue implements DehydratedCitizen {
         private final long readyToPopStackPtr;
         private final long pushedStackPtr;
 
-        HydratedQueue(Queue queue) {
+        DehydratedQueue(Queue queue) {
             this.readyToPopStackPtr = queue.readyToPopStack.___getPointer();
             this.pushedStackPtr = queue.pushedStack.___getPointer();
         }
 
-        public Queue dehydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
+        public Queue hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
             Queue queue = new Queue();
             queue.ptr = ptr;
             queue.transaction = transaction;
-            queue.readyToPopStack = (Stack) transaction.read(readyToPopStackPtr);
-            queue.pushedStack = (Stack) transaction.read(pushedStackPtr);
+            queue.readyToPopStack = (Stack) transaction.readRoot(readyToPopStackPtr);
+            queue.pushedStack = (Stack) transaction.readRoot(pushedStackPtr);
             return queue;
         }
     }
