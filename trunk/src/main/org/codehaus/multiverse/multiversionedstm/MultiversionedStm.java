@@ -206,33 +206,36 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        public long attachRoot(Object newlyborn) {
-            if (newlyborn == null)
+        public long attachRoot(Object root) {
+            if (root == null)
                 throw new NullPointerException();
-            if (!(newlyborn instanceof Citizen))
+            if (!(root instanceof Citizen))
                 throw new IllegalArgumentException();
             assertTransactionActive();
 
-            Citizen newlybornCitizen = (Citizen) newlyborn;
-            //if the object already is attached, it should be ignored,
-            if (invertedNewlybornCitizens.containsKey(newlybornCitizen))
-                return newlybornCitizen.___getPointer();
+            Citizen rootCitizen = (Citizen) root;
+            //if rootCitizen already is attached to this Transaction, it already has a pointer
+            //assigned, so this can be returned.
+            if (rootCitizen.___getTransaction() == this)
+                return rootCitizen.___getPointer();
 
-            if (newlybornCitizen.___getTransaction() == null) {
-                long ptr = heap.createHandle();
-                newlybornCitizen.___setPointer(ptr);
-                newlybornCitizen.___onAttach(this);
-                newlybornCitizens.put(ptr, newlybornCitizen);
-                invertedNewlybornCitizens.put(newlybornCitizen, ptr);
-
-                for (Iterator<Citizen> citizenIterator = newlybornCitizen.___findNewlyborns(); citizenIterator.hasNext();) {
-                    attachRoot(citizenIterator.next());
-                }
-
-                return ptr;
-            } else {
+            //if rootCitizen already is attached to another transaction, an exception should be thrown
+            //to indicate that an error has been made
+            if (rootCitizen.___getTransaction() != null)
                 throw new IllegalStateException("object already is attached to another transaction");
-            }
+
+            //the rootCitizen is new, so a pointer can be assigned and it can be added to the list of
+            //newlybornCitizens.
+            long ptr = heap.createHandle();
+            rootCitizen.___setPointer(ptr);
+            rootCitizen.___onAttach(this);
+            newlybornCitizens.put(ptr, rootCitizen);
+            invertedNewlybornCitizens.put(rootCitizen, ptr);
+
+            for (Iterator<Citizen> citizenIterator = rootCitizen.___findNewlyborns(); citizenIterator.hasNext();)
+                attachRoot(citizenIterator.next());
+
+            return ptr;
         }
 
         private void assertTransactionActive() {
@@ -248,14 +251,14 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             switch (status) {
                 case active:
                     CommitTask task = new CommitTask(this);
-                    if (task.execute()) {
-                        committedCount.incrementAndGet();
-                        status = TransactionStatus.committed;
-                        System.out.println(getStatistics());
-                    } else {
+                    if (!task.execute()) {
                         abort();
                         throw new AbortedException();
                     }
+
+                    committedCount.incrementAndGet();
+                    status = TransactionStatus.committed;
+                    System.out.println(getStatistics());
                     break;
                 case committed:
                     //ignore
@@ -281,12 +284,12 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        public boolean hasConflictingWrite(long ptr) {
+        private boolean hasConflictingWrite(long ptr) {
             long actualVersion = heap.getActualVersion(ptr);
             return version + 1 <= actualVersion;
         }
 
-        public void write(long ptr, Object[] content) {
+        private void write(long ptr, Object[] content) {
             numberOfWrites++;
             heap.write(ptr, version + 1, content);
         }
@@ -385,22 +388,26 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             prepareNewlybornsForPlacementInStm();
 
             for (Citizen obj : transaction.dehydratedCitizens.values()) {
+                //check is added to prevent unneeded writes, only when a change has been done, a write needs to be done
                 if (validationResults.get(obj) == ValidateStatus.hasNonconflictingWrites) {
-                    Object[] content = new Object[1];
-                    DehydratedCitizen dehydratedCitizen = obj.___hydrate();
-                    content[0] = dehydratedCitizen;
-                    transaction.write(obj.___getPointer(), content);
+                    DehydratedCitizen dehydratedCitizen = obj.___dehydrate();
+                    transaction.write(obj.___getPointer(), new Object[]{dehydratedCitizen});
                 }
             }
         }
 
         private void prepareNewlybornsForPlacementInStm() {
             for (Iterator<Citizen> it = iterateOverNewlyborns(); it.hasNext();) {
-                Citizen newlyborn = (Citizen) it.next();
-                long ptr = heap.createHandle();
-                newlyborn.___setPointer(ptr);
-                newlyborn.___onAttach(transaction);
-                transaction.dehydratedCitizens.put(ptr, newlyborn);
+                Citizen newlyborn = it.next();
+                if (newlyborn.___getTransaction() == null) {
+                    long ptr = heap.createHandle();
+                    newlyborn.___setPointer(ptr);
+                    newlyborn.___onAttach(transaction);
+                } else if (newlyborn.___getTransaction() != transaction){
+                    throw new IllegalStateException();
+                }
+
+                transaction.dehydratedCitizens.put(newlyborn.___getPointer(), newlyborn);                
             }
         }
     }

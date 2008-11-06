@@ -5,20 +5,25 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A {@link Latch} implementation that is based on the {@link Lock}.
+ *
+ * @author Peter Veentjer.
+ */
 public final class StandardLatch implements Latch {
 
     private final Lock lock = new ReentrantLock();
-    private final Condition condition = lock.newCondition();
-    private volatile boolean open = false;
+    private final Condition isOpenCondition = lock.newCondition();
+    private volatile boolean isOpen = false;
 
     public void await() throws InterruptedException {
-        if(open)
+        if(isOpen)
             return;
 
         lock.lockInterruptibly();
         try{
-            while(!open)
-                condition.await();
+            while(!isOpen)
+                isOpenCondition.await();
         } finally{
             lock.unlock();
         }
@@ -26,24 +31,23 @@ public final class StandardLatch implements Latch {
 
     public void tryAwait(long timeout, TimeUnit unit) throws InterruptedException {
         if(unit == null)throw new NullPointerException();
-
         throw new RuntimeException("Not implemented yet");
     }
 
     public void open() {
-        if (open)
+        if (isOpen)
             return;
 
         lock.lock();
         try {
-            open = true;
-            condition.signalAll();
+            isOpen = true;
+            isOpenCondition.signalAll();
         } finally {
             lock.unlock();
         }
     }
 
     public boolean isOpen() {
-        return open;
+        return isOpen;
     }
 }

@@ -104,7 +104,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     private class ProducerThread extends Thread {
 
         public void run() {
-            for (int k = 0; k < 1000; k++) {
+            for (int k = 0; k < 100; k++) {
                 atomicPush("" + k);
                 sleepRandom(1000);
             }

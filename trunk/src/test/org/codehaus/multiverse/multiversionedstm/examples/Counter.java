@@ -52,7 +52,7 @@ public class Counter implements Citizen {
         return ptr;
     }
 
-    public DehydratedCitizen ___hydrate() {
+    public DehydratedCitizen ___dehydrate() {
         return new DehydratedCounter(this);
     }
 

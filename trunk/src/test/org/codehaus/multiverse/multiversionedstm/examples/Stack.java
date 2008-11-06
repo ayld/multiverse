@@ -89,7 +89,7 @@ public class Stack<E> implements Citizen {
         this.ptr = ptr;
     }
 
-    public DehydratedStack ___hydrate() {
+    public DehydratedStack ___dehydrate() {
         return new DehydratedStack(head);
     }
 

@@ -50,6 +50,4 @@ public abstract class AbstractStmTest<S extends Stm> extends TestCase {
             throw ex;
         }
     }
-
-   
 }

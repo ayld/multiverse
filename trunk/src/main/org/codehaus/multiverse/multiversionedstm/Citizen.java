@@ -22,7 +22,7 @@ public interface Citizen {
      */
     long ___getPointer();
 
-    DehydratedCitizen ___hydrate();
+    DehydratedCitizen ___dehydrate();
 
     boolean ___isDirty();
 
