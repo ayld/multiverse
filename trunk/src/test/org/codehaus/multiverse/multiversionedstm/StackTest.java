@@ -57,11 +57,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
         }.start();
     }
 
-    public void test2() {
-        atomicPop();
-    }
-
-    public void testSequential() {
+     public void testSequential() {
         atomicPush("foo");
         atomicPush("bar");
 
@@ -113,7 +109,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
         int count = producerCounter.incrementAndGet();
 
         public void run() {
-            for (int k = 0; k < 3000; k++) {
+            for (int k = 0; k < 100; k++) {
                 atomicPush("" + itemCounter.incrementAndGet());
                 sleepRandom(1000);
             }
