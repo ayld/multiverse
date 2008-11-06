@@ -96,9 +96,13 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         consumerThread3.start();
 
         producerThread.join();
+        System.out.println("producerThread Finished");
         consumerThread1.join();
+        System.out.println("consumer1 Finished");
         consumerThread2.join();
+        System.out.println("consumer2 Finished");
         consumerThread3.join();
+        System.out.println("consumer3 Finished");
     }
 
     private class ProducerThread extends Thread {
@@ -109,6 +113,11 @@ public class QueueTest extends AbstractMultiversionedStmTest {
                 sleepRandom(1000);
             }
 
+            atomicPush("poison");
+            atomicPush("poison");
+            atomicPush("poison");
+            atomicPush("poison");
+            atomicPush("poison");
             atomicPush("poison");
         }
     }
