@@ -5,7 +5,7 @@ import org.codehaus.multiverse.transaction.Transaction;
 
 import static java.util.Arrays.asList;
 
-public class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
+public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
     private MultiversionedHeap heap;
 
     public MultiversionedStm createStm() {
