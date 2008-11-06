@@ -10,7 +10,7 @@ public class AbstractMultiversionedStmTest extends AbstractTransactionTest<Multi
 
     public MultiversionedStm createStm() {
         heap = new MultiversionedHeap();
-        return new MultiversionedStm();
+        return new MultiversionedStm(heap);
     }
 
     public void assertStmVersionHasNotChanged() {
@@ -60,8 +60,13 @@ public class AbstractMultiversionedStmTest extends AbstractTransactionTest<Multi
             assertSame("Transaction is not the same", expected, citizen.___getTransaction());
     }
 
-    public void assertStmContains(long ptr, long expectedVersion, Object... expected) {
-        assertEquals("Versions don't match", expectedVersion, heap.getActualVersion(ptr));
+    public void assertHasNoTransaction(Citizen... citizens){
+        for(Citizen citizen: citizens)
+            assertNull("Transaction should be null", citizen.___getTransaction());
+    }
+
+    public void assertHeapContains(long ptr, long expectedVersion, Object... expected) {
+        assertEquals("Versions don't match. -1 indicates no cell with given address", expectedVersion, heap.getActualVersion(ptr));
         Object[] found = heap.read(ptr, expectedVersion);
         assertEquals("Content doesn't match", asList(expected), asList(found));
     }

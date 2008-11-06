@@ -122,7 +122,7 @@ public class Person implements Citizen {
                 (parent_localized && (initialHydratedPerson.parentPtr != (parent == null ? 0 : parent.___getPointer())));
     }
 
-    public DehydratedCitizen ___hydrate() {
+    public DehydratedCitizen ___dehydrate() {
         DehydratedPerson hydratedPerson = new DehydratedPerson();
         hydratedPerson.age = age;
         hydratedPerson.name = name;

@@ -20,10 +20,21 @@ public interface Transaction {
      *
      * @param ptr the pointer to the object.
      * @return the Object at the pointer.
-     * @throws IllegalPointerException 
+     * @throws org.codehaus.multiverse.IllegalPointerException
      */
     Object readRoot(long ptr);
 
+    /**
+     * Removes a root object from this transaction. When this transaction commits, it doesn't mean that the
+     * object is removed, it is only removed when the garbage collector detects that the object is not refered
+     * by other objects.
+     *
+     * todo: what to do if object not part of transaction
+     * todo: what to do if object already is removed
+     *
+     * @param ptr
+     *
+     */
     void deleteRoot(long ptr);
 
     /**
@@ -37,7 +48,7 @@ public interface Transaction {
      * Commits the changes to STM. Multiple commits are ignored.
      *
      * @throws IllegalStateException if the Transaction is aborted.
-     * @throws AbortedTransaction    if the Transaction can't be committed.
+     * @throws AbortedException    if the Transaction can't be committed.
      */
     void commit();
 

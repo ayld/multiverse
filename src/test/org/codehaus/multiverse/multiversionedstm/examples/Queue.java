@@ -64,7 +64,7 @@ public class Queue<E> implements Citizen {
         this.ptr = ptr;
     }
 
-    public DehydratedCitizen ___hydrate() {
+    public DehydratedCitizen ___dehydrate() {
         return new DehydratedQueue(this);
     }
 
