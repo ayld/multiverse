@@ -13,7 +13,7 @@ public interface Citizen {
 
     MultiversionedStm.MultiversionedTransaction ___getTransaction();
 
-    Iterator<Citizen> ___findNewlyborns();
+    Iterator<Citizen> ___directReachableIterator();
 
     /**
      * Returns the pointer of this Transactionized object in the stm. If the object is still transient, 0 is returned.

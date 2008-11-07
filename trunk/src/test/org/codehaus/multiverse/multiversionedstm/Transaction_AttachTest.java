@@ -196,7 +196,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
     public void testReachableObjectAttachedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person parent = new Person();
-        otherTransaction.attachRoot(parent);
+        long parentPtr = otherTransaction.attachRoot(parent);
 
         createActiveTransaction();
         Person child = new Person();
@@ -209,10 +209,12 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointer(0, parent, child);
-        assertHasTransaction(otherTransaction, parent);
-        assertHasTransaction(transaction, child);
 
+        assertHasPointer(0, child);
+        assertHasTransaction(null, child);
+
+        assertHasPointer(parentPtr, parent);
+        assertHasTransaction(otherTransaction, parent);
         //todo: testen dat de parent bij het comitten gaat zeuren dat die aan een verkeerde transactie zit
     }
 

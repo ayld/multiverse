@@ -68,7 +68,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     }
 
     /**
-     * Returns the number of active transactions (so are started, but have not committed, or rolled back). The value
+     * Returns the current number of active transactions (so are started, but have not committed, or rolled back). The value
      * is a rough estimation. The returned value will always be larger or equal to zero.
      *
      * @return
@@ -117,8 +117,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     public MultiversionedTransaction startTransaction(Transaction base) throws InterruptedException {
         if (base == null) throw new NullPointerException();
         if (!(base instanceof MultiversionedTransaction)) throw new IllegalArgumentException();
-        MultiversionedTransaction mtransaction = (MultiversionedTransaction) base;
-        Latch latch = heap.listen(mtransaction.getReadAddresses(), mtransaction.getVersion());
+        MultiversionedTransaction transaction = (MultiversionedTransaction) base;
+        Latch latch = heap.listen(transaction.getReadAddresses(), transaction.getVersion());
         latch.await();
         return startTransaction();
     }
@@ -214,28 +214,31 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             assertTransactionActive();
 
             Citizen rootCitizen = (Citizen) root;
-            //if rootCitizen already is attached to this Transaction, it already has a pointer
-            //assigned, so this can be returned.
-            if (rootCitizen.___getTransaction() == this)
-                return rootCitizen.___getPointer();
+            ensureNoAttachConflicts(rootCitizen);
+            attachAll(rootCitizen);
+            return rootCitizen.___getPointer();
+        }
 
-            //if rootCitizen already is attached to another transaction, an exception should be thrown
-            //to indicate that an error has been made
-            if (rootCitizen.___getTransaction() != null)
-                throw new IllegalStateException("object already is attached to another transaction");
+        private void attachAll(Citizen root) {
+            for (Iterator<Citizen> it = new HydratedCitizenIterator(root); it.hasNext();) {
+                Citizen citizen = it.next();
+                if (citizen.___getTransaction() == null) {
+                    long ptr = heap.createHandle();
+                    citizen.___setPointer(ptr);
+                    citizen.___onAttach(this);
+                    newlybornCitizens.put(ptr, citizen);
+                    invertedNewlybornCitizens.put(citizen, ptr);
+                }
+            }
+        }
 
-            //the rootCitizen is new, so a pointer can be assigned and it can be added to the list of
-            //newlybornCitizens.
-            long ptr = heap.createHandle();
-            rootCitizen.___setPointer(ptr);
-            rootCitizen.___onAttach(this);
-            newlybornCitizens.put(ptr, rootCitizen);
-            invertedNewlybornCitizens.put(rootCitizen, ptr);
-
-            for (Iterator<Citizen> citizenIterator = rootCitizen.___findNewlyborns(); citizenIterator.hasNext();)
-                attachRoot(citizenIterator.next());
-
-            return ptr;
+        private void ensureNoAttachConflicts(Citizen rootCitizen) {
+            for (Iterator<Citizen> it = new HydratedCitizenIterator(rootCitizen); it.hasNext();) {
+                Citizen citizen = it.next();
+                Transaction transaction = citizen.___getTransaction();
+                if (transaction != this && transaction != null)
+                    throw new IllegalStateException(format("object already is attached to another transaction %s", citizen));
+            }
         }
 
         private void assertTransactionActive() {
@@ -284,6 +287,12 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
+        /**
+         * Checks if this Transaction conflicts with a write.
+         *
+         * @param ptr the address to check
+         * @return true if there is a conflict, false otherwise.
+         */
         private boolean hasConflictingWrite(long ptr) {
             long actualVersion = heap.getActualVersion(ptr);
             return version + 1 <= actualVersion;
@@ -296,7 +305,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     }
 
 
-    class CommitTask {
+    private class CommitTask {
         final MultiversionedTransaction transaction;
         IdentityHashMap<Citizen, ValidateStatus> validationResults;
 
@@ -369,7 +378,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return result;
         }
 
-
         private Iterator<Citizen> iterateOverNewlyborns() {
             Set<Citizen> result = new HashSet<Citizen>();
             result.addAll(transaction.newlybornCitizens.values());
@@ -403,11 +411,11 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     long ptr = heap.createHandle();
                     newlyborn.___setPointer(ptr);
                     newlyborn.___onAttach(transaction);
-                } else if (newlyborn.___getTransaction() != transaction){
+                } else if (newlyborn.___getTransaction() != transaction) {
                     throw new IllegalStateException();
                 }
 
-                transaction.dehydratedCitizens.put(newlyborn.___getPointer(), newlyborn);                
+                transaction.dehydratedCitizens.put(newlyborn.___getPointer(), newlyborn);
             }
         }
     }

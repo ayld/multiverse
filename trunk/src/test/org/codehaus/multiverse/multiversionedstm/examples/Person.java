@@ -3,6 +3,8 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.multiversionedstm.DehydratedCitizen;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.Citizen;
+import org.codehaus.multiverse.util.ArrayIterator;
+import org.codehaus.multiverse.util.EmptyIterator;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -85,11 +87,11 @@ public class Person implements Citizen {
         this.ptr = ptr;
     }
 
-    public Iterator<Citizen> ___findNewlyborns() {
-        if(parent_localized && parent!=null)
-            return asList((Citizen)parent).iterator();
-        else
-            return Collections.EMPTY_LIST.iterator();
+     public Iterator<Citizen> ___directReachableIterator() {
+        if (parent != null)
+            return new ArrayIterator(parent);
+
+         return EmptyIterator.INSTANCE;
     }
 
     public void ___onAttach(MultiversionedStm.MultiversionedTransaction transaction) {
@@ -102,17 +104,10 @@ public class Person implements Citizen {
         if (this.transaction != null)
             throw new IllegalArgumentException("Object already bound to another transaction");
 
-        this.transaction = transaction;        
+        this.transaction = transaction;
     }
 
-    private void checkTransaction(MultiversionedStm.MultiversionedTransaction transaction) {
-        if (transaction == null)
-            throw new NullPointerException();
-        if (this.transaction != null && this.transaction != transaction)
-            throw new IllegalStateException();
-    }
-
-    public MultiversionedStm.MultiversionedTransaction ___getTransaction() {
+   public MultiversionedStm.MultiversionedTransaction ___getTransaction() {
         return transaction;
     }
 
@@ -135,7 +130,8 @@ public class Person implements Citizen {
         private String name;
         private long parentPtr;
 
-        public DehydratedPerson(){}
+        public DehydratedPerson() {
+        }
 
         public DehydratedPerson(int age, String name, long parentPtr) {
             this.age = age;
@@ -178,8 +174,8 @@ public class Person implements Citizen {
             return that.name == this.name && that.age == this.age && that.parentPtr == this.parentPtr;
         }
 
-        public String toString(){
-            return format("DehydratedPerson(age=%s,name=%s,parentPtr=%s",age,name,parentPtr);
+        public String toString() {
+            return format("DehydratedPerson(age=%s,name=%s,parentPtr=%s", age, name, parentPtr);
         }
     }
 }
