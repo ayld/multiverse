@@ -100,16 +100,16 @@ public class StackTest extends AbstractMultiversionedStmTest {
         consumerThread3.join();
     }
 
-    static AtomicInteger producerCounter = new AtomicInteger();
-    static AtomicInteger consumerCounter = new AtomicInteger();
-    static AtomicInteger itemCounter = new AtomicInteger();
+    final static AtomicInteger producerCounter = new AtomicInteger();
+    final static AtomicInteger consumerCounter = new AtomicInteger();
+    final static AtomicInteger itemCounter = new AtomicInteger();
 
     private class ProducerThread extends Thread {
 
         int count = producerCounter.incrementAndGet();
 
         public void run() {
-            for (int k = 0; k < 100; k++) {
+            for (int k = 0; k < 50; k++) {
                 atomicPush("" + itemCounter.incrementAndGet());
                 sleepRandom(1000);
             }

@@ -69,7 +69,8 @@ public class Stack<E> implements Citizen {
     private long ptr;
     private MultiversionedStm.MultiversionedTransaction transaction;
 
-    public Iterator<Citizen> ___findNewlyborns() {
+    public Iterator<Citizen> ___directReachableIterator() {
+        //todo: alle elementen van de stack moeten bij lang worden gelopen
         return EmptyIterator.INSTANCE;
     }
 

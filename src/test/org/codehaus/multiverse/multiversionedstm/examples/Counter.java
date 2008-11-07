@@ -44,7 +44,7 @@ public class Counter implements Citizen {
         return transaction;
     }
 
-    public Iterator<Citizen> ___findNewlyborns() {
+    public Iterator<Citizen> ___directReachableIterator() {
         return EmptyIterator.INSTANCE;
     }
 

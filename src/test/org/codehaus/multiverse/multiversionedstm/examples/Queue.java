@@ -3,6 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.multiversionedstm.Citizen;
 import org.codehaus.multiverse.multiversionedstm.DehydratedCitizen;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
+import org.codehaus.multiverse.util.ArrayIterator;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -49,11 +50,8 @@ public class Queue<E> implements Citizen {
         return transaction;
     }
 
-    public Iterator<Citizen> ___findNewlyborns() {
-        LinkedList result = new LinkedList();
-        result.add(readyToPopStack);
-        result.add(pushedStack);
-        return result.iterator();
+    public Iterator<Citizen> ___directReachableIterator() {
+        return new ArrayIterator<Citizen>(readyToPopStack, pushedStack);
     }
 
     public long ___getPointer() {
