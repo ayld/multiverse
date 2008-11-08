@@ -36,7 +36,7 @@ public class MultiversionedCellTest extends TestCase {
 
     //====================== prune ========================
 
-    public void testPrune(){
+    public void _testPrune(){
         cell.prune(initialVersion);
     }
 

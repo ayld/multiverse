@@ -38,13 +38,13 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p/>
  * Kan het voorkomen dat verschillende versies van dezelfde cell
  */
-public final class MultiversionedHeap {
+public final class MultiversionedHeap<E> {
 
     //statistics
     private final AtomicLong readCount = new AtomicLong();
     private final AtomicLong writeCount = new AtomicLong();
 
-    private final ConcurrentMap<Long, MultiversionedCell> cells = new ConcurrentHashMap<Long, MultiversionedCell>();
+    private final ConcurrentMap<Long, MultiversionedCell<E>> cells = new ConcurrentHashMap<Long, MultiversionedCell<E>>();
 
     private long firstFreeAdress = 1;
 
@@ -71,7 +71,7 @@ public final class MultiversionedHeap {
      * <p/>
      * Method can be called all the time.
      *
-     * @return
+     * @return  the number of cells in this heap.
      */
     public int getCellCount() {
         return cells.size();
@@ -86,7 +86,7 @@ public final class MultiversionedHeap {
     public int getVersionCount() {
         int count = 0;
         for (MultiversionedCell cell : cells.values())
-            count += cell.getVersionCount();
+            count += cell.getNumberOfVersions();
 
         return count;
     }
@@ -104,7 +104,7 @@ public final class MultiversionedHeap {
         MultiversionedCell cell = cells.get(address);
         if (cell == null)
             throw new IllegalPointerException(address);
-        return cell.getVersionCount();
+        return cell.getNumberOfVersions();
     }
 
     /**
@@ -141,9 +141,8 @@ public final class MultiversionedHeap {
         checkVersion(version);
 
         Latch latch = new CheapLatch();
-        for (int k = 0; k < addresses.length; k++) {
-            long address = addresses[k];
-            MultiversionedCell cell = cells.get(address);
+        for (long address : addresses) {
+            MultiversionedCell<E> cell = cells.get(address);
             cell.listen(version, latch);
             //if the latch already is opened, we are done.
             if (latch.isOpen())
@@ -164,16 +163,16 @@ public final class MultiversionedHeap {
      * @throws IllegalVersionException if the version is not valid, or if no cell with the desired version (or older)
      *                                 is found.
      */
-    public Object[] read(long ptr, long version) {
+    public E read(long ptr, long version) {
         checkPtrAndVersion(ptr, version);
 
         readCount.incrementAndGet();
 
-        MultiversionedCell cell = cells.get(ptr);
+        MultiversionedCell<E> cell = cells.get(ptr);
         if (cell == null)
             throw new IllegalPointerException(ptr);
 
-        return (Object[]) cell.getValue(version);
+        return cell.getValue(version);
     }
 
 
@@ -202,14 +201,14 @@ public final class MultiversionedHeap {
      * @throws IllegalPointerException if ptr is smaller than 1.
      * @throws IllegalVersionException
      */
-    public void write(long ptr, long version, Object[] content) {
+    public void write(long ptr, long version, E content) {
         checkPtrAndVersion(ptr, version);
         if (content == null) throw new NullPointerException();
 
-        MultiversionedCell cell = cells.get(ptr);
+        MultiversionedCell<E> cell = cells.get(ptr);
         if (cell == null) {
             //the cell does not exist yet, so create it and store it.
-            cell = new MultiversionedCell(content, version);
+            cell = new MultiversionedCell<E>(content, version);
             cells.put(ptr, cell);
         } else {
             //the cell exist, so we can continue and do the write.

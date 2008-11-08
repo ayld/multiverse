@@ -8,21 +8,21 @@ import static java.util.Arrays.asList;
 
 public class MultiversionedHeapTest extends TestCase {
 
-    private MultiversionedHeap heap;
+    private MultiversionedHeap<String> heap;
 
     public void setUp() {
-        heap = new MultiversionedHeap();
+        heap = new MultiversionedHeap<String>();
     }
 
-    public void assertActualContent(long ptr, long expectedVersion, Object[] expectedContent) {
+    public void assertActualContent(long ptr, long expectedVersion, String expectedContent) {
         assertEquals(expectedVersion, heap.getActualVersion(ptr));
-        Object[] foundContent = heap.read(ptr, expectedVersion);
+        String foundContent = heap.read(ptr, expectedVersion);
         assertEquals(asList(expectedContent), asList(foundContent));
     }
 
-    public void assertContent(long ptr, long version, Object[] expectedContent) {
-        Object[] foundContent = heap.read(ptr, version);
-        assertEquals(asList(expectedContent), asList(foundContent));
+    public void assertContent(long ptr, long version, String expectedContent) {
+        String foundContent = heap.read(ptr, version);
+        assertEquals(expectedContent, foundContent);
     }
 
     public void assertWriteCount(int expectedWrites){
@@ -57,7 +57,7 @@ public class MultiversionedHeapTest extends TestCase {
         long oldVersion = 1;
         long newVersion = oldVersion + 1;
 
-        heap.write(ptr, newVersion, new Object[]{"foo"});
+        heap.write(ptr, newVersion, "foo");
         try {
             heap.read(ptr, oldVersion);
             fail();
@@ -69,7 +69,7 @@ public class MultiversionedHeapTest extends TestCase {
     }
 
     public void testReadOldVersionNoTrailingNewVersion() {
-        Object[] content = new Object[]{"foo"};
+        String content = "foo";
         long ptr = 1000;
         long oldVersion = 1;
         long newVersion = oldVersion + 1;
@@ -79,7 +79,7 @@ public class MultiversionedHeapTest extends TestCase {
     }
 
     public void testReadCurrentVersion() {
-        Object[] content = new Object[]{"foo"};
+        String content = "foo";
         long ptr = 1000;
         long version = 25;
 
@@ -100,8 +100,8 @@ public class MultiversionedHeapTest extends TestCase {
     //======================= overwrite ==========================
 
     public void testOverwrite() {
-        Object[] oldContent = new Object[]{"foo"};
-        Object[] newContent = new Object[]{"bar"};
+        String oldContent = "foo";
+        String newContent = "bar";
         long ptr = 1000;
         long oldVersion = 1;
         long newVersion = oldVersion + 1;
@@ -116,8 +116,8 @@ public class MultiversionedHeapTest extends TestCase {
     }
 
     public void testOverwriteWithSameVersionFails() {
-        Object[] oldContent = new Object[]{"foo"};
-        Object[] newContent = new Object[]{"bar"};
+        String oldContent = "foo";
+        String newContent = "bar";
         long ptr = 1000;
         long version = 10;
 
@@ -132,8 +132,8 @@ public class MultiversionedHeapTest extends TestCase {
     }
 
     public void testOverwriteNewVersionWithOldVersionFails() {
-        Object[] oldContent = new Object[]{"foo"};
-        Object[] newContent = new Object[]{"bar"};
+        String oldContent = "foo";
+        String newContent = "bar";
         long ptr = 1000;
         long oldVersion = 1;
         long newVersion = oldVersion + 1;

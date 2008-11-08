@@ -6,10 +6,10 @@ import org.codehaus.multiverse.transaction.Transaction;
 import static java.util.Arrays.asList;
 
 public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
-    private MultiversionedHeap heap;
+    private MultiversionedHeap<DehydratedCitizen> heap;
 
     public MultiversionedStm createStm() {
-        heap = new MultiversionedHeap();
+        heap = new MultiversionedHeap<DehydratedCitizen>();
         return new MultiversionedStm(heap);
     }
 
@@ -71,9 +71,9 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
             assertNull("Transaction should be null", citizen.___getTransaction());
     }
 
-    public void assertHeapContains(long ptr, long expectedVersion, Object... expected) {
+    public void assertHeapContains(long ptr, long expectedVersion, DehydratedCitizen expected) {
         assertEquals("Versions don't match. -1 indicates no cell with given address", expectedVersion, heap.getActualVersion(ptr));
-        Object[] found = heap.read(ptr, expectedVersion);
-        assertEquals("Content doesn't match", asList(expected), asList(found));
+        DehydratedCitizen found = heap.read(ptr, expectedVersion);
+        assertEquals("Content doesn't match", expected, found);
     }
 }

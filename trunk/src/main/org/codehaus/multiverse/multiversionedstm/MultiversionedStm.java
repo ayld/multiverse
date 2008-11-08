@@ -47,15 +47,15 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     private final AtomicLong readonlyCount = new AtomicLong();
 
     private final AtomicLong activeVersion = new AtomicLong();
-    private final MultiversionedHeap heap;
+    private final MultiversionedHeap<DehydratedCitizen> heap;
 
     private final Lock commitLock = new ReentrantLock();
 
     public MultiversionedStm() {
-        this(new MultiversionedHeap());
+        this(new MultiversionedHeap<DehydratedCitizen>());
     }
 
-    public MultiversionedStm(MultiversionedHeap heap) {
+    public MultiversionedStm(MultiversionedHeap<DehydratedCitizen> heap) {
         if (heap == null) throw new NullPointerException();
         this.heap = heap;
     }
@@ -199,10 +199,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 return found;
 
             //so the object doesn't exist in the current transaction, lets look in the heap
-            Object[] content = heap.read(ptr, startOfTransactionVersion);
+            DehydratedCitizen dehydratedCitizen = heap.read(ptr, startOfTransactionVersion);
 
             try {
-                DehydratedCitizen dehydratedCitizen = (DehydratedCitizen) content[0];
                 Citizen citizen = dehydratedCitizen.hydrate(ptr, this);
                 dehydratedCitizens.put(ptr, citizen);
                 return citizen;
@@ -318,7 +317,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 Citizen citizen = it.next();
                 if (citizen.___isDirty()) {
                     DehydratedCitizen dehydratedCitizen = citizen.___dehydrate();
-                    write(citizen.___getPointer(), new Object[]{dehydratedCitizen});
+                    write(citizen.___getPointer(), dehydratedCitizen);
                 }
             }
         }
@@ -335,7 +334,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return startOfTransactionVersion + 1 <= actualVersion;
         }
 
-        private void write(long ptr, Object[] content) {
+        private void write(long ptr, DehydratedCitizen content) {
             numberOfWrites++;
             heap.write(ptr, startOfTransactionVersion + 1, content);
         }
