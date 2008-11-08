@@ -213,6 +213,7 @@
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
     <option name="MAXIMUM_HEAP_SIZE" value="128" />
   </component>
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
@@ -270,17 +271,11 @@
         <inspection_tool class="DeclareParentsInspection" level="ERROR" enabled="false" />
         <inspection_tool class="SpringAopErrorsInspection" level="ERROR" enabled="false" />
         <inspection_tool class="SpringAopWarningsInspection" level="WARNING" enabled="false" />
-        <inspection_tool class="SillyAssignmentJS" level="WARNING" enabled="false" />
         <inspection_tool class="IncompatibleMask" level="WARNING" enabled="false" />
         <inspection_tool class="PointlessBitwiseExpression" level="WARNING" enabled="false">
           <option name="m_ignoreExpressionsContainingConstants" value="false" />
         </inspection_tool>
         <inspection_tool class="ShiftOutOfRange" level="WARNING" enabled="false" />
-        <inspection_tool class="IncompatibleMaskJS" level="WARNING" enabled="false" />
-        <inspection_tool class="PointlessBitwiseExpressionJS" level="WARNING" enabled="false">
-          <option name="m_ignoreExpressionsContainingConstants" value="false" />
-        </inspection_tool>
-        <inspection_tool class="ShiftOutOfRangeJS" level="WARNING" enabled="false" />
         <inspection_tool class="CloneCallsSuperClone" level="WARNING" enabled="false" />
         <inspection_tool class="CloneDeclaresCloneNotSupported" level="WARNING" enabled="false" />
         <inspection_tool class="SimplifiableConditionalExpression" level="WARNING" enabled="false" />
@@ -298,18 +293,6 @@
         <inspection_tool class="UnnecessaryLabelOnBreakStatement" level="WARNING" enabled="false" />
         <inspection_tool class="UnnecessaryLabelOnContinueStatement" level="WARNING" enabled="false" />
         <inspection_tool class="UnusedLabel" level="WARNING" enabled="false" />
-        <inspection_tool class="ConstantConditionalExpressionJS" level="WARNING" enabled="false" />
-        <inspection_tool class="ConstantIfStatementJS" level="WARNING" enabled="false" />
-        <inspection_tool class="FallthroughInSwitchStatementJS" level="WARNING" enabled="false" />
-        <inspection_tool class="LoopStatementThatDoesntLoopJS" level="WARNING" enabled="false" />
-        <inspection_tool class="PointlessBooleanExpressionJS" level="WARNING" enabled="false" />
-        <inspection_tool class="TrivialIfJS" level="WARNING" enabled="false" />
-        <inspection_tool class="TrivialConditionalJS" level="WARNING" enabled="false" />
-        <inspection_tool class="UnnecessaryContinueJS" level="WARNING" enabled="false" />
-        <inspection_tool class="UnnecessaryReturnJS" level="WARNING" enabled="false" />
-        <inspection_tool class="UnnecessaryLabelJS" level="WARNING" enabled="false" />
-        <inspection_tool class="UnnecessaryLabelOnBreakStatementJS" level="WARNING" enabled="false" />
-        <inspection_tool class="UnnecessaryLabelOnContinueStatementJS" level="WARNING" enabled="false" />
         <inspection_tool class="CssUnitlessNumber" level="WARNING" enabled="false" />
         <inspection_tool class="CssNoGenericFontName" level="WARNING" enabled="false" />
         <inspection_tool class="CssOverwrittenProperties" level="WARNING" enabled="false" />
@@ -327,10 +310,6 @@
         </inspection_tool>
         <inspection_tool class="CssUnusedSymbolInspection" level="WARNING" enabled="false" />
         <inspection_tool class="UnnecessaryLocalVariable" level="WARNING" enabled="false">
-          <option name="m_ignoreImmediatelyReturnedVariables" value="false" />
-          <option name="m_ignoreAnnotatedVariables" value="false" />
-        </inspection_tool>
-        <inspection_tool class="UnnecessaryLocalVariableJS" level="WARNING" enabled="false">
           <option name="m_ignoreImmediatelyReturnedVariables" value="false" />
           <option name="m_ignoreAnnotatedVariables" value="false" />
         </inspection_tool>
@@ -362,7 +341,6 @@
           </option>
           <option name="ADD_EJB_TO_ENTRIES" value="true" />
           <option name="ADD_JUNIT_TO_ENTRIES" value="true" />
-          <option name="ADD_TESTNG_TO_ENTRIES" value="true" />
         </inspection_tool>
         <inspection_tool class="UnusedParameters" level="WARNING" enabled="false" />
         <inspection_tool class="UnusedReturnValue" level="WARNING" enabled="false" />
@@ -392,11 +370,6 @@
         <inspection_tool class="ReturnFromFinallyBlock" level="WARNING" enabled="false" />
         <inspection_tool class="ThrowFromFinallyBlock" level="WARNING" enabled="false" />
         <inspection_tool class="UnhandledExceptionInJSP" level="WARNING" enabled="false" />
-        <inspection_tool class="ContinueOrBreakFromFinallyBlockJS" level="WARNING" enabled="false" />
-        <inspection_tool class="ExceptionCaughtLocallyJS" level="WARNING" enabled="false" />
-        <inspection_tool class="ReturnFromFinallyBlockJS" level="WARNING" enabled="false" />
-        <inspection_tool class="ThrowFromFinallyBlockJS" level="WARNING" enabled="false" />
-        <inspection_tool class="FacesModelInspection" level="ERROR" enabled="false" />
         <inspection_tool class="NoExplicitFinalizeCalls" level="WARNING" enabled="false" />
         <inspection_tool class="FinalizeCallsSuperFinalize" level="WARNING" enabled="false">
           <option name="m_ignoreForObjectSubclasses" value="false" />
@@ -443,16 +416,6 @@
         <inspection_tool class="UNCHECKED_WARNING" level="WARNING" enabled="false" />
         <inspection_tool class="SillyAssignment" level="WARNING" enabled="false" />
         <inspection_tool class="WrongPackageStatement" level="ERROR" enabled="false" />
-        <inspection_tool class="NonJREEmulationClassesInClientCode" level="ERROR" enabled="false" />
-        <inspection_tool class="GwtServiceNotRegistered" level="ERROR" enabled="false" />
-        <inspection_tool class="GwtInconsistentI18nInterface" level="ERROR" enabled="false" />
-        <inspection_tool class="GWTRemoteServiceAsyncCheck" level="ERROR" enabled="false" />
-        <inspection_tool class="GwtInconsistentSerializableClass" level="ERROR" enabled="false" />
-        <inspection_tool class="GwtMethodWithParametersInConstantsInterface" level="ERROR" enabled="false" />
-        <inspection_tool class="NonSerializableServiceParameters" level="ERROR" enabled="false" />
-        <inspection_tool class="GwtJavaScriptReferences" level="ERROR" enabled="false" />
-        <inspection_tool class="GWTStyleCheck" level="ERROR" enabled="false" />
-        <inspection_tool class="GwtToHtmlReferences" level="ERROR" enabled="false" />
         <inspection_tool class="HibernateMappingDatasourceDomInspection" level="ERROR" enabled="false" />
         <inspection_tool class="HibernateConfigDomInspection" level="ERROR" enabled="false" />
         <inspection_tool class="HibernateMappingDomInspection" level="ERROR" enabled="false" />
@@ -495,46 +458,14 @@
         <inspection_tool class="ExtendsAnnotation" level="WARNING" enabled="false" />
         <inspection_tool class="UnresolvedPropertyKey" level="ERROR" enabled="false" />
         <inspection_tool class="SimplifiableIfStatement" level="WARNING" enabled="false" />
-        <inspection_tool class="MissedExecutable" level="WARNING" enabled="false" />
         <inspection_tool class="ForCanBeForeach" level="WARNING" enabled="false">
           <option name="REPORT_INDEXED_LOOP" value="true" />
         </inspection_tool>
         <inspection_tool class="UnnecessaryBoxing" level="WARNING" enabled="false" />
         <inspection_tool class="UnnecessaryUnboxing" level="WARNING" enabled="false" />
         <inspection_tool class="WhileCanBeForeach" level="WARNING" enabled="false" />
-        <inspection_tool class="JSUntypedDeclaration" level="INFO" enabled="false" />
-        <inspection_tool class="JSDeprecatedSymbols" level="INFO" enabled="false" />
-        <inspection_tool class="JSDuplicatedDeclaration" level="WARNING" enabled="false" />
-        <inspection_tool class="JSUndeclaredVariable" level="INFO" enabled="false" />
-        <inspection_tool class="JSShowOverridingMarkers" level="INFO" enabled="false" />
-        <inspection_tool class="JSUnresolvedFunction" level="INFO" enabled="false" />
-        <inspection_tool class="JSUnresolvedVariable" level="INFO" enabled="false" />
-        <inspection_tool class="JSUnusedLocalSymbols" level="WARNING" enabled="false" />
-        <inspection_tool class="DuplicateCaseLabelJS" level="WARNING" enabled="false" />
-        <inspection_tool class="DuplicatePropertyOnObjectJS" level="WARNING" enabled="false" />
-        <inspection_tool class="BadExpressionStatementJS" level="WARNING" enabled="false" />
-        <inspection_tool class="FunctionWithInconsistentReturnsJS" level="WARNING" enabled="false" />
-        <inspection_tool class="ReservedWordUsedAsNameJS" level="WARNING" enabled="false" />
-        <inspection_tool class="ThisExpressionReferencesGlobalObjectJS" level="WARNING" enabled="false" />
-        <inspection_tool class="UnreachableCodeJS" level="WARNING" enabled="false" />
         <inspection_tool class="ELValidationInJSP" level="WARNING" enabled="false" />
-        <inspection_tool class="CheckJsfComponentUnderViewTag" level="INFO" enabled="false" />
         <inspection_tool class="ELSpecValidationInJSP" level="WARNING" enabled="false" />
-        <inspection_tool class="ComponentRegistrationProblems" level="ERROR" enabled="false">
-          <option name="CHECK_PLUGIN_XML" value="true" />
-          <option name="CHECK_JAVA_CODE" value="true" />
-          <option name="CHECK_ACTIONS" value="true" />
-        </inspection_tool>
-        <inspection_tool class="ComponentNotRegistered" level="WARNING" enabled="false">
-          <option name="CHECK_ACTIONS" value="true" />
-          <option name="IGNORE_NON_PUBLIC" value="true" />
-        </inspection_tool>
-        <inspection_tool class="PointlessArithmeticExpressionJS" level="WARNING" enabled="false" />
-        <inspection_tool class="EmptyStatementBodyJS" level="WARNING" enabled="false">
-          <option name="m_reportEmptyBlocks" value="false" />
-        </inspection_tool>
-        <inspection_tool class="InfiniteLoopJS" level="WARNING" enabled="false" />
-        <inspection_tool class="InfiniteRecursionJS" level="WARNING" enabled="false" />
         <inspection_tool class="InconsistentResourceBundle" level="ERROR" enabled="false">
           <option name="REPORT_MISSING_TRANSLATIONS" value="true" />
           <option name="REPORT_INCONSISTENT_PROPERTIES" value="true" />
@@ -559,36 +490,11 @@
         <inspection_tool class="SpringModelInspection" level="ERROR" enabled="false" />
         <inspection_tool class="SpringScopesInspection" level="ERROR" enabled="false" />
         <inspection_tool class="UtilSchemaInspection" level="ERROR" enabled="false" />
-        <inspection_tool class="StrutsInspection" level="ERROR" enabled="false" />
-        <inspection_tool class="StrutsTilesInspection" level="ERROR" enabled="false" />
-        <inspection_tool class="StrutsValidatorInspection" level="ERROR" enabled="false" />
-        <inspection_tool class="StrutsValidatorFormInspection" level="ERROR" enabled="false" />
-        <inspection_tool class="dependsOnMethodTestNG" level="WARNING" enabled="false" />
-        <inspection_tool class="groupsTestNG" level="WARNING" enabled="false">
-          <option name="groups">
-            <value>
-              <list size="0" />
-            </value>
-          </option>
-        </inspection_tool>
-        <inspection_tool class="BoundFieldAssignment" level="WARNING" enabled="false" />
-        <inspection_tool class="OneButtonGroup" level="WARNING" enabled="false" />
-        <inspection_tool class="DuplicateMnemonic" level="WARNING" enabled="false" />
-        <inspection_tool class="MissingMnemonic" level="WARNING" enabled="false" />
-        <inspection_tool class="NoLabelFor" level="WARNING" enabled="false" />
-        <inspection_tool class="NoButtonGroup" level="WARNING" enabled="false" />
-        <inspection_tool class="NoScrollPane" level="WARNING" enabled="false" />
         <inspection_tool class="RedundantArrayCreation" level="WARNING" enabled="false" />
         <inspection_tool class="RedundantTypeArguments" level="WARNING" enabled="false" />
         <inspection_tool class="RedundantCast" level="WARNING" enabled="false" />
-        <inspection_tool class="EmptyWebServiceClass" level="WARNING" enabled="false" />
-        <inspection_tool class="OneWayWebMethod" level="ERROR" enabled="false" />
-        <inspection_tool class="ImplicitlyExposedWebServiceMethods" level="INFO" enabled="false" />
-        <inspection_tool class="NonJaxWsWebServices" level="WARNING" enabled="false" />
-        <inspection_tool class="ValidExternallyBoundObject" level="ERROR" enabled="false" />
         <inspection_tool class="CheckDtdRefs" level="ERROR" enabled="false" />
         <inspection_tool class="CheckXmlFileWithXercesValidator" level="ERROR" enabled="false" />
-        <inspection_tool class="XmlWrongClosingTagName" level="ERROR" enabled="false" />
         <inspection_tool class="XmlWrongRootElement" level="ERROR" enabled="false" />
         <inspection_tool class="CheckTagEmptyBody" level="WARNING" enabled="false" />
         <inspection_tool class="BooleanConstructor" level="WARNING" enabled="false" />
@@ -760,13 +666,16 @@
       </item>
     </group>
   </component>
+  <component name="ProjectDetails">
+    <option name="projectName" value="stm" />
+  </component>
   <component name="ProjectFileVersion" converted="true" />
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/stm.iml" filepath="$PROJECT_DIR$/stm.iml" />
     </modules>
   </component>
-  <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_5" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="ResourceManagerContainer">
@@ -784,7 +693,50 @@
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
   <component name="SvnBranchConfigurationManager">
-    <option name="myVersion" value="123" />
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchMap">
+                <map>
+                  <entry key="https://multiverse.googlecode.com/svn/branches">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                  <entry key="https://multiverse.googlecode.com/svn/tags">
+                    <value>
+                      <list />
+                    </value>
+                  </entry>
+                  <entry key="https://multiverse.googlecode.com/svn/wiki">
+                    <value>
+                      <list>
+                        <SvnBranchItem>
+                          <option name="creationDateMillis" value="1223128843977" />
+                          <option name="revision" value="4" />
+                          <option name="url" value="https://multiverse.googlecode.com/svn/wiki/DeadlockDetection.wiki" />
+                        </SvnBranchItem>
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://multiverse.googlecode.com/svn/branches" />
+                  <option value="https://multiverse.googlecode.com/svn/tags" />
+                  <option value="https://multiverse.googlecode.com/svn/wiki" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://multiverse.googlecode.com/svn/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="myVersion" value="124" />
   </component>
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="svn" />

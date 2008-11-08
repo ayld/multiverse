@@ -8,12 +8,12 @@ import static java.util.Arrays.asList;
 public abstract class AbstractStmTest extends TestCase {
 
     protected MultiversionedStm stm;
-    protected MultiversionedHeap heap;
+    protected MultiversionedHeap<DehydratedCitizen> heap;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        heap = new MultiversionedHeap();
+        heap = new MultiversionedHeap<DehydratedCitizen>();
         stm = new MultiversionedStm(heap);
     }
 
@@ -73,9 +73,9 @@ public abstract class AbstractStmTest extends TestCase {
         assertEquals(expectedVersion, stm.getActiveVersion());
     }
 
-    public void assertStmContains(long ptr, long expectedVersion, Object... expected) {
+    public void assertStmContains(long ptr, long expectedVersion, DehydratedCitizen expected) {
         assertEquals("Versions don't match", expectedVersion, heap.getActualVersion(ptr));
-        Object[] found = heap.read(ptr, expectedVersion);
-        assertEquals("Content doesn't match", asList(expected), asList(found));
+        DehydratedCitizen found = heap.read(ptr, expectedVersion);
+        assertEquals("Content doesn't match", expected, found);
     }
 }

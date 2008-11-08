@@ -10,22 +10,23 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p/>
  * Each cell has a history of previous writes. This is required for the multiversioning functionality.
  */
-public final class MultiversionedCell {
+public final class MultiversionedCell<E> {
 
-    private volatile ContentNode head;
-    private final AtomicReference<LatchNode> latchNodeHeadReference = new AtomicReference<LatchNode>();
+    private volatile ContentNode<E> head;
+    private final AtomicReference<LatchNode<E>> latchNodeHeadReference = new AtomicReference<LatchNode<E>>();
 
-    public MultiversionedCell(Object value, long version) {
+    public MultiversionedCell(E value, long version) {
         assert version >= 0;
-        head = new ContentNode(null, value, version);
+        head = new ContentNode<E>(null, value, version);
     }
 
     /**
-     * Returns the versions count. After a cell is pruned, the version count decreased.
+     * Returns the number of versions of values that are stored in this cell. After a cell is pruned,
+     * the version count decreased.
      *
-     * @return
+     * @return the number of versions of this cell.
      */
-    public int getVersionCount() {
+    public int getNumberOfVersions() {
         int result = 0;
         ContentNode headLocal = head;
         while (headLocal != null) {
@@ -45,8 +46,13 @@ public final class MultiversionedCell {
         return 0;
     }
 
-    public void prune(long minimalVersion){
-        
+    /**
+     * Prunes all content with a version older than the minimal version.
+     *
+     * @param minimalVersion the oldest version that is allowed to remain.
+     */
+    public void prune(long minimalVersion) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -54,7 +60,7 @@ public final class MultiversionedCell {
      * <p/>
      * Can be called all the time by concurrent threads.
      *
-     * @return
+     * @return the active value of this cell.
      */
     public Object getActiveValue() {
         //since head always is not equal to null, this gives no problems
@@ -66,7 +72,7 @@ public final class MultiversionedCell {
      * <p/>
      * Can be called all the time by concurrent threads.
      *
-     * @return
+     * @return  the active version of the current value
      */
     public long getActiveVersion() {
         //since head always is not equal to null, this gives no problems
@@ -79,14 +85,14 @@ public final class MultiversionedCell {
      * <p/>
      * Can be called all the time by concurrent threads.
      *
-     * @param version
-     * @return
+     * @param version  the version of the value to look for.
+     * @return the found value.
      * @throws IllegalVersionException if the transactionVersion is older than the oldest version.
      */
-    public Object getValue(long version) {
+    public E getValue(long version) {
         assert version >= 0;
 
-        ContentNode headLocal = head;
+        ContentNode<E> headLocal = head;
         while (headLocal != null) {
             if (headLocal.version <= version)
                 return headLocal.value;
@@ -105,24 +111,25 @@ public final class MultiversionedCell {
      * - since the transaction version is based on an existing version of data, and the transaction
      * version is used to listen for change, the version (or a more older one) must exist.
      *
-     * @return
-     */
+     * @param transactionVersion
+     * @param latch the Latch to open
+      */
     public void listen(long transactionVersion, Latch latch) {
         assert transactionVersion >= 0;
         assert latch != null;
 
-        ContentNode localContentHead = head;
+        ContentNode<E> localContentHead = head;
         if (localContentHead.version > transactionVersion) {
             //a write has been made, so the latch can be openend we are done.
             latch.open();
         } else {
             //no write has been made, so we need to store the latch so it can be openend
             //when a write happens.
-            LatchNode newLatchNodeHead;
-            LatchNode oldLatchNodeHead;
+            LatchNode<E> newLatchNodeHead;
+            LatchNode<E> oldLatchNodeHead;
             do {
                 oldLatchNodeHead = latchNodeHeadReference.get();
-                newLatchNodeHead = new LatchNode(oldLatchNodeHead, transactionVersion, latch);
+                newLatchNodeHead = new LatchNode<E>(oldLatchNodeHead, transactionVersion, latch);
             } while (!latchNodeHeadReference.compareAndSet(oldLatchNodeHead, newLatchNodeHead));
 
             if (localContentHead != head) {
@@ -144,11 +151,11 @@ public final class MultiversionedCell {
      * @param version the version of the value
      * @param value   the value itself.
      */
-    public void write(long version, Object value) {
+    public void write(long version, E value) {
         if (head.version >= version)
             throw new IllegalVersionException(version);
 
-        head = new ContentNode(head, value, version);
+        head = new ContentNode<E>(head, value, version);
 
         //localizes all the latches.
         LatchNode latchNode = latchNodeHeadReference.getAndSet(null);
@@ -163,12 +170,12 @@ public final class MultiversionedCell {
     }
 
     //should be immutable
-    static class ContentNode {
-        final ContentNode parent;
+    static class ContentNode<E> {
+        final ContentNode<E> parent;
         final long version;
-        final Object value;
+        final E value;
 
-        ContentNode(ContentNode parent, Object value, long version) {
+        ContentNode(ContentNode<E> parent, E value, long version) {
             this.parent = parent;
             this.version = version;
             this.value = value;
@@ -176,12 +183,12 @@ public final class MultiversionedCell {
     }
 
     //should be immutable
-    static class LatchNode {
-        final LatchNode parent;
+    static class LatchNode<E> {
+        final LatchNode<E> parent;
         final long version;
         final Latch latch;
 
-        LatchNode(LatchNode parent, long version, Latch latch) {
+        LatchNode(LatchNode<E> parent, long version, Latch latch) {
             this.parent = parent;
             this.version = version;
             this.latch = latch;
