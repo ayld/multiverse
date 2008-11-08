@@ -41,6 +41,7 @@ public class Queue<E> implements Citizen {
 
     private long ptr;
     private MultiversionedStm.MultiversionedTransaction transaction;
+    private DehydratedQueue dehydratedQueue;
 
     public void ___onAttach(MultiversionedStm.MultiversionedTransaction transaction) {
         this.transaction = transaction;
@@ -67,6 +68,9 @@ public class Queue<E> implements Citizen {
     }
 
     public boolean ___isDirty() {
+        if(dehydratedQueue == null)
+            return true;
+
         return false;
     }
 
@@ -85,6 +89,7 @@ public class Queue<E> implements Citizen {
             queue.transaction = transaction;
             queue.readyToPopStack = (Stack) transaction.readRoot(readyToPopStackPtr);
             queue.pushedStack = (Stack) transaction.readRoot(pushedStackPtr);
+            queue.dehydratedQueue = this;
             return queue;
         }
     }

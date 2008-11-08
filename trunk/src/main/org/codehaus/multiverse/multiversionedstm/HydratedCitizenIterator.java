@@ -2,19 +2,20 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.util.IdentityHashSet;
 import org.codehaus.multiverse.util.ArrayIterator;
+import org.codehaus.multiverse.util.CompositeIterator;
 
 import java.util.*;
 
-public class HydratedCitizenIterator implements Iterator<Citizen> {
+public final class HydratedCitizenIterator implements Iterator<Citizen> {
 
-    private final IdentityHashSet<Citizen> touched = new IdentityHashSet();
+    private final IdentityHashSet<Citizen> touchedSet = new IdentityHashSet();
     private final IdentityHashSet<Citizen> iterateSet = new IdentityHashSet();
     private Iterator<Citizen> iterator;
     private Citizen nextCitizen;
 
-    public HydratedCitizenIterator(Iterator<Citizen> rootIterator) {
-        if (rootIterator == null) throw new NullPointerException();
-        iterator = rootIterator;
+    public HydratedCitizenIterator(Iterator<Citizen>... rootIterators) {
+        if (rootIterators == null) throw new NullPointerException();
+        iterator = new CompositeIterator<Citizen>(rootIterators);
     }
 
     public HydratedCitizenIterator(Citizen... roots) {
@@ -37,13 +38,11 @@ public class HydratedCitizenIterator implements Iterator<Citizen> {
         if (iterateSet.isEmpty())
             return false;
 
-        Citizen citizen = removeItemFromIteratorSet();
-
-        iterator = citizen.___directReachableIterator();
+        iterator = removeRandomItemFromIteratorSet().___directReachableIterator();
         return true;
     }
 
-    private Citizen removeItemFromIteratorSet() {
+    private Citizen removeRandomItemFromIteratorSet() {
         Iterator<Citizen> it = iterateSet.iterator();
         Citizen citizen = it.next();
         it.remove();
@@ -53,7 +52,7 @@ public class HydratedCitizenIterator implements Iterator<Citizen> {
     private boolean findNextInCurrentIterator() {
         while (iterator.hasNext()) {
             Citizen citizen = iterator.next();
-            if (touched.add(citizen)) {
+            if (touchedSet.add(citizen)) {
                 iterateSet.add(citizen);
                 nextCitizen = citizen;
                 return true;

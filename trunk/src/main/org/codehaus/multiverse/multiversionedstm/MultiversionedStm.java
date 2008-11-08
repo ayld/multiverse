@@ -5,6 +5,7 @@ import org.codehaus.multiverse.transaction.AbortedException;
 import org.codehaus.multiverse.transaction.Transaction;
 import org.codehaus.multiverse.transaction.TransactionStatus;
 import org.codehaus.multiverse.util.Latch;
+import org.codehaus.multiverse.util.ArrayIterator;
 import static org.codehaus.multiverse.util.PtrUtils.checkPtr;
 
 import static java.lang.String.format;
@@ -144,14 +145,14 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     public class MultiversionedTransaction implements Transaction {
 
         private volatile TransactionStatus status = TransactionStatus.active;
-        private final long version;
+        private final long startOfTransactionVersion;
         private final Map<Long, Citizen> newlybornCitizens = new HashMap<Long, Citizen>();
         private final IdentityHashMap<Citizen, Long> invertedNewlybornCitizens = new IdentityHashMap<Citizen, Long>();
         private final Map<Long, Citizen> dehydratedCitizens = new Hashtable<Long, Citizen>();
         private long numberOfWrites = 0;
 
         public MultiversionedTransaction() {
-            version = getActiveVersion();
+            startOfTransactionVersion = getActiveVersion();
             startedCount.incrementAndGet();
         }
 
@@ -160,7 +161,11 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         public long getVersion() {
-            return version;
+            return startOfTransactionVersion;
+        }
+
+        public TransactionStatus getStatus() {
+            return status;
         }
 
         public long[] getReadAddresses() {
@@ -188,13 +193,13 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             if (found != null)
                 return found;
 
+            //if the object was newly born, this value should be returned.
             found = newlybornCitizens.get(ptr);
             if (found != null)
                 return found;
 
-            //you always get a not null value. When a non existing value is used, an IllegalPointerException
-            // or IllegalVersionException is thrown.
-            Object[] content = heap.read(ptr, version);
+            //so the object doesn't exist in the current transaction, lets look in the heap
+            Object[] content = heap.read(ptr, startOfTransactionVersion);
 
             try {
                 DehydratedCitizen dehydratedCitizen = (DehydratedCitizen) content[0];
@@ -214,13 +219,22 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             assertTransactionActive();
 
             Citizen rootCitizen = (Citizen) root;
-            ensureNoAttachConflicts(rootCitizen);
-            attachAll(rootCitizen);
+            ensureNoAttachConflicts(new ArrayIterator<Citizen>(rootCitizen));
+            attachAll(new ArrayIterator<Citizen>(rootCitizen));
             return rootCitizen.___getPointer();
         }
 
-        private void attachAll(Citizen root) {
-            for (Iterator<Citizen> it = new HydratedCitizenIterator(root); it.hasNext();) {
+        private void ensureNoAttachConflicts(Iterator<Citizen>... roots) {
+            for (Iterator<Citizen> it = new HydratedCitizenIterator(roots); it.hasNext();) {
+                Citizen citizen = it.next();
+                Transaction transaction = citizen.___getTransaction();
+                if (transaction != this && transaction != null)
+                    throw new IllegalStateException(format("object already is attached to another transaction %s", citizen));
+            }
+        }
+
+        private void attachAll(Iterator<Citizen> roots) {
+            for (Iterator<Citizen> it = new HydratedCitizenIterator(roots); it.hasNext();) {
                 Citizen citizen = it.next();
                 if (citizen.___getTransaction() == null) {
                     long ptr = heap.createHandle();
@@ -232,43 +246,98 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        private void ensureNoAttachConflicts(Citizen rootCitizen) {
-            for (Iterator<Citizen> it = new HydratedCitizenIterator(rootCitizen); it.hasNext();) {
-                Citizen citizen = it.next();
-                Transaction transaction = citizen.___getTransaction();
-                if (transaction != this && transaction != null)
-                    throw new IllegalStateException(format("object already is attached to another transaction %s", citizen));
-            }
-        }
-
         private void assertTransactionActive() {
             if (status != TransactionStatus.active)
                 throw new IllegalStateException();
         }
 
-        public TransactionStatus getStatus() {
-            return status;
-        }
-
         public void commit() {
             switch (status) {
                 case active:
-                    CommitTask task = new CommitTask(this);
-                    if (!task.execute()) {
-                        abort();
-                        throw new AbortedException();
+                    attachAll();
+                    commitLock.lock();
+                    try {
+                        if (hasWriteConflicts()) {
+                            abort();
+                            throw new AbortedException();
+                        }
+                        updateStm();
+                    } finally {
+                        commitLock.unlock();
                     }
 
-                    committedCount.incrementAndGet();
+
                     status = TransactionStatus.committed;
                     System.out.println(getStatistics());
                     break;
                 case committed:
-                    //ignore
+                    //ignore, transaction already is committed, can't do any harm
                     break;
                 default:
                     throw new IllegalStateException();
             }
+        }
+
+        private void attachAll() {
+            ensureNoAttachConflicts();
+            attachAll(newlybornCitizens.values().iterator());
+        }
+
+        private void ensureNoAttachConflicts() {
+            Iterator<Citizen> dehydratedIterator = dehydratedCitizens.values().iterator();
+            Iterator<Citizen> freshIterator = newlybornCitizens.values().iterator();
+            ensureNoAttachConflicts(dehydratedIterator, freshIterator);
+        }
+
+        private boolean hasWriteConflicts() {
+            for (Citizen citizen : dehydratedCitizens.values()) {
+                if (citizen.___isDirty() && hasConflictingWrite(citizen.___getPointer())) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void updateStm() {
+            updateHeap();
+
+            if (numberOfWrites > 0)
+                activeVersion.incrementAndGet();
+            else
+                readonlyCount.incrementAndGet();
+
+            committedCount.incrementAndGet();
+        }
+
+        private void updateHeap() {
+            Iterator<Citizen> dehydratedIterator = dehydratedCitizens.values().iterator();
+            Iterator<Citizen> freshIterator = newlybornCitizens.values().iterator();
+            Iterator<Citizen> it = new HydratedCitizenIterator(dehydratedIterator, freshIterator);
+            for (; it.hasNext();) {
+                Citizen citizen = it.next();
+                if (citizen.___isDirty()) {
+                    DehydratedCitizen dehydratedCitizen = citizen.___dehydrate();
+                    write(citizen.___getPointer(), new Object[]{dehydratedCitizen});
+                }
+            }
+        }
+
+
+        /**
+         * Checks if this Transaction conflicts with a write.
+         *
+         * @param ptr the address to check
+         * @return true if there is a conflict, false otherwise.
+         */
+        private boolean hasConflictingWrite(long ptr) {
+            long actualVersion = heap.getActualVersion(ptr);
+            return startOfTransactionVersion + 1 <= actualVersion;
+        }
+
+        private void write(long ptr, Object[] content) {
+            numberOfWrites++;
+            heap.write(ptr, startOfTransactionVersion + 1, content);
         }
 
         public void abort() {
@@ -284,138 +353,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     break;
                 default:
                     throw new IllegalStateException();
-            }
-        }
-
-        /**
-         * Checks if this Transaction conflicts with a write.
-         *
-         * @param ptr the address to check
-         * @return true if there is a conflict, false otherwise.
-         */
-        private boolean hasConflictingWrite(long ptr) {
-            long actualVersion = heap.getActualVersion(ptr);
-            return version + 1 <= actualVersion;
-        }
-
-        private void write(long ptr, Object[] content) {
-            numberOfWrites++;
-            heap.write(ptr, version + 1, content);
-        }
-    }
-
-
-    private class CommitTask {
-        final MultiversionedTransaction transaction;
-        IdentityHashMap<Citizen, ValidateStatus> validationResults;
-
-        CommitTask(MultiversionedTransaction transaction) {
-            this.transaction = transaction;
-        }
-
-        /**
-         * Returns true if the commit was a success, false if a failure.
-         *
-         * @return
-         */
-        boolean execute() {
-            commitLock.lock();
-            try {
-                ValidateStatus validateStatus = validate();
-                switch (validateStatus) {
-                    case noReadsOrWrites:
-                        return true;
-                    case onlyReads:
-                        readonlyCount.incrementAndGet();
-                        return true;
-                    case hasNonconflictingWrites:
-                        makePermanent();
-                        if (transaction.numberOfWrites > 0)
-                            activeVersion.incrementAndGet();
-
-                        return true;
-                    case hasConflictingWrites:
-                        return false;
-                    default:
-                        throw new RuntimeException(format("unhandled validateStatus %s", validateStatus));
-                }
-            } finally {
-                commitLock.unlock();
-            }
-        }
-
-        private ValidateStatus validate() {
-            //only rematerialized objects need to be checked for conflicting changes
-            if (transaction.dehydratedCitizens.isEmpty() && transaction.newlybornCitizens.isEmpty()) {
-                return ValidateStatus.noReadsOrWrites;
-            }
-
-            validationResults = new IdentityHashMap<Citizen, ValidateStatus>();
-
-            for (Citizen t : transaction.newlybornCitizens.values())
-                validationResults.put(t, ValidateStatus.hasNonconflictingWrites);
-
-            boolean writesFound = !transaction.newlybornCitizens.isEmpty();
-            for (Map.Entry<Long, Citizen> entry : transaction.dehydratedCitizens.entrySet()) {
-                long ptr = entry.getKey();
-                Citizen citizen = entry.getValue();
-                if (citizen.___isDirty()) {
-                    if (transaction.hasConflictingWrite(ptr))
-                        return ValidateStatus.hasConflictingWrites;
-                    validationResults.put(citizen, ValidateStatus.hasNonconflictingWrites);
-                    writesFound = true;
-                } else {
-                    validationResults.put(citizen, ValidateStatus.onlyReads);
-                }
-            }
-
-            return writesFound ? ValidateStatus.hasNonconflictingWrites : ValidateStatus.onlyReads;
-        }
-
-        private Set<Citizen> findNewlyborns(Citizen citizen) {
-            Set<Citizen> result = new HashSet<Citizen>();
-            //todo
-            return result;
-        }
-
-        private Iterator<Citizen> iterateOverNewlyborns() {
-            Set<Citizen> result = new HashSet<Citizen>();
-            result.addAll(transaction.newlybornCitizens.values());
-
-            for (Citizen citizen : transaction.newlybornCitizens.values())
-                result.addAll(findNewlyborns(citizen));
-
-            for (Citizen citizen : transaction.dehydratedCitizens.values())
-                result.addAll(findNewlyborns(citizen));
-
-            //todo: not all reachable objects are returned, only the once that are attached directly.
-            return result.iterator();
-        }
-
-        private void makePermanent() {
-            prepareNewlybornsForPlacementInStm();
-
-            for (Citizen obj : transaction.dehydratedCitizens.values()) {
-                //check is added to prevent unneeded writes, only when a change has been done, a write needs to be done
-                if (validationResults.get(obj) == ValidateStatus.hasNonconflictingWrites) {
-                    DehydratedCitizen dehydratedCitizen = obj.___dehydrate();
-                    transaction.write(obj.___getPointer(), new Object[]{dehydratedCitizen});
-                }
-            }
-        }
-
-        private void prepareNewlybornsForPlacementInStm() {
-            for (Iterator<Citizen> it = iterateOverNewlyborns(); it.hasNext();) {
-                Citizen newlyborn = it.next();
-                if (newlyborn.___getTransaction() == null) {
-                    long ptr = heap.createHandle();
-                    newlyborn.___setPointer(ptr);
-                    newlyborn.___onAttach(transaction);
-                } else if (newlyborn.___getTransaction() != transaction) {
-                    throw new IllegalStateException();
-                }
-
-                transaction.dehydratedCitizens.put(newlyborn.___getPointer(), newlyborn);
             }
         }
     }

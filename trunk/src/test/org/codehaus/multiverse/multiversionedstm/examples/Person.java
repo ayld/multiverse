@@ -112,6 +112,9 @@ public class Person implements Citizen {
     }
 
     public boolean ___isDirty() {
+        if(initialHydratedPerson==null)
+            return true;
+
         return initialHydratedPerson.age != age ||
                 initialHydratedPerson.name != null ||
                 (parent_localized && (initialHydratedPerson.parentPtr != (parent == null ? 0 : parent.___getPointer())));
