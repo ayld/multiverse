@@ -50,6 +50,12 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
         assertEquals(expected, stm.getAbortedCount());
     }
 
+    public void assertHasPointerAndTransaction(Citizen citizen, long expectedPtr, Transaction expectedTrans) {
+        assertNotNull(citizen);
+        assertEquals(expectedPtr, citizen.___getPointer());
+        assertEquals(expectedTrans, citizen.___getTransaction());
+    }
+
     public void assertHasPointer(long expectedPtr, Citizen... citizens) {
         for (Citizen citizen : citizens)
             assertEquals("Pointer is not the same", expectedPtr, citizen.___getPointer());
@@ -60,8 +66,8 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
             assertSame("Transaction is not the same", expected, citizen.___getTransaction());
     }
 
-    public void assertHasNoTransaction(Citizen... citizens){
-        for(Citizen citizen: citizens)
+    public void assertHasNoTransaction(Citizen... citizens) {
+        for (Citizen citizen : citizens)
             assertNull("Transaction should be null", citizen.___getTransaction());
     }
 

@@ -62,12 +62,13 @@ public class Stack<E> implements Citizen {
         }
     }
 
-    //================== generated dowdown ======================
+    //================== generated  ======================
 
     //generated
     private Node head_initial;
     private long ptr;
     private MultiversionedStm.MultiversionedTransaction transaction;
+    private DehydratedStack initialStack;
 
     public Iterator<Citizen> ___directReachableIterator() {
         //todo: alle elementen van de stack moeten bij lang worden gelopen
@@ -95,9 +96,14 @@ public class Stack<E> implements Citizen {
     }
 
     public boolean ___isDirty() {
-        return head != head_initial;
-    }
+        if(initialStack == null)
+            return true;
 
+        if(head!=head_initial)
+            return true;
+
+        return false;
+    }
 
     public static class DehydratedStack implements DehydratedCitizen {
         private final Node head;
@@ -112,6 +118,7 @@ public class Stack<E> implements Citizen {
             stack.head_initial = head;
             stack.transaction = transaction;
             stack.ptr = ptr;
+            stack.initialStack = this;
             return stack;
         }
     }

@@ -24,6 +24,11 @@ public interface Citizen {
 
     DehydratedCitizen ___dehydrate();
 
+    /**
+     * Checks if this Citizen needs to be written to heap when the transaction commits.
+     *
+     * @return
+     */
     boolean ___isDirty();
 
     void ___setPointer(long ptr);    
