@@ -2,13 +2,12 @@ package org.codehaus.multiverse.util;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Collections;
 
 public class CompositeIterator<E> implements Iterator<E> {
     private final Iterator<E>[] iterators;
     private Iterator<E> currentIterator;
     private int index;
-    
+
     public CompositeIterator(Iterator<E>... iterators) {
         this.iterators = iterators;
         if (iterators.length > 0) {
@@ -30,7 +29,7 @@ public class CompositeIterator<E> implements Iterator<E> {
     }
 
     private boolean findNextIterator() {
-        if(index+1>=iterators.length)
+        if (index + 1 >= iterators.length)
             return false;
 
         index++;
@@ -39,7 +38,7 @@ public class CompositeIterator<E> implements Iterator<E> {
     }
 
     public E next() {
-        if(hasNext())
+        if (hasNext())
             return currentIterator.next();
 
         throw new NoSuchElementException();

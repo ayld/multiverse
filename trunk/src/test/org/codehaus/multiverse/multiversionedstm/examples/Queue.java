@@ -6,7 +6,6 @@ import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.util.ArrayIterator;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 
 public class Queue<E> implements Citizen {
 
@@ -87,8 +86,8 @@ public class Queue<E> implements Citizen {
             Queue queue = new Queue();
             queue.ptr = ptr;
             queue.transaction = transaction;
-            queue.readyToPopStack = (Stack) transaction.readRoot(readyToPopStackPtr);
-            queue.pushedStack = (Stack) transaction.readRoot(pushedStackPtr);
+            queue.readyToPopStack = (Stack) transaction.read(readyToPopStackPtr);
+            queue.pushedStack = (Stack) transaction.read(pushedStackPtr);
             queue.dehydratedQueue = this;
             return queue;
         }

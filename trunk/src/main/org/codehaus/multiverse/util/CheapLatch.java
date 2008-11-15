@@ -1,6 +1,7 @@
 package org.codehaus.multiverse.util;
 
 import java.util.concurrent.TimeUnit;
+import static java.lang.String.format;
 
 /**
  * A {@link Latch} based on the intrinsic lock. It can't do any timed waits.
@@ -40,5 +41,10 @@ public final class CheapLatch implements Latch {
 
     public boolean isOpen() {
         return isOpen;
+    }
+
+    @Override
+    public String toString(){
+        return format("CheapLatch(open=%s)",isOpen);
     }
 }

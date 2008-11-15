@@ -11,7 +11,7 @@ public class RetryTest extends AbstractMultiversionedStmTest {
         long address = atomicInsert(new Stack());
 
         Transaction t = stm.startTransaction();
-        Stack stack = (Stack) t.readRoot(address);
+        Stack stack = (Stack) t.read(address);
 
         try {
             stack.pop();

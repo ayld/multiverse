@@ -22,7 +22,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
     private void assertIllegalPointer(long ptr){
         createActiveTransaction();
         try {
-            transaction.readRoot(ptr);
+            transaction.read(ptr);
             fail();
         } catch (IllegalPointerException ex) {
         }
@@ -36,11 +36,11 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         //the current transaction.
         Transaction previousTransaction = stm.startTransaction();
         Person p = new Person();
-        previousTransaction.attachRoot(p);
+        previousTransaction.attach(p);
         previousTransaction.commit();
 
         try {
-            transaction.readRoot(p.___getPointer());
+            transaction.read(p.___getPointer());
             fail();
         } catch (IllegalVersionException ex) {
         }
@@ -55,7 +55,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         long ptr = createPersonUnderOwnTransaction(name, age);
 
         createActiveTransaction();
-        Object found = transaction.readRoot(ptr);
+        Object found = transaction.read(ptr);
         assertNotNull(found);
         assertTrue(found instanceof Person);
         Person foundPerson = (Person) found;
@@ -72,14 +72,14 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
         createActiveTransaction();
         updateAgeUnderOwnTransaction(ptr, age + 1);
-        Person p = (Person) transaction.readRoot(ptr);
+        Person p = (Person) transaction.read(ptr);
         assertEquals(age, p.getAge());
         assertTransactionHasNoWrites();
     }
 
     private void updateAgeUnderOwnTransaction(long ptr, int newage) {
         MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
-        Person person = (Person) t.readRoot(ptr);
+        Person person = (Person) t.read(ptr);
         person.setAge(newage);
         t.commit();
     }
@@ -89,7 +89,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         Person p = new Person();
         p.setAge(age);
         p.setName(name);
-        t.attachRoot(p);
+        t.attach(p);
         t.commit();
         return p.___getPointer();
     }
@@ -98,8 +98,8 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         long ptr = createPersonUnderOwnTransaction("peter", 32);
 
         createActiveTransaction();
-        Object found1 = transaction.readRoot(ptr);
-        Object found2 = transaction.readRoot(ptr);
+        Object found1 = transaction.read(ptr);
+        Object found2 = transaction.read(ptr);
         assertNotNull(found1);
         assertSame(found1, found2);
         assertTransactionHasNoWrites();
@@ -109,7 +109,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         createAbortedTransaction();
 
         try {
-            transaction.readRoot(1);
+            transaction.read(1);
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -122,7 +122,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         createCommittedTransaction();
 
         try {
-            transaction.readRoot(1);
+            transaction.read(1);
             fail();
         } catch (IllegalStateException ex) {
         }

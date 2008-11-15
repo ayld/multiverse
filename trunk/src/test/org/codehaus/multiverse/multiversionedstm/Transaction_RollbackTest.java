@@ -19,8 +19,8 @@ public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
         long version = stm.getActiveVersion();
 
         createActiveTransaction();
-        transaction.attachRoot(p1);
-        transaction.attachRoot(p2);
+        transaction.attach(p1);
+        transaction.attach(p2);
         transaction.abort();
 
         assertCurrentStmVersion(version);
@@ -35,7 +35,7 @@ public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
         long version = stm.getActiveVersion();
 
         createActiveTransaction();
-        Person p = (Person) transaction.readRoot(ptr);
+        Person p = (Person) transaction.read(ptr);
         p.setAge(10);
         p.setName("John Doe");
         p.setParent(new Person());

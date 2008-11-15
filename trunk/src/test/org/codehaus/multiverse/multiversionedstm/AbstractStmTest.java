@@ -3,8 +3,6 @@ package org.codehaus.multiverse.multiversionedstm;
 import junit.framework.TestCase;
 import org.codehaus.multiverse.transaction.Transaction;
 
-import static java.util.Arrays.asList;
-
 public abstract class AbstractStmTest extends TestCase {
 
     protected MultiversionedStm stm;
@@ -33,7 +31,7 @@ public abstract class AbstractStmTest extends TestCase {
     public long insert(Citizen obj) {
         MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
         try {
-            t.attachRoot(obj);
+            t.attach(obj);
             t.commit();
             return obj.___getPointer();
         } catch (RuntimeException ex) {

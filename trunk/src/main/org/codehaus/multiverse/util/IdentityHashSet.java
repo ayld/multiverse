@@ -3,8 +3,10 @@ package org.codehaus.multiverse.util;
 import java.util.*;
 
 /**
- * A {@link Set} that works based on object identity. Just like the {@link IdentifyHashMap}. It even
+ * A {@link Set} that works based on object identity. Just like the {@link IdentityHashMap}. It even
  * uses a IdentifyHashMap as a map.
+ *
+ * This class is not threadsafe.
  *
  * todo: what about equals/hash of set itself?
  *

@@ -2,6 +2,7 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 import org.codehaus.multiverse.transaction.AbortedException;
+import org.codehaus.multiverse.transaction.Transaction;
 
 public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
 
@@ -23,7 +24,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         long version = stm.getActiveVersion();
 
         Person person = new Person();
-        long personPtr = transaction.attachRoot(person);
+        long personPtr = transaction.attach(person);
         transaction.commit();
 
         assertTransactionIsCommitted();
@@ -46,7 +47,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         Person person = new Person(age, name);
         person.getAge();
         person.getName();
-        transaction.attachRoot(person);
+        transaction.attach(person);
         transaction.commit();
 
         assertTransactionIsCommitted();
@@ -61,7 +62,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         long initialVersion = stm.getActiveVersion();
 
         Person person = new Person();
-        transaction.attachRoot(person);
+        transaction.attach(person);
         int age = 100;
         person.setAge(age);
         transaction.commit();
@@ -81,7 +82,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         Person child = new Person();
         child.setParent(parent);
 
-        transaction.attachRoot(child);
+        transaction.attach(child);
         transaction.commit();
 
         assertTransactionIsCommitted();
@@ -97,7 +98,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         long initialVersion = stm.getActiveVersion();
 
         Person person = new Person();
-        transaction.attachRoot(person);
+        transaction.attach(person);
         int age = 100;
         person.setAge(age);
         person.setParent(person);
@@ -121,7 +122,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         child.setParent(parent);
         grandparent.setParent(child);//this cause the cycle
 
-        transaction.attachRoot(child);
+        transaction.attach(child);
         transaction.commit();
 
         assertTransactionIsCommitted();
@@ -140,7 +141,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         long initialVersion = stm.getActiveVersion();
 
         createActiveTransaction();
-        Person p1 = (Person) transaction.readRoot(ptr);
+        Person p1 = (Person) transaction.read(ptr);
         p1.getName();
         p1.getParent();
         transaction.commit();
@@ -160,7 +161,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         long initialVersion = stm.getActiveVersion();
 
         createActiveTransaction();
-        Person p1 = (Person) transaction.readRoot(ptr);
+        Person p1 = (Person) transaction.read(ptr);
         int newAge = oldAge + 1;
         p1.setAge(newAge);
         transaction.commit();
@@ -177,9 +178,9 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         long ptr = atomicInsert(person);
 
         createActiveTransaction();
-        Person p1 = (Person) transaction.readRoot(ptr);
+        Person p1 = (Person) transaction.read(ptr);
 
-        MultiversionedStm.MultiversionedTransaction interferingTransaction = updateUnderOwnTransaction(ptr);
+        MultiversionedStm.MultiversionedTransaction interferingTransaction = atomicIncAge(ptr);
 
         long commitCount = stm.getCommittedCount();
 
@@ -197,13 +198,35 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertAbortedCount(1);
     }
 
-    private MultiversionedStm.MultiversionedTransaction updateUnderOwnTransaction(long ptr) {
-        MultiversionedStm.MultiversionedTransaction interferingTransaction = stm.startTransaction();
-        Person p2 = (Person) interferingTransaction.readRoot(ptr);
+    private MultiversionedStm.MultiversionedTransaction atomicIncAge(long personPtr) {
+        MultiversionedStm.MultiversionedTransaction transaction = stm.startTransaction();
+        Person p2 = (Person) transaction.read(personPtr);
         p2.setAge(p2.getAge() + 1);
-        interferingTransaction.commit();
-        return interferingTransaction;
+        transaction.commit();
+        return transaction;
     }
+
+    public void _testReachableObjectIsConnectedToDifferentTransaction() {
+        Transaction otherTransaction = stm.startTransaction();
+        Person parent = new Person();
+        long parentPtr = otherTransaction.attach(parent);
+
+        createActiveTransaction();
+        Person child = new Person();
+        long childPtr = transaction.attach(child);
+
+        child.setParent(parent);
+
+        transaction.commit();
+
+        assertTransactionIsAborted();
+        assertTransactionHasNoWrites();
+
+        assertHasPointerAndTransaction(child, childPtr, transaction);
+        assertHasPointerAndTransaction(parent, parentPtr, otherTransaction);
+    }
+
+    //=================================================================
 
     public void testComittedTransaction() {
         createCommittedTransaction();
