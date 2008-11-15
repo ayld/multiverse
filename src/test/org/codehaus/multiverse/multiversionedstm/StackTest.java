@@ -17,7 +17,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Stack stack = (Stack) t.readRoot(stackPtr);
+                Stack stack = (Stack) t.read(stackPtr);
                 stack.push(item);
                 return null;
             }
@@ -30,7 +30,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
         return (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
                 System.out.println(Thread.currentThread() + " trying to pop");
-                Stack stack = (Stack) t.readRoot(stackPtr);
+                Stack stack = (Stack) t.read(stackPtr);
                 return stack.pop();
             }
         }.execute();

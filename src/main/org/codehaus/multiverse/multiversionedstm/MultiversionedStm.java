@@ -4,6 +4,7 @@ import org.codehaus.multiverse.Stm;
 import org.codehaus.multiverse.transaction.AbortedException;
 import org.codehaus.multiverse.transaction.Transaction;
 import org.codehaus.multiverse.transaction.TransactionStatus;
+import org.codehaus.multiverse.transaction.AttachedToDifferentTransactionException;
 import org.codehaus.multiverse.util.Latch;
 import org.codehaus.multiverse.util.ArrayIterator;
 import static org.codehaus.multiverse.util.PtrUtils.checkPtr;
@@ -147,8 +148,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         private volatile TransactionStatus status = TransactionStatus.active;
         private final long startOfTransactionVersion;
         private final Map<Long, Citizen> newlybornCitizens = new HashMap<Long, Citizen>();
-        private final IdentityHashMap<Citizen, Long> invertedNewlybornCitizens = new IdentityHashMap<Citizen, Long>();
-        private final Map<Long, Citizen> dehydratedCitizens = new Hashtable<Long, Citizen>();
+         private final Map<Long, Citizen> dehydratedCitizens = new Hashtable<Long, Citizen>();
         private long numberOfWrites = 0;
 
         public MultiversionedTransaction() {
@@ -178,11 +178,11 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return result;
         }
 
-        public void deleteRoot(long ptr) {
+        public void delete(long ptr) {
             throw new RuntimeException();
         }
 
-        public Object readRoot(long ptr) {
+        public Object read(long ptr) {
             //preconditions
             checkPtr(ptr);
             assertTransactionActive();
@@ -210,7 +210,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        public long attachRoot(Object root) {
+        public long attach(Object root) {
             if (root == null)
                 throw new NullPointerException();
             if (!(root instanceof Citizen))
@@ -227,8 +227,10 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             for (Iterator<Citizen> it = new HydratedCitizenIterator(roots); it.hasNext();) {
                 Citizen citizen = it.next();
                 Transaction transaction = citizen.___getTransaction();
-                if (transaction != this && transaction != null)
-                    throw new IllegalStateException(format("object already is attached to another transaction %s", citizen));
+                if (transaction != this && transaction != null)                                                                                 {
+                    String msg = format("object %s already is attached to another transaction %s", citizen, this);
+                    throw new AttachedToDifferentTransactionException(msg);
+                }
             }
         }
 
@@ -240,7 +242,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     citizen.___setPointer(ptr);
                     citizen.___onAttach(this);
                     newlybornCitizens.put(ptr, citizen);
-                    invertedNewlybornCitizens.put(citizen, ptr);
                 }
             }
         }
@@ -254,6 +255,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             switch (status) {
                 case active:
                     attachAll();
+                    //future performance improvements
+                    //1) read write lock
+                    //2) non blocking 
                     commitLock.lock();
                     try {
                         if (hasWriteConflicts()) {
@@ -265,12 +269,11 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                         commitLock.unlock();
                     }
 
-
                     status = TransactionStatus.committed;
                     System.out.println(getStatistics());
                     break;
                 case committed:
-                    //ignore, transaction already is committed, can't do any harm
+                    //ignore, transaction already is committed, can't do any harm to commit again
                     break;
                 default:
                     throw new IllegalStateException();

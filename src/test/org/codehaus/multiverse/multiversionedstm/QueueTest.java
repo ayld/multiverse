@@ -16,7 +16,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.readRoot(queuePtr);
+                Queue queue = (Queue) t.read(queuePtr);
                 queue.push(item);
                 return null;
             }
@@ -28,7 +28,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     public String atomicPop() {
         return (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.readRoot(queuePtr);
+                Queue queue = (Queue) t.read(queuePtr);
                 return queue.pop();
             }
         }.execute();
@@ -37,7 +37,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     public int atomicSize() {
         return (Integer) new TransactionTemplate(stm) {
             protected Integer execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.readRoot(queuePtr);
+                Queue queue = (Queue) t.read(queuePtr);
                 return queue.size();
             }
         }.execute();

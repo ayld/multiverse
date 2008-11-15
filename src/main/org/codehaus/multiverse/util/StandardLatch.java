@@ -4,6 +4,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.TimeUnit;
+import static java.lang.String.format;
 
 /**
  * A {@link Latch} implementation that is based on the {@link Lock}.
@@ -49,5 +50,10 @@ public final class StandardLatch implements Latch {
 
     public boolean isOpen() {
         return isOpen;
+    }
+
+    @Override
+    public String toString(){
+        return format("StandardLatch(open=%s)",isOpen);
     }
 }

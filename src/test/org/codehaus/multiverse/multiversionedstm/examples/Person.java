@@ -8,8 +8,6 @@ import org.codehaus.multiverse.util.EmptyIterator;
 
 import static java.lang.String.format;
 import java.util.Iterator;
-import java.util.Collections;
-import static java.util.Arrays.asList;
 
 public class Person implements Citizen {
 
@@ -62,7 +60,7 @@ public class Person implements Citizen {
         //GENERATED
         if (!parent_localized) {
             long parentPtr = initialHydratedPerson.parentPtr;
-            parent = parentPtr == 0 ? null : (Person) transaction.readRoot(parentPtr);
+            parent = parentPtr == 0 ? null : (Person) transaction.read(parentPtr);
             parent_localized = true;
         }
 

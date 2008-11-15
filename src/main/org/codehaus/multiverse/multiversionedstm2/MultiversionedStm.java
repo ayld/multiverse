@@ -59,11 +59,11 @@ public class MultiversionedStm implements Stm {
             return citizen;
         }
 
-        public long attachRoot(Object root) {
+        public long attach(Object root) {
             return 0;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
-        public Object readRoot(long ptr) {
+        public Object read(long ptr) {
             if (ptr <= 0)
                 throw new IllegalPointerException(ptr);
 
@@ -77,7 +77,7 @@ public class MultiversionedStm implements Stm {
             return null;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
-        public void deleteRoot(long ptr) {
+        public void delete(long ptr) {
             throw new RuntimeException();
         }
 

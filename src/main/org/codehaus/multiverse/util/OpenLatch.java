@@ -3,7 +3,7 @@ package org.codehaus.multiverse.util;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link Latch} that already is open.
+ * A {@link Latch} that already is open. It is a special case implementation.
  *
  * @author Peter Veentjer.
  */
@@ -11,11 +11,11 @@ public class OpenLatch implements Latch{
 
     public final static OpenLatch INSTANCE = new OpenLatch();
 
-    public void tryAwait(long timeout, TimeUnit unit) throws InterruptedException {
+    public void tryAwait(long timeout, TimeUnit unit) {
         //ignore
     }
 
-    public void await() throws InterruptedException {
+    public void await() {
         //ignore
     }
 
@@ -25,5 +25,10 @@ public class OpenLatch implements Latch{
 
     public boolean isOpen() {
         return true;
+    }
+
+    @Override
+    public String toString(){
+        return "OpenLatch";
     }
 }
