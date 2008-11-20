@@ -79,7 +79,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertEquals("multiple attach should give the same value for the same object ", ptr1, ptr2);
+        assertEquals("multiple attach should give the same content for the same object ", ptr1, ptr2);
         assertHasPointer(ptr1, person);
     }
 

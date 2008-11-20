@@ -1,0 +1,23 @@
+package org.codehaus.multiverse;
+
+/**
+ *
+ * @author Peter Veentjer.
+ */
+public abstract class StmException extends RuntimeException {
+
+    public StmException() {
+    }
+
+    public StmException(String message) {
+        super(message);
+    }
+
+    public StmException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public StmException(Throwable cause) {
+        super(cause);
+    }
+}

@@ -1,54 +1,94 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import junit.framework.TestCase;
-import org.codehaus.multiverse.IllegalPointerException;
-import org.codehaus.multiverse.IllegalVersionException;
+import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
+import org.codehaus.multiverse.transaction.IllegalVersionException;
 
 import static java.util.Arrays.asList;
 
-public class MultiversionedHeapTest extends TestCase {
+public class GrowingMultiversionedHeapTest extends TestCase {
 
-    private MultiversionedHeap<String> heap;
+    private GrowingMultiversionedHeap<String> heap;
 
     public void setUp() {
-        heap = new MultiversionedHeap<String>();
+        heap = new GrowingMultiversionedHeap<String>();
     }
 
-    public void assertActualContent(long ptr, long expectedVersion, String expectedContent) {
-        assertEquals(expectedVersion, heap.getActualVersion(ptr));
-        String foundContent = heap.read(ptr, expectedVersion);
+    public void assertContent(long handle, long expectedVersion, String expectedContent) {
+        assertEquals(expectedVersion, heap.readVersion(handle));
+        String foundContent = heap.read(handle, expectedVersion);
         assertEquals(asList(expectedContent), asList(foundContent));
     }
 
-    public void assertContent(long ptr, long version, String expectedContent) {
-        String foundContent = heap.read(ptr, version);
+    public void assertContentAtVersion(long handle, long version, String expectedContent) {
+        String foundContent = heap.read(handle, version);
         assertEquals(expectedContent, foundContent);
     }
 
-    public void assertWriteCount(int expectedWrites){
+    public void assertWriteCount(int expectedWrites) {
         assertEquals(expectedWrites, heap.getWriteCount());
     }
 
-    public void assertReadCount(int expectedReads){
+    public void assertReadCount(int expectedReads) {
         assertEquals(expectedReads, heap.getReadCount());
     }
 
-    public void assertNoReads(){
+    public void assertNoReads() {
         assertReadCount(0);
     }
 
-    public void assertNoWrites(){
+    public void assertNoWrites() {
         assertWriteCount(0);
     }
+
+
+    //================= delete ==================================
+
+    public void testDelete(){
+        long handle = heap.createHandle();
+        long version = 1;
+        String content = "foo";
+
+        heap.write(handle, version, content);
+
+        heap.delete(handle, version+1);
+    }
+
+    public void testDelete_NonExistingHandle() {
+        try {
+            heap.delete(-1, 1);
+            fail();
+        } catch (ObjectDoesNotExistException ex) {
+        }
+    }
+
+    //public void testDeleteIllegalVersion() {
+    //    try {
+    //        heap.delete(1, 1);
+    //        fail();
+    //    } catch (IllegalVersionException ex) {
+    //    }
+    //}
+
+    //public void testDeleteNonExistingPointer() {
+    //    try {
+    //        heap.delete(100, 1);
+    //        fail();
+    //    } catch (IllegalVersionException ex) {
+    //
+    //    }
+    //}
+
+    //================ reads =====================================
 
     public void testReadNonExistingPtr() {
         try {
             heap.read(10, 0);
             fail();
-        } catch (IllegalPointerException ex) {
+        } catch (ObjectDoesNotExistException ex) {
         }
 
-        assertReadCount(1);
+        assertReadCount(0);
         assertNoWrites();
     }
 
@@ -75,7 +115,7 @@ public class MultiversionedHeapTest extends TestCase {
         long newVersion = oldVersion + 1;
 
         heap.write(ptr, oldVersion, content);
-        assertContent(ptr, newVersion, content);
+        assertContentAtVersion(ptr, newVersion, content);
     }
 
     public void testReadCurrentVersion() {
@@ -84,20 +124,28 @@ public class MultiversionedHeapTest extends TestCase {
         long version = 25;
 
         heap.write(ptr, version, content);
-        assertActualContent(ptr, version, content);
+        assertContent(ptr, version, content);
     }
 
-    public void testWriteNullContent(){
-        try{
+    //========================= writes ======================
+
+    public void testWriteNullContent() {
+        try {
             heap.write(10, 10, null);
             fail();
-        }catch(NullPointerException ex){
+        } catch (NullPointerException ex) {
         }
 
         assertWriteCount(0);
     }
 
-    //======================= overwrite ==========================
+    public void testWriteIllegalPointer(){
+        //todo
+    }
+
+    public void testWriteIllegalVersion(){
+        //todo
+    }
 
     public void testOverwrite() {
         String oldContent = "foo";
@@ -107,12 +155,12 @@ public class MultiversionedHeapTest extends TestCase {
         long newVersion = oldVersion + 1;
 
         heap.write(ptr, oldVersion, oldContent);
-        assertActualContent(ptr, oldVersion, oldContent);
+        assertContent(ptr, oldVersion, oldContent);
 
         heap.write(ptr, newVersion, newContent);
-        assertActualContent(ptr, newVersion, newContent);
+        assertContent(ptr, newVersion, newContent);
 
-        assertContent(ptr, oldVersion, oldContent);
+        assertContentAtVersion(ptr, oldVersion, oldContent);
     }
 
     public void testOverwriteWithSameVersionFails() {
@@ -128,7 +176,7 @@ public class MultiversionedHeapTest extends TestCase {
         } catch (IllegalVersionException ex) {
         }
 
-        assertContent(ptr, version, oldContent);
+        assertContentAtVersion(ptr, version, oldContent);
     }
 
     public void testOverwriteNewVersionWithOldVersionFails() {
@@ -145,6 +193,6 @@ public class MultiversionedHeapTest extends TestCase {
         } catch (IllegalVersionException ex) {
         }
 
-        assertContent(ptr, newVersion, newContent);
+        assertContentAtVersion(ptr, newVersion, newContent);
     }
 }

@@ -3,13 +3,11 @@ package org.codehaus.multiverse.multiversionedstm;
 import org.codehaus.multiverse.AbstractTransactionTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
-import static java.util.Arrays.asList;
-
 public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
-    private MultiversionedHeap<DehydratedCitizen> heap;
+    private GrowingMultiversionedHeap<DehydratedCitizen> heap;
 
     public MultiversionedStm createStm() {
-        heap = new MultiversionedHeap<DehydratedCitizen>();
+        heap = new GrowingMultiversionedHeap<DehydratedCitizen>();
         return new MultiversionedStm(heap);
     }
 
@@ -30,7 +28,7 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     }
 
     public void assertActualVersion(long ptr, long expectedVersion) {
-        long foundVersion = heap.getActualVersion(ptr);
+        long foundVersion = heap.readVersion(ptr);
         assertEquals(expectedVersion, foundVersion);
     }
 
@@ -72,7 +70,7 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     }
 
     public void assertHeapContains(long ptr, long expectedVersion, DehydratedCitizen expected) {
-        assertEquals("Versions don't match. -1 indicates no cell with given address", expectedVersion, heap.getActualVersion(ptr));
+        assertEquals("Versions don't match. -1 indicates no cell with given address", expectedVersion, heap.readVersion(ptr));
         DehydratedCitizen found = heap.read(ptr, expectedVersion);
         assertEquals("Content doesn't match", expected, found);
     }

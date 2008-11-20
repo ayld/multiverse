@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm2;
 
-import org.codehaus.multiverse.IllegalPointerException;
+import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
 
 import java.util.Map;
 import java.util.Set;
@@ -24,10 +24,10 @@ public class TheMap {
             return local;
 
         if (deletes.contains(key))
-            throw new IllegalPointerException();
+            throw new ObjectDoesNotExistException();
 
         if (parent == null)
-            throw new IllegalPointerException();
+            throw new ObjectDoesNotExistException();
 
         return parent.get(key);
     }

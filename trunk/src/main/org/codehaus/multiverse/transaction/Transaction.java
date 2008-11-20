@@ -36,11 +36,11 @@ public interface Transaction {
      *
      * This method is not threadsafe.
      *
-     * @param ptr the pointer to the object.
+     * @param handle the handle to the object.
      * @return the Object at the pointer.
-     * @throws org.codehaus.multiverse.IllegalPointerException
+     * @throws ObjectDoesNotExistException
      */
-    Object read(long ptr);
+    Object read(long handle);
 
     /**
      * Removes a root object from this transaction. When this transaction commits, it doesn't mean that the
@@ -51,10 +51,13 @@ public interface Transaction {
      *
      * todo: what to do if object not part of transaction
      * todo: what to do if object already is removed
+     * todo: what to do if the object does not exist
      *
-     * @param ptr the pointer of the object to remove.
+     * @param handle the pointer of the object to remove.
      */
-    void delete(long ptr);
+    void delete(long handle);
+
+    void delete(Object root);
 
     /**
      * Returns the status of this Transaction

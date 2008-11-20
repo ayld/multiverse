@@ -1,13 +1,13 @@
 package org.codehaus.multiverse.util;
 
-import org.codehaus.multiverse.IllegalPointerException;
+import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
 
 import static java.lang.String.format;
 
 public final class PtrUtils {
 
-    public static void checkPtrAndVersion(long ptr, long version) {
-        checkPtr(ptr);
+    public static void checkHandleAndVersion(long handle, long version) {
+        checkHandle(handle);
         checkVersion(version);
     }
 
@@ -16,9 +16,13 @@ public final class PtrUtils {
             throw new IllegalArgumentException(format("Version must be equal or larger than 0, version was %d", version));
     }
 
-    public static void checkPtr(long ptr) {
-        if (ptr <= 0)
-            throw new IllegalPointerException(format("Pointer must be larger than 0, ptr was %d", ptr));
+    public static boolean versionIsValid(long version){
+        return version>=0;
+    }
+
+    public static void checkHandle(long handle) {
+        if (handle <= 0)
+            throw new ObjectDoesNotExistException(format("Handle must be larger than 0, handle was %d", handle));
     }
 
     private PtrUtils() {

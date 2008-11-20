@@ -2,6 +2,7 @@ package org.codehaus.multiverse;
 
 import junit.framework.TestCase;
 import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
 
 public abstract class AbstractStmTest<S extends Stm> extends TestCase {
 
@@ -20,7 +21,7 @@ public abstract class AbstractStmTest<S extends Stm> extends TestCase {
         try {
             t.read(ptr);
             fail();
-        } catch (IllegalPointerException ex) {
+        } catch (ObjectDoesNotExistException ex) {
         } finally {
             t.commit();
         }

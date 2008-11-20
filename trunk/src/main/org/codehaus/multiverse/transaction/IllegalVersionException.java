@@ -1,8 +1,15 @@
-package org.codehaus.multiverse;
+package org.codehaus.multiverse.transaction;
+
+import org.codehaus.multiverse.StmException;
 
 import static java.lang.String.format;
 
-public class IllegalVersionException extends RuntimeException {
+/**
+ * A {@link StmException} to indicate that an illegal version for the stm is used.
+ *
+ * @author Peter Veentjer.
+ */
+public class IllegalVersionException extends StmException {
 
     public IllegalVersionException() {
     }
