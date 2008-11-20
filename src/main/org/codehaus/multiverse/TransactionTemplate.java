@@ -7,44 +7,42 @@ import org.codehaus.multiverse.transaction.Transaction;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Idea:
+ * The TransactionTemplate  is a template that contains all plumbing logic for the start, retry etc of
+ * Transactions. It could be compared to one of the Spring templates like the JdbcTemplate.
+ *
+ * @author Peter Veentjer.
  */
-public abstract class TransactionTemplate {
+public abstract class TransactionTemplate<E> {
 
     private final Stm stm;
-    private final AtomicInteger retryCount = new AtomicInteger();
 
     protected TransactionTemplate(Stm stm) {
         if (stm == null) throw new NullPointerException();
         this.stm = stm;
     }
 
-    public long getRetryCount() {
-        return retryCount.longValue();
-    }
-
     public Stm getStm() {
         return stm;
     }
 
-    abstract protected Object execute(Transaction t) throws Exception;
+    abstract protected E execute(Transaction t) throws Exception;
 
-    public final Object execute() {
+    public final E execute() {
         try {
             boolean success = false;
-            Transaction baseTransaction = null;
-            Object result = null;
+            Transaction predecessor = null;
+            E result = null;
             do {
-                Transaction transaction = baseTransaction == null ? stm.startTransaction() : stm.startTransaction(baseTransaction);
+                Transaction transaction = predecessor == null ? stm.startTransaction() : stm.startTransaction(predecessor);
                 try {
-                    baseTransaction = null;
+                    predecessor = null;
                     result = execute(transaction);
                     transaction.commit();
                     success = true;
                 } catch (RetryException ex) {
                     //System.out.println(Thread.currentThread() + " retried");
                     transaction.abort();
-                    baseTransaction = transaction;
+                    predecessor = transaction;
                 } catch (AbortedException ex) {
                     //System.out.println(Thread.currentThread() + " aborted");
                     transaction.abort();

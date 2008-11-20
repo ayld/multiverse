@@ -7,7 +7,7 @@ import org.codehaus.multiverse.transaction.TransactionStatus;
 import org.codehaus.multiverse.transaction.AttachedToDifferentTransactionException;
 import org.codehaus.multiverse.util.Latch;
 import org.codehaus.multiverse.util.ArrayIterator;
-import static org.codehaus.multiverse.util.PtrUtils.checkPtr;
+import static org.codehaus.multiverse.util.PtrUtils.checkHandle;
 
 import static java.lang.String.format;
 import java.util.*;
@@ -53,10 +53,10 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     private final Lock commitLock = new ReentrantLock();
 
     public MultiversionedStm() {
-        this(new MultiversionedHeap<DehydratedCitizen>());
+        this(new GrowingMultiversionedHeap<DehydratedCitizen>());
     }
 
-    public MultiversionedStm(MultiversionedHeap<DehydratedCitizen> heap) {
+    public MultiversionedStm(GrowingMultiversionedHeap<DehydratedCitizen> heap) {
         if (heap == null) throw new NullPointerException();
         this.heap = heap;
     }
@@ -76,7 +76,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
      * @return
      */
     public long getActiveCount() {
-        //since no locking is done, it could be that value are read from different points in time in the stm.
+        //since no locking is done, it could be that content are read from different points in time in the stm.
         long count = getStartedCount() - (getCommittedCount() + getAbortedCount());
         return count < 0 ? 0 : count;
     }
@@ -136,10 +136,10 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         sb.append("stm.transaction.committedcount: ").append(getCommittedCount()).append("\n");
         sb.append("stm.transaction.abortedcount: ").append(getAbortedCount()).append("\n");
         sb.append("stm.transaction.readonlycount: ").append(getReadonlyCount()).append("\n");
-        sb.append("stm.heap.cellcount: ").append(heap.getCellCount()).append("\n");
-        sb.append("stm.heap.versioncount: ").append(heap.getVersionCount()).append("\n");
-        sb.append("stm.heap.writecount: ").append(heap.getWriteCount()).append("\n");
-        sb.append("stm.heap.readcount: ").append(heap.getReadCount()).append("\n");
+        //sb.append("stm.heap.cellcount: ").append(heap.getCellCount()).append("\n");
+        //sb.append("stm.heap.versioncount: ").append(heap.getVersionCount()).append("\n");
+        //sb.append("stm.heap.writecount: ").append(heap.getWriteCount()).append("\n");
+        //sb.append("stm.heap.readcount: ").append(heap.getReadCount()).append("\n");
         return sb.toString();
     }
 
@@ -179,12 +179,19 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         public void delete(long ptr) {
+            checkHandle(ptr);
+            assertTransactionActive();
+
+            throw new RuntimeException();
+        }
+
+        public void delete(Object root) {
             throw new RuntimeException();
         }
 
         public Object read(long ptr) {
             //preconditions
-            checkPtr(ptr);
+            checkHandle(ptr);
             assertTransactionActive();
 
             //if the object already is loaded in this Transaction, the same object should
@@ -193,7 +200,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             if (found != null)
                 return found;
 
-            //if the object was newly born, this value should be returned.
+            //if the object was newly born, this content should be returned.
             found = newlybornCitizens.get(ptr);
             if (found != null)
                 return found;
@@ -333,7 +340,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
          * @return true if there is a conflict, false otherwise.
          */
         private boolean hasConflictingWrite(long ptr) {
-            long actualVersion = heap.getActualVersion(ptr);
+            long actualVersion = heap.readVersion(ptr);
             return startOfTransactionVersion + 1 <= actualVersion;
         }
 

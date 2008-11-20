@@ -6,12 +6,12 @@ import org.codehaus.multiverse.transaction.Transaction;
 public abstract class AbstractStmTest extends TestCase {
 
     protected MultiversionedStm stm;
-    protected MultiversionedHeap<DehydratedCitizen> heap;
+    protected GrowingMultiversionedHeap<DehydratedCitizen> heap;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        heap = new MultiversionedHeap<DehydratedCitizen>();
+        heap = new GrowingMultiversionedHeap<DehydratedCitizen>();
         stm = new MultiversionedStm(heap);
     }
 
@@ -63,7 +63,7 @@ public abstract class AbstractStmTest extends TestCase {
     }
 
     public void assertActualVersion(long ptr, long expectedVersion) {
-        long foundVersion = heap.getActualVersion(ptr);
+        long foundVersion = heap.readVersion(ptr);
         assertEquals(expectedVersion, foundVersion);
     }
 
@@ -72,7 +72,7 @@ public abstract class AbstractStmTest extends TestCase {
     }
 
     public void assertStmContains(long ptr, long expectedVersion, DehydratedCitizen expected) {
-        assertEquals("Versions don't match", expectedVersion, heap.getActualVersion(ptr));
+        assertEquals("Versions don't match", expectedVersion, heap.readVersion(ptr));
         DehydratedCitizen found = heap.read(ptr, expectedVersion);
         assertEquals("Content doesn't match", expected, found);
     }

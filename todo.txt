@@ -1,26 +1,9 @@
 TODO
 
-- what happens when a fresh object is connected to an attached object. Is the fresh object also attached?
-
--changes in the heap are 'visible' through exceptions. If a read is done before an write, an illegalpointerexception
-could be thrown, if a read is done after a write, an illegalversionexception could be thrown. Question is: is this
-a problem?
-
-- looking for fresh object is not complete
-
-- code instrumentation.
-
-- garbage collection on non used objects
-    - if the object graph remains (instead of ripping it to shreds) the garbage collector can collect all
-    objects that are not attached to the roots. The root objects need to be registered in the heap. But
-    if a graph is not connected to an item, it can be garbage collected. The cool thing is that no new
-    garbage collector needs to be created, we can lift on the garbage collector 
-
-- garbage collection on old versions of objects
-
-- 
 
 IDEAS
+
+- 
 
 - would it be possible to merge dehydratedcitizens? When 2 transactions commit and see that there is a object-level conflict
  , but not a field level conflict, on a dehydratedcitizen, the transaction aborts and is retried again. But could it be possible to create a new dehydratedcitizen
@@ -112,3 +95,6 @@ the issue with the queuetest as well.
 - numer of readonly transactions is very low
     - transactions for stacks and queues that retry, are aborted. so the readolytransactioncount is not
      increased
+
+- what happens when a fresh object is connected to an attached object. Is the fresh object also attached?
+

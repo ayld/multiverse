@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm2;
 
-import org.codehaus.multiverse.IllegalPointerException;
+import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
 import org.codehaus.multiverse.Stm;
 import org.codehaus.multiverse.transaction.Transaction;
 import org.codehaus.multiverse.transaction.TransactionStatus;
@@ -63,9 +63,13 @@ public class MultiversionedStm implements Stm {
             return 0;  //To change body of implemented methods use File | Settings | File Templates.
         }
 
+        public void delete(Object root) {
+            //To change body of implemented methods use File | Settings | File Templates.
+        }
+
         public Object read(long ptr) {
             if (ptr <= 0)
-                throw new IllegalPointerException(ptr);
+                throw new ObjectDoesNotExistException(ptr);
 
             if (status != TransactionStatus.active)
                 throw new IllegalStateException();

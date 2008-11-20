@@ -3,7 +3,8 @@ package org.codehaus.multiverse;
 import org.codehaus.multiverse.transaction.RetryException;
 
 /**
- * 
+ *
+ * @author Peter Veentjer.
  */
 public final class TransactionMethods {
 

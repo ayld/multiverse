@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 
 /**
  * A {@link Iterator} that iterates over an array. It prevents converting the array to a {@link java.util.List}.
+ * It doesn't support removal of items.
  *
  * This class is not threadsafe.
  *
