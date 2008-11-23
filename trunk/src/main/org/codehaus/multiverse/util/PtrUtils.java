@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.util;
 
-import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 
 import static java.lang.String.format;
 
@@ -22,7 +22,7 @@ public final class PtrUtils {
 
     public static void checkHandle(long handle) {
         if (handle <= 0)
-            throw new ObjectDoesNotExistException(format("Handle must be larger than 0, handle was %d", handle));
+            throw new NoSuchObjectException(format("Handle must be larger than 0, handle was %d", handle));
     }
 
     private PtrUtils() {

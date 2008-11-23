@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 
 public class Transaction_DeleteTest extends AbstractMultiversionedStmTest {
 
@@ -10,7 +10,7 @@ public class Transaction_DeleteTest extends AbstractMultiversionedStmTest {
         try {
             transaction.delete(-1);
             fail();
-        } catch (ObjectDoesNotExistException ex) {
+        } catch (NoSuchObjectException ex) {
         }
 
         assertTransactionIsActive();

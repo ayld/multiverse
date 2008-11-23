@@ -38,7 +38,7 @@ public interface Transaction {
      *
      * @param handle the handle to the object.
      * @return the Object at the pointer.
-     * @throws ObjectDoesNotExistException
+     * @throws NoSuchObjectException
      */
     Object read(long handle);
 

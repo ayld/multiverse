@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.transaction.IllegalVersionException;
-import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.Latch;
 import org.codehaus.multiverse.util.CheapLatch;
 
@@ -10,11 +10,11 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
 
-    private final AtomicReferenceArray<Cell> cells;
-    private final AtomicInteger nextFreeIndex = new AtomicInteger();
+    private final AtomicReferenceArray<Cell<E>> cells;
+    private final AtomicInteger nextFreeIndex = new AtomicInteger(0);
 
     public FixedMultiversionedHeap(int size) {
-        cells = new AtomicReferenceArray<Cell>(new Cell[size]);
+        cells = new AtomicReferenceArray<Cell<E>>(new Cell[size]);
     }
 
     public long createHandle() {
@@ -26,7 +26,7 @@ public class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
 
         Cell<E> cell = cells.get(index);
         if (cell == null)
-            throw new ObjectDoesNotExistException(handle);
+            throw new NoSuchObjectException(handle);
 
         return cell.getContent(version);
     }
@@ -34,11 +34,9 @@ public class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
     public E read(long handle) {
         int index = (int) handle;
         Cell<E> cell = cells.get(index);
-        if (cell == null)
-            throw new ObjectDoesNotExistException(handle);
 
-        if (cell.content == null)
-            throw new ObjectDoesNotExistException(handle);
+        if (cell == null || cell.isDeleted())
+            throw new NoSuchObjectException(handle);
 
         return cell.content;
     }
@@ -53,16 +51,18 @@ public class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
         int index = (int) handle;
         Cell cell = cells.get(index);
         if (cell == null)
-            throw new ObjectDoesNotExistException(handle);
+            throw new NoSuchObjectException(handle);
 
         return cell.version;
     }
 
     public void write(long handle, long version, E content) {
         int index = (int) handle;
-        Cell cell = cells.get(index);
-        Cell newCell = new Cell(cell, version, content);
+        Cell<E> oldCell = cells.get(index);
+        Cell<E> newCell = new Cell<E>(oldCell, version, content);
         cells.set(index, newCell);
+
+        newCell.wakeupListeners();
     }
 
     public void delete(long handle, long version) {
@@ -75,7 +75,13 @@ public class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
             int index = (int)handle;
 
             Cell<E> cell = cells.get(index);
-            //cell.listen(version, latch);
+            if(cell.isDeleted()){
+                latch.open();
+                return latch;
+            }
+
+            cell.addListener(latch, version);
+
 
             //if the latch already is opened, we are done, so the loop can end now.
             if (latch.isOpen())
@@ -109,6 +115,16 @@ public class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
             }
 
             throw new IllegalVersionException(version);
+        }
+
+        public void addListener(Latch latch, long version) {
+            //To change body of created methods use File | Settings | File Templates.
+        }
+
+        public void wakeupListeners() {
+
+
+
         }
     }
 }
