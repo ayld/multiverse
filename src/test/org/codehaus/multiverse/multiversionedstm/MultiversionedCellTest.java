@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import junit.framework.TestCase;
-import org.codehaus.multiverse.transaction.IllegalVersionException;
+import org.codehaus.multiverse.transaction.BadVersionException;
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.CheapLatch;
 import org.codehaus.multiverse.util.Latch;
@@ -103,7 +103,7 @@ public class MultiversionedCellTest extends TestCase {
         try {
             cell.write(version, "foo");
             fail();
-        } catch (IllegalVersionException ex) {
+        } catch (BadVersionException ex) {
         }
 
         assertContent(initialContent, initialVersion);

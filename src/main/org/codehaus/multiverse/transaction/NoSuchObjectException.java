@@ -15,7 +15,7 @@ public class NoSuchObjectException extends StmException {
     }
 
     public NoSuchObjectException(long handle) {
-        super(format("Cell with handle %d does not exist", handle));
+        super(format("Object with handle %d does not exist", handle));
     }
 
     public NoSuchObjectException(String s) {

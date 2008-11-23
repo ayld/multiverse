@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.transaction.IllegalVersionException;
+import org.codehaus.multiverse.transaction.BadVersionException;
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.Latch;
 import static org.codehaus.multiverse.util.PtrUtils.versionIsValid;
@@ -79,7 +79,7 @@ public final class MultiversionedCell<E> {
      *
      * @param version the version of the value to look for.
      * @return the found value.
-     * @throws IllegalVersionException if the transactionVersion is older than the oldest version.
+     * @throws org.codehaus.multiverse.transaction.BadVersionException if the transactionVersion is older than the oldest version.
      */
     public E read(long version) {
         assert versionIsValid(version);
@@ -95,7 +95,7 @@ public final class MultiversionedCell<E> {
             headLocal = headLocal.parent;
         }
 
-        throw new IllegalVersionException(version);
+        throw new BadVersionException(version);
     }
 
     public boolean isDeleted() {
@@ -164,7 +164,7 @@ public final class MultiversionedCell<E> {
      *
      * @param version the version of the value
      * @param value   the value itself.
-     * @throws IllegalVersionException if the version is older than the next recent value
+     * @throws org.codehaus.multiverse.transaction.BadVersionException if the version is older than the next recent value
      * @throws NoSuchObjectException   if the cell already has been deleted
      */
     public void write(long version, E value) {
@@ -184,7 +184,7 @@ public final class MultiversionedCell<E> {
         assert versionIsValid(version);
 
         if (head.version >= version)
-            throw new IllegalVersionException(version);
+            throw new BadVersionException(version);
 
         if (head.isDeleted())
             throw new NoSuchObjectException();

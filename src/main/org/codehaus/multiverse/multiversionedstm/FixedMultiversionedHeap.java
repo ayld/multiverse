@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.transaction.IllegalVersionException;
+import org.codehaus.multiverse.transaction.BadVersionException;
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.Latch;
 import org.codehaus.multiverse.util.CheapLatch;
@@ -121,7 +121,7 @@ public final class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
                 cell = cell.parent;
             }
 
-            throw new IllegalVersionException(version);
+            throw new BadVersionException(version);
         }
 
         public void addListener(Latch latch, long version) {

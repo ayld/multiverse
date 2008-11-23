@@ -13,7 +13,7 @@ public final class TransactionMethods {
      * be compared to the STM implementation of the condition variable. 
      */
     public static void retry(){        
-        throw new RetryException();
+        throw RetryException.INSTANCE;
     }
 
     //we don't want instances

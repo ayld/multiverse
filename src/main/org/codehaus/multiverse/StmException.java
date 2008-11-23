@@ -1,6 +1,8 @@
 package org.codehaus.multiverse;
 
 /**
+ * A {@link RuntimeException} where subclasses are thrown by stm if STM related problems occur. Usefull if you want
+ * to create a general purpose error handler for these exception.
  *
  * @author Peter Veentjer.
  */
