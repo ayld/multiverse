@@ -2,11 +2,11 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.Stm;
 import org.codehaus.multiverse.transaction.AbortedException;
+import org.codehaus.multiverse.transaction.BadTransactionException;
 import org.codehaus.multiverse.transaction.Transaction;
 import org.codehaus.multiverse.transaction.TransactionStatus;
-import org.codehaus.multiverse.transaction.AttachedToDifferentTransactionException;
-import org.codehaus.multiverse.util.Latch;
 import org.codehaus.multiverse.util.ArrayIterator;
+import org.codehaus.multiverse.util.Latch;
 import static org.codehaus.multiverse.util.PtrUtils.checkHandle;
 
 import static java.lang.String.format;
@@ -148,7 +148,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         private volatile TransactionStatus status = TransactionStatus.active;
         private final long startOfTransactionVersion;
         private final Map<Long, Citizen> newlybornCitizens = new HashMap<Long, Citizen>();
-         private final Map<Long, Citizen> dehydratedCitizens = new Hashtable<Long, Citizen>();
+        private final Map<Long, Citizen> dehydratedCitizens = new Hashtable<Long, Citizen>();
+        private final Set<Long> deletedCitizens = new HashSet<Long>();
+
         private long numberOfWrites = 0;
 
         public MultiversionedTransaction() {
@@ -180,13 +182,29 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         public void delete(long ptr) {
             checkHandle(ptr);
+
             assertTransactionActive();
 
             throw new RuntimeException();
         }
 
         public void delete(Object root) {
-            throw new RuntimeException();
+            if (root == null)
+                throw new NullPointerException();
+
+            if (!(root instanceof Citizen))
+                throw new IllegalArgumentException(format("%s is not an instanceof the Citizen interface", root));
+
+            assertTransactionActive();
+            
+            Citizen citizen = (Citizen) root;
+            Transaction transaction = citizen.___getTransaction();
+            if (transaction == null)
+                throw BadTransactionException.createNoTransaction(root);
+            if (transaction != this)
+                throw BadTransactionException.createAttachedToDifferentTransaction(root);
+
+            deletedCitizens.add(citizen.___getHandle());
         }
 
         public Object read(long ptr) {
@@ -227,16 +245,16 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             Citizen rootCitizen = (Citizen) root;
             ensureNoAttachConflicts(new ArrayIterator<Citizen>(rootCitizen));
             attachAll(new ArrayIterator<Citizen>(rootCitizen));
-            return rootCitizen.___getPointer();
+            return rootCitizen.___getHandle();
         }
 
         private void ensureNoAttachConflicts(Iterator<Citizen>... roots) {
             for (Iterator<Citizen> it = new HydratedCitizenIterator(roots); it.hasNext();) {
                 Citizen citizen = it.next();
                 Transaction transaction = citizen.___getTransaction();
-                if (transaction != this && transaction != null)                                                                                 {
+                if (transaction != this && transaction != null) {
                     String msg = format("object %s already is attached to another transaction %s", citizen, this);
-                    throw new AttachedToDifferentTransactionException(msg);
+                    throw new BadTransactionException(msg);
                 }
             }
         }
@@ -271,7 +289,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                             abort();
                             throw new AbortedException();
                         }
-                        updateStm();
+                        writeChangesToHeapAndUpdateStm();
                     } finally {
                         commitLock.unlock();
                     }
@@ -300,7 +318,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         private boolean hasWriteConflicts() {
             for (Citizen citizen : dehydratedCitizens.values()) {
-                if (citizen.___isDirty() && hasConflictingWrite(citizen.___getPointer())) {
+                if (citizen.___isDirty() && hasConflictingWrite(citizen.___getHandle())) {
                     return true;
                 }
             }
@@ -308,8 +326,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return false;
         }
 
-        private void updateStm() {
-            updateHeap();
+        private void writeChangesToHeapAndUpdateStm() {
+            writeChangesToHeap();
 
             if (numberOfWrites > 0)
                 activeVersion.incrementAndGet();
@@ -319,7 +337,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             committedCount.incrementAndGet();
         }
 
-        private void updateHeap() {
+        private void writeChangesToHeap() {
             Iterator<Citizen> dehydratedIterator = dehydratedCitizens.values().iterator();
             Iterator<Citizen> freshIterator = newlybornCitizens.values().iterator();
             Iterator<Citizen> it = new HydratedCitizenIterator(dehydratedIterator, freshIterator);
@@ -327,8 +345,12 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 Citizen citizen = it.next();
                 if (citizen.___isDirty()) {
                     DehydratedCitizen dehydratedCitizen = citizen.___dehydrate();
-                    write(citizen.___getPointer(), dehydratedCitizen);
+                    writeToHeap(citizen.___getHandle(), dehydratedCitizen);
                 }
+            }
+
+            for(long handle: deletedCitizens){
+                deleteFromHeap(handle);   
             }
         }
 
@@ -336,17 +358,22 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         /**
          * Checks if this Transaction conflicts with a write.
          *
-         * @param ptr the address to check
+         * @param handle the handle of the object 
          * @return true if there is a conflict, false otherwise.
          */
-        private boolean hasConflictingWrite(long ptr) {
-            long actualVersion = heap.readVersion(ptr);
+        private boolean hasConflictingWrite(long handle) {
+            long actualVersion = heap.readVersion(handle);
             return startOfTransactionVersion + 1 <= actualVersion;
         }
 
-        private void write(long ptr, DehydratedCitizen content) {
+        private void writeToHeap(long handle, DehydratedCitizen content) {
             numberOfWrites++;
-            heap.write(ptr, startOfTransactionVersion + 1, content);
+            heap.write(handle, startOfTransactionVersion + 1, content);
+        }
+
+        private void deleteFromHeap(long handle){
+            numberOfWrites++;
+            heap.delete(handle, startOfTransactionVersion+1);
         }
 
         public void abort() {

@@ -77,7 +77,7 @@ public class Person implements Citizen {
 
     //todo: dehydrate?
 
-    public long ___getPointer() {
+    public long ___getHandle() {
         return ptr;
     }
 
@@ -115,14 +115,14 @@ public class Person implements Citizen {
 
         return initialHydratedPerson.age != age ||
                 initialHydratedPerson.name != null ||
-                (parent_localized && (initialHydratedPerson.parentPtr != (parent == null ? 0 : parent.___getPointer())));
+                (parent_localized && (initialHydratedPerson.parentPtr != (parent == null ? 0 : parent.___getHandle())));
     }
 
     public DehydratedCitizen ___dehydrate() {
         DehydratedPerson hydratedPerson = new DehydratedPerson();
         hydratedPerson.age = age;
         hydratedPerson.name = name;
-        hydratedPerson.parentPtr = parent == null ? 0L : parent.___getPointer();
+        hydratedPerson.parentPtr = parent == null ? 0L : parent.___getHandle();
         return hydratedPerson;
     }
 

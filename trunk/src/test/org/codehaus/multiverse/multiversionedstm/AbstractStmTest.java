@@ -33,7 +33,7 @@ public abstract class AbstractStmTest extends TestCase {
         try {
             t.attach(obj);
             t.commit();
-            return obj.___getPointer();
+            return obj.___getHandle();
         } catch (RuntimeException ex) {
             t.abort();
             throw ex;
@@ -42,7 +42,7 @@ public abstract class AbstractStmTest extends TestCase {
 
     public void assertHasPointer(long expectedPtr, Citizen... citizens) {
         for (Citizen citizen : citizens)
-            assertEquals("Pointer is not the same", expectedPtr, citizen.___getPointer());
+            assertEquals("Pointer is not the same", expectedPtr, citizen.___getHandle());
     }
 
     public void assertHasTransaction(Transaction expected, Citizen... citizens) {

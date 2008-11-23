@@ -83,7 +83,7 @@ public class Stack<E> implements Citizen {
         return transaction;
     }
 
-    public long ___getPointer() {
+    public long ___getHandle() {
         return ptr;
     }
 

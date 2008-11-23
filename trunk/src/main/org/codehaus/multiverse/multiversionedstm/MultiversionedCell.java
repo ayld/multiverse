@@ -41,7 +41,6 @@ public final class MultiversionedCell<E> {
         return result;
     }
 
-
     /**
      * Reads the current value of this cell.
      * <p/>
@@ -53,7 +52,7 @@ public final class MultiversionedCell<E> {
     public E read() {
         //since head always is not equal to null, this gives no problems
         E result = head.content;
-        if (result == null)
+        if (result == null) //a null indicates a delete 
             throw new NoSuchObjectException();
         return result;
     }

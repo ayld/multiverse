@@ -25,8 +25,8 @@ public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
 
         assertCurrentStmVersion(version);
         assertTransactionIsAborted();
-        //assertEquals(0, p1.___getPointer());
-        //assertEquals(0, p2.___getPointer());
+        //assertEquals(0, p1.___getHandle());
+        //assertEquals(0, p2.___getHandle());
         assertTransactionHasNoWrites();
     }
 

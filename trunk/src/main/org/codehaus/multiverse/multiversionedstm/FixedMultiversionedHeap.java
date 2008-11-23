@@ -8,7 +8,14 @@ import org.codehaus.multiverse.util.CheapLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
-public class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
+/**
+ * A POC MultiversionedHeap implementation that is based on an array instead of a map. Since array access is
+ * a lot faster than map access, it could perform better. Needs to be checked, so don't use this implementation
+ * yet (a lot of stuff also is not implemented).
+ *
+ * @param <E>
+ */
+public final class FixedMultiversionedHeap<E> implements MultiversionedHeap<E> {
 
     private final AtomicReferenceArray<Cell<E>> cells;
     private final AtomicInteger nextFreeIndex = new AtomicInteger(0);
