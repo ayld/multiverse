@@ -7,7 +7,7 @@ import org.codehaus.multiverse.transaction.Transaction;
 
 public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmTest {
 
-    public void testNoDependencies() {
+    public void testNoDependencies() {                              
         long handle = atomicInsert(new Person());
 
         createActiveTransaction();

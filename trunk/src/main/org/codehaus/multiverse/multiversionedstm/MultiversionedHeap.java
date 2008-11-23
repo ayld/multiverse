@@ -31,7 +31,7 @@ public interface MultiversionedHeap<E> {
      * @return the content of the memory cell.
      * @throws org.codehaus.multiverse.transaction.NoSuchObjectException
      *          if pointer points to a non existing address.
-     * @throws org.codehaus.multiverse.transaction.IllegalVersionException
+     * @throws org.codehaus.multiverse.transaction.BadVersionException
      *          if the version is not valid, or if no cell with the desired version (or older)
      *          is found.
      */
@@ -73,7 +73,7 @@ public interface MultiversionedHeap<E> {
      * @param content the content to write.
      * @throws NullPointerException    if content is null
      * @throws org.codehaus.multiverse.transaction.NoSuchObjectException  if the handle points to a non existing cell.
-     * @throws org.codehaus.multiverse.transaction.IllegalVersionException if the version of the cell doesn't exist.
+     * @throws org.codehaus.multiverse.transaction.BadVersionException if the version of the cell doesn't exist.
      */
     void write(long handle, long version, E content);
 
@@ -85,7 +85,7 @@ public interface MultiversionedHeap<E> {
      * @param version  the version
      * @throws org.codehaus.multiverse.transaction.NoSuchObjectException if the handle points to a non existing object
      *              (this also goes for deleted objects).
-     * @throws org.codehaus.multiverse.transaction.IllegalVersionException if the version of the cell doesn't exist or
+     * @throws org.codehaus.multiverse.transaction.BadVersionException if the version of the cell doesn't exist or
      */
     void delete(long handle, long version);
 

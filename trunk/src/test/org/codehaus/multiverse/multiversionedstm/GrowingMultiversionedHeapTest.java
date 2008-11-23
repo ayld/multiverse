@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import junit.framework.TestCase;
-import org.codehaus.multiverse.transaction.IllegalVersionException;
+import org.codehaus.multiverse.transaction.BadVersionException;
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
 
 import static java.util.Arrays.asList;
@@ -69,7 +69,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         try {
             heap.delete(handle, version);
             fail();
-        } catch (IllegalVersionException e) {
+        } catch (BadVersionException e) {
 
         }
 
@@ -198,7 +198,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         try {
             heap.read(handle, oldVersion);
             fail();
-        } catch (IllegalVersionException ex) {
+        } catch (BadVersionException ex) {
         }
 
         assertWriteCount(1);
@@ -294,7 +294,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         try {
             heap.write(handle, version + 1, "bar");
             fail();
-        } catch (IllegalVersionException ex) {
+        } catch (BadVersionException ex) {
         }
 
         assertContentAtVersion(handle, version, content);
@@ -338,7 +338,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         try {
             heap.write(ptr, overwriteVersion, newContent);
             fail();
-        } catch (IllegalVersionException ex) {
+        } catch (BadVersionException ex) {
         }
 
         assertContentAtVersion(ptr, writeVersion, oldContent);
@@ -355,7 +355,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         try {
             heap.write(ptr, oldVersion, oldContent);
             fail();
-        } catch (IllegalVersionException ex) {
+        } catch (BadVersionException ex) {
         }
 
         assertContentAtVersion(ptr, newVersion, newContent);
