@@ -1,6 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.transaction.IllegalVersionException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.Latch;
 import static org.codehaus.multiverse.util.PtrUtils.versionIsValid;
 
@@ -47,13 +48,13 @@ public final class MultiversionedCell<E> {
      * Is threadsafe to call. Returned value could be stale as soon as it is received.
      *
      * @return the current content of this cell.
-     * @throws CellDeletedException if the cell already has been deleted 
+     * @throws NoSuchObjectException if the cell already has been deleted
      */
     public E read() {
         //since head always is not equal to null, this gives no problems
         E result = head.content;
         if (result == null)
-            throw new CellDeletedException();
+            throw new NoSuchObjectException();
         return result;
     }
 
@@ -86,15 +87,19 @@ public final class MultiversionedCell<E> {
 
         ContentNode<E> headLocal = head;
         while (headLocal != null) {
-            if (headLocal.version <= version)
+            if (headLocal.version <= version) {
+                if (headLocal.isDeleted())
+                    throw new NoSuchObjectException();
+
                 return headLocal.content;
+            }
             headLocal = headLocal.parent;
         }
 
         throw new IllegalVersionException(version);
     }
 
-    public boolean isDeleted(){
+    public boolean isDeleted() {
         return head.isDeleted();
     }
 
@@ -161,7 +166,7 @@ public final class MultiversionedCell<E> {
      * @param version the version of the value
      * @param value   the value itself.
      * @throws IllegalVersionException if the version is older than the next recent value
-     * @throws CellDeletedException if the cell already has been deleted
+     * @throws NoSuchObjectException   if the cell already has been deleted
      */
     public void write(long version, E value) {
         assert value != null;
@@ -183,7 +188,7 @@ public final class MultiversionedCell<E> {
             throw new IllegalVersionException(version);
 
         if (head.isDeleted())
-            throw new CellDeletedException();
+            throw new NoSuchObjectException();
 
         head = new ContentNode<E>(head, value, version);
 

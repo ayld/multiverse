@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm2;
 
-import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.Stm;
 import org.codehaus.multiverse.transaction.Transaction;
 import org.codehaus.multiverse.transaction.TransactionStatus;
@@ -69,7 +69,7 @@ public class MultiversionedStm implements Stm {
 
         public Object read(long ptr) {
             if (ptr <= 0)
-                throw new ObjectDoesNotExistException(ptr);
+                throw new NoSuchObjectException(ptr);
 
             if (status != TransactionStatus.active)
                 throw new IllegalStateException();

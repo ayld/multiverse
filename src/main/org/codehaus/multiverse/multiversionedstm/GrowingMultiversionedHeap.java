@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.CheapLatch;
 import org.codehaus.multiverse.util.Latch;
 import static org.codehaus.multiverse.util.PtrUtils.versionIsValid;
@@ -83,7 +83,7 @@ public final class GrowingMultiversionedHeap<E> implements MultiversionedHeap<E>
      *
      * @param handle the handle to the cell to check
      * @return the number of versions a cell has
-     * @throws org.codehaus.multiverse.transaction.ObjectDoesNotExistException
+     * @throws org.codehaus.multiverse.transaction.NoSuchObjectException
      *          if cell doesn't exist.
      */
     public int getVersionCount(long handle) {
@@ -121,7 +121,7 @@ public final class GrowingMultiversionedHeap<E> implements MultiversionedHeap<E>
     private MultiversionedCell<E> getExistingCell(long handle) {
         MultiversionedCell<E> cell = cells.get(handle);
         if (cell == null)
-            throw new ObjectDoesNotExistException(handle);
+            throw new NoSuchObjectException(handle);
 
         readCount.incrementAndGet();
         return cell;
@@ -129,8 +129,8 @@ public final class GrowingMultiversionedHeap<E> implements MultiversionedHeap<E>
 
     public E read(long handle) {
         MultiversionedCell<E> cell = cells.get(handle);
-        if(cell == null)
-            throw new ObjectDoesNotExistException();
+        if (cell == null)
+            throw new NoSuchObjectException();
         return cell.read();
     }
 
@@ -142,7 +142,9 @@ public final class GrowingMultiversionedHeap<E> implements MultiversionedHeap<E>
 
     public long readVersion(long handle) {
         MultiversionedCell cell = cells.get(handle);
-        return cell == null ? -1 : cell.readVersion();
+        if (cell == null)
+            throw new NoSuchObjectException();
+        return cell.readVersion();
     }
 
     public void write(long handle, long version, E content) {
@@ -163,7 +165,11 @@ public final class GrowingMultiversionedHeap<E> implements MultiversionedHeap<E>
     }
 
     public void delete(long handle, long version) {
-        throw new RuntimeException();
+        MultiversionedCell<E> cell = cells.get(handle);
+        if (cell == null)
+            throw new NoSuchObjectException();
+
+        cell.delete(version);
     }
 
     /**

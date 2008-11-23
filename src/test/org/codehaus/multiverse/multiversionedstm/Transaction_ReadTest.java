@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.transaction.IllegalVersionException;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 import org.codehaus.multiverse.transaction.Transaction;
@@ -24,7 +24,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         try {
             transaction.read(ptr);
             fail();
-        } catch (ObjectDoesNotExistException ex) {
+        } catch (NoSuchObjectException ex) {
         }
         assertTransactionIsActive();
     }

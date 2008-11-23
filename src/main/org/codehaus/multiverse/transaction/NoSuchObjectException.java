@@ -9,16 +9,16 @@ import static java.lang.String.format;
  *
  * @author Peter Veentjer.
  */
-public class ObjectDoesNotExistException extends StmException {
+public class NoSuchObjectException extends StmException {
 
-    public ObjectDoesNotExistException() {
+    public NoSuchObjectException() {
     }
 
-    public ObjectDoesNotExistException(long handle) {
+    public NoSuchObjectException(long handle) {
         super(format("Cell with handle %d does not exist", handle));
     }
 
-    public ObjectDoesNotExistException(String s) {
+    public NoSuchObjectException(String s) {
         super(s);
     }
 }

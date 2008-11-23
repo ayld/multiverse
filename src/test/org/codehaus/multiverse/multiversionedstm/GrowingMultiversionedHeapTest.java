@@ -1,8 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import junit.framework.TestCase;
-import org.codehaus.multiverse.transaction.ObjectDoesNotExistException;
 import org.codehaus.multiverse.transaction.IllegalVersionException;
+import org.codehaus.multiverse.transaction.NoSuchObjectException;
 
 import static java.util.Arrays.asList;
 
@@ -33,6 +33,10 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertEquals(expectedReads, heap.getReadCount());
     }
 
+    public void assertIsDeleted(long handle) {
+        assertTrue(heap.isDeleted(handle));
+    }
+
     public void assertNoReads() {
         assertReadCount(0);
     }
@@ -41,24 +45,60 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertWriteCount(0);
     }
 
-
     //================= delete ==================================
 
-    public void testDelete(){
+    public void testDelete() {
         long handle = heap.createHandle();
         long version = 1;
         String content = "foo";
 
         heap.write(handle, version, content);
 
-        heap.delete(handle, version+1);
+        heap.delete(handle, version + 1);
+        assertIsDeleted(handle);
+        assertContentAtVersion(handle, version, content);
+    }
+
+    public void testDelete_justWrittenValueWithTheSameVersion() {
+        long handle = heap.createHandle();
+        long version = 1;
+        String content = "foo";
+
+        heap.write(handle, version, content);
+
+        try {
+            heap.delete(handle, version);
+            fail();
+        } catch (IllegalVersionException e) {
+
+        }
+
+        assertContent(handle, version, content);
+    }
+
+    public void testDelete_alreadyDeleted() {
+        long handle = heap.createHandle();
+        long version = 1;
+        String content = "foo";
+
+        heap.write(handle, version, content);
+        heap.delete(handle, version + 1);
+
+        try {
+            heap.delete(handle, version + 2);
+            fail();
+        } catch (NoSuchObjectException ex) {
+        }
+
+        assertIsDeleted(handle);
+        assertContentAtVersion(handle, version, content);
     }
 
     public void testDelete_NonExistingHandle() {
         try {
             heap.delete(-1, 1);
             fail();
-        } catch (ObjectDoesNotExistException ex) {
+        } catch (NoSuchObjectException ex) {
         }
     }
 
@@ -70,36 +110,93 @@ public class GrowingMultiversionedHeapTest extends TestCase {
     //    }
     //}
 
-    //public void testDeleteNonExistingPointer() {
-    //    try {
-    //        heap.delete(100, 1);
-    //        fail();
-    //    } catch (IllegalVersionException ex) {
-    //
-    //    }
-    //}
 
-    //================ reads =====================================
+    // ================ read (handle) ============================================
 
-    public void testReadNonExistingPtr() {
+    public void testRead_deleted() {
+        String content = "foo";
+        long handle = 1000;
+        long version = 25;
+
+        heap.write(handle, version, content);
+        heap.delete(handle, version + 1);
+        try {
+            heap.read(handle);
+            fail();
+        } catch (NoSuchObjectException ex) {
+        }
+    }
+
+    //================ read (handle, version)=====================================
+
+    public void testReadWithVersion_currentVersion() {
+        String content = "foo";
+        long handle = 1000;
+        long version = 25;
+
+        heap.write(handle, version, content);
+        Object foundContent = heap.read(handle, version);
+        assertEquals(content, foundContent);
+    }
+
+    public void testReadWithVersion_oldVersionNoTrailingNewVersion() {
+        String content = "foo";
+        long handle = 1000;
+        long oldVersion = 1;
+        long newVersion = oldVersion + 1;
+
+        heap.write(handle, oldVersion, content);
+        assertContentAtVersion(handle, newVersion, content);
+    }
+
+    public void testReadWithVersion_olderVersions() {
+        String content0 = "foo1";
+        String content1 = "foo2";
+        String content2 = "foo3";
+        long handle = 1000;
+        long version = 1;
+        heap.write(handle, version, content0);
+        heap.write(handle, version + 1, content1);
+        heap.write(handle, version + 2, content2);
+
+        assertContentAtVersion(handle, version, content0);
+        assertContentAtVersion(handle, version + 1, content1);
+        assertContentAtVersion(handle, version + 2, content2);
+    }
+
+    public void testReadWithVersion_deleted() {
+        long handle = 10;
+        long version = 1;
+        String content = "foo";
+        heap.write(handle, version, content);
+        heap.delete(handle, version + 1);
+
+        try {
+            heap.read(handle, version + 2);
+            fail();
+        } catch (NoSuchObjectException ex) {
+        }
+    }
+
+    public void testReadWithVersion_nonExistingHandle() {
         try {
             heap.read(10, 0);
             fail();
-        } catch (ObjectDoesNotExistException ex) {
+        } catch (NoSuchObjectException ex) {
         }
 
         assertReadCount(0);
         assertNoWrites();
     }
 
-    public void testReadTooNewVersion() {
-        long ptr = 1000;
+    public void testReadWithVersion_tooNewVersion() {
+        long handle = 1000;
         long oldVersion = 1;
         long newVersion = oldVersion + 1;
 
-        heap.write(ptr, newVersion, "foo");
+        heap.write(handle, newVersion, "foo");
         try {
-            heap.read(ptr, oldVersion);
+            heap.read(handle, oldVersion);
             fail();
         } catch (IllegalVersionException ex) {
         }
@@ -108,46 +205,69 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertReadCount(1);
     }
 
-    public void testReadOldVersionNoTrailingNewVersion() {
-        String content = "foo";
-        long ptr = 1000;
-        long oldVersion = 1;
-        long newVersion = oldVersion + 1;
+    // =================== readVersion =====================
 
-        heap.write(ptr, oldVersion, content);
-        assertContentAtVersion(ptr, newVersion, content);
+    public void testReadVersion() {
+        long handle = 10;
+        long version = 100;
+        String content = "foo";
+
+        heap.write(handle, version, content);
+        long foundVersion = heap.readVersion(handle);
+        assertEquals(version, foundVersion);
     }
 
-    public void testReadCurrentVersion() {
-        String content = "foo";
-        long ptr = 1000;
-        long version = 25;
+    public void testReadVersion_nonExistingCell() {
+        try {
+            heap.readVersion(100);
+            fail();
+        } catch (NoSuchObjectException ex) {
+        }
+    }
 
-        heap.write(ptr, version, content);
-        assertContent(ptr, version, content);
+    public void testReadVersion_deletedCell() {
+        long handle = 10;
+        long version = 100;
+        String content = "foo";
+
+        heap.write(handle, version, content);
+        heap.delete(handle, version + 1);
+
+        long foundVersion = heap.readVersion(handle);
+        assertEquals(version + 1, foundVersion);
     }
 
     //========================= writes ======================
 
-    public void testWriteNullContent() {
+    public void testWrite() {
+        long handle = 10;
+        long version = 20;
+        String content = "foo";
+
+        assertWriteCount(0);
+
+        heap.write(handle, version, content);
+
+        assertWriteCount(1);
+        assertContent(handle, version, content);
+    }
+
+    public void _testWrite_nullContent() {
         try {
             heap.write(10, 10, null);
             fail();
+            //todo: doet moet geen null pointer zijn. maar een assertion fout.
         } catch (NullPointerException ex) {
         }
 
         assertWriteCount(0);
     }
 
-    public void testWriteIllegalPointer(){
+    public void testWriteIllegalVersion() {
         //todo
     }
 
-    public void testWriteIllegalVersion(){
-        //todo
-    }
-
-    public void testOverwrite() {
+    public void testWrite_overwrite() {
         String oldContent = "foo";
         String newContent = "bar";
         long ptr = 1000;
@@ -163,23 +283,68 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertContentAtVersion(ptr, oldVersion, oldContent);
     }
 
-    public void testOverwriteWithSameVersionFails() {
-        String oldContent = "foo";
-        String newContent = "bar";
-        long ptr = 1000;
-        long version = 10;
+    public void testWrite_overwriteDeletedWithSameVersionShouldFail() {
+        String content = "foo";
+        long handle = 1000;
+        long version = 20;
 
-        heap.write(ptr, version, oldContent);
+        heap.write(handle, version, content);
+        heap.delete(handle, version + 1);
+
         try {
-            heap.write(ptr, version, newContent);
+            heap.write(handle, version + 1, "bar");
             fail();
         } catch (IllegalVersionException ex) {
         }
 
-        assertContentAtVersion(ptr, version, oldContent);
+        assertContentAtVersion(handle, version, content);
+        assertIsDeleted(handle);
     }
 
-    public void testOverwriteNewVersionWithOldVersionFails() {
+
+    public void testWrite_overwriteDeletedShouldFail() {
+        String content = "foo";
+        long handle = 1000;
+        long version = 20;
+
+        heap.write(handle, version, content);
+        heap.delete(handle, version + 1);
+
+        try {
+            heap.write(handle, version + 2, "bar");
+            fail();
+        } catch (NoSuchObjectException ex) {
+
+        }
+
+        assertContentAtVersion(handle, version, content);
+        assertIsDeleted(handle);
+    }
+
+    public void testWrite_overwriteWithSameVersionFails() {
+        testWrite_overwriteWithBadVersionsFails(10, 10);
+    }
+
+    public void testWrite_overwriteWithOlderVersionFails() {
+        testWrite_overwriteWithBadVersionsFails(10, 9);
+    }
+
+    public void testWrite_overwriteWithBadVersionsFails(long writeVersion, long overwriteVersion) {
+        String oldContent = "foo";
+        String newContent = "bar";
+        long ptr = 1000;
+
+        heap.write(ptr, writeVersion, oldContent);
+        try {
+            heap.write(ptr, overwriteVersion, newContent);
+            fail();
+        } catch (IllegalVersionException ex) {
+        }
+
+        assertContentAtVersion(ptr, writeVersion, oldContent);
+    }
+
+    public void testWrite_overwriteNewVersionWithOldVersionFails() {
         String oldContent = "foo";
         String newContent = "bar";
         long ptr = 1000;
