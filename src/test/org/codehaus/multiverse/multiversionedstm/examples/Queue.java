@@ -54,7 +54,7 @@ public class Queue<E> implements Citizen {
         return new ArrayIterator<Citizen>(readyToPopStack, pushedStack);
     }
 
-    public long ___getPointer() {
+    public long ___getHandle() {
         return ptr;
     }
 
@@ -78,8 +78,8 @@ public class Queue<E> implements Citizen {
         private final long pushedStackPtr;
 
         DehydratedQueue(Queue queue) {
-            this.readyToPopStackPtr = queue.readyToPopStack.___getPointer();
-            this.pushedStackPtr = queue.pushedStack.___getPointer();
+            this.readyToPopStackPtr = queue.readyToPopStack.___getHandle();
+            this.pushedStackPtr = queue.pushedStack.___getHandle();
         }
 
         public Queue hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {

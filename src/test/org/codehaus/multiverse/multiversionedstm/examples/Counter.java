@@ -35,6 +35,15 @@ public class Counter implements Citizen {
     private DehydratedCounter initialHydratedCounter;
     private MultiversionedStm.MultiversionedTransaction transaction;
     private long ptr;
+    private boolean deleted = false;
+
+    public boolean isDeleted() {
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void markAsDeleted() {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 
     public void ___onAttach(MultiversionedStm.MultiversionedTransaction transaction) {
         this.transaction = transaction;
@@ -48,7 +57,7 @@ public class Counter implements Citizen {
         return EmptyIterator.INSTANCE;
     }
 
-    public long ___getPointer() {
+    public long ___getHandle() {
         return ptr;
     }
 

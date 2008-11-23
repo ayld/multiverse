@@ -40,7 +40,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         previousTransaction.commit();
 
         try {
-            transaction.read(p.___getPointer());
+            transaction.read(p.___getHandle());
             fail();
         } catch (IllegalVersionException ex) {
         }
@@ -91,7 +91,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         p.setName(name);
         t.attach(p);
         t.commit();
-        return p.___getPointer();
+        return p.___getHandle();
     }
 
     public void testRereadSameInstance() {

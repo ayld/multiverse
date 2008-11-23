@@ -2,7 +2,7 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 import org.codehaus.multiverse.transaction.Transaction;
-import org.codehaus.multiverse.transaction.AttachedToDifferentTransactionException;
+import org.codehaus.multiverse.transaction.BadTransactionException;
 
 public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
@@ -177,7 +177,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         try {
             transaction.attach(person);
             fail();
-        } catch (AttachedToDifferentTransactionException ex) {
+        } catch (BadTransactionException ex) {
         }
 
         assertTransactionIsActive();
@@ -196,7 +196,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         try {
             transaction.attach(child);
             fail();
-        } catch (AttachedToDifferentTransactionException ex) {
+        } catch (BadTransactionException ex) {
         }
 
         assertTransactionIsActive();
@@ -240,7 +240,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsAborted();
         assertTransactionHasNoWrites();
-        assertActiveStmVersion(version);
+        assertStmActiveVersion(version);
         assertHasPointerAndTransaction(obj, 0, null);
     }
 
@@ -257,7 +257,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsCommitted();
         assertTransactionHasNoWrites();
-        assertActiveStmVersion(version);
+        assertStmActiveVersion(version);
         assertHasPointerAndTransaction(object, 0, null);
     }
 }

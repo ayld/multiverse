@@ -29,7 +29,7 @@ public class Transaction_DeleteTest extends AbstractMultiversionedStmTest {
         }
 
         assertTransactionIsCommitted();
-        assertActiveStmVersion(version);
+        assertStmActiveVersion(version);
     }
 
     public void testWhileAborted() {

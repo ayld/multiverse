@@ -20,7 +20,7 @@ public interface Citizen {
      *
      * @return
      */
-    long ___getPointer();
+    long ___getHandle();
 
     DehydratedCitizen ___dehydrate();
 
@@ -31,5 +31,5 @@ public interface Citizen {
      */
     boolean ___isDirty();
 
-    void ___setPointer(long ptr);    
+    void ___setPointer(long ptr);
 }

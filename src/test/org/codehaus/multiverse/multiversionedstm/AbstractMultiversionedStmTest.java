@@ -4,7 +4,7 @@ import org.codehaus.multiverse.AbstractTransactionTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
 public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
-    private GrowingMultiversionedHeap<DehydratedCitizen> heap;
+    protected GrowingMultiversionedHeap<DehydratedCitizen> heap;
 
     public MultiversionedStm createStm() {
         heap = new GrowingMultiversionedHeap<DehydratedCitizen>();
@@ -15,7 +15,7 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
         assertEquals(transaction.getVersion(), stm.getActiveVersion());
     }
 
-    public void assertActiveStmVersion(long expected) {
+    public void assertStmActiveVersion(long expected) {
         assertEquals(expected, stm.getActiveVersion());
     }
 
@@ -50,13 +50,13 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
 
     public void assertHasPointerAndTransaction(Citizen citizen, long expectedPtr, Transaction expectedTrans) {
         assertNotNull(citizen);
-        assertEquals(expectedPtr, citizen.___getPointer());
+        assertEquals(expectedPtr, citizen.___getHandle());
         assertEquals(expectedTrans, citizen.___getTransaction());
     }
 
     public void assertHasPointer(long expectedPtr, Citizen... citizens) {
         for (Citizen citizen : citizens)
-            assertEquals("Pointer is not the same", expectedPtr, citizen.___getPointer());
+            assertEquals("Pointer is not the same", expectedPtr, citizen.___getHandle());
     }
 
     public void assertHasTransaction(Transaction expected, Citizen... citizens) {
