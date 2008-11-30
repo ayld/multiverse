@@ -1,21 +1,17 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.Stm;
-import org.codehaus.multiverse.transaction.AbortedException;
-import org.codehaus.multiverse.transaction.BadTransactionException;
-import org.codehaus.multiverse.transaction.Transaction;
-import org.codehaus.multiverse.transaction.TransactionStatus;
-import org.codehaus.multiverse.util.ArrayIterator;
-import org.codehaus.multiverse.util.Latch;
-import static org.codehaus.multiverse.util.PtrUtils.checkHandle;
+import org.codehaus.multiverse.transaction.*;
+import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import org.codehaus.multiverse.util.latches.Latch;
+import static org.codehaus.multiverse.util.PtrUtils.assertNotNull;
+import org.codehaus.multiverse.util.iterators.ResetableIterator;
 
 import static java.lang.String.format;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Default {@link org.codehaus.multiverse.multiversionedstm.MultiversionedStm} implementation.
@@ -47,26 +43,23 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     private final AtomicLong abortedCount = new AtomicLong();
     private final AtomicLong readonlyCount = new AtomicLong();
 
-    private final AtomicLong activeVersion = new AtomicLong();
-    private final MultiversionedHeap<DehydratedCitizen> heap;
-
-    private final Lock commitLock = new ReentrantLock();
+    private final Heap heap;
 
     public MultiversionedStm() {
-        this(new GrowingMultiversionedHeap<DehydratedCitizen>());
+        this(new GrowingHeap());
     }
 
-    public MultiversionedStm(GrowingMultiversionedHeap<DehydratedCitizen> heap) {
+    public MultiversionedStm(GrowingHeap heap) {
         if (heap == null) throw new NullPointerException();
         this.heap = heap;
     }
 
-    public MultiversionedHeap getMemory() {
+    public Heap getMemory() {
         return heap;
     }
 
     public long getActiveVersion() {
-        return activeVersion.longValue();
+        return heap.getSnapshot().getVersion();
     }
 
     /**
@@ -146,15 +139,15 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     public class MultiversionedTransaction implements Transaction {
 
         private volatile TransactionStatus status = TransactionStatus.active;
-        private final long startOfTransactionVersion;
-        private final Map<Long, Citizen> newlybornCitizens = new HashMap<Long, Citizen>();
-        private final Map<Long, Citizen> dehydratedCitizens = new Hashtable<Long, Citizen>();
+        private final HeapSnapshot snapshot;
+        private final Map<Long, StmObject> newlybornObjects = new HashMap<Long, StmObject>();
+        private final Map<Long, StmObject> dehydratedObjects = new Hashtable<Long, StmObject>();
         private final Set<Long> deletedCitizens = new HashSet<Long>();
 
         private long numberOfWrites = 0;
 
         public MultiversionedTransaction() {
-            startOfTransactionVersion = getActiveVersion();
+            snapshot = heap.getSnapshot();
             startedCount.incrementAndGet();
         }
 
@@ -163,7 +156,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         public long getVersion() {
-            return startOfTransactionVersion;
+            return snapshot.getVersion();
         }
 
         public TransactionStatus getStatus() {
@@ -171,102 +164,108 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         public long[] getReadAddresses() {
-            long[] result = new long[dehydratedCitizens.size()];
+            long[] result = new long[dehydratedObjects.size()];
             int index = 0;
-            for (Long address : dehydratedCitizens.keySet()) {
+            for (Long address : dehydratedObjects.keySet()) {
                 result[index] = address;
                 index++;
             }
             return result;
         }
 
-        public void delete(long ptr) {
-            checkHandle(ptr);
+        public void unmarkAsRoot(long handle) {
+            assertNotNull(handle);
 
             assertTransactionActive();
 
             throw new RuntimeException();
         }
 
-        public void delete(Object root) {
+        public void unmarkAsRoot(Object root) {
             if (root == null)
                 throw new NullPointerException();
 
-            if (!(root instanceof Citizen))
-                throw new IllegalArgumentException(format("%s is not an instanceof the Citizen interface", root));
+            if (!(root instanceof StmObject))
+                throw new IllegalArgumentException(format("%s is not an instanceof the StmObject interface", root));
 
             assertTransactionActive();
-            
-            Citizen citizen = (Citizen) root;
-            Transaction transaction = citizen.___getTransaction();
+
+            StmObject object = (StmObject) root;
+            Transaction transaction = object.___getTransaction();
             if (transaction == null)
                 throw BadTransactionException.createNoTransaction(root);
             if (transaction != this)
                 throw BadTransactionException.createAttachedToDifferentTransaction(root);
 
-            deletedCitizens.add(citizen.___getHandle());
+            deletedCitizens.add(object.___getHandle());
         }
 
-        public Object read(long ptr) {
+        public Object read(long handle) {
             //preconditions
-            checkHandle(ptr);
+            assertNotNull(handle);
             assertTransactionActive();
 
             //if the object already is loaded in this Transaction, the same object should
             //be returned every time.
-            Citizen found = dehydratedCitizens.get(ptr);
+            StmObject found = dehydratedObjects.get(handle);
             if (found != null)
                 return found;
 
             //if the object was newly born, this content should be returned.
-            found = newlybornCitizens.get(ptr);
+            found = newlybornObjects.get(handle);
             if (found != null)
                 return found;
 
             //so the object doesn't exist in the current transaction, lets look in the heap
-            DehydratedCitizen dehydratedCitizen = heap.read(ptr, startOfTransactionVersion);
+            DehydratedStmObject dehydrated = snapshot.read(handle);
+            if (dehydrated == null)
+                throw new NoSuchObjectException(handle, getVersion());
 
             try {
-                Citizen citizen = dehydratedCitizen.hydrate(ptr, this);
-                dehydratedCitizens.put(ptr, citizen);
+                StmObject citizen = dehydrated.hydrate(this);
+                dehydratedObjects.put(handle, citizen);
                 return citizen;
             } catch (Exception e) {
-                throw new RuntimeException("Failed to create privatized Citizen instance", e);
+                throw new RuntimeException("Failed to create privatized StmObject instance", e);
             }
         }
 
-        public long attach(Object root) {
+        public long attachAsRoot(Object root) {
             if (root == null)
                 throw new NullPointerException();
-            if (!(root instanceof Citizen))
+            if (!(root instanceof StmObject))
                 throw new IllegalArgumentException();
             assertTransactionActive();
 
-            Citizen rootCitizen = (Citizen) root;
-            ensureNoAttachConflicts(new ArrayIterator<Citizen>(rootCitizen));
-            attachAll(new ArrayIterator<Citizen>(rootCitizen));
-            return rootCitizen.___getHandle();
+            StmObject rootStmObject = (StmObject) root;
+            ensureNoAttachConflicts(new ArrayIterator<StmObject>(rootStmObject));
+            attachAll(new ArrayIterator<StmObject>(rootStmObject));
+            return rootStmObject.___getHandle();
         }
 
-        private void ensureNoAttachConflicts(Iterator<Citizen>... roots) {
-            for (Iterator<Citizen> it = new HydratedCitizenIterator(roots); it.hasNext();) {
-                Citizen citizen = it.next();
-                Transaction transaction = citizen.___getTransaction();
-                if (transaction != this && transaction != null) {
-                    String msg = format("object %s already is attached to another transaction %s", citizen, this);
-                    throw new BadTransactionException(msg);
-                }
+        private void ensureNoAttachConflicts(Iterator<StmObject>... roots) {
+            for (Iterator<StmObject> it = new StmObjectIterator(roots); it.hasNext();) {
+                StmObject citizen = it.next();
+                ensureNoAftachConflict(citizen);
             }
         }
 
-        private void attachAll(Iterator<Citizen> roots) {
-            for (Iterator<Citizen> it = new HydratedCitizenIterator(roots); it.hasNext();) {
-                Citizen citizen = it.next();
+        private void ensureNoAftachConflict(StmObject citizen) {
+            Transaction transaction = citizen.___getTransaction();
+            if (transaction != this && transaction != null) {
+                String msg = format("object %s already is attached to another transaction %s", citizen, this);
+                throw new BadTransactionException(msg);
+            }
+        }
+
+        private void attachAll(Iterator<StmObject> roots) {
+            for (Iterator<StmObject> it = new StmObjectIterator(roots); it.hasNext();) {
+                StmObject citizen = it.next();
                 if (citizen.___getTransaction() == null) {
                     long ptr = heap.createHandle();
-                    citizen.___setPointer(ptr);
+                    citizen.___setHandle(ptr);
                     citizen.___onAttach(this);
-                    newlybornCitizens.put(ptr, citizen);
+                    newlybornObjects.put(ptr, citizen);
                 }
             }
         }
@@ -280,22 +279,13 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             switch (status) {
                 case active:
                     attachAll();
-                    //future performance improvements
-                    //1) read write lock
-                    //2) non blocking 
-                    commitLock.lock();
-                    try {
-                        if (hasWriteConflicts()) {
-                            abort();
-                            throw new AbortedException();
-                        }
-                        writeChangesToHeapAndUpdateStm();
-                    } finally {
-                        commitLock.unlock();
+
+                    if (!commitChanges()) {
+                        abort();
+                        throw new AbortedException("Transaction is aborted because of a write conflict");
                     }
 
                     status = TransactionStatus.committed;
-                    System.out.println(getStatistics());
                     break;
                 case committed:
                     //ignore, transaction already is committed, can't do any harm to commit again
@@ -307,73 +297,36 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         private void attachAll() {
             ensureNoAttachConflicts();
-            attachAll(newlybornCitizens.values().iterator());
+            attachAll(newlybornObjects.values().iterator());
         }
 
         private void ensureNoAttachConflicts() {
-            Iterator<Citizen> dehydratedIterator = dehydratedCitizens.values().iterator();
-            Iterator<Citizen> freshIterator = newlybornCitizens.values().iterator();
+            Iterator<StmObject> dehydratedIterator = dehydratedObjects.values().iterator();
+            Iterator<StmObject> freshIterator = newlybornObjects.values().iterator();
             ensureNoAttachConflicts(dehydratedIterator, freshIterator);
         }
 
-        private boolean hasWriteConflicts() {
-            for (Citizen citizen : dehydratedCitizens.values()) {
-                if (citizen.___isDirty() && hasConflictingWrite(citizen.___getHandle())) {
-                    return true;
-                }
+        private boolean commitChanges() {
+            long commitVersion = heap.write(new CommitIterator());
+            if (commitVersion >= 0) {
+                committedCount.incrementAndGet();
+                return true;
+            } else {
+                return false;
             }
 
-            return false;
-        }
+            //for (; it.hasNext();) {
+            //     StmObject citizen = it.next();
+            //     if (citizen.___isDirty()) {
+            //         DehydratedStmObject dehydrated = citizen.___dehydrate();
+            //         writeToHeap(citizen.___getHandle(), true, dehydrated);
+            //     }
+            // }
+            //if (numberOfWrites > 0)
+            //    activeVersion.incrementAndGet();
+            //else
+            //readonlyCount.incrementAndGet();
 
-        private void writeChangesToHeapAndUpdateStm() {
-            writeChangesToHeap();
-
-            if (numberOfWrites > 0)
-                activeVersion.incrementAndGet();
-            else
-                readonlyCount.incrementAndGet();
-
-            committedCount.incrementAndGet();
-        }
-
-        private void writeChangesToHeap() {
-            Iterator<Citizen> dehydratedIterator = dehydratedCitizens.values().iterator();
-            Iterator<Citizen> freshIterator = newlybornCitizens.values().iterator();
-            Iterator<Citizen> it = new HydratedCitizenIterator(dehydratedIterator, freshIterator);
-            for (; it.hasNext();) {
-                Citizen citizen = it.next();
-                if (citizen.___isDirty()) {
-                    DehydratedCitizen dehydratedCitizen = citizen.___dehydrate();
-                    writeToHeap(citizen.___getHandle(), dehydratedCitizen);
-                }
-            }
-
-            for(long handle: deletedCitizens){
-                deleteFromHeap(handle);   
-            }
-        }
-
-
-        /**
-         * Checks if this Transaction conflicts with a write.
-         *
-         * @param handle the handle of the object 
-         * @return true if there is a conflict, false otherwise.
-         */
-        private boolean hasConflictingWrite(long handle) {
-            long actualVersion = heap.readVersion(handle);
-            return startOfTransactionVersion + 1 <= actualVersion;
-        }
-
-        private void writeToHeap(long handle, DehydratedCitizen content) {
-            numberOfWrites++;
-            heap.write(handle, startOfTransactionVersion + 1, content);
-        }
-
-        private void deleteFromHeap(long handle){
-            numberOfWrites++;
-            heap.delete(handle, startOfTransactionVersion+1);
         }
 
         public void abort() {
@@ -391,6 +344,54 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     throw new IllegalStateException();
             }
         }
+
+        class CommitIterator implements ResetableIterator<StmObject> {
+            private Iterator<StmObject> iterator;
+            private StmObject next;
+
+            public void reset() {
+                next = null;
+                iterator = null;
+            }
+
+            public boolean hasNext() {
+                if (next != null)
+                    return true;
+
+                if (iterator == null) {
+                    iterator = new StmObjectIterator(
+                            dehydratedObjects.values().iterator(),
+                            newlybornObjects.values().iterator());
+                }
+
+                while (iterator.hasNext()) {
+                    StmObject object = iterator.next();
+                    if (object.___isDirty()) {
+                        next = object;
+                        return true;
+                    }
+
+                }
+
+                return false;
+            }
+
+            public StmObject next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                StmObject tmp = next;
+                next = null;
+                return tmp;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        }
     }
+
+
 }
 

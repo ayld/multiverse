@@ -29,7 +29,7 @@ public interface Transaction {
      *                                  root,  already is attached to a different transaction
      * @return the address of the object. If the transaction is not committed, this address is not valid.
      */
-    long attach(Object root);
+    long attachAsRoot(Object root);
 
     /**
      * Reads an object.
@@ -43,34 +43,16 @@ public interface Transaction {
     Object read(long handle);
 
     /**
-     * Removes a root object from this transaction. When this transaction commits, it doesn't mean that the
-     * object is removed, it is only removed when the garbage collector detects that the object is not refered
-     * by other objects. If the object already is deleted within this transaction, the call is ignored.
-     * todo: what if the object doesn't exist?
-     *
-     * This method is not threadsafe.
-     *
-     * todo: what to do if object not part of transaction
-     * todo: what to do if object already is removed
-     * todo: what to do if the object does not exist
+     * todo
      *
      * @param handle the pointer of the object to remove.
      */
-    void delete(long handle);
+    void unmarkAsRoot(long handle);
 
     /**
-     * Deletes the root from this transaction. As soon as the transaction commits, it will not be visibile to
-     * new transactions anymore. If the object already is deleted from this Transaction, the call is ignored.
-     *
-     * @param root
-     * @throws NullPointerException if root is null
-     * @throws BadTransactionException if root is attached to another transaction, or if root object is attached to
-     *         no transaction.
-     * @throws IllegalArgumentException if the root is not an object that can be deleted from this transaction because
-     *         it has a bad type.
-     * @throws IllegalStateException if the Transaction already is committed or aborted.
+     * todo
      */
-    void delete(Object root);
+    void unmarkAsRoot(Object root);
 
     /**
      * Returns the status of this Transaction

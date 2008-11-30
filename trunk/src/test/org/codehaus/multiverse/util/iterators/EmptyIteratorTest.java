@@ -1,6 +1,7 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.iterators;
 
 import junit.framework.TestCase;
+import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
 public class EmptyIteratorTest extends TestCase {
     private EmptyIterator it;

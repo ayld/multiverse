@@ -1,4 +1,6 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.latches;
+
+import org.codehaus.multiverse.util.latches.Latch;
 
 import java.util.concurrent.TimeUnit;
 import static java.lang.String.format;
@@ -10,7 +12,15 @@ import static java.lang.String.format;
  */
 public final class CheapLatch implements Latch {
 
-    private volatile boolean isOpen = false;
+    private volatile boolean isOpen;
+
+    public CheapLatch(){
+        this(false);
+    }
+
+    public CheapLatch(boolean isOpen){
+        this.isOpen = isOpen;
+    }
 
     public void await() throws InterruptedException {
         if (isOpen)

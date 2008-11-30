@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.util.iterators;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -6,13 +6,13 @@ import java.util.*;
 
 public class TestUtils {
 
-    public static <E> void assertListContent(Iterator<E> it, E... expectedItems) {
+    public static <E> void assertAsListContent(Iterator<E> it, E... expectedItems) {
         List<E> expectedList = Arrays.asList(expectedItems);
         List<E> foundList = asList(it);
         assertEquals(expectedList, foundList);
     }
 
-    public static <E> void assertSetContent(Iterator<E> it, E... expectedItems) {
+    public static <E> void assertAsSetContent(Iterator<E> it, E... expectedItems) {
         Set<E> expectedSet = new HashSet(Arrays.asList(expectedItems));
         Set<E> foundSet = new HashSet(asList(it));
         assertEquals(expectedSet, foundSet);

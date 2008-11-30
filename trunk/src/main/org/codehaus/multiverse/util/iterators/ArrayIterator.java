@@ -1,4 +1,6 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.iterators;
+
+import org.codehaus.multiverse.util.iterators.ResetableIterator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -12,13 +14,17 @@ import java.util.NoSuchElementException;
  * @param <E>
  * @author Peter Veentjer.
  */
-public class ArrayIterator<E> implements Iterator<E> {
+public final class ArrayIterator<E> implements ResetableIterator<E> {
     private final E[] array;
     private int index = -1;
 
     public ArrayIterator(E... array) {
         if (array == null) throw new NullPointerException();
         this.array = array;
+    }
+
+    public void reset() {
+        index = -1;
     }
 
     public boolean hasNext() {

@@ -1,15 +1,15 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.util.IdentityHashSet;
-import org.codehaus.multiverse.util.ArrayIterator;
-import org.codehaus.multiverse.util.CompositeIterator;
+import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import org.codehaus.multiverse.util.iterators.CompositeIterator;
 
 import java.util.*;
 
 /**
- * An {@link Iterator} that iterates over {@link Citizen} objects, including their references that
+ * An {@link Iterator} that iterates over {@link StmObject}, including their references that
  * are loaded or set. References that are lazy loaded, are not traversed. It uses the
- * {@link org.codehaus.multiverse.multiversionedstm.Citizen#___directReachableIterator()} for iteration.
+ * {@link StmObject#___directReferencedIterator()} for iteration.
  * <p/>
  * This iterator also gives the guarantee that each item is traversed only once.
  * <p/>
@@ -21,24 +21,24 @@ import java.util.*;
  *
  * @author Peter Veentjer.
  */
-public final class HydratedCitizenIterator implements Iterator<Citizen> {
+public final class StmObjectIterator implements Iterator<StmObject> {
 
-    //all citizens that already have been returned with the next method.
-    private final IdentityHashSet<Citizen> touchedSet = new IdentityHashSet();
+    //all dehydratedObjects that already have been returned with the next method.
+    private final IdentityHashSet<StmObject> touchedSet = new IdentityHashSet();
     //all citizen objects that need to be traversed
-    private final IdentityHashSet<Citizen> iterateSet = new IdentityHashSet();
-    private Iterator<Citizen> iterator;
+    private final IdentityHashSet<StmObject> iterateSet = new IdentityHashSet();
+    private Iterator<StmObject> iterator;
 
-    private Citizen nextCitizen;
+    private StmObject nextCitizen;
 
-    public HydratedCitizenIterator(Iterator<Citizen>... rootIterators) {
+    public StmObjectIterator(Iterator<StmObject>... rootIterators) {
         if (rootIterators == null) throw new NullPointerException();
-        iterator = new CompositeIterator<Citizen>(rootIterators);
+        iterator = new CompositeIterator<StmObject>(rootIterators);
     }
 
-    public HydratedCitizenIterator(Citizen... roots) {
+    public StmObjectIterator(StmObject... roots) {
         if (roots == null) throw new NullPointerException();
-        iterator = new ArrayIterator<Citizen>(roots);
+        iterator = new ArrayIterator<StmObject>(roots);
     }
 
     public boolean hasNext() {
@@ -62,7 +62,7 @@ public final class HydratedCitizenIterator implements Iterator<Citizen> {
         if (iterateSet.isEmpty())
             return false;
 
-        iterator = removeRandomItemFromIteratorSet().___directReachableIterator();
+        iterator = removeRandomItemFromIteratorSet().___directReferencedIterator();
         return true;
     }
 
@@ -72,9 +72,9 @@ public final class HydratedCitizenIterator implements Iterator<Citizen> {
      * @return the
      * @throws NoSuchElementException if the iteratorSet is empty.
      */
-    private Citizen removeRandomItemFromIteratorSet() {
-        Iterator<Citizen> it = iterateSet.iterator();
-        Citizen citizen = it.next();
+    private StmObject removeRandomItemFromIteratorSet() {
+        Iterator<StmObject> it = iterateSet.iterator();
+        StmObject citizen = it.next();
         it.remove();
         return citizen;
     }
@@ -89,7 +89,7 @@ public final class HydratedCitizenIterator implements Iterator<Citizen> {
      */
     private boolean findNextCitizenInCurrentIterator() {
         while (iterator.hasNext()) {
-            Citizen citizen = iterator.next();
+            StmObject citizen = iterator.next();
             if (touchedSet.add(citizen)) {
                 iterateSet.add(citizen);
                 nextCitizen = citizen;
@@ -100,15 +100,15 @@ public final class HydratedCitizenIterator implements Iterator<Citizen> {
         return false;
     }
 
-    public Citizen next() {
+    public StmObject next() {
         if (nextCitizen != null || hasNext())
             return returnNextCitizen();
 
         throw new NoSuchElementException();
     }
 
-    private Citizen returnNextCitizen() {
-        Citizen result = nextCitizen;
+    private StmObject returnNextCitizen() {
+        StmObject result = nextCitizen;
         nextCitizen = null;
         return result;
     }

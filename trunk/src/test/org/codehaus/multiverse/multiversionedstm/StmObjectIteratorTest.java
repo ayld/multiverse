@@ -6,29 +6,28 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
-import static org.codehaus.multiverse.multiversionedstm.TestUtils.assertListContent;
-import static org.codehaus.multiverse.multiversionedstm.TestUtils.assertSetContent;
+import static org.codehaus.multiverse.util.iterators.TestUtils.assertAsSetContent;
 
-public class HydratedCitizenIteratorTest extends TestCase {
+public class StmObjectIteratorTest extends TestCase {
 
     public void testEmpty() {
-        Iterator it = new HydratedCitizenIterator(new Citizen[]{});
+        Iterator it = new StmObjectIterator(new StmObject[]{});
         assertHasNoNext(it);
         assertNextThrowsNoSuchElementException(it);
     }
 
     public void testSingleItemNoChildren() {
         Person p = new Person();
-        Iterator it = new HydratedCitizenIterator(p);
-        assertSetContent(it, p);
+        Iterator it = new StmObjectIterator(p);
+        assertAsSetContent(it, p);
     }
 
     public void testMultipleItemsNoChildren() {
         Person p1 = new Person();
         Person p2 = new Person();
         Person p3 = new Person();
-        Iterator it = new HydratedCitizenIterator(p1, p2, p3);
-        assertSetContent(it, p1, p2, p3);
+        Iterator it = new StmObjectIterator(p1, p2, p3);
+        assertAsSetContent(it, p1, p2, p3);
     }
 
     public void testItemWithChild() {
@@ -36,8 +35,8 @@ public class HydratedCitizenIteratorTest extends TestCase {
         Person p2 = new Person();
         p1.setParent(p2);
 
-        Iterator it = new HydratedCitizenIterator(p1);
-        assertSetContent(it, p1, p2);
+        Iterator it = new StmObjectIterator(p1);
+        assertAsSetContent(it, p1, p2);
     }
 
     public void testChain() {
@@ -47,21 +46,21 @@ public class HydratedCitizenIteratorTest extends TestCase {
         p2.setParent(p3);
         p1.setParent(p2);
 
-        Iterator it = new HydratedCitizenIterator(p1);
-        assertSetContent(it, p1, p2, p3);
+        Iterator it = new StmObjectIterator(p1);
+        assertAsSetContent(it, p1, p2, p3);
     }
 
     public void testDuplicateItems() {
         Person p = new Person();
-        Iterator it = new HydratedCitizenIterator(p, p);
-        assertSetContent(it, p);
+        Iterator it = new StmObjectIterator(p, p);
+        assertAsSetContent(it, p);
     }
 
     public void testDirectCycleItems() {
         Person p = new Person();
         p.setParent(p);
-        Iterator it = new HydratedCitizenIterator(p);
-        assertSetContent(it, p);
+        Iterator it = new StmObjectIterator(p);
+        assertAsSetContent(it, p);
     }
     
     public void testIndirectCycleItems() {
@@ -71,8 +70,8 @@ public class HydratedCitizenIteratorTest extends TestCase {
         p1.setParent(p2);
         p2.setParent(p3);
         p3.setParent(p1);
-        Iterator it = new HydratedCitizenIterator(p1);
-        assertSetContent(it, p1, p2, p3);
+        Iterator it = new StmObjectIterator(p1);
+        assertAsSetContent(it, p1, p2, p3);
     }
 
     public void assertHasNext(Iterator it) {

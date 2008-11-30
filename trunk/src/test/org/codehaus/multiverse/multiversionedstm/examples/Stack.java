@@ -1,14 +1,14 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import static org.codehaus.multiverse.TransactionMethods.retry;
-import org.codehaus.multiverse.multiversionedstm.Citizen;
-import org.codehaus.multiverse.multiversionedstm.DehydratedCitizen;
-import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.util.EmptyIterator;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.util.iterators.EmptyIterator;
+import org.codehaus.multiverse.transaction.Transaction;
 
 import java.util.Iterator;
 
-public class Stack<E> implements Citizen {
+public class Stack<E> implements StmObject {
 
     private Node<E> head;
 
@@ -66,33 +66,37 @@ public class Stack<E> implements Citizen {
 
     //generated
     private Node head_initial;
-    private long ptr;
-    private MultiversionedStm.MultiversionedTransaction transaction;
+    private long handle;
+    private Transaction transaction;
     private DehydratedStack initialStack;
 
-    public Iterator<Citizen> ___directReachableIterator() {
+    public DehydratedStmObject ___getInitialDehydratedStmObject() {
+        return initialStack;
+    }
+
+    public Iterator<StmObject> ___directReferencedIterator() {
         //todo: alle elementen van de stack moeten bij lang worden gelopen
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(MultiversionedStm.MultiversionedTransaction transaction) {
+    public void ___onAttach(Transaction transaction) {
         this.transaction = transaction;
     }
 
-    public MultiversionedStm.MultiversionedTransaction ___getTransaction() {
+    public Transaction ___getTransaction() {
         return transaction;
     }
 
     public long ___getHandle() {
-        return ptr;
+        return handle;
     }
 
-    public void ___setPointer(long ptr) {
-        this.ptr = ptr;
+    public void ___setHandle(long ptr) {
+        this.handle = ptr;
     }
 
-    public DehydratedStack ___dehydrate() {
-        return new DehydratedStack(head);
+    public DehydratedStack ___dehydrate(long version) {
+        return new DehydratedStack(this, version);
     }
 
     public boolean ___isDirty() {
@@ -105,19 +109,24 @@ public class Stack<E> implements Citizen {
         return false;
     }
 
-    public static class DehydratedStack implements DehydratedCitizen {
+    public static class DehydratedStack extends DehydratedStmObject {
         private final Node head;
 
-        public DehydratedStack(Node head) {
-            this.head = head;
+        public DehydratedStack(Stack stack, long version) {
+            super(stack.handle, version);
+            this.head = stack.head;
         }
 
-        public Stack hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
+        public Iterator<Long> getDirect() {
+            throw new RuntimeException();
+        }
+
+        public Stack hydrate(Transaction transaction) {
             Stack stack = new Stack();
             stack.head = head;
             stack.head_initial = head;
             stack.transaction = transaction;
-            stack.ptr = ptr;
+            stack.handle = getHandle();
             stack.initialStack = this;
             return stack;
         }

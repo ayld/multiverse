@@ -1,16 +1,26 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.TransactionTemplate;
-import org.codehaus.multiverse.multiversionedstm.examples.Queue;
+import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.transaction.Transaction;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class QueueTest extends AbstractMultiversionedStmTest {
     private long queuePtr;
+    private Set pushed = Collections.synchronizedSet(new HashSet());
+    private Set popped = Collections.synchronizedSet(new HashSet());
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         queuePtr = atomicInsert(new Queue());
+    }
+
+    public void tearDown(){
+        assertEquals(pushed, popped);
     }
 
     public void atomicPush(final String item) {
@@ -22,16 +32,20 @@ public class QueueTest extends AbstractMultiversionedStmTest {
             }
         }.execute();
 
-        System.out.println(Thread.currentThread()+" pushed: " + item);
+        pushed.add(item);
+
+        //System.out.println(Thread.currentThread() + " pushed: " + item);
     }
 
     public String atomicPop() {
-        return (String) new TransactionTemplate(stm) {
+        String object = (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
                 Queue queue = (Queue) t.read(queuePtr);
                 return queue.pop();
             }
         }.execute();
+        popped.add(object);
+        return object;
     }
 
     public int atomicSize() {
@@ -56,7 +70,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
             public void run() {
                 try {
                     String result = atomicPop();
-                    System.out.println(Thread.currentThread()+" consumed: " + result);
+                    //System.out.println(Thread.currentThread() + " consumed: " + result);
                 } catch (RuntimeException ex) {
                     ex.printStackTrace();
                 }
@@ -108,9 +122,9 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     private class ProducerThread extends Thread {
 
         public void run() {
-            for (int k = 0; k < 50; k++) {
+            for (int k = 0; k < 10000; k++) {
                 atomicPush("" + k);
-                sleepRandom(1000);
+                sleepRandom(3);
             }
 
             atomicPush("poison");
@@ -128,8 +142,8 @@ public class QueueTest extends AbstractMultiversionedStmTest {
             String item;
             do {
                 item = atomicPop();
-                System.out.println(toString()+" Consumed: " + item);
-                sleepRandom(3000);
+                //System.out.println(toString() + " Consumed: " + item);
+                sleepRandom(10);
             } while (!"poison".equals(item));
         }
     }

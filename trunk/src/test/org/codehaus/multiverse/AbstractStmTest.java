@@ -19,7 +19,7 @@ public abstract class AbstractStmTest<S extends Stm> extends TestCase {
     public void assertNoObjectInStm(long ptr) {
         Transaction t = stm.startTransaction();
         try {
-            t.read(ptr);
+            Object x= t.read(ptr);
             fail();
         } catch (NoSuchObjectException ex) {
         } finally {
@@ -43,7 +43,7 @@ public abstract class AbstractStmTest<S extends Stm> extends TestCase {
     public long atomicInsert(Object obj) {
         Transaction t = stm.startTransaction();
         try {
-            long ptr = t.attach(obj);
+            long ptr = t.attachAsRoot(obj);
             t.commit();
             return ptr;
         } catch (RuntimeException ex) {

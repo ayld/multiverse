@@ -1,9 +1,13 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
+import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StackTest extends AbstractMultiversionedStmTest {
@@ -22,18 +26,17 @@ public class StackTest extends AbstractMultiversionedStmTest {
                 return null;
             }
         }.execute();
-
-        System.out.println(Thread.currentThread() + " pushed: " + item);
-    }
+  }
 
     public String atomicPop() {
-        return (String) new TransactionTemplate(stm) {
+        String item = (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                System.out.println(Thread.currentThread() + " trying to pop");
+            //    System.out.println(Thread.currentThread() + " trying to pop");
                 Stack stack = (Stack) t.read(stackPtr);
                 return stack.pop();
             }
         }.execute();
+        return item;
     }
 
     public void asynchronousPush(final String item) {
@@ -49,7 +52,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
             public void run() {
                 try {
                     String result = atomicPop();
-                    System.out.println(Thread.currentThread() + " consumed: " + result);
+                 //   System.out.println(Thread.currentThread() + " consumed: " + result);
                 } catch (RuntimeException ex) {
                     ex.printStackTrace();
                 }
@@ -57,7 +60,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
         }.start();
     }
 
-     public void testSequential() {
+    public void testSequential() {
         atomicPush("foo");
         atomicPush("bar");
 
@@ -95,6 +98,9 @@ public class StackTest extends AbstractMultiversionedStmTest {
         consumerThread3.start();
 
         producerThread1.join();
+        producerThread2.join();
+        producerThread3.join();
+
         consumerThread1.join();
         consumerThread2.join();
         consumerThread3.join();
@@ -109,9 +115,9 @@ public class StackTest extends AbstractMultiversionedStmTest {
         int count = producerCounter.incrementAndGet();
 
         public void run() {
-            for (int k = 0; k < 50; k++) {
+            for (int k = 0; k < 600; k++) {
                 atomicPush("" + itemCounter.incrementAndGet());
-                sleepRandom(1000);
+                sleepRandom(10);
             }
 
             atomicPush("poison");
@@ -130,8 +136,8 @@ public class StackTest extends AbstractMultiversionedStmTest {
             String item;
             do {
                 item = atomicPop();
-                System.out.println(Thread.currentThread() + " consumed: " + item);
-                sleepRandom(1000);
+                //System.out.println(Thread.currentThread() + " consumed: " + item);
+                sleepRandom(10);
             } while (!"poison".equals(item));
         }
 

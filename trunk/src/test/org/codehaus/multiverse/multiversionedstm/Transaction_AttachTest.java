@@ -10,7 +10,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
 
         try {
-            transaction.attach(null);
+            transaction.attachAsRoot(null);
             fail();
         } catch (NullPointerException ex) {
         }
@@ -22,7 +22,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
     public void testNonCitizen() {
         createActiveTransaction();
         try {
-            transaction.attach(new String("foo"));
+            transaction.attachAsRoot(new String("foo"));
             fail();
         } catch (IllegalArgumentException ex) {
         }
@@ -36,7 +36,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
 
         Person freshPerson = new Person();
-        long ptr = transaction.attach(freshPerson);
+        long ptr = transaction.attachAsRoot(freshPerson);
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
@@ -48,7 +48,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         createActiveTransaction();
         Person dehydratedPerson = (Person) transaction.read(ptr);
-        transaction.attach(dehydratedPerson);
+        transaction.attachAsRoot(dehydratedPerson);
 
         assertTransactionIsActive();
         assertHasPointerAndTransaction(dehydratedPerson, ptr, transaction);
@@ -58,7 +58,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
 
         Person child = new Person();
-        long childPtr = transaction.attach(child);
+        long childPtr = transaction.attachAsRoot(child);
 
         Person parent = new Person();
         child.setParent(parent);
@@ -74,12 +74,12 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
 
         Person person = new Person();
-        long ptr1 = transaction.attach(person);
-        long ptr2 = transaction.attach(person);
+        long ptr1 = transaction.attachAsRoot(person);
+        long ptr2 = transaction.attachAsRoot(person);
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertEquals("multiple attach should give the same content for the same object ", ptr1, ptr2);
+        assertEquals("multiple attachAsRoot should give the same content for the same object ", ptr1, ptr2);
         assertHasPointer(ptr1, person);
     }
 
@@ -89,7 +89,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         Person person = new Person();
         person.setParent(person);
 
-        long personPtr = transaction.attach(person);
+        long personPtr = transaction.attachAsRoot(person);
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasPointerAndTransaction(person, personPtr, transaction);
@@ -106,7 +106,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         Person person4 = new Person();
         person4.setParent(person3);
 
-        long person4Ptr = transaction.attach(person4);
+        long person4Ptr = transaction.attachAsRoot(person4);
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
@@ -126,7 +126,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         Person child = new Person();
         child.setParent(parent);
 
-        long ptr = transaction.attach(child);
+        long ptr = transaction.attachAsRoot(child);
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
@@ -140,11 +140,11 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
 
         Person parent = new Person();
-        long parentPtr = transaction.attach(parent);
+        long parentPtr = transaction.attachAsRoot(parent);
 
         Person child = new Person();
         child.setParent(parent);
-        long childPtr = transaction.attach(child);
+        long childPtr = transaction.attachAsRoot(child);
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
@@ -158,8 +158,8 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         Person person1 = new Person();
         Person person2 = new Person();
 
-        long person1Ptr = transaction.attach(person1);
-        long person2Ptr = transaction.attach(person2);
+        long person1Ptr = transaction.attachAsRoot(person1);
+        long person2Ptr = transaction.attachAsRoot(person2);
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
@@ -170,12 +170,12 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
     public void testAlreadyAttachedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person person = new Person();
-        long personPtr = otherTransaction.attach(person);
+        long personPtr = otherTransaction.attachAsRoot(person);
 
         createActiveTransaction();
 
         try {
-            transaction.attach(person);
+            transaction.attachAsRoot(person);
             fail();
         } catch (BadTransactionException ex) {
         }
@@ -188,13 +188,13 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
     public void testReachableObjectAttachedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person parent = new Person();
-        long parentPtr = otherTransaction.attach(parent);
+        long parentPtr = otherTransaction.attachAsRoot(parent);
 
         createActiveTransaction();
         Person child = new Person();
         child.setParent(parent);
         try {
-            transaction.attach(child);
+            transaction.attachAsRoot(child);
             fail();
         } catch (BadTransactionException ex) {
         }
@@ -210,11 +210,11 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
     public void testBadReachableObjectIsSetAfterAttach() {
         Transaction otherTransaction = stm.startTransaction();
         Person parent = new Person();
-        long parentPtr = otherTransaction.attach(parent);
+        long parentPtr = otherTransaction.attachAsRoot(parent);
 
         createActiveTransaction();
         Person child = new Person();
-        long childPtr=    transaction.attach(child);
+        long childPtr=    transaction.attachAsRoot(child);
 
         child.setParent(parent);
 
@@ -233,7 +233,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         Person obj = new Person();
         try {
-            transaction.attach(obj);
+            transaction.attachAsRoot(obj);
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -250,7 +250,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         Person object = new Person();
         try {
-            transaction.attach(object);
+            transaction.attachAsRoot(object);
             fail();
         } catch (IllegalStateException ex) {
         }

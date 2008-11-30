@@ -6,12 +6,12 @@ import org.codehaus.multiverse.transaction.Transaction;
 public abstract class AbstractStmTest extends TestCase {
 
     protected MultiversionedStm stm;
-    protected GrowingMultiversionedHeap<DehydratedCitizen> heap;
+    protected GrowingHeap heap;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        heap = new GrowingMultiversionedHeap<DehydratedCitizen>();
+        heap = new GrowingHeap();
         stm = new MultiversionedStm(heap);
     }
 
@@ -28,10 +28,10 @@ public abstract class AbstractStmTest extends TestCase {
         }
     }
 
-    public long insert(Citizen obj) {
+    public long insert(StmObject obj) {
         MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
         try {
-            t.attach(obj);
+            t.attachAsRoot(obj);
             t.commit();
             return obj.___getHandle();
         } catch (RuntimeException ex) {
@@ -40,13 +40,13 @@ public abstract class AbstractStmTest extends TestCase {
         }
     }
 
-    public void assertHasPointer(long expectedPtr, Citizen... citizens) {
-        for (Citizen citizen : citizens)
+    public void assertHasPointer(long expectedPtr, StmObject... citizens) {
+        for (StmObject citizen : citizens)
             assertEquals("Pointer is not the same", expectedPtr, citizen.___getHandle());
     }
 
-    public void assertHasTransaction(Transaction expected, Citizen... citizens) {
-        for (Citizen citizen : citizens)
+    public void assertHasTransaction(Transaction expected, StmObject... citizens) {
+        for (StmObject citizen : citizens)
             assertSame("Transaction is not the same", expected, citizen.___getTransaction());
     }
 
@@ -62,8 +62,8 @@ public abstract class AbstractStmTest extends TestCase {
         assertEquals(expected, stm.getAbortedCount());
     }
 
-    public void assertActualVersion(long ptr, long expectedVersion) {
-        long foundVersion = heap.readVersion(ptr);
+    public void assertActualVersion(long handle, long expectedVersion) {
+        long foundVersion = heap.getSnapshot().getVersion(handle);
         assertEquals(expectedVersion, foundVersion);
     }
 
@@ -71,9 +71,9 @@ public abstract class AbstractStmTest extends TestCase {
         assertEquals(expectedVersion, stm.getActiveVersion());
     }
 
-    public void assertStmContains(long ptr, long expectedVersion, DehydratedCitizen expected) {
-        assertEquals("Versions don't match", expectedVersion, heap.readVersion(ptr));
-        DehydratedCitizen found = heap.read(ptr, expectedVersion);
+    public void assertStmContains(long handle, long expectedVersion, DehydratedStmObject expected) {
+        assertEquals("Versions don't match", expectedVersion, heap.getSnapshot().getVersion(handle));
+        DehydratedStmObject found = heap.getSnapshot(expectedVersion).read(handle);
         assertEquals("Content doesn't match", expected, found);
     }
 }

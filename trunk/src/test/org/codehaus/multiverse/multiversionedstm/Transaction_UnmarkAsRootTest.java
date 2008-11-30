@@ -2,13 +2,13 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
 
-public class Transaction_DeleteTest extends AbstractMultiversionedStmTest {
+public class Transaction_UnmarkAsRootTest extends AbstractMultiversionedStmTest {
 
-    public void testIllegalPointer() {
+    public void testNullPointer() {
         createActiveTransaction();
 
         try {
-            transaction.delete(-1);
+            transaction.unmarkAsRoot(0);
             fail();
         } catch (NoSuchObjectException ex) {
         }
@@ -23,7 +23,7 @@ public class Transaction_DeleteTest extends AbstractMultiversionedStmTest {
         createCommittedTransaction();
 
         try {
-            transaction.delete(1);
+            transaction.unmarkAsRoot(1);
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -36,7 +36,7 @@ public class Transaction_DeleteTest extends AbstractMultiversionedStmTest {
         createAbortedTransaction();
 
         try {
-            transaction.delete(1);
+            transaction.unmarkAsRoot(1);
             fail();
         } catch (IllegalStateException ex) {
 
