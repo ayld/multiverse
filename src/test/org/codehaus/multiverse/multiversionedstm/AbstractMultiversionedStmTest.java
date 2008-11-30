@@ -4,10 +4,10 @@ import org.codehaus.multiverse.AbstractTransactionTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
 public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
-    protected GrowingMultiversionedHeap<DehydratedCitizen> heap;
+    protected GrowingHeap heap;
 
     public MultiversionedStm createStm() {
-        heap = new GrowingMultiversionedHeap<DehydratedCitizen>();
+        heap = new GrowingHeap();
         return new MultiversionedStm(heap);
     }
 
@@ -28,7 +28,7 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     }
 
     public void assertActualVersion(long ptr, long expectedVersion) {
-        long foundVersion = heap.readVersion(ptr);
+        long foundVersion = heap.getSnapshot().getVersion(ptr);
         assertEquals(expectedVersion, foundVersion);
     }
 
@@ -48,30 +48,32 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
         assertEquals(expected, stm.getAbortedCount());
     }
 
-    public void assertHasPointerAndTransaction(Citizen citizen, long expectedPtr, Transaction expectedTrans) {
+    public void assertHasPointerAndTransaction(StmObject citizen, long expectedPtr, Transaction expectedTrans) {
         assertNotNull(citizen);
         assertEquals(expectedPtr, citizen.___getHandle());
         assertEquals(expectedTrans, citizen.___getTransaction());
     }
 
-    public void assertHasPointer(long expectedPtr, Citizen... citizens) {
-        for (Citizen citizen : citizens)
+    public void assertHasPointer(long expectedPtr, StmObject... citizens) {
+        for (StmObject citizen : citizens)
             assertEquals("Pointer is not the same", expectedPtr, citizen.___getHandle());
     }
 
-    public void assertHasTransaction(Transaction expected, Citizen... citizens) {
-        for (Citizen citizen : citizens)
+    public void assertHasTransaction(Transaction expected, StmObject... citizens) {
+        for (StmObject citizen : citizens)
             assertSame("Transaction is not the same", expected, citizen.___getTransaction());
     }
 
-    public void assertHasNoTransaction(Citizen... citizens) {
-        for (Citizen citizen : citizens)
+    public void assertHasNoTransaction(StmObject... citizens) {
+        for (StmObject citizen : citizens)
             assertNull("Transaction should be null", citizen.___getTransaction());
     }
 
-    public void assertHeapContains(long ptr, long expectedVersion, DehydratedCitizen expected) {
-        assertEquals("Versions don't match. -1 indicates no cell with given address", expectedVersion, heap.readVersion(ptr));
-        DehydratedCitizen found = heap.read(ptr, expectedVersion);
+    public void assertHeapContains(long handle, long expectedVersion, DehydratedStmObject expected) {
+        assertEquals("Versions don't match. -1 indicates no cell with given address",
+                expectedVersion,
+                heap.getSnapshot().getVersion(handle));
+        DehydratedStmObject found = heap.getSnapshot(expectedVersion).read(handle);
         assertEquals("Content doesn't match", expected, found);
     }
 }

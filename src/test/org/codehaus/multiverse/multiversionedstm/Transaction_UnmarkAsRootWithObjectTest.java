@@ -5,18 +5,19 @@ import org.codehaus.multiverse.multiversionedstm.examples.Stack;
 import org.codehaus.multiverse.transaction.BadTransactionException;
 import org.codehaus.multiverse.transaction.Transaction;
 
-public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmTest {
+public class Transaction_UnmarkAsRootWithObjectTest extends AbstractMultiversionedStmTest {
 
     public void testNoDependencies() {                              
         long handle = atomicInsert(new Person());
 
         createActiveTransaction();
         Person person = (Person) transaction.read(handle);
-        transaction.delete(person);
+        transaction.unmarkAsRoot(person);
         transaction.commit();
 
         assertTransactionIsCommitted();
-        heap.isDeleted(handle);
+        //heap.isDeleted(handle);
+        //todo
     }
 
     public void testOthersDependsOnDeletedObject() {
@@ -40,7 +41,7 @@ public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmT
         long version = stm.getActiveVersion();
 
         try {
-            transaction.delete(null);
+            transaction.unmarkAsRoot(null);
             fail();
         } catch (NullPointerException ex) {
         }
@@ -54,7 +55,7 @@ public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmT
         long version = stm.getActiveVersion();
 
         try {
-            transaction.delete("foo");
+            transaction.unmarkAsRoot("foo");
             fail();
         } catch (IllegalArgumentException ex) {
         }
@@ -67,7 +68,7 @@ public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmT
         createActiveTransaction();
         Person person = new Person();
         try {
-            transaction.delete(person);
+            transaction.unmarkAsRoot(person);
             fail();
         } catch (BadTransactionException ex) {
 
@@ -79,11 +80,11 @@ public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmT
     public void testCitizenAlreadyAttachedToDifferentTransaction() {
         Person person = new Person();
         Transaction otherTransaction = stm.startTransaction();
-        otherTransaction.attach(person);
+        otherTransaction.attachAsRoot(person);
 
         createActiveTransaction();
         try{
-            transaction.delete(person);
+            transaction.unmarkAsRoot(person);
             fail();
         }catch(BadTransactionException ex){
         }
@@ -97,7 +98,7 @@ public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmT
         //todo
     }
 
-    //test combination of both delete methods.
+    //test combination of both unmarkAsRoot methods.
 
     //============= other states
 
@@ -106,7 +107,7 @@ public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmT
         long version = stm.getActiveVersion();
 
         try {
-            transaction.delete(new Stack());
+            transaction.unmarkAsRoot(new Stack());
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -120,7 +121,7 @@ public class Transaction_DeleteWithObjectTest extends AbstractMultiversionedStmT
         long version = stm.getActiveVersion();
 
         try {
-            transaction.delete(new Stack());
+            transaction.unmarkAsRoot(new Stack());
             fail();
         } catch (IllegalStateException ex) {
         }

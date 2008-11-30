@@ -1,4 +1,6 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.latches;
+
+import org.codehaus.multiverse.util.latches.Latch;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;

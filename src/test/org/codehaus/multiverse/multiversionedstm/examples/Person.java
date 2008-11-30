@@ -1,36 +1,20 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.multiversionedstm.DehydratedCitizen;
-import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.multiversionedstm.Citizen;
-import org.codehaus.multiverse.util.ArrayIterator;
-import org.codehaus.multiverse.util.EmptyIterator;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
+import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import org.codehaus.multiverse.util.iterators.EmptyIterator;
+import org.codehaus.multiverse.util.PtrUtils;
 
 import static java.lang.String.format;
 import java.util.Iterator;
 
-public class Person implements Citizen {
-
-    //GENERATED
-    public final static int OFFSET_AGE = 1;
-    public final static int OFFSET_NAME = 2;
-    public final static int OFFSET_PARENT = 3;
-
-    //GENERATED
-    private MultiversionedStm.MultiversionedTransaction transaction;
+public class Person implements StmObject {
 
     private int age;
-
     private String name;
-
     private Person parent;
-    //GENERATED
-    private boolean parent_localized = true;
-
-    private DehydratedPerson initialHydratedPerson;
-
-    //GENERATED
-    private long ptr;
 
     public Person() {
     }
@@ -59,7 +43,7 @@ public class Person implements Citizen {
     public Person getParent() {
         //GENERATED
         if (!parent_localized) {
-            long parentPtr = initialHydratedPerson.parentPtr;
+            long parentPtr = initialDehydratedPerson.parentPtr;
             parent = parentPtr == 0 ? null : (Person) transaction.read(parentPtr);
             parent_localized = true;
         }
@@ -75,24 +59,36 @@ public class Person implements Citizen {
 
     //==================== GENERATED =====================
 
-    //todo: dehydrate?
+    //GENERATED
+    private boolean parent_localized = true;
+
+    private DehydratedPerson initialDehydratedPerson;
+    //GENERATED
+    private Transaction transaction;
+
+    //GENERATED
+    private long handle;
 
     public long ___getHandle() {
-        return ptr;
+        return handle;
     }
 
-    public void ___setPointer(long ptr) {
-        this.ptr = ptr;
+    public DehydratedStmObject ___getInitialDehydratedStmObject() {
+        return initialDehydratedPerson;
     }
 
-     public Iterator<Citizen> ___directReachableIterator() {
-        if (parent != null)
+    public void ___setHandle(long ptr) {
+        this.handle = ptr;
+    }
+
+    public Iterator<StmObject> ___directReferencedIterator() {
+        if (parent != null && parent != this)
             return new ArrayIterator(parent);
 
-         return EmptyIterator.INSTANCE;
+        return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(MultiversionedStm.MultiversionedTransaction transaction) {
+    public void ___onAttach(Transaction transaction) {
         if (transaction == null)
             throw new NullPointerException();
 
@@ -105,48 +101,46 @@ public class Person implements Citizen {
         this.transaction = transaction;
     }
 
-   public MultiversionedStm.MultiversionedTransaction ___getTransaction() {
+    public Transaction ___getTransaction() {
         return transaction;
     }
 
     public boolean ___isDirty() {
-        if(initialHydratedPerson==null)
+        if (initialDehydratedPerson == null)
             return true;
 
-        return initialHydratedPerson.age != age ||
-                initialHydratedPerson.name != null ||
-                (parent_localized && (initialHydratedPerson.parentPtr != (parent == null ? 0 : parent.___getHandle())));
+        return initialDehydratedPerson.age != age ||
+                initialDehydratedPerson.name != null ||
+                (parent_localized && (initialDehydratedPerson.parentPtr != (parent == null ? 0 : parent.___getHandle())));
     }
 
-    public DehydratedCitizen ___dehydrate() {
-        DehydratedPerson hydratedPerson = new DehydratedPerson();
-        hydratedPerson.age = age;
-        hydratedPerson.name = name;
-        hydratedPerson.parentPtr = parent == null ? 0L : parent.___getHandle();
-        return hydratedPerson;
+    public DehydratedStmObject ___dehydrate(long version) {
+        return new DehydratedPerson(this, version);
     }
 
-    public static class DehydratedPerson implements DehydratedCitizen {
+    public static class DehydratedPerson extends DehydratedStmObject {
         private int age;
         private String name;
         private long parentPtr;
 
-        public DehydratedPerson() {
+        public DehydratedPerson(Person person, long version) {
+            super(person.___getHandle(), version);
+            this.age = person.age;
+            this.name = person.name;
+            this.parentPtr = PtrUtils.getHandle(person.getParent());
+        }
+               
+        public Iterator<Long> getDirect() {
+            throw new RuntimeException();
         }
 
-        public DehydratedPerson(int age, String name, long parentPtr) {
-            this.age = age;
-            this.name = name;
-            this.parentPtr = parentPtr;
-        }
-
-        public Citizen hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
+        public StmObject hydrate(Transaction transaction) {
             try {
                 Person person = (Person) Person.class.newInstance();
                 //initialization of operational properties
-                person.ptr = ptr;
+                person.handle = getHandle();
                 person.transaction = transaction;
-                person.initialHydratedPerson = this;
+                person.initialDehydratedPerson = this;
 
                 //reinitialization of the fields
                 person.age = age;

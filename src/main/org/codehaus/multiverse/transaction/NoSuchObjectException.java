@@ -14,6 +14,10 @@ public class NoSuchObjectException extends StmException {
     public NoSuchObjectException() {
     }
 
+    public NoSuchObjectException(long handle, long version){
+        super(format("Object with handle %d and version %d does not exist", handle, version));
+    }
+
     public NoSuchObjectException(long handle) {
         super(format("Object with handle %d does not exist", handle));
     }

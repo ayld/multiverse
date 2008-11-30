@@ -1,9 +1,11 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.iterators;
+
+import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class CompositeIterator<E> implements Iterator<E> {
+public final class CompositeIterator<E> implements Iterator<E> {
     private final Iterator<E>[] iterators;
     private Iterator<E> currentIterator;
     private int index;

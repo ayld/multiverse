@@ -1,4 +1,6 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.latches;
+
+import org.codehaus.multiverse.util.latches.Latch;
 
 import java.util.concurrent.TimeUnit;
 
@@ -7,7 +9,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Peter Veentjer.
  */
-public class OpenLatch implements Latch{
+public final class OpenLatch implements Latch {
 
     public final static OpenLatch INSTANCE = new OpenLatch();
 

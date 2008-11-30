@@ -1,6 +1,7 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.latches;
 
 import junit.framework.TestCase;
+import org.codehaus.multiverse.util.latches.OpenLatch;
 
 public class OpenLatchTest extends TestCase {
     private OpenLatch latch;

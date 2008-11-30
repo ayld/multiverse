@@ -19,18 +19,16 @@ public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
         long version = stm.getActiveVersion();
 
         createActiveTransaction();
-        transaction.attach(p1);
-        transaction.attach(p2);
+        transaction.attachAsRoot(p1);
+        transaction.attachAsRoot(p2);
         transaction.abort();
 
         assertCurrentStmVersion(version);
         assertTransactionIsAborted();
-        //assertEquals(0, p1.___getHandle());
-        //assertEquals(0, p2.___getHandle());
         assertTransactionHasNoWrites();
     }
 
-    public void testChangedMadeOnPrivatedObjectsAreNotCommitted() {
+    public void testChangesAreNotCommitted() {
         long ptr = atomicInsert(new Person());
         long version = stm.getActiveVersion();
 
@@ -42,8 +40,7 @@ public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
         transaction.abort();
 
         assertCurrentStmVersion(version);
-        long newVersion = stm.getActiveVersion();
-        assertHeapContains(ptr, newVersion, new Person.DehydratedPerson(0, null, 0L));
+        assertActualVersion(ptr, version);
         assertTransactionHasNoWrites();
     }
 

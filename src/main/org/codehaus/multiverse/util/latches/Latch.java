@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.util.latches;
 
 import java.util.concurrent.TimeUnit;
 

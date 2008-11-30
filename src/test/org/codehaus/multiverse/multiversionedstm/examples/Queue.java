@@ -1,13 +1,13 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.multiversionedstm.Citizen;
-import org.codehaus.multiverse.multiversionedstm.DehydratedCitizen;
-import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.util.ArrayIterator;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.*;
+import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import org.codehaus.multiverse.transaction.Transaction;
 
 import java.util.Iterator;
 
-public class Queue<E> implements Citizen {
+public class Queue<E> implements StmObject {
 
     private Stack<E> readyToPopStack = new Stack<E>();
     private Stack<E> pushedStack = new Stack<E>();
@@ -39,56 +39,65 @@ public class Queue<E> implements Citizen {
     //================== generated =================
 
     private long ptr;
-    private MultiversionedStm.MultiversionedTransaction transaction;
-    private DehydratedQueue dehydratedQueue;
+    private Transaction transaction;
+    private DehydratedQueue initialDehydratedQueue;
 
-    public void ___onAttach(MultiversionedStm.MultiversionedTransaction transaction) {
+    public DehydratedStmObject ___getInitialDehydratedStmObject() {
+        return initialDehydratedQueue;
+    }
+
+    public void ___onAttach(Transaction transaction) {
         this.transaction = transaction;
     }
 
-    public MultiversionedStm.MultiversionedTransaction ___getTransaction() {
+    public Transaction ___getTransaction() {
         return transaction;
     }
 
-    public Iterator<Citizen> ___directReachableIterator() {
-        return new ArrayIterator<Citizen>(readyToPopStack, pushedStack);
+    public Iterator<StmObject> ___directReferencedIterator() {
+        return new ArrayIterator<StmObject>(readyToPopStack, pushedStack);
     }
 
     public long ___getHandle() {
         return ptr;
     }
 
-    public void ___setPointer(long ptr) {
+    public void ___setHandle(long ptr) {
         this.ptr = ptr;
     }
 
-    public DehydratedCitizen ___dehydrate() {
-        return new DehydratedQueue(this);
+    public DehydratedStmObject ___dehydrate(long version) {
+        return new DehydratedQueue(this,version);
     }
 
     public boolean ___isDirty() {
-        if(dehydratedQueue == null)
+        if(initialDehydratedQueue == null)
             return true;
 
         return false;
     }
 
-    public static class DehydratedQueue implements DehydratedCitizen {
+    public static class DehydratedQueue extends DehydratedStmObject {
         private final long readyToPopStackPtr;
         private final long pushedStackPtr;
 
-        DehydratedQueue(Queue queue) {
+        DehydratedQueue(Queue queue, long version) {
+            super(queue.___getHandle(), version);
             this.readyToPopStackPtr = queue.readyToPopStack.___getHandle();
             this.pushedStackPtr = queue.pushedStack.___getHandle();
         }
 
-        public Queue hydrate(long ptr, MultiversionedStm.MultiversionedTransaction transaction) {
+        public Iterator<Long> getDirect() {
+            throw new RuntimeException();
+        }
+
+        public Queue hydrate(Transaction transaction) {
             Queue queue = new Queue();
-            queue.ptr = ptr;
+            queue.ptr = getHandle();
             queue.transaction = transaction;
             queue.readyToPopStack = (Stack) transaction.read(readyToPopStackPtr);
             queue.pushedStack = (Stack) transaction.read(pushedStackPtr);
-            queue.dehydratedQueue = this;
+            queue.initialDehydratedQueue = this;
             return queue;
         }
     }

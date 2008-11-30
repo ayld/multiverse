@@ -36,13 +36,13 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         //the current transaction.
         Transaction previousTransaction = stm.startTransaction();
         Person p = new Person();
-        previousTransaction.attach(p);
+        previousTransaction.attachAsRoot(p);
         previousTransaction.commit();
 
         try {
             transaction.read(p.___getHandle());
             fail();
-        } catch (BadVersionException ex) {
+        } catch (NoSuchObjectException ex) {
         }
 
         assertTransactionIsActive();
@@ -52,7 +52,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         int age = 32;
         String name = "peter";
 
-        long ptr = createPersonUnderOwnTransaction(name, age);
+        long ptr = atomicInsertPerson(name, age);
 
         createActiveTransaction();
         Object found = transaction.read(ptr);
@@ -67,35 +67,36 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
     public void testUpdatesByLaterTransactionsAreNotSeen() {
         String name = "peter";
-        int age = 32;
-        long ptr = createPersonUnderOwnTransaction(name, age);
+        int oldAge = 32;
+        long ptr = atomicInsertPerson(name, oldAge);
 
         createActiveTransaction();
-        updateAgeUnderOwnTransaction(ptr, age + 1);
+        atomicIncAge(ptr, oldAge + 1);
+
         Person p = (Person) transaction.read(ptr);
-        assertEquals(age, p.getAge());
+        assertEquals(oldAge, p.getAge());
         assertTransactionHasNoWrites();
     }
 
-    private void updateAgeUnderOwnTransaction(long ptr, int newage) {
+    private void atomicIncAge(long ptr, int newage) {
         MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
         Person person = (Person) t.read(ptr);
         person.setAge(newage);
         t.commit();
     }
 
-    private long createPersonUnderOwnTransaction(String name, int age) {
+    private long atomicInsertPerson(String name, int age) {
         Transaction t = stm.startTransaction();
         Person p = new Person();
         p.setAge(age);
         p.setName(name);
-        t.attach(p);
+        t.attachAsRoot(p);
         t.commit();
         return p.___getHandle();
     }
 
     public void testRereadSameInstance() {
-        long ptr = createPersonUnderOwnTransaction("peter", 32);
+        long ptr = atomicInsertPerson("peter", 32);
 
         createActiveTransaction();
         Object found1 = transaction.read(ptr);
