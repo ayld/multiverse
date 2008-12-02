@@ -20,8 +20,13 @@
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/HeapTreeNode.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/HeapTreeNode.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/Heap.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/Heap.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestUtils.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/GrowingHeap.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/GrowingHeap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/util/latches/LatchGroup.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/util/latches/LatchGroup.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java" />
     </list>
     <ignored path="stm.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -150,29 +155,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="HeapTreeNode.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/HeapTreeNode.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="82" column="64" selection-start="2294" selection-end="2294" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="StackTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="15" selection-start="480" selection-end="480" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="115" column="0" selection-start="3376" selection-end="3376" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TestUtils.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestUtils.java">
+      <file leaf-file-name="GrowingHeap.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/GrowingHeap.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="44" column="19" selection-start="1362" selection-end="1362" vertical-scroll-proportion="0.7090909">
-              <folding />
+            <state line="26" column="19" selection-start="1079" selection-end="1079" vertical-scroll-proportion="-2.0521436">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -324,6 +324,10 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="util" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="latches" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -714,8 +718,8 @@
       <recent name="org.codehaus.stm" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.StackTest">
-    <tempConfiguration default="false" name="StackTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false" runner="emma">
+  <component name="RunManager" selected="JUnit.StackTest.testProduceConsumer_10000">
+    <tempConfiguration default="false" name="StackTest.testProduceConsumer_10000" type="JUnit" factoryName="JUnit" enabled="false" merge="false" runner="emma">
       <pattern>
         <option name="PATTERN" value="org.codehaus.multiverse.multiversionedstm.examples.*" />
         <option name="ENABLED" value="true" />
@@ -725,8 +729,8 @@
       <option name="ALTERNATIVE_JRE_PATH" />
       <option name="PACKAGE_NAME" value="org.codehaus.multiverse.multiversionedstm.examples" />
       <option name="MAIN_CLASS_NAME" value="org.codehaus.multiverse.multiversionedstm.examples.StackTest" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="METHOD_NAME" value="testProduceConsumer_10000" />
+      <option name="TEST_OBJECT" value="method" />
       <option name="VM_PARAMETERS" />
       <option name="PARAMETERS" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -972,7 +976,7 @@
       <item index="3" class="java.lang.String" itemvalue="JUnit.Transaction_CommitTest.testFreshObject_withReadOnStandardFields" />
       <item index="4" class="java.lang.String" itemvalue="JUnit.Transaction_ReadTransactionizedTest" />
       <item index="5" class="java.lang.String" itemvalue="JUnit.MultiversionedCellTest.testPrune_pruneVersionIsTheSameAsNewestVersionAndNoHistory" />
-      <item index="6" class="java.lang.String" itemvalue="JUnit.StackTest" />
+      <item index="6" class="java.lang.String" itemvalue="JUnit.StackTest.testProduceConsumer_10000" />
     </list>
     <configuration default="true" type="TestNG" factoryName="TestNG" enabled="false" merge="false">
       <module name="" />
@@ -1073,7 +1077,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295583" sideWeight="0.5" order="13" side_tool="false" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32944068" sideWeight="0.6953567" order="0" side_tool="false" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32944068" sideWeight="0.5810364" order="0" side_tool="false" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5118913" sideWeight="0.5" order="10" side_tool="false" />
       <window_info id="Web Preview" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="6" side_tool="false" />
@@ -1104,7 +1108,7 @@
     <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="- removed some junk from the heaptreenode" />
+    <option name="LAST_COMMIT_MESSAGE" value="- latches are not created in the heap in the listen method anymore, but are passed. This makes it possible to use different latches (a cheaplatch for untimed waiting, a standardlatch for timed waiting).&#10;- added some extra tests to the stack (different number of items produced)" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -1133,6 +1137,7 @@
     <MESSAGE value="- added the HeapTreeNode" />
     <MESSAGE value="- replaced the hashtable approach in the growing heap by a (un)balancedtree approach." />
     <MESSAGE value="- removed some junk from the heaptreenode" />
+    <MESSAGE value="- latches are not created in the heap in the listen method anymore, but are passed. This makes it possible to use different latches (a cheaplatch for untimed waiting, a standardlatch for timed waiting).&#10;- added some extra tests to the stack (different number of items produced)" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1176,22 +1181,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/DehydratedStmObject.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/growingheap/HeapTreeNodeTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="64" selection-start="1840" selection-end="1840" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///java/jdk/jdk1.6/src.zip!/java/util/concurrent/ConcurrentHashMap.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="1132" column="99" selection-start="42209" selection-end="42209" vertical-scroll-proportion="0.33333334">
@@ -1202,13 +1191,6 @@
     <entry file="jar:///java/jdk/jdk1.6/src.zip!/java/lang/Thread.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="273" column="96" selection-start="9186" selection-end="9186" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="346" column="19" selection-start="13573" selection-end="13573" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1229,29 +1211,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/Heap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="70" column="51" selection-start="2653" selection-end="2653" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/util/latches/LatchGroup.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="19" selection-start="427" selection-end="427" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="103" column="20" selection-start="3049" selection-end="3049" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/AbstractStmTest.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="32" column="116" selection-start="795" selection-end="795" vertical-scroll-proportion="0.0">
@@ -1259,9 +1218,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/GrowingHeap.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/util/latches/CheapLatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="19" selection-start="1022" selection-end="1022" vertical-scroll-proportion="0.0">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1273,17 +1232,72 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/Heap.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="15" selection-start="480" selection-end="480" vertical-scroll-proportion="0.0">
+        <state line="90" column="0" selection-start="3503" selection-end="3503" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="118" column="17" selection-start="4723" selection-end="4723" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="96" selection-start="821" selection-end="821" vertical-scroll-proportion="0.18181819">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/util/latches/LatchGroup.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="85" column="0" selection-start="2522" selection-end="2522" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/util/latches/OpenLatchTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/util/latches/LatchGroupTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="20" selection-start="331" selection-end="331" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="19" selection-start="1362" selection-end="1362" vertical-scroll-proportion="0.7090909">
+        <state line="10" column="27" selection-start="248" selection-end="248" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="115" column="0" selection-start="3376" selection-end="3376" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/growingheap/GrowingHeap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="19" selection-start="1079" selection-end="1079" vertical-scroll-proportion="-2.0521436">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

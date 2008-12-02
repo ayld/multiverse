@@ -6,10 +6,20 @@ import java.util.*;
 
 public class TestUtils {
 
-    public static void joinAll(Thread... threads) throws InterruptedException {
+    public static void startAll(Thread... threads){
+        for(Thread thread: threads)
+            thread.start();
+    }
+
+    public static void joinAll(Thread... threads){
         for (Thread thread : threads) {
             System.out.println("Joining " + thread.getName());
-            thread.join();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
             System.out.println("Joined successfully " + thread.getName());
         }
     }
@@ -40,12 +50,12 @@ public class TestUtils {
         sleep((long) (Math.random() * maxMs));
     }
 
-    public static void sleep(long maxMs) {
-        if (maxMs == 0)
+    public static void sleep(long ms) {
+        if (ms == 0)
             return; 
 
         try {
-            Thread.sleep(maxMs);
+            Thread.sleep(ms);
         } catch (InterruptedException ex) {
             Thread.interrupted();
             throw new RuntimeException(ex);

@@ -7,7 +7,8 @@ import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.transaction.BadVersionException;
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
-import org.codehaus.multiverse.util.latches.*;
+import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.util.latches.LatchGroup;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -18,7 +19,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- *
  * idea: when a write is done, you know which overwrites there are. With this information you know which listeners
  * to wakeup.
  *
@@ -74,7 +74,7 @@ public final class GrowingHeap implements Heap {
         do {
             HeapSnapshotImpl currentSnapshot = currentSnapshotReference.get();
             newSnapshot = currentSnapshot.createNew(changes);
-            if (newSnapshot == null){
+            if (newSnapshot == null) {
                 //a write conflict was detected, so return -1 to indicate that
                 writeConflicts.incrementAndGet();
                 return -1;
@@ -98,21 +98,24 @@ public final class GrowingHeap implements Heap {
         newSnapshot.wakeupListeners(transactionVersion);
     }
 
-    public String getStatistics(){
+    public String getStatistics() {
         StringBuilder sb = new StringBuilder();
         sb.append(format("write tries %s\n", writeTries.longValue()));
         sb.append(format("write conflicts %s\n", writeConflicts.longValue()));
         sb.append(format("write retries %s\n", writeRetries.longValue()));
-        double writeRetryPercentage = (100.0d*writeRetries.longValue())/ writeTries.longValue();
+        double writeRetryPercentage = (100.0d * writeRetries.longValue()) / writeTries.longValue();
         sb.append(format("write retry percentage %s \n", writeRetryPercentage));
         return sb.toString();
     }
 
-    public Latch listen(long[] handles, long transactionVersion) {
-        if (handles.length == 0)
-            return OpenLatch.INSTANCE;
+    public void listen(Latch latch, long[] handles, long transactionVersion) {
+        if (latch == null) throw new NullPointerException();
 
-        Latch listenerLatch = new CheapLatch();
+        if (handles.length == 0) {
+            latch.open();
+            return;
+        }
+
         HeapSnapshotImpl currentSnapshot = currentSnapshotReference.get();
         for (long handle : handles) {
             long version = currentSnapshot.getVersion(handle);
@@ -120,23 +123,23 @@ public final class GrowingHeap implements Heap {
                 //the object doesn't exist anymore.
 
                 //lets open the latch so that is can be cleaned up.
-                listenerLatch.open();
+                latch.open();
                 throw new NoSuchObjectException(handle, currentSnapshot.version);
             } else if (version > transactionVersion) {
                 //woohoo, we have an overwrite, the latch can be opened, and it can be returned.
-                listenerLatch.open();
-                return listenerLatch;
+                latch.open();
+                return;
             } else {
                 //no update has been found, so lets register the latch
                 HeapSnapshotImpl snapshot = getSpecificVersion(transactionVersion);
                 LatchGroup latchGroup = snapshot.getOrCreateLatchGroup(handle);
-                latchGroup.add(listenerLatch);
+                latchGroup.add(latch);
             }
 
             //if the latch is opened, we don't have to register the other handles and we can
             //return the opened latch.
-            if (listenerLatch.isOpen())
-                return listenerLatch;
+            if (latch.isOpen())
+                return;
         }
 
         HeapSnapshotImpl newSnapshot = currentSnapshotReference.get();
@@ -146,12 +149,10 @@ public final class GrowingHeap implements Heap {
             //a latch is not openend, even though an interesting update has taken place. This is undesirable behavior.
             //todo: this can be done on another thread.
             wakeupListeners(newSnapshot, transactionVersion);
-      } else {
+        } else {
             //no other transaction have made updates, so it is now the responsibility of an updating transaction
             //to wake up the listener.
         }
-
-        return listenerLatch;
     }
 
     public void signalVersionDied(long version) {

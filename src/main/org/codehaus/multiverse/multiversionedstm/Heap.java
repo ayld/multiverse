@@ -88,7 +88,7 @@ public interface Heap {
      * @param handles
      * @return the created Latch.
      */
-    Latch listen(long[] handles, long transactionVersion);
+    void listen(Latch latch, long[] handles, long transactionVersion);
 
     void signalVersionDied(long version);
 }
