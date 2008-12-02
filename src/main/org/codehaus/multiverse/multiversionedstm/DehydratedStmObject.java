@@ -13,24 +13,17 @@ import java.util.Iterator;
 public abstract class DehydratedStmObject {
 
     private final long handle;
-    private final long version;
 
     public DehydratedStmObject(){
         handle = 0;
-        version = -1;
     }
 
-    protected DehydratedStmObject(long handle, long version) {
+    protected DehydratedStmObject(long handle) {
         this.handle = handle;
-        this.version = version;
     }
 
     public long getHandle() {
         return handle;
-    }
-
-    public long getVersion() {
-        return version;
     }
 
     /**

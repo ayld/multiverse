@@ -66,8 +66,8 @@ public class Queue<E> implements StmObject {
         this.ptr = ptr;
     }
 
-    public DehydratedStmObject ___dehydrate(long version) {
-        return new DehydratedQueue(this,version);
+    public DehydratedStmObject ___dehydrate() {
+        return new DehydratedQueue(this);
     }
 
     public boolean ___isDirty() {
@@ -81,8 +81,8 @@ public class Queue<E> implements StmObject {
         private final long readyToPopStackPtr;
         private final long pushedStackPtr;
 
-        DehydratedQueue(Queue queue, long version) {
-            super(queue.___getHandle(), version);
+        DehydratedQueue(Queue queue) {
+            super(queue.___getHandle());
             this.readyToPopStackPtr = queue.readyToPopStack.___getHandle();
             this.pushedStackPtr = queue.pushedStack.___getHandle();
         }

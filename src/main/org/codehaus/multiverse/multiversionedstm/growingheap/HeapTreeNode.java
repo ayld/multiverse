@@ -6,9 +6,11 @@ public final class HeapTreeNode {
     private final DehydratedStmObject content;
     private final HeapTreeNode left;
     private final HeapTreeNode right;
+    private final long version;
 
-    public HeapTreeNode(DehydratedStmObject content, HeapTreeNode left, HeapTreeNode right) {
+    public HeapTreeNode(DehydratedStmObject content, long version, HeapTreeNode left, HeapTreeNode right) {
         if (content == null) throw new NullPointerException();
+        this.version = version;
         this.content = content;
         this.left = left;
         this.right = right;
@@ -19,7 +21,7 @@ public final class HeapTreeNode {
     }
 
     public long getVersion() {
-        return content.getVersion();
+        return version;
     }
 
     public DehydratedStmObject getContent() {
@@ -49,8 +51,8 @@ public final class HeapTreeNode {
         HeapTreeNode b = p.right;
         HeapTreeNode c = q.right;
 
-        HeapTreeNode qNew = new HeapTreeNode(q.getContent(), b, c);
-        return new HeapTreeNode(p.getContent(), a, qNew);
+        HeapTreeNode qNew = new HeapTreeNode(q.getContent(), q.getVersion(), b, c);
+        return new HeapTreeNode(p.getContent(), p.getVersion(), a, qNew);
     }
 
     /**
@@ -67,8 +69,8 @@ public final class HeapTreeNode {
         HeapTreeNode a = p.left;
         HeapTreeNode b = q.left;
         HeapTreeNode c = q.right;
-        HeapTreeNode pNew = new HeapTreeNode(p.getContent(), a, b);
-        return new HeapTreeNode(q.getContent(), pNew, c);
+        HeapTreeNode pNew = new HeapTreeNode(p.getContent(),p.getVersion(), a, b);
+        return new HeapTreeNode(q.getContent(), q.getVersion(), pNew, c);
     }
 
     /**
@@ -80,30 +82,30 @@ public final class HeapTreeNode {
      * @param change
      * @return
      */
-    public HeapTreeNode createNew(DehydratedStmObject change) {
+    public HeapTreeNode createNew(DehydratedStmObject change, long changeVersion) {
         switch (compare(change.getHandle())) {
             case 0:
                 //since the left and right trees are balanced, the new node will be balanced.
-                return new HeapTreeNode(change, left, right);
+                return new HeapTreeNode(change, changeVersion, left, right);
             case 1:
                 HeapTreeNode newRight;
                 if (right == null) {
-                    newRight = new HeapTreeNode(change, null, null);
+                    newRight = new HeapTreeNode(change,changeVersion,  null, null);
                 } else {
-                    newRight = right.createNew(change);
+                    newRight = right.createNew(change, changeVersion);
                 }
-                HeapTreeNode x = new HeapTreeNode(content, left, newRight);
+                HeapTreeNode x = new HeapTreeNode(content, changeVersion, left, newRight);
                 return x;
             case -1:
                 HeapTreeNode newLeft;
                 if (left == null) {
                     //todo: balancing
-                    newLeft = new HeapTreeNode(change, null, null);
+                    newLeft = new HeapTreeNode(change, changeVersion, null, null);
                 } else {
                     //todo: balancing
-                    newLeft = left.createNew(change);
+                    newLeft = left.createNew(change, changeVersion);
                 }
-                return new HeapTreeNode(content, newLeft, right);
+                return new HeapTreeNode(content, changeVersion, newLeft, right);
             default:
                 throw new RuntimeException();
         }

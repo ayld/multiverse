@@ -11,11 +11,7 @@ public class DummyDehydratedStmObject extends DehydratedStmObject {
     }
 
     public DummyDehydratedStmObject(long handle){
-        super(handle, 0);
-    }
-
-    public DummyDehydratedStmObject(long handle, long version) {
-        super(handle, version);
+        super(handle);
     }
 
     public Iterator<Long> getDirect() {
