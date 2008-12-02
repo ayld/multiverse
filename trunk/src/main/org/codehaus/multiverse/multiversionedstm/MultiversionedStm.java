@@ -5,6 +5,7 @@ import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
 import org.codehaus.multiverse.transaction.*;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.util.latches.CheapLatch;
 import static org.codehaus.multiverse.util.PtrUtils.assertNotNull;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 
@@ -114,7 +115,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         if (base == null) throw new NullPointerException();
         if (!(base instanceof MultiversionedTransaction)) throw new IllegalArgumentException();
         MultiversionedTransaction transaction = (MultiversionedTransaction) base;
-        Latch latch = heap.listen(transaction.getReadAddresses(), transaction.getVersion());
+        Latch latch = new CheapLatch();
+        heap.listen(latch, transaction.getReadAddresses(), transaction.getVersion());
         latch.await();
         return startTransaction();
     }

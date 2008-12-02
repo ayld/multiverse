@@ -78,12 +78,12 @@ public final class LatchGroup {
         if (latch.isOpen())
             return;
 
-        if (isOpen) {
-            latch.open();
-            return;
-        }
-
         synchronized (latchesLock) {
+            if (isOpen) {
+                latch.open();
+                return;
+            }
+
             //lets remove the already opened latches.. no need to keep references to them.
             if (latches != null) {
                 for (Iterator<Latch> it = latches.iterator(); it.hasNext();) {

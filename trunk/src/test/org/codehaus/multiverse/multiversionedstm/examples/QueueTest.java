@@ -3,6 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.TransactionTemplate;
 import org.codehaus.multiverse.TestUtils;
 import static org.codehaus.multiverse.TestUtils.joinAll;
+import static org.codehaus.multiverse.TestUtils.startAll;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
@@ -100,20 +101,18 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         asynchronousPush("foo");
         asynchronousPush("bar");
         TestUtils.sleep(1000);
+
+        //todo: check that content has been returned.
     }
 
     public void testProducerConsumer() throws InterruptedException {
-        Thread producerThread = new ProducerThread();
-        Thread consumerThread1 = new ConsumerThread();
-        Thread consumerThread2 = new ConsumerThread();
-        Thread consumerThread3 = new ConsumerThread();
+        Thread producer = new ProducerThread();
+        Thread consumer1 = new ConsumerThread();
+        Thread consumer2 = new ConsumerThread();
+        Thread consumer3 = new ConsumerThread();
 
-        producerThread.start();
-        consumerThread1.start();
-        consumerThread2.start();
-        consumerThread3.start();
-
-        joinAll(producerThread, consumerThread1, consumerThread2, consumerThread3);
+        startAll(producer, consumer1, consumer2, consumer3);
+        joinAll(producer, consumer1, consumer2, consumer3);
     }
 
     static AtomicInteger producerCounter = new AtomicInteger();
