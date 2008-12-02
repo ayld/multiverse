@@ -6,28 +6,12 @@ public final class HeapTreeNode {
     private final DehydratedStmObject content;
     private final HeapTreeNode left;
     private final HeapTreeNode right;
-    private final int x;
-
-    public HeapTreeNode(DehydratedStmObject content, int x, HeapTreeNode left, HeapTreeNode right) {
-        if (content == null) throw new NullPointerException();
-        this.content = content;
-        this.left = left;
-        this.right = right;
-        this.x = x;
-    }
-
 
     public HeapTreeNode(DehydratedStmObject content, HeapTreeNode left, HeapTreeNode right) {
         if (content == null) throw new NullPointerException();
         this.content = content;
         this.left = left;
         this.right = right;
-        this.x = 0;
-    }
-
-
-    public int getX() {
-        return x;
     }
 
     public long getHandle() {
@@ -49,7 +33,6 @@ public final class HeapTreeNode {
     public HeapTreeNode getRight() {
         return right;
     }
-
 
     /**
      * http://en.wikipedia.org/wiki/Tree_rotation
