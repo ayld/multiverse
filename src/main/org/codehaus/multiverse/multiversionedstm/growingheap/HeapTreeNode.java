@@ -41,7 +41,7 @@ public final class HeapTreeNode {
      */
     public HeapTreeNode rightRotate() {
         if (left == null)
-            throw new IllegalStateException();
+            throw new IllegalStateException("to do a right rotate, the left field can't be null");
 
         HeapTreeNode q = this;
         HeapTreeNode p = q.left;
@@ -60,7 +60,7 @@ public final class HeapTreeNode {
      */
     public HeapTreeNode leftRotate() {
         if (right == null)
-            throw new IllegalStateException();
+            throw new IllegalStateException("to do a left rotate, the right field can't be null");
 
         HeapTreeNode p = this;
         HeapTreeNode q = p.right;
