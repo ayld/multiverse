@@ -67,6 +67,8 @@ public final class GrowingHeap implements Heap {
     public long write(ResetableIterator<StmObject> changes) {
         assert changes != null;
 
+        //todo: check if there are changes. If there are no changes.. you have to create a new snapshot.
+
         writeTries.incrementAndGet();
 
         HeapSnapshotImpl newSnapshot;
@@ -98,15 +100,6 @@ public final class GrowingHeap implements Heap {
         newSnapshot.wakeupListeners(transactionVersion);
     }
 
-    public String getStatistics() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(format("write tries %s\n", writeTries.longValue()));
-        sb.append(format("write conflicts %s\n", writeConflicts.longValue()));
-        sb.append(format("write retries %s\n", writeRetries.longValue()));
-        double writeRetryPercentage = (100.0d * writeRetries.longValue()) / writeTries.longValue();
-        sb.append(format("write retry percentage %s \n", writeRetryPercentage));
-        return sb.toString();
-    }
 
     public void listen(Latch latch, long[] handles, long transactionVersion) {
         if (latch == null) throw new NullPointerException();
@@ -121,23 +114,23 @@ public final class GrowingHeap implements Heap {
             long version = currentSnapshot.getVersion(handle);
             if (version == -1) {
                 //the object doesn't exist anymore.
-
                 //lets open the latch so that is can be cleaned up.
                 latch.open();
                 throw new NoSuchObjectException(handle, currentSnapshot.version);
             } else if (version > transactionVersion) {
-                //woohoo, we have an overwrite, the latch can be opened, and it can be returned.
+                //woohoo, we have an overwrite, the latch can be opened, and we can end this method.
+                //The event the transaction is waiting for already has occurred.
                 latch.open();
                 return;
             } else {
-                //no update has been found, so lets register the latch
+                //The event the transaction is waiting for, hasn't occurred yet. So lets register the latch.
+                //The latch is always registered on the Snapshot of the transaction version. 
                 HeapSnapshotImpl snapshot = getSpecificVersion(transactionVersion);
                 LatchGroup latchGroup = snapshot.getOrCreateLatchGroup(handle);
                 latchGroup.add(latch);
             }
 
-            //if the latch is opened, we don't have to register the other handles and we can
-            //return the opened latch.
+            //if the latch is opened, we don't have to register the other handles and we can return
             if (latch.isOpen())
                 return;
         }
@@ -157,6 +150,16 @@ public final class GrowingHeap implements Heap {
 
     public void signalVersionDied(long version) {
         throw new RuntimeException();
+    }
+
+    public String getStatistics() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(format("write tries %s\n", writeTries.longValue()));
+        sb.append(format("write conflicts %s\n", writeConflicts.longValue()));
+        sb.append(format("write retries %s\n", writeRetries.longValue()));
+        double writeRetryPercentage = (100.0d * writeRetries.longValue()) / writeTries.longValue();
+        sb.append(format("write retry percentage %s \n", writeRetryPercentage));
+        return sb.toString();
     }
 
     //class is immutable.
