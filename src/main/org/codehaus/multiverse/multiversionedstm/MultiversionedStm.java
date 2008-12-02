@@ -1,6 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.Stm;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
 import org.codehaus.multiverse.transaction.*;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.latches.Latch;

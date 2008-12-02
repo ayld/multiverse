@@ -1,14 +1,10 @@
 package org.codehaus.multiverse.util.latches;
 
-import org.codehaus.multiverse.util.latches.Latch;
-
 import static java.lang.String.format;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A LatchGroup is a group of latches. It makes it possible to open to multiple latches simultaniously.
@@ -20,7 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public final class LatchGroup {
 
-    private final Lock lock = new ReentrantLock();
+    private final Object latchesLock = new Object();
     private Set<Latch> latches;
     private volatile boolean isOpen = false;
 
@@ -32,9 +28,9 @@ public final class LatchGroup {
         if (isOpen)
             return;
 
-        lock.lock();
-        try {
-            isOpen = true;
+        isOpen = true;
+
+        synchronized (latchesLock) {
             if (latches != null) {
                 //lets open all latches
                 for (Latch latch : latches)
@@ -43,8 +39,6 @@ public final class LatchGroup {
                 //since all latches are opened, we are not interested in them anymore.
                 latches = null;
             }
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -63,11 +57,8 @@ public final class LatchGroup {
      * @return a containing all latches that are registered to this LatchGroup.
      */
     public Set<Set> getLatches() {
-        lock.lock();
-        try {
+        synchronized (latchesLock) {
             return latches == null ? Collections.EMPTY_SET : new HashSet<Latch>(latches);
-        } finally {
-            lock.unlock();
         }
     }
 
@@ -87,8 +78,12 @@ public final class LatchGroup {
         if (latch.isOpen())
             return;
 
-        lock.lock();
-        try {
+        if (isOpen) {
+            latch.open();
+            return;
+        }
+
+        synchronized (latchesLock) {
             //lets remove the already opened latches.. no need to keep references to them.
             if (latches != null) {
                 for (Iterator<Latch> it = latches.iterator(); it.hasNext();) {
@@ -97,19 +92,10 @@ public final class LatchGroup {
                 }
             }
 
-            if (isOpen) {
-                //if this LatchGroup already is open, open the latch. No need to keep a reference to that latch.
-                latch.open();
-            } else {
-                //this LatchGroup is not open, so lets register it.
+            if (latches == null)
+                latches = new HashSet();
 
-                if (latches == null)
-                    latches = new HashSet();
-
-                latches.add(latch);
-            }
-        } finally {
-            lock.unlock();
+            latches.add(latch);
         }
     }
 

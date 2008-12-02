@@ -1,8 +1,12 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.multiversionedstm.growingheap;
 
 import junit.framework.TestCase;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
 
 public class GrowingHeapTest extends TestCase {
     private GrowingHeap heap;

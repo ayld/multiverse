@@ -1,17 +1,16 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.multiversionedstm.growingheap;
 
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.Heap;
+import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.transaction.BadVersionException;
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
-import org.codehaus.multiverse.util.latches.Latch;
-import org.codehaus.multiverse.util.latches.StandardLatch;
-import org.codehaus.multiverse.util.latches.LatchGroup;
-import org.codehaus.multiverse.util.latches.OpenLatch;
+import org.codehaus.multiverse.util.latches.*;
 
 import static java.lang.String.format;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -19,13 +18,18 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * idea: since some dehydrateccitizen are connected to others.. perhaps they could be grouped somehow?
+ *
+ * idea: when a write is done, you know which overwrites there are. With this information you know which listeners
+ * to wakeup.
  *
  * @author Peter Veentjer.
  */
 public final class GrowingHeap implements Heap {
 
     private final AtomicLong nextFreeHandler = new AtomicLong();
+    private final AtomicLong writeTries = new AtomicLong();
+    private final AtomicLong writeRetries = new AtomicLong();
+    private final AtomicLong writeConflicts = new AtomicLong();
     private final AtomicReference<HeapSnapshotImpl> currentSnapshotReference = new AtomicReference<HeapSnapshotImpl>();
 
     public GrowingHeap() {
@@ -39,7 +43,7 @@ public final class GrowingHeap implements Heap {
     public HeapSnapshot getSnapshot() {
         return currentSnapshotReference.get();
     }
-    
+
     public HeapSnapshot getSnapshot(long version) {
         return currentSnapshotReference.get().getSnapshot(version);
     }
@@ -63,37 +67,52 @@ public final class GrowingHeap implements Heap {
     public long write(ResetableIterator<StmObject> changes) {
         assert changes != null;
 
+        writeTries.incrementAndGet();
+
         HeapSnapshotImpl newSnapshot;
         boolean someoneElseDidAnUpdate;
         do {
             HeapSnapshotImpl currentSnapshot = currentSnapshotReference.get();
             newSnapshot = currentSnapshot.createNew(changes);
-            if (newSnapshot == null)//a write conflict was detected, so return -1 to indicate that
+            if (newSnapshot == null){
+                //a write conflict was detected, so return -1 to indicate that
+                writeConflicts.incrementAndGet();
                 return -1;
+            }
 
             someoneElseDidAnUpdate = !currentSnapshotReference.compareAndSet(currentSnapshot, newSnapshot);
-            if (someoneElseDidAnUpdate){
-                System.out.println("------------------someOneElseDidAndUpdate");
+            if (someoneElseDidAnUpdate) {
+                writeRetries.incrementAndGet();
                 changes.reset();
             }
 
         } while (someoneElseDidAnUpdate);
 
-        wakeupListeners(newSnapshot);
+        wakeupListeners(newSnapshot, 0);
 
         return newSnapshot.getVersion();
     }
 
-    private void wakeupListeners(HeapSnapshotImpl newSnapshot) {
+    private void wakeupListeners(HeapSnapshotImpl newSnapshot, long transactionVersion) {
         //todo: this can be done on another thread, it doesn't have to be done on the current one.
-        newSnapshot.wakeupListeners();
+        newSnapshot.wakeupListeners(transactionVersion);
+    }
+
+    public String getStatistics(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(format("write tries %s\n", writeTries.longValue()));
+        sb.append(format("write conflicts %s\n", writeConflicts.longValue()));
+        sb.append(format("write retries %s\n", writeRetries.longValue()));
+        double writeRetryPercentage = (100.0d*writeRetries.longValue())/ writeTries.longValue();
+        sb.append(format("write retry percentage %s \n", writeRetryPercentage));
+        return sb.toString();
     }
 
     public Latch listen(long[] handles, long transactionVersion) {
         if (handles.length == 0)
             return OpenLatch.INSTANCE;
 
-        Latch listenerLatch = new StandardLatch();
+        Latch listenerLatch = new CheapLatch();
         HeapSnapshotImpl currentSnapshot = currentSnapshotReference.get();
         for (long handle : handles) {
             long version = currentSnapshot.getVersion(handle);
@@ -126,10 +145,8 @@ public final class GrowingHeap implements Heap {
             //so lets do that ourselfes to make sure that it has been done. If we don't do this, it could be that
             //a latch is not openend, even though an interesting update has taken place. This is undesirable behavior.
             //todo: this can be done on another thread.
-            wakeupListeners(newSnapshot);
-
-            System.out.println("--------------- someone did an update while we are listening");
-        } else {
+            wakeupListeners(newSnapshot, transactionVersion);
+      } else {
             //no other transaction have made updates, so it is now the responsibility of an updating transaction
             //to wake up the listener.
         }
@@ -144,7 +161,8 @@ public final class GrowingHeap implements Heap {
     //class is immutable.
     private static class HeapSnapshotImpl implements HeapSnapshot {
         private final HeapSnapshotImpl parentSnapshot;
-        private final Bucket[] buckets;
+        //private final Bucket[] buckets;
+        private final HeapTreeNode node;
         private final long version;
         private final long[] roots;
 
@@ -152,12 +170,12 @@ public final class GrowingHeap implements Heap {
             version = 0;
             roots = new long[]{};
             parentSnapshot = null;
-            buckets = new Bucket[31];
+            node = null;
         }
 
-        HeapSnapshotImpl(HeapSnapshotImpl parentSnapshot, Bucket[] buckets, long version) {
+        HeapSnapshotImpl(HeapSnapshotImpl parentSnapshot, HeapTreeNode node, long version) {
             this.parentSnapshot = parentSnapshot;
-            this.buckets = buckets;
+            this.node = node;
             this.version = version;
             this.roots = new long[]{};
         }
@@ -187,59 +205,33 @@ public final class GrowingHeap implements Heap {
             throw new BadVersionException(format("Version %s is not found, oldest version found is %s", version, oldest));
         }
 
+
         public DehydratedStmObject read(long handle) {
-            Bucket bucket = getBucket(handle);
-            return bucket == null ? null : bucket.get(handle);
+            return node == null ? null : node.find(handle).getContent();
         }
 
         public long getVersion(long handle) {
-            int bucketIndex = getBucketIndex(handle);
-            Bucket bucket = buckets[bucketIndex];
-            return bucket == null ? -1 : bucket.getVersion(handle);
-        }
-
-        private Bucket getBucket(long handle) {
-            int bucketIndex = getBucketIndex(handle);
-            return buckets[bucketIndex];
+            return node == null ? null : node.find(handle).getVersion();
         }
 
         public HeapSnapshotImpl createNew(Iterator<StmObject> changes) {
             long newVersion = version + 1;
 
-            List<DehydratedStmObject>[] bucketsContent = new List[31];
+            HeapTreeNode newNode = node;
+
             for (; changes.hasNext();) {
                 StmObject stmObject = changes.next();
 
                 if (hasWriteConflict(stmObject))
                     return null;
 
-                long handle = stmObject.___getHandle();
-                int bucketIndex = getBucketIndex(handle);
-                List<DehydratedStmObject> bucketContent = bucketsContent[bucketIndex];
-                if (bucketContent == null) {
-                    bucketContent = new LinkedList();
-                    bucketsContent[bucketIndex] = bucketContent;
-                }
-
-                DehydratedStmObject dehydrated = stmObject.___dehydrate(newVersion);
-                bucketContent.add(dehydrated);
+                if (newNode == null)
+                    newNode = new HeapTreeNode(stmObject.___dehydrate(newVersion), null, null);
+                else
+                    newNode = newNode.createNew(stmObject.___dehydrate(newVersion));
             }
 
-            Bucket[] newBuckets = new Bucket[31];
-            for (int bucketIndex = 0; bucketIndex < bucketsContent.length; bucketIndex++) {
-                List<DehydratedStmObject> bucketContent = bucketsContent[bucketIndex];
-
-                if (bucketContent == null) {
-                    newBuckets[bucketIndex] = buckets[bucketIndex];
-                } else {
-                    newBuckets[bucketIndex] = new Bucket(
-                            newVersion,
-                            bucketContent,
-                            parentSnapshot);
-                }
-            }
-
-            return new HeapSnapshotImpl(this, newBuckets, newVersion);
+            return new HeapSnapshotImpl(this, newNode, newVersion);
         }
 
         private boolean hasWriteConflict(StmObject stmObject) {
@@ -253,11 +245,6 @@ public final class GrowingHeap implements Heap {
 
             return false;
         }
-
-        private int getBucketIndex(long handle) {
-            return ((int) (handle ^ (handle >>> 32))) % 31;
-        }
-
 
         //todo: structure could be initialized lazy.
         private final ConcurrentMap<Long, LatchGroup> latchGroups = new ConcurrentHashMap<Long, LatchGroup>();
@@ -274,7 +261,7 @@ public final class GrowingHeap implements Heap {
             return latchGroup;
         }
 
-        public void wakeupListeners() {
+        public void wakeupListeners(long transactionVersion) {
             HeapSnapshotImpl current = parentSnapshot;
             do {
                 for (Map.Entry<Long, LatchGroup> entry : parentSnapshot.latchGroups.entrySet()) {
@@ -290,40 +277,11 @@ public final class GrowingHeap implements Heap {
                     }
                 }
 
+                //if (current.version < transactionVersion)
+                //    return;
+
                 current = current.parentSnapshot;
             } while (current != null);
-        }
-    }
-
-    //immutable
-    static class Bucket {
-        final long version;
-        final List<DehydratedStmObject> dehydratedObjects;
-        final HeapSnapshotImpl parentHeapSnapshot;
-
-        Bucket(long version, List<DehydratedStmObject> dehydratedObjects, HeapSnapshotImpl parentHeapSnapshot) {
-            this.version = version;
-            this.dehydratedObjects = dehydratedObjects;
-            this.parentHeapSnapshot = parentHeapSnapshot;
-        }
-
-        DehydratedStmObject get(long handle) {
-            //by first looking at the current values, you ignore the overwritten values..
-            for (DehydratedStmObject dehydrated : dehydratedObjects) {
-                if (dehydrated.getHandle() == handle)
-                    return dehydrated;
-            }
-
-            return parentHeapSnapshot == null ? null : parentHeapSnapshot.read(handle);
-        }
-
-        long getVersion(long handle) {
-            for (DehydratedStmObject dehydrated : dehydratedObjects) {
-                if (dehydrated.getHandle() == handle)
-                    return version;
-            }
-
-            return parentHeapSnapshot == null ? -1 : parentHeapSnapshot.getVersion(handle);
         }
     }
 }

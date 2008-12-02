@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
-import static org.codehaus.multiverse.util.iterators.TestUtils.assertAsSetContent;
+import static org.codehaus.multiverse.TestUtils.assertAsSetContent;
 
 public class StmObjectIteratorTest extends TestCase {
 

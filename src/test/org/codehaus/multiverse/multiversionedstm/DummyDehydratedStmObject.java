@@ -10,6 +10,10 @@ public class DummyDehydratedStmObject extends DehydratedStmObject {
     public DummyDehydratedStmObject() {
     }
 
+    public DummyDehydratedStmObject(long handle){
+        super(handle, 0);
+    }
+
     public DummyDehydratedStmObject(long handle, long version) {
         super(handle, version);
     }
