@@ -104,8 +104,8 @@ public class Stack<E> implements StmObject {
         this.handle = ptr;
     }
 
-    public DehydratedStack ___dehydrate(long version) {
-        return new DehydratedStack(this, version);
+    public DehydratedStack ___dehydrate() {
+        return new DehydratedStack(this);
     }
 
     public boolean ___isDirty() {
@@ -121,8 +121,8 @@ public class Stack<E> implements StmObject {
     public static class DehydratedStack extends DehydratedStmObject {
         private final Node head;
 
-        public DehydratedStack(Stack stack, long version) {
-            super(stack.handle, version);
+        public DehydratedStack(Stack stack) {
+            super(stack.handle);
             this.head = stack.head;
         }
 

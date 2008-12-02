@@ -3,9 +3,9 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.util.PtrUtils;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
-import org.codehaus.multiverse.util.PtrUtils;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -114,22 +114,29 @@ public class Person implements StmObject {
                 (parent_localized && (initialDehydratedPerson.parentPtr != (parent == null ? 0 : parent.___getHandle())));
     }
 
-    public DehydratedStmObject ___dehydrate(long version) {
-        return new DehydratedPerson(this, version);
+    public DehydratedStmObject ___dehydrate() {
+        return new DehydratedPerson(this);
     }
 
     public static class DehydratedPerson extends DehydratedStmObject {
-        private int age;
-        private String name;
-        private long parentPtr;
+        private final int age;
+        private final String name;
+        private final long parentPtr;
 
-        public DehydratedPerson(Person person, long version) {
-            super(person.___getHandle(), version);
+        public DehydratedPerson(long handle, int age, String name) {
+            super(handle);
+            this.age = age;
+            this.name = name;
+            this.parentPtr = 0;
+        }
+
+        public DehydratedPerson(Person person) {
+            super(person.___getHandle());
             this.age = person.age;
             this.name = person.name;
             this.parentPtr = PtrUtils.getHandle(person.getParent());
         }
-               
+
         public Iterator<Long> getDirect() {
             throw new RuntimeException();
         }
@@ -166,7 +173,10 @@ public class Person implements StmObject {
                 return false;
 
             DehydratedPerson that = (DehydratedPerson) thatObj;
-            return that.name == this.name && that.age == this.age && that.parentPtr == this.parentPtr;
+            return that.getHandle() == this.getHandle() &&
+                    that.name == this.name &&
+                    that.age == this.age &&
+                    that.parentPtr == this.parentPtr;
         }
 
         public String toString() {

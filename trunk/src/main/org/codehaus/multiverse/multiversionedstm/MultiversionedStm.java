@@ -3,11 +3,11 @@ package org.codehaus.multiverse.multiversionedstm;
 import org.codehaus.multiverse.Stm;
 import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
 import org.codehaus.multiverse.transaction.*;
-import org.codehaus.multiverse.util.iterators.ArrayIterator;
-import org.codehaus.multiverse.util.latches.Latch;
-import org.codehaus.multiverse.util.latches.CheapLatch;
 import static org.codehaus.multiverse.util.PtrUtils.assertNotNull;
+import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
+import org.codehaus.multiverse.util.latches.CheapLatch;
+import org.codehaus.multiverse.util.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.*;
@@ -16,26 +16,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Default {@link org.codehaus.multiverse.multiversionedstm.MultiversionedStm} implementation.
- * <p/>
- * Objecten met final velden zijn niet interessant voor transacties, Dus kan heel wat aan geoptimaliseerd worden.
- * Die hoeven ook niet geinstrumteerd te worden? Daar gaat het een beetje om.
- * <p/>
- * <p/>
- * reminder:
- * pages.. een page is een setje met cellen (en een cell kan gezien worden als een database row.. )
- * <p/>
- * Doordat je nu een array gebruikt voor de content van een object, zou je deze array bv ook kunnen uitbreiden
- * met een lock. Ieder record heeft dan net zoals bij MVCC databases automatisch al een lock en die hoeven niet
- * gemanaged to worden door een centrale lock manager (zoals SQL Server 2000). Naarmate deze lock manager meer locks
- * moet gaan mananagen, gaat het locks upgraden record->page->table en hiermee verhinder concurrency. De lock
- * en eventueel extra informatie kan allemaal aan het einde van de array toegevoegd worden.
- * <p/>
- * <p/>
- * je zou bij het privatizen (zonder delete!) van een object uit de stm, meteen alle niet traced velden
- * direct uit het stm lezen. Dit scheelt dat je voor alle niet getraceerde objecten (moeten immutable objecten zijn)
- * iedere keer moet gaan checken. Je gaat de status van dat veld ook niet updaten. Pas bij het wegschrijven
- * kijk je of het veld dirty is. Dit betekend dat ieder traced een extra veld per niet veld dat niet traced is,
+ * {@link Stm} implementation that uses multiversion concurrency control as concurrency control mechanism.
  */
 public final class MultiversionedStm implements Stm<MultiversionedStm.MultiversionedTransaction> {
 
@@ -111,7 +92,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return new MultiversionedTransaction();
     }
 
-    public MultiversionedTransaction startTransaction(Transaction base) throws InterruptedException {
+    public MultiversionedTransaction startRetriedTransaction(Transaction base) throws InterruptedException {
         if (base == null) throw new NullPointerException();
         if (!(base instanceof MultiversionedTransaction)) throw new IllegalArgumentException();
         MultiversionedTransaction transaction = (MultiversionedTransaction) base;
@@ -121,7 +102,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return startTransaction();
     }
 
-    public MultiversionedTransaction tryStartTransaction(Transaction base, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+    public MultiversionedTransaction tryStartRetriedTransaction(Transaction base, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
         throw new RuntimeException();
     }
 
@@ -184,29 +165,26 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         public void unmarkAsRoot(long handle) {
             assertNotNull(handle);
-
             assertTransactionActive();
 
             throw new RuntimeException();
         }
 
         public void unmarkAsRoot(Object root) {
-            if (root == null)
-                throw new NullPointerException();
-
-            if (!(root instanceof StmObject))
-                throw new IllegalArgumentException(format("%s is not an instanceof the StmObject interface", root));
-
+            assertStmObjectInstance(root);
             assertTransactionActive();
 
             StmObject object = (StmObject) root;
+            assertNoTransactionProblemsForUnmarkAsRoot(root, object);
+            deletedCitizens.add(object.___getHandle());
+        }
+
+        private void assertNoTransactionProblemsForUnmarkAsRoot(Object root, StmObject object) {
             Transaction transaction = object.___getTransaction();
             if (transaction == null)
                 throw BadTransactionException.createNoTransaction(root);
             if (transaction != this)
                 throw BadTransactionException.createAttachedToDifferentTransaction(root);
-
-            deletedCitizens.add(object.___getHandle());
         }
 
         public Object read(long handle) {
@@ -215,7 +193,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             assertTransactionActive();
 
             //if the object already is loaded in this Transaction, the same object should
-            //be returned every time.
+            //be returned every time. This is the same behavior Hibernate provides for example.
             StmObject found = dehydratedObjects.get(handle);
             if (found != null)
                 return found;
@@ -225,60 +203,127 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             if (found != null)
                 return found;
 
-            //so the object doesn't exist in the current transaction, lets look in the heap
+            //so the object doesn't exist in the current transaction, lets look up the dehydratedStmObject
+            //in the heap.
             DehydratedStmObject dehydrated = snapshot.read(handle);
+            //if dehydrated doesn't exist in the heap, the handle that is used, is not valid.
             if (dehydrated == null)
                 throw new NoSuchObjectException(handle, getVersion());
 
+            //dehydrated was found in the heap, lets dehydrate so we get a stmObject instance
+            StmObject instance;
             try {
-                StmObject citizen = dehydrated.hydrate(this);
-                dehydratedObjects.put(handle, citizen);
-                return citizen;
+                instance = dehydrated.hydrate(this);
             } catch (Exception e) {
-                throw new RuntimeException("Failed to create privatized StmObject instance", e);
+                String msg = format("Failed to dehydrate %s instance with handle %s", dehydrated, handle);
+                throw new RuntimeException(msg, e);
             }
+
+            //the stmObject instance needs to be registered, so that the next request for the same
+            //handle returns the same stmObject.
+            dehydratedObjects.put(handle, instance);
+            //lets return the instance.
+            return instance;
         }
 
         public long attachAsRoot(Object root) {
-            if (root == null)
-                throw new NullPointerException();
-            if (!(root instanceof StmObject))
-                throw new IllegalArgumentException();
+            assertStmObjectInstance(root);
             assertTransactionActive();
 
-            StmObject rootStmObject = (StmObject) root;
-            ensureNoAttachConflicts(new ArrayIterator<StmObject>(rootStmObject));
-            attachAll(new ArrayIterator<StmObject>(rootStmObject));
-            return rootStmObject.___getHandle();
+            StmObject rootInstance = (StmObject) root;
+            assertNoAttachConflicts(new ArrayIterator<StmObject>(rootInstance));
+            attachAll(new ArrayIterator<StmObject>(rootInstance));
+            return rootInstance.___getHandle();
         }
 
-        private void ensureNoAttachConflicts(Iterator<StmObject>... roots) {
+        /**
+         * Makes sure that the object is an {@link StmObject} instance.
+         *
+         * @param object the object to check
+         * @throws NullPointerException     if object is null
+         * @throws IllegalArgumentException if the object is not an instance of {@link StmObject}.
+         */
+        private void assertStmObjectInstance(Object object) {
+            if (object == null)
+                throw new NullPointerException();
+            if (!(object instanceof StmObject))
+                throw new IllegalArgumentException();
+        }
+
+        private void assertNoAttachConflicts(Iterator<StmObject>... roots) {
             for (Iterator<StmObject> it = new StmObjectIterator(roots); it.hasNext();) {
                 StmObject citizen = it.next();
-                ensureNoAftachConflict(citizen);
+                assertNoAftachConflict(citizen);
             }
         }
 
-        private void ensureNoAftachConflict(StmObject citizen) {
-            Transaction transaction = citizen.___getTransaction();
+        /**
+         * Makes sure that the stmObject can be attached to this transaction. It can be attached if the transaction
+         * inside the StmObject is null, or if the transaction is the same as the current transaction (multiple attach
+         * of the same object to the same transaction should be ignored).
+         * <p/>
+         * Dependencies of the object are not checked, on the object itself.
+         *
+         * @param object the StmObject to check.
+         * @throws BadTransactionException if there is a transaction conflict.
+         */
+        private void assertNoAftachConflict(StmObject object) {
+            Transaction transaction = object.___getTransaction();
             if (transaction != this && transaction != null) {
-                String msg = format("object %s already is attached to another transaction %s", citizen, this);
-                throw new BadTransactionException(msg);
+                throw createBadTransactionException(object);
             }
         }
 
-        private void attachAll(Iterator<StmObject> roots) {
-            for (Iterator<StmObject> it = new StmObjectIterator(roots); it.hasNext();) {
-                StmObject citizen = it.next();
-                if (citizen.___getTransaction() == null) {
+        private BadTransactionException createBadTransactionException(StmObject object) {
+            String msg = format("object %s already is attached to another transaction %s", object, this);
+            return new BadTransactionException(msg);
+        }
+
+        /**
+         * Makes sure that all objects attached to this transaction (directly or indirectly) can be attached to
+         * this transaction. This method is usefull if you want to commit, and make sure that there are no problems.
+         */
+        private void assertNoAttachConflictsForAllReachables() {
+            assertNoAttachConflicts(
+                    dehydratedObjects.values().iterator(),
+                    newlybornObjects.values().iterator());
+        }
+
+
+        /**
+         * Attaches all objects that can be reached from the array of root iterators (directly or indirectly)
+         * to this Transaction.
+         *
+         * @param rootIterators an array of iterators containing root objects.
+         */
+        private void attachAll(Iterator<StmObject>... rootIterators) {
+            for (Iterator<StmObject> it = new StmObjectIterator(rootIterators); it.hasNext();) {
+                StmObject stmObject = it.next();
+                Transaction transaction = stmObject.___getTransaction();
+                if (transaction == null) {
                     long ptr = heap.createHandle();
-                    citizen.___setHandle(ptr);
-                    citizen.___onAttach(this);
-                    newlybornObjects.put(ptr, citizen);
+                    stmObject.___setHandle(ptr);
+                    stmObject.___onAttach(this);
+                    newlybornObjects.put(ptr, stmObject);
+                } else if (transaction != this) {
+                    throw createBadTransactionException(stmObject);
                 }
             }
         }
 
+        /**
+         * Attaches all objects that can be reached from this transaction (directly and indirect) to
+         * this transaction.
+         */
+        private void attachAllReachables() {
+            attachAll(
+                    newlybornObjects.values().iterator(),
+                    dehydratedObjects.values().iterator());
+        }
+
+        /**
+         * Makes sure that the current transaction still is active.
+         */
         private void assertTransactionActive() {
             if (status != TransactionStatus.active)
                 throw new IllegalStateException();
@@ -287,7 +332,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         public void commit() {
             switch (status) {
                 case active:
-                    attachAll();
+                    assertNoAttachConflictsForAllReachables();
+                    attachAllReachables();
 
                     if (!commitChanges()) {
                         abort();
@@ -304,19 +350,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        private void attachAll() {
-            ensureNoAttachConflicts();
-            attachAll(newlybornObjects.values().iterator());
-        }
-
-        private void ensureNoAttachConflicts() {
-            Iterator<StmObject> dehydratedIterator = dehydratedObjects.values().iterator();
-            Iterator<StmObject> freshIterator = newlybornObjects.values().iterator();
-            ensureNoAttachConflicts(dehydratedIterator, freshIterator);
-        }
-
         private boolean commitChanges() {
-            long commitVersion = heap.write(new CommitIterator());
+            long commitVersion = heap.write(snapshot.getVersion(), new CommitIterator());
             if (commitVersion >= 0) {
                 committedCount.incrementAndGet();
                 return true;
@@ -354,7 +389,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        class CommitIterator implements ResetableIterator<StmObject> {
+        class CommitIterator implements ResetableIterator<DehydratedStmObject> {
             private Iterator<StmObject> iterator;
             private StmObject next;
 
@@ -385,14 +420,13 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 return false;
             }
 
-            public StmObject next() {
-                if (!hasNext()) {
+            public DehydratedStmObject next() {
+                if (!hasNext())
                     throw new NoSuchElementException();
-                }
 
                 StmObject tmp = next;
                 next = null;
-                return tmp;
+                return tmp.___dehydrate();
             }
 
             public void remove() {
@@ -400,7 +434,5 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
     }
-
-
 }
 

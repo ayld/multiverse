@@ -105,8 +105,28 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         //todo: check that content has been returned.
     }
 
-    public void testProducerConsumer() throws InterruptedException {
-        Thread producer = new ProducerThread();
+    public void testProducerConsumer_1(){
+        testProducerConsumer(1);
+    }
+
+    public void testProducerConsumer_10(){
+        testProducerConsumer(10);
+    }
+
+    public void testProducerConsumer_100(){
+        testProducerConsumer(100);
+    }
+
+    public void testProducerConsumer_1000(){
+        testProducerConsumer(1000);
+    }
+
+    public void testProducerConsumer_10000(){
+        testProducerConsumer(10000);
+    }
+
+    public void testProducerConsumer(int messageCount){
+        Thread producer = new ProducerThread(messageCount);
         Thread consumer1 = new ConsumerThread();
         Thread consumer2 = new ConsumerThread();
         Thread consumer3 = new ConsumerThread();
@@ -118,15 +138,17 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     static AtomicInteger producerCounter = new AtomicInteger();
 
     private class ProducerThread extends Thread {
+        private int messageCount;
 
-        public ProducerThread() {
+        public ProducerThread(int messageCount) {
             super("producer-" + producerCounter.incrementAndGet());
+            this.messageCount = messageCount;
         }
 
         private int runCount = 0;
 
         public void run() {
-            for (int k = 0; k < 3000; k++) {
+            for (int k = 0; k < messageCount; k++) {
                 atomicPush("" + k);
 
                 runCount++;

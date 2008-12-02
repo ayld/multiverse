@@ -79,7 +79,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
         asynchronousPop();
         sleep(1000);
 
-        asynchronousPush("Hallo");
+        asynchronousPush("Hello");
         sleep(1000);
 
         //todo: content needs to be checked

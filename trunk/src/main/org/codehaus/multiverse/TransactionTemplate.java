@@ -4,8 +4,6 @@ import org.codehaus.multiverse.transaction.AbortedException;
 import org.codehaus.multiverse.transaction.RetryException;
 import org.codehaus.multiverse.transaction.Transaction;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * The TransactionTemplate  is a template that contains all plumbing logic for the start, retry etc of
  * Transactions. It could be compared to one of the Spring templates like the JdbcTemplate.
@@ -33,7 +31,7 @@ public abstract class TransactionTemplate<E> {
             Transaction predecessor = null;
             E result = null;
             do {
-                Transaction transaction = predecessor == null ? stm.startTransaction() : stm.startTransaction(predecessor);
+                Transaction transaction = predecessor == null ? stm.startTransaction() : stm.startRetriedTransaction(predecessor);
                 try {
                     predecessor = null;
                     result = execute(transaction);

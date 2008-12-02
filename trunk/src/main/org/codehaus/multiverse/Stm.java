@@ -6,8 +6,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Part of the methods should be moved to a new interface: VersionedStm since these methods are very implementation
- * specific. A Lockbased stm doesn't need the versions.
+ * A Software Transactional Memory is a piece of memory where you can create transaction (just like databases) to
+ * provide the ACI (Atomic, Consistent, Isolated) properties. So changes are atomic (they make it into the stm or
+ * not, not partially. etc etc
+ *
+ * @author Peter Veentjer.
  */
 public interface Stm<T extends Transaction> {
 
@@ -33,7 +36,7 @@ public interface Stm<T extends Transaction> {
      * @throws InterruptedException if the thread is interrupted.
      * @throws NullPointerException if predecessor is null.
      */
-    T startTransaction(Transaction predecessor) throws InterruptedException;
+    T startRetriedTransaction(Transaction predecessor) throws InterruptedException;
 
     /**
      * Starts a new Transaction as soon as the reality the precessor thread saw has changed, or blocks of no
@@ -49,5 +52,5 @@ public interface Stm<T extends Transaction> {
      * @throws TimeoutException     if a timeout occurred.
      * @throws NullPointerException if predecessor or unit is null.
      */
-    T tryStartTransaction(Transaction predecessor, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
+    T tryStartRetriedTransaction(Transaction predecessor, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
 }

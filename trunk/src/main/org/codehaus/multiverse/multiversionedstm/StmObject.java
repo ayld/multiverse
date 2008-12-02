@@ -40,7 +40,7 @@ public interface StmObject {
      */
     void ___setHandle(long ptr);
 
-    DehydratedStmObject ___dehydrate(long version);
+    DehydratedStmObject ___dehydrate();
 
     /**
      * Checks if this StmObject needs to be written to heap when the transaction commits. Changes in

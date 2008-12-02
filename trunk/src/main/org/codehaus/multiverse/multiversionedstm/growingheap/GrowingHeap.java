@@ -3,9 +3,9 @@ package org.codehaus.multiverse.multiversionedstm.growingheap;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.Heap;
 import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
-import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.transaction.BadVersionException;
 import org.codehaus.multiverse.transaction.NoSuchObjectException;
+import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.Latch;
 import org.codehaus.multiverse.util.latches.LatchGroup;
@@ -30,6 +30,7 @@ public final class GrowingHeap implements Heap {
     private final AtomicLong writeTries = new AtomicLong();
     private final AtomicLong writeRetries = new AtomicLong();
     private final AtomicLong writeConflicts = new AtomicLong();
+    private final AtomicLong writeSuccesses = new AtomicLong();
     private final AtomicReference<HeapSnapshotImpl> currentSnapshotReference = new AtomicReference<HeapSnapshotImpl>();
 
     public GrowingHeap() {
@@ -48,26 +49,14 @@ public final class GrowingHeap implements Heap {
         return currentSnapshotReference.get().getSnapshot(version);
     }
 
-    /**
-     * Returns the Snapshot with the specific version.
-     * <p/>
-     * todo: what to do if the snapshots with version doesn't exist anymore.
-     *
-     * @param version the specific version of the HeapSnapshot to look for.
-     * @return the found HeapSnapshot
-     * @throws
-     */
-    private HeapSnapshotImpl getSpecificVersion(long version) {
-        HeapSnapshotImpl snapshot = (HeapSnapshotImpl) getSnapshot(version);
-        if (snapshot.version != version)
-            throw new IllegalArgumentException(format("Snapshot with version %s is not found", version));
-        return snapshot;
+    public long write(long startVersion, DehydratedStmObject... changes) {
+        return write(startVersion, new ArrayIterator(changes));
     }
 
-    public long write(ResetableIterator<StmObject> changes) {
+    public long write(long startVersion, ResetableIterator<DehydratedStmObject> changes) {
         assert changes != null;
 
-        //todo: check if there are changes. If there are no changes.. you have to create a new snapshot.
+        //todo: check if there are changes. If there are no changes.. you don't have to create a new snapshot.
 
         writeTries.incrementAndGet();
 
@@ -75,7 +64,7 @@ public final class GrowingHeap implements Heap {
         boolean someoneElseDidAnUpdate;
         do {
             HeapSnapshotImpl currentSnapshot = currentSnapshotReference.get();
-            newSnapshot = currentSnapshot.createNew(changes);
+            newSnapshot = currentSnapshot.createNew(changes, startVersion);
             if (newSnapshot == null) {
                 //a write conflict was detected, so return -1 to indicate that
                 writeConflicts.incrementAndGet();
@@ -92,6 +81,7 @@ public final class GrowingHeap implements Heap {
 
         wakeupListeners(newSnapshot, 0);
 
+        writeSuccesses.incrementAndGet();
         return newSnapshot.getVersion();
     }
 
@@ -104,12 +94,17 @@ public final class GrowingHeap implements Heap {
     public void listen(Latch latch, long[] handles, long transactionVersion) {
         if (latch == null) throw new NullPointerException();
 
+        //if there are no addresses to listen to, open the latch and return.
+        //todo: is this desirable behavior? Do you event want to allow this situation?
         if (handles.length == 0) {
             latch.open();
             return;
         }
 
         HeapSnapshotImpl currentSnapshot = currentSnapshotReference.get();
+
+        //this is the snapshot where the latches get added to.
+        HeapSnapshotImpl transactionSnapshot = currentSnapshot.getSpecificVersion(transactionVersion);
         for (long handle : handles) {
             long version = currentSnapshot.getVersion(handle);
             if (version == -1) {
@@ -125,8 +120,7 @@ public final class GrowingHeap implements Heap {
             } else {
                 //The event the transaction is waiting for, hasn't occurred yet. So lets register the latch.
                 //The latch is always registered on the Snapshot of the transaction version. 
-                HeapSnapshotImpl snapshot = getSpecificVersion(transactionVersion);
-                LatchGroup latchGroup = snapshot.getOrCreateLatchGroup(handle);
+                LatchGroup latchGroup = transactionSnapshot.getOrCreateLatchGroup(handle);
                 latchGroup.add(latch);
             }
 
@@ -158,7 +152,8 @@ public final class GrowingHeap implements Heap {
         sb.append(format("write conflicts %s\n", writeConflicts.longValue()));
         sb.append(format("write retries %s\n", writeRetries.longValue()));
         double writeRetryPercentage = (100.0d * writeRetries.longValue()) / writeTries.longValue();
-        sb.append(format("write retry percentage %s \n", writeRetryPercentage));
+        sb.append(format("write retry percentage %s\n", writeRetryPercentage));
+        sb.append(format("write succeeded %s\n", writeSuccesses.longValue()));
         return sb.toString();
     }
 
@@ -166,7 +161,7 @@ public final class GrowingHeap implements Heap {
     private static class HeapSnapshotImpl implements HeapSnapshot {
         private final HeapSnapshotImpl parentSnapshot;
         //private final Bucket[] buckets;
-        private final HeapTreeNode node;
+        private final HeapTreeNode root;
         private final long version;
         private final long[] roots;
 
@@ -174,12 +169,12 @@ public final class GrowingHeap implements Heap {
             version = 0;
             roots = new long[]{};
             parentSnapshot = null;
-            node = null;
+            root = null;
         }
 
-        HeapSnapshotImpl(HeapSnapshotImpl parentSnapshot, HeapTreeNode node, long version) {
+        HeapSnapshotImpl(HeapSnapshotImpl parentSnapshot, HeapTreeNode root, long version) {
             this.parentSnapshot = parentSnapshot;
-            this.node = node;
+            this.root = root;
             this.version = version;
             this.roots = new long[]{};
         }
@@ -211,43 +206,82 @@ public final class GrowingHeap implements Heap {
 
 
         public DehydratedStmObject read(long handle) {
-            return node == null ? null : node.find(handle).getContent();
+            return root == null ? null : root.find(handle).getContent();
         }
 
         public long getVersion(long handle) {
-            return node == null ? null : node.find(handle).getVersion();
+            return root == null ? null : root.find(handle).getVersion();
         }
 
-        public HeapSnapshotImpl createNew(Iterator<StmObject> changes) {
-            long newVersion = version + 1;
+        /**
+         * Returns the Snapshot with the specific version.
+         * <p/>
+         * todo: what to do if the snapshots with version doesn't exist anymore.
+         *
+         * @param version the specific version of the HeapSnapshot to look for.
+         * @return the found HeapSnapshot
+         * @throws
+         */
+        private HeapSnapshotImpl getSpecificVersion(long version) {
+            HeapSnapshotImpl snapshot = getSnapshot(version);
+            if (snapshot.version != version)
+                throw new IllegalArgumentException(format("Snapshot with version %s is not found", version));
+            return snapshot;
+        }
 
-            HeapTreeNode newNode = node;
+        public HeapSnapshotImpl createNew(Iterator<DehydratedStmObject> changes, long startVersion) {
+            long commitVersion = version + 1;
+
+            HeapTreeNode newRoot = root;
+            //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
+            //loaded from this version.
+            HeapSnapshotImpl startSnapshot = getSpecificVersion(startVersion);
 
             for (; changes.hasNext();) {
-                StmObject stmObject = changes.next();
+                DehydratedStmObject stmObject = changes.next();
 
-                if (hasWriteConflict(stmObject))
+                if (hasWriteConflict(stmObject.getHandle(), startSnapshot))
                     return null;
 
-                if (newNode == null)
-                    newNode = new HeapTreeNode(stmObject.___dehydrate(newVersion), null, null);
+                if (newRoot == null)
+                    newRoot = new HeapTreeNode(stmObject, commitVersion, null, null);
                 else
-                    newNode = newNode.createNew(stmObject.___dehydrate(newVersion));
+                    newRoot = newRoot.createNew(stmObject, commitVersion);
             }
 
-            return new HeapSnapshotImpl(this, newNode, newVersion);
+            return new HeapSnapshotImpl(this, newRoot, commitVersion);
         }
 
-        private boolean hasWriteConflict(StmObject stmObject) {
-            DehydratedStmObject oldDehydratedStmObject = stmObject.___getInitialDehydratedStmObject();
-            if (oldDehydratedStmObject != null) {
-                long activeVersion = getVersion(stmObject.___getHandle());
-                if (activeVersion > oldDehydratedStmObject.getVersion()) {
-                    return true;
-                }
+        /**
+         * Checks if the current HeapSnapshot has a write conflict at the specified handle with the startSnapshot.
+         *
+         * @param handle
+         * @param startSnapshot
+         * @return
+         */
+        private boolean hasWriteConflict(long handle, HeapSnapshotImpl startSnapshot) {
+            //if the current snapshot is the same as the startSnapshot, other transaction didn't update the heap.
+            //so we know that there is no write conflict.
+            if (startSnapshot == this)
+                return false;
+
+            long previousVersion = startSnapshot.getVersion(handle);
+
+            //if the object is new to the heap, there is no write conflict.
+            if (previousVersion == -1)
+                return false;
+
+            long newVersion = getVersion(handle);
+
+            //the object was in the heap at some point in time, but it has been removed, so there is a write conflict
+            if (newVersion == -1) {
+                return true;
             }
 
-            return false;
+            //the object is found in both snapshots. If the version still is the same, there is no write conflict.
+            //if the version isn't the same, it means that it has been updated by a different transaction in the mean
+            //while.
+            return newVersion > previousVersion;
         }
 
         //todo: structure could be initialized lazy.

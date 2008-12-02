@@ -68,7 +68,7 @@ public interface Heap {
      * @param changes a resetable iterator over the
      * @return the version under which the changes where committed. -1 if there was a write conflict.
      */
-    long write(ResetableIterator<StmObject> changes);
+    long write(long startVersion, ResetableIterator<DehydratedStmObject> changes);
 
     /**
      * Creates a {@link Latch} that is opened when a write is done on of the handle.
