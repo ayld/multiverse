@@ -90,7 +90,6 @@ public final class GrowingHeap implements Heap {
         newSnapshot.wakeupListeners(transactionVersion);
     }
 
-
     public void listen(Latch latch, long[] handles, long transactionVersion) {
         if (latch == null) throw new NullPointerException();
 
@@ -104,7 +103,7 @@ public final class GrowingHeap implements Heap {
         HeapSnapshotImpl currentSnapshot = currentSnapshotReference.get();
 
         //this is the snapshot where the latches get added to.
-        HeapSnapshotImpl transactionSnapshot = currentSnapshot.getSpecificVersion(transactionVersion);
+        HeapSnapshotImpl transactionSnapshot = currentSnapshot.getSpecificSnapshot(transactionVersion);
         for (long handle : handles) {
             long version = currentSnapshot.getVersion(handle);
             if (version == -1) {
@@ -187,7 +186,13 @@ public final class GrowingHeap implements Heap {
             return roots;
         }
 
-        public HeapSnapshotImpl getSnapshot(long version) {
+        /**
+         * Gets the Snapshot with equal or smaller to the specified version.
+         *
+         * @param version
+         * @return
+         */
+        HeapSnapshotImpl getSnapshot(long version) {
             HeapSnapshotImpl current = this;
             long oldest = -1;
             do {
@@ -204,38 +209,48 @@ public final class GrowingHeap implements Heap {
             throw new BadVersionException(format("Version %s is not found, oldest version found is %s", version, oldest));
         }
 
-
-        public DehydratedStmObject read(long handle) {
-            return root == null ? null : root.find(handle).getContent();
-        }
-
-        public long getVersion(long handle) {
-            return root == null ? null : root.find(handle).getVersion();
-        }
-
         /**
          * Returns the Snapshot with the specific version.
          * <p/>
          * todo: what to do if the snapshots with version doesn't exist anymore.
          *
          * @param version the specific version of the HeapSnapshot to look for.
-         * @return the found HeapSnapshot
-         * @throws
+         * @return the found HeapSnapshot. The value will always be not null
+         * @throws IllegalArgumentException if the Snapshot with the specific version is not found.
          */
-        private HeapSnapshotImpl getSpecificVersion(long version) {
+        private HeapSnapshotImpl getSpecificSnapshot(long version) {
             HeapSnapshotImpl snapshot = getSnapshot(version);
             if (snapshot.version != version)
                 throw new IllegalArgumentException(format("Snapshot with version %s is not found", version));
             return snapshot;
         }
 
+        public DehydratedStmObject read(long handle) {
+            return root == null ? null : root.find(handle).getContent();
+        }
+
+        public long getVersion(long handle) {
+            return root == null ? -1 : root.find(handle).getVersion();
+        }
+
+
+        /**
+         * Creates a new HeapSnapshotImpl based on the current HeapSnapshot and all the changes. Since
+         * each HeapSnapshot  is immutable, a new HeapSnapshotImpl is created instead of modifying the
+         * existing one.
+         *
+         * @param changes an iterator over all the DehydratedStmObject that need to be written
+         * @param startVersion the version of the heap when the transaction, that wants to commits, began. This
+         *        information is required for write conflict detection.
+         * @return the created HeapSnapshot or null of there was a write conflict.
+         */
         public HeapSnapshotImpl createNew(Iterator<DehydratedStmObject> changes, long startVersion) {
             long commitVersion = version + 1;
 
             HeapTreeNode newRoot = root;
             //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
             //loaded from this version.
-            HeapSnapshotImpl startSnapshot = getSpecificVersion(startVersion);
+            HeapSnapshotImpl startSnapshot = getSpecificSnapshot(startVersion);
 
             for (; changes.hasNext();) {
                 DehydratedStmObject stmObject = changes.next();
@@ -255,9 +270,9 @@ public final class GrowingHeap implements Heap {
         /**
          * Checks if the current HeapSnapshot has a write conflict at the specified handle with the startSnapshot.
          *
-         * @param handle
-         * @param startSnapshot
-         * @return
+         * @param handle the handle of the Object to check.
+         * @param startSnapshot the Snapshot of the Heap when the transaction that wants to write
+         * @return true if there was a write conflict, false otherwise.
          */
         private boolean hasWriteConflict(long handle, HeapSnapshotImpl startSnapshot) {
             //if the current snapshot is the same as the startSnapshot, other transaction didn't update the heap.
@@ -271,12 +286,13 @@ public final class GrowingHeap implements Heap {
             if (previousVersion == -1)
                 return false;
 
+            //the version of object in the current snapshot.
             long newVersion = getVersion(handle);
 
-            //the object was in the heap at some point in time, but it has been removed, so there is a write conflict
-            if (newVersion == -1) {
-                return true;
-            }
+            //the object was in the heap at some point in time and not visible from the current HeapSnapshot anymore,
+            //because it has been removed, so there is a write conflict
+            if (newVersion == -1)
+                return true;            
 
             //the object is found in both snapshots. If the version still is the same, there is no write conflict.
             //if the version isn't the same, it means that it has been updated by a different transaction in the mean
