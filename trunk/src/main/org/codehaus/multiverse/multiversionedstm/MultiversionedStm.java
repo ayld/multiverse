@@ -116,7 +116,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         if (!(base instanceof MultiversionedTransaction)) throw new IllegalArgumentException();
         MultiversionedTransaction transaction = (MultiversionedTransaction) base;
         Latch latch = new CheapLatch();
-        heap.listen(latch, transaction.getReadAddresses(), transaction.getVersion());
+        heap.listen(latch, transaction.getReadHandles(), transaction.getVersion());
         latch.await();
         return startTransaction();
     }
@@ -166,7 +166,13 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return status;
         }
 
-        public long[] getReadAddresses() {
+        /**
+         * Returns an array containing all handles that have been read by this Transaction. The returned
+         * value will never be null.
+         *
+         * @return an array containing all handles that have been read by this Transaction.
+         */
+        public long[] getReadHandles() {
             long[] result = new long[dehydratedObjects.size()];
             int index = 0;
             for (Long address : dehydratedObjects.keySet()) {
