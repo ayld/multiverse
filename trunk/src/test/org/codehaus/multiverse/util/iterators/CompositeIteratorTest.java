@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 import java.util.NoSuchElementException;
 
-import static org.codehaus.multiverse.util.iterators.TestUtils.assertAsListContent;
+import static org.codehaus.multiverse.TestUtils.assertAsListContent;
 
 public class CompositeIteratorTest extends TestCase {
     private CompositeIterator iterator;

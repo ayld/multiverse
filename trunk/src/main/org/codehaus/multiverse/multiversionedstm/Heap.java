@@ -61,7 +61,8 @@ public interface Heap {
     /**
      * Writes changes to the heap
      *
-     * todo: instead of returning a long. a more complex object could be returned containing the states
+     * todo:
+     * instead of returning a long. a more complex object could be returned containing the states
      * of the write (success, failure etc) but also statistics, or information about the write conflicts.
      *
      * @param changes a resetable iterator over the
@@ -75,6 +76,10 @@ public interface Heap {
      * When a transaction does a retry, an update on one of the handles a transaction has read, could
      * lead to a succeeding execution. So the transaction listens to the heap, and when the heap does
      * a write on one of those handles, the latch is opened and the transaction can retry.
+     *
+     * todo:
+     * instead of returning a latch, let the caller give a latch. This way the caller can decide
+     * to use a cheaplatch of no timing is needed, or to use a more expensive latch when timing is needed.
      *
      * <p/>
      * Method is threadsafe.

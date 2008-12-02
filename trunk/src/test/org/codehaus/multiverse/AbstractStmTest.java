@@ -27,19 +27,6 @@ public abstract class AbstractStmTest<S extends Stm> extends TestCase {
         }
     }
 
-    public void sleepRandom(long ms) {
-        sleep((long) (Math.random() * ms));
-    }
-
-    public void sleep(long ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException ex) {
-            Thread.interrupted();
-            throw new RuntimeException(ex);
-        }
-    }
-
     public long atomicInsert(Object obj) {
         Transaction t = stm.startTransaction();
         try {

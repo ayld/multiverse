@@ -1,12 +1,15 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.TransactionTemplate;
+import org.codehaus.multiverse.TestUtils;
+import static org.codehaus.multiverse.TestUtils.joinAll;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueueTest extends AbstractMultiversionedStmTest {
     private long queuePtr;
@@ -19,7 +22,8 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         queuePtr = atomicInsert(new Queue());
     }
 
-    public void tearDown(){
+    public void tearDown() {
+        System.out.println(heap.getStatistics());
         assertEquals(pushed, popped);
     }
 
@@ -92,10 +96,10 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     public void test() {
         asynchronousPop();
         asynchronousPop();
-        sleep(1000);
+        TestUtils.sleep(1000);
         asynchronousPush("foo");
         asynchronousPush("bar");
-        sleep(1000);
+        TestUtils.sleep(1000);
     }
 
     public void testProducerConsumer() throws InterruptedException {
@@ -109,22 +113,28 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         consumerThread2.start();
         consumerThread3.start();
 
-        producerThread.join();
-        System.out.println("producerThread Finished");
-        consumerThread1.join();
-        System.out.println("consumer1 Finished");
-        consumerThread2.join();
-        System.out.println("consumer2 Finished");
-        consumerThread3.join();
-        System.out.println("consumer3 Finished");
+        joinAll(producerThread, consumerThread1, consumerThread2, consumerThread3);
     }
+
+    static AtomicInteger producerCounter = new AtomicInteger();
 
     private class ProducerThread extends Thread {
 
+        public ProducerThread() {
+            super("producer-" + producerCounter.incrementAndGet());
+        }
+
+        private int runCount = 0;
+
         public void run() {
-            for (int k = 0; k < 10000; k++) {
+            for (int k = 0; k < 3000; k++) {
                 atomicPush("" + k);
-                sleepRandom(3);
+
+                runCount++;
+                if (runCount % 100 == 0)
+                    System.out.println(getName() + " transactioncount: " + runCount);
+
+                //    sleepRandom(3);
             }
 
             atomicPush("poison");
@@ -136,14 +146,28 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         }
     }
 
+
+    static AtomicInteger consumerCounter = new AtomicInteger();
+
     private class ConsumerThread extends Thread {
+        private int runCount = 0;
+
+        public ConsumerThread() {
+            super("consumer-" + consumerCounter.incrementAndGet());
+        }
 
         public void run() {
             String item;
             do {
                 item = atomicPop();
                 //System.out.println(toString() + " Consumed: " + item);
-                sleepRandom(10);
+                //    sleepRandom(10);
+
+                runCount++;
+                if (runCount % 100 == 0)
+                    System.out.println(getName() + " transactioncount: " + runCount);
+
+
             } while (!"poison".equals(item));
         }
     }

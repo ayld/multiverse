@@ -55,10 +55,19 @@ public class Stack<E> implements StmObject {
         }
 
         int size() {
-            if (parent == null)
-                return 1;
-            else
-                return parent.size() + 1;
+            int result = 1;
+            Node node = parent;
+            while(node!=null){
+               result++;
+               node = node.parent;
+            }
+
+            return result;
+
+            //if (parent == null)
+            //    return 1;
+            //else
+            //    return parent.size() + 1;
         }
     }
 

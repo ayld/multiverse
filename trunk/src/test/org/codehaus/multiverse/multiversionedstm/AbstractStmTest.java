@@ -2,6 +2,7 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import junit.framework.TestCase;
 import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
 
 public abstract class AbstractStmTest extends TestCase {
 

@@ -2,7 +2,7 @@ package org.codehaus.multiverse.util.iterators;
 
 import junit.framework.TestCase;
 
-import static org.codehaus.multiverse.util.iterators.TestUtils.assertAsListContent;
+import static org.codehaus.multiverse.TestUtils.assertAsListContent;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
 public class ArrayIteratorTest extends TestCase {

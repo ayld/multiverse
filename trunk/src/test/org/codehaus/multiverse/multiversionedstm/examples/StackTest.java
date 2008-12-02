@@ -1,21 +1,27 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.TransactionTemplate;
+import org.codehaus.multiverse.TestUtils;
+import static org.codehaus.multiverse.TestUtils.joinAll;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StackTest extends AbstractMultiversionedStmTest {
     private long stackPtr;
 
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         stackPtr = atomicInsert(new Stack());
+    }
+
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        System.out.println(heap.getStatistics());
     }
 
     public void atomicPush(final String item) {
@@ -76,10 +82,10 @@ public class StackTest extends AbstractMultiversionedStmTest {
         //asynchronousPop();
         //asynchronousPop();
 
-        sleep(1000);
+        TestUtils.sleep(1000);
         System.out.println("pushing");
         asynchronousPush("Hallo");
-        sleep(1000);
+        TestUtils.sleep(1000);
     }
 
     public void testProducerConsumer() throws InterruptedException {
@@ -97,13 +103,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
         consumerThread2.start();
         consumerThread3.start();
 
-        producerThread1.join();
-        producerThread2.join();
-        producerThread3.join();
-
-        consumerThread1.join();
-        consumerThread2.join();
-        consumerThread3.join();
+        joinAll(producerThread1, producerThread2, producerThread3, consumerThread1, consumerThread2,consumerThread3);
     }
 
     final static AtomicInteger producerCounter = new AtomicInteger();
@@ -112,37 +112,34 @@ public class StackTest extends AbstractMultiversionedStmTest {
 
     private class ProducerThread extends Thread {
 
-        int count = producerCounter.incrementAndGet();
+        public ProducerThread(){
+            super("producer-"+producerCounter.incrementAndGet());
+        }
 
         public void run() {
             for (int k = 0; k < 600; k++) {
                 atomicPush("" + itemCounter.incrementAndGet());
-                sleepRandom(10);
+                TestUtils.sleepRandom(10);
             }
 
             atomicPush("poison");
-        }
-
-        public String toString() {
-            return "ProducerThread" + count;
         }
     }
 
     private class ConsumerThread extends Thread {
 
-        int count = consumerCounter.incrementAndGet();
+        public ConsumerThread(){
+            super("consumer-"+consumerCounter.incrementAndGet());
+        }
 
         public void run() {
             String item;
             do {
                 item = atomicPop();
                 //System.out.println(Thread.currentThread() + " consumed: " + item);
-                sleepRandom(10);
+                TestUtils.sleepRandom(10);
             } while (!"poison".equals(item));
         }
 
-        public String toString() {
-            return "ConsumerThread" + count;
-        }
     }
 }
