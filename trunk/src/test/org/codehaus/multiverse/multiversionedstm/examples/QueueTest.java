@@ -133,6 +133,10 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         testProducerConsumer(1000000);
     }
 
+    public void testProducerConsumer_5000000() {
+        testProducerConsumer(5000000);
+    }
+
     public void testProducerConsumer(int messageCount) {
         Thread producer = new ProducerThread(messageCount);
         Thread consumer1 = new ConsumerThread();
