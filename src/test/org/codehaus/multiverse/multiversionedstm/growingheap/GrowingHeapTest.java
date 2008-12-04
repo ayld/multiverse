@@ -60,7 +60,7 @@ public class GrowingHeapTest extends TestCase {
         assertHeapContent(initialVersion + 3, content);
     }
 
-    //===============================================
+    //================ write ===============================
 
     public void testWrite() {
         long handle = 1000;
@@ -155,4 +155,14 @@ public class GrowingHeapTest extends TestCase {
         assertHeapContent(initialVersion + 2, version2Content);
         assertHeapContent(initialVersion + 3, version3Content);
     }
+
+    // ==========================================
+
+    public void testListenForEventThatHasNotYetOccurred(){
+
+    }
+
+    public void testListenForEventThatAlreadyHasOccurred(){
+
+    }        
 }
