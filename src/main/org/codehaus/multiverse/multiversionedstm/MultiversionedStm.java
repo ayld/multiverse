@@ -280,17 +280,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         /**
-         * Makes sure that all objects attached to this transaction (directly or indirectly) can be attached to
-         * this transaction. This method is usefull if you want to commit, and make sure that there are no problems.
-         */
-        private void assertNoAttachConflictsForAllReachables() {
-            assertNoAttachConflicts(
-                    dehydratedObjects.values().iterator(),
-                    newlybornObjects.values().iterator());
-        }
-
-
-        /**
          * Attaches all objects that can be reached from the array of root iterators (directly or indirectly)
          * to this Transaction.
          *
@@ -299,26 +288,21 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         private void attachAll(Iterator<StmObject>... rootIterators) {
             for (Iterator<StmObject> it = new StmObjectIterator(rootIterators); it.hasNext();) {
                 StmObject stmObject = it.next();
-                Transaction transaction = stmObject.___getTransaction();
-                if (transaction == null) {
-                    long ptr = heap.createHandle();
-                    stmObject.___setHandle(ptr);
-                    stmObject.___onAttach(this);
-                    newlybornObjects.put(ptr, stmObject);
-                } else if (transaction != this) {
-                    throw createBadTransactionException(stmObject);
-                }
+                attach(stmObject);
             }
         }
 
-        /**
-         * Attaches all objects that can be reached from this transaction (directly and indirect) to
-         * this transaction.
-         */
-        private void attachAllReachables() {
-            attachAll(
-                    newlybornObjects.values().iterator(),
-                    dehydratedObjects.values().iterator());
+        private void attach(StmObject stmObject) {
+            Transaction transaction = stmObject.___getTransaction();
+            if (transaction == null) {
+                long ptr = heap.createHandle();
+                stmObject.___setHandle(ptr);
+                stmObject.___onAttach(this);
+                //todo: could this cause a concurrentmodificationexception?
+                newlybornObjects.put(ptr, stmObject);
+            } else if (transaction != this) {
+                throw createBadTransactionException(stmObject);
+            }
         }
 
         /**
@@ -332,8 +316,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         public void commit() {
             switch (status) {
                 case active:
-                    assertNoAttachConflictsForAllReachables();
-                    attachAllReachables();
 
                     if (!commitChanges()) {
                         abort();
@@ -411,6 +393,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 while (iterator.hasNext()) {
                     StmObject object = iterator.next();
                     if (object.___isDirty()) {
+                        attach(object);
                         next = object;
                         return true;
                     }
