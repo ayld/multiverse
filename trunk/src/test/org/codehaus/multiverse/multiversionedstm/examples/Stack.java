@@ -1,10 +1,10 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import static org.codehaus.multiverse.TransactionMethods.retry;
-import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
 import java.util.Iterator;
 
@@ -48,26 +48,16 @@ public class Stack<E> implements StmObject {
     public static class Node<E> {
         final E value;
         final Node parent;
+        final int size;
 
         Node(E value, Node prev) {
             this.value = value;
             this.parent = prev;
+            this.size = parent == null ? 1 : prev.size;
         }
 
         int size() {
-            int result = 1;
-            Node node = parent;
-            while(node!=null){
-               result++;
-               node = node.parent;
-            }
-
-            return result;
-
-            //if (parent == null)
-            //    return 1;
-            //else
-            //    return parent.size() + 1;
+            return size;
         }
     }
 
@@ -109,10 +99,10 @@ public class Stack<E> implements StmObject {
     }
 
     public boolean ___isDirty() {
-        if(initialStack == null)
+        if (initialStack == null)
             return true;
 
-        if(head!=head_initial)
+        if (head != head_initial)
             return true;
 
         return false;

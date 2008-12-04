@@ -1,9 +1,9 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.TransactionTemplate;
 import org.codehaus.multiverse.TestUtils;
 import static org.codehaus.multiverse.TestUtils.joinAll;
 import static org.codehaus.multiverse.TestUtils.startAll;
+import org.codehaus.multiverse.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.transaction.Transaction;
 
@@ -105,27 +105,35 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         //todo: check that content has been returned.
     }
 
-    public void testProducerConsumer_1(){
+    public void testProducerConsumer_1() {
         testProducerConsumer(1);
     }
 
-    public void testProducerConsumer_10(){
+    public void testProducerConsumer_10() {
         testProducerConsumer(10);
     }
 
-    public void testProducerConsumer_100(){
+    public void testProducerConsumer_100() {
         testProducerConsumer(100);
     }
 
-    public void testProducerConsumer_1000(){
+    public void testProducerConsumer_1000() {
         testProducerConsumer(1000);
     }
 
-    public void testProducerConsumer_10000(){
+    public void testProducerConsumer_10000() {
         testProducerConsumer(10000);
     }
 
-    public void testProducerConsumer(int messageCount){
+    public void testProducerConsumer_100000() {
+        testProducerConsumer(100000);
+    }
+
+    public void testProducerConsumer_1000000() {
+        testProducerConsumer(1000000);
+    }
+
+    public void testProducerConsumer(int messageCount) {
         Thread producer = new ProducerThread(messageCount);
         Thread consumer1 = new ConsumerThread();
         Thread consumer2 = new ConsumerThread();
@@ -152,7 +160,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
                 atomicPush("" + k);
 
                 runCount++;
-                if (runCount % 100 == 0)
+                if (runCount % 1000 == 0)
                     System.out.println(getName() + " transactioncount: " + runCount);
 
                 //    sleepRandom(3);
@@ -185,7 +193,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
                 //    sleepRandom(10);
 
                 runCount++;
-                if (runCount % 100 == 0)
+                if (runCount % 1000 == 0)
                     System.out.println(getName() + " transactioncount: " + runCount);
 
 
