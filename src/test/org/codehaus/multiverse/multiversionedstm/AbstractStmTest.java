@@ -52,15 +52,15 @@ public abstract class AbstractStmTest extends TestCase {
     }
 
     public void assertCommitCount(long expected) {
-        assertEquals(expected, stm.getCommittedCount());
+        assertEquals(expected, stm.getTransactionsCommitedCount());
     }
 
     public void assertStartedCount(long expected) {
-        assertEquals(expected, stm.getStartedCount());
+        assertEquals(expected, stm.getTransactionsStartedCount());
     }
 
     public void assertAbortedCount(long expected) {
-        assertEquals(expected, stm.getAbortedCount());
+        assertEquals(expected, stm.getTransactionsAbortedCount());
     }
 
     public void assertActualVersion(long handle, long expectedVersion) {
@@ -69,7 +69,7 @@ public abstract class AbstractStmTest extends TestCase {
     }
 
     public void assertCurrentStmVersion(long expectedVersion) {
-        assertEquals(expectedVersion, stm.getActiveVersion());
+        assertEquals(expectedVersion, stm.getCurrentVersion());
     }
 
     public void assertStmContains(long handle, long expectedVersion, DehydratedStmObject expected) {

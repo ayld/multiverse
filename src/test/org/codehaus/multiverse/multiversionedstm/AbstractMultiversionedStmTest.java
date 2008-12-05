@@ -12,20 +12,26 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
         return new MultiversionedStm(heap);
     }
 
+    public void tearDown() throws Exception {
+        super.tearDown();
+        System.out.println(stm.getStatistics());
+        System.out.println(heap.getStatistics());
+    }
+
     public void assertStmVersionHasNotChanged() {
-        assertEquals(transaction.getVersion(), stm.getActiveVersion());
+        assertEquals(transaction.getVersion(), stm.getCurrentVersion());
     }
 
     public void assertStmActiveVersion(long expected) {
-        assertEquals(expected, stm.getActiveVersion());
+        assertEquals(expected, stm.getCurrentVersion());
     }
 
     public void assertTransactionHasNoWrites() {
-        assertEquals(0, transaction.getNumberOfWrites());
+        assertEquals(0, transaction.getWriteCount());
     }
 
     public void assertTransactionNumberOfWrites(long expected) {
-        assertEquals(expected, transaction.getNumberOfWrites());
+        assertEquals(expected, transaction.getWriteCount());
     }
 
     public void assertActualVersion(long ptr, long expectedVersion) {
@@ -34,28 +40,28 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     }
 
     public void assertCurrentStmVersion(long expectedVersion) {
-        assertEquals(expectedVersion, stm.getActiveVersion());
+        assertEquals(expectedVersion, stm.getCurrentVersion());
     }
 
     public void assertCommitCount(long expected) {
-        assertEquals(expected, stm.getCommittedCount());
+        assertEquals(expected, stm.getTransactionsCommitedCount());
     }
 
     public void assertStartedCount(long expected) {
-        assertEquals(expected, stm.getStartedCount());
+        assertEquals(expected, stm.getTransactionsStartedCount());
     }
 
     public void assertAbortedCount(long expected) {
-        assertEquals(expected, stm.getAbortedCount());
+        assertEquals(expected, stm.getTransactionsAbortedCount());
     }
 
-    public void assertHasPointerAndTransaction(StmObject citizen, long expectedPtr, Transaction expectedTrans) {
+    public void assertHasHandleAndTransaction(StmObject citizen, long expectedPtr, Transaction expectedTrans) {
         assertNotNull(citizen);
         assertEquals(expectedPtr, citizen.___getHandle());
         assertEquals(expectedTrans, citizen.___getTransaction());
     }
 
-    public void assertHasPointer(long expectedPtr, StmObject... citizens) {
+    public void assertHasHandle(long expectedPtr, StmObject... citizens) {
         for (StmObject citizen : citizens)
             assertEquals("Pointer is not the same", expectedPtr, citizen.___getHandle());
     }
@@ -71,6 +77,11 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     }
 
     public void assertHeapContains(long handle, long expectedVersion, DehydratedStmObject expected) {
+        DehydratedStmObject found = heap.getSnapshot(expectedVersion).read(handle);
+        assertEquals("Content doesn't match", expected, found);
+    }
+
+    public void assertHeapContainsNow(long handle, long expectedVersion, DehydratedStmObject expected) {
         assertEquals("Versions don't match. -1 indicates no cell with given address",
                 expectedVersion,
                 heap.getSnapshot().getVersion(handle));

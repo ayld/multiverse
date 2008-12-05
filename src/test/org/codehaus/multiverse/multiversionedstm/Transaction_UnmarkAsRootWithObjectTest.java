@@ -38,7 +38,7 @@ public class Transaction_UnmarkAsRootWithObjectTest extends AbstractMultiversion
 
     public void testNull() {
         createActiveTransaction();
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         try {
             transaction.unmarkAsRoot(null);
@@ -52,7 +52,7 @@ public class Transaction_UnmarkAsRootWithObjectTest extends AbstractMultiversion
 
     public void testNoCitizen() {
         createActiveTransaction();
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         try {
             transaction.unmarkAsRoot("foo");
@@ -104,7 +104,7 @@ public class Transaction_UnmarkAsRootWithObjectTest extends AbstractMultiversion
 
     public void testWhileAborted() {
         createAbortedTransaction();
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         try {
             transaction.unmarkAsRoot(new Stack());
@@ -118,7 +118,7 @@ public class Transaction_UnmarkAsRootWithObjectTest extends AbstractMultiversion
 
     public void testWhileCommitted() {
         createCommittedTransaction();
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         try {
             transaction.unmarkAsRoot(new Stack());

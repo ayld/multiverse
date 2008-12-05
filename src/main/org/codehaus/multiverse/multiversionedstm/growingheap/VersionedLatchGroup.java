@@ -86,7 +86,7 @@ public class VersionedLatchGroup {
 
         latchGroupByVersion.add(latch);
 
-        //it could be that a write on that specific version happended before we added it to the latchgroup.
+        //it could be that a commit on that specific version happended before we added it to the latchgroup.
         //the consequence could be that a listener is not woken up. To make sure that doesn't happen, we
         //have to chech
         long newestActiveVersion;
