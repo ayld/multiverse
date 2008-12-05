@@ -19,7 +19,7 @@ public class Transaction_UnmarkAsRootTest extends AbstractMultiversionedStmTest 
     //============================== other states ===================================
 
     public void testWhileCommitted() {
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
         createCommittedTransaction();
 
         try {

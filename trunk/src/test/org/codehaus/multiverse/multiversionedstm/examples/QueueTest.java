@@ -23,8 +23,9 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         queuePtr = atomicInsert(new Queue());
     }
 
-    public void tearDown() {
-        System.out.println(heap.getStatistics());
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
         assertEquals(pushed, popped);
     }
 
@@ -133,7 +134,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         testProducerConsumer(1000000);
     }
 
-    public void testProducerConsumer_5000000() {
+    public void _testProducerConsumer_5000000() {
         testProducerConsumer(5000000);
     }
 

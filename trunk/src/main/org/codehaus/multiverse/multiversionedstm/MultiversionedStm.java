@@ -21,10 +21,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class MultiversionedStm implements Stm<MultiversionedStm.MultiversionedTransaction> {
 
     //statistics.
-    private final AtomicLong startedCount = new AtomicLong();
-    private final AtomicLong committedCount = new AtomicLong();
-    private final AtomicLong abortedCount = new AtomicLong();
-    private final AtomicLong readonlyCount = new AtomicLong();
+    private final AtomicLong transactionsStartedCount = new AtomicLong();
+    private final AtomicLong transactionsCommitedCount = new AtomicLong();
+    private final AtomicLong transactionsConflictedCount = new AtomicLong();
+    private final AtomicLong transactionsAbortedCount = new AtomicLong();
+    private final AtomicLong transactionsReadonlyCount = new AtomicLong();
 
     private final Heap heap;
 
@@ -32,16 +33,21 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         this(new GrowingHeap());
     }
 
-    public MultiversionedStm(GrowingHeap heap) {
+    public MultiversionedStm(Heap heap) {
         if (heap == null) throw new NullPointerException();
         this.heap = heap;
     }
 
-    public Heap getMemory() {
+    public Heap getHeap() {
         return heap;
     }
 
-    public long getActiveVersion() {
+    /**
+     * Returns the current version of the heap. Value could be stale as it is received.
+     *
+     * @return the current version of the heap.
+     */
+    public long getCurrentVersion() {
         return heap.getSnapshot().getVersion();
     }
 
@@ -49,11 +55,11 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
      * Returns the current number of active transactions (so are started, but have not committed, or rolled back). The value
      * is a rough estimation. The returned value will always be larger or equal to zero.
      *
-     * @return
+     * @return the number of active transactions.
      */
     public long getActiveCount() {
         //since no locking is done, it could be that content are read from different points in time in the stm.
-        long count = getStartedCount() - (getCommittedCount() + getAbortedCount());
+        long count = getTransactionsStartedCount() - (getTransactionsCommitedCount() + getTransactionsAbortedCount());
         return count < 0 ? 0 : count;
     }
 
@@ -62,12 +68,17 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
      *
      * @return the number of transactions that have started.
      */
-    public long getStartedCount() {
-        return startedCount.longValue();
+    public long getTransactionsStartedCount() {
+        return transactionsStartedCount.longValue();
     }
 
-    public long getReadonlyCount() {
-        return readonlyCount.longValue();
+    /**
+     * Returns the number of transactions that have committed, but were only readonly.
+     *
+     * @return the number of committed readonly transactions.
+     */
+    public long getTransactionsReadonlyCount() {
+        return transactionsReadonlyCount.longValue();
     }
 
     /**
@@ -75,8 +86,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
      *
      * @return the number of transactions that have committed.
      */
-    public long getCommittedCount() {
-        return committedCount.longValue();
+    public long getTransactionsCommitedCount() {
+        return transactionsCommitedCount.longValue();
     }
 
     /**
@@ -84,8 +95,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
      *
      * @return the number of transactions that have aborted.
      */
-    public long getAbortedCount() {
-        return abortedCount.longValue();
+    public long getTransactionsAbortedCount() {
+        return transactionsAbortedCount.longValue();
     }
 
     public MultiversionedTransaction startTransaction() {
@@ -109,14 +120,10 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     public String getStatistics() {
         StringBuffer sb = new StringBuffer();
         sb.append("stm.transaction.activecount: ").append(getActiveCount()).append("\n");
-        sb.append("stm.transaction.startedcount: ").append(getStartedCount()).append("\n");
-        sb.append("stm.transaction.committedcount: ").append(getCommittedCount()).append("\n");
-        sb.append("stm.transaction.abortedcount: ").append(getAbortedCount()).append("\n");
-        sb.append("stm.transaction.readonlycount: ").append(getReadonlyCount()).append("\n");
-        //sb.append("stm.heap.cellcount: ").append(heap.getCellCount()).append("\n");
-        //sb.append("stm.heap.versioncount: ").append(heap.getVersionCount()).append("\n");
-        //sb.append("stm.heap.writecount: ").append(heap.getWriteCount()).append("\n");
-        //sb.append("stm.heap.readcount: ").append(heap.getReadCount()).append("\n");
+        sb.append("stm.transaction.startedcount: ").append(getTransactionsStartedCount()).append("\n");
+        sb.append("stm.transaction.committedcount: ").append(getTransactionsCommitedCount()).append("\n");
+        sb.append("stm.transaction.abortedcount: ").append(getTransactionsAbortedCount()).append("\n");
+        sb.append("stm.transaction.readonlycount: ").append(getTransactionsReadonlyCount()).append("\n");
         return sb.toString();
     }
 
@@ -126,19 +133,30 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         private final HeapSnapshot snapshot;
         private final Map<Long, StmObject> newlybornObjects = new HashMap<Long, StmObject>();
         private final Map<Long, StmObject> dehydratedObjects = new Hashtable<Long, StmObject>();
-        private final Set<Long> deletedCitizens = new HashSet<Long>();
+        private final Set<Long> detachedHandles = new HashSet<Long>();
 
-        private long numberOfWrites = 0;
+        private long writeCount = 0;
 
         public MultiversionedTransaction() {
             snapshot = heap.getSnapshot();
-            startedCount.incrementAndGet();
+            transactionsStartedCount.incrementAndGet();
         }
 
-        public long getNumberOfWrites() {
-            return numberOfWrites;
+        /**
+         * Returns the number of writes done by this transaction.
+         *
+         * @return
+         */
+        public long getWriteCount() {
+            return writeCount;
         }
 
+        /**
+         * Returns the version of the transaction. This value is equal to the version of the heap when
+         * the transaction began.
+         *
+         * @return
+         */
         public long getVersion() {
             return snapshot.getVersion();
         }
@@ -176,7 +194,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
             StmObject object = (StmObject) root;
             assertNoTransactionProblemsForUnmarkAsRoot(root, object);
-            deletedCitizens.add(object.___getHandle());
+            detachedHandles.add(object.___getHandle());
         }
 
         private void assertNoTransactionProblemsForUnmarkAsRoot(Object root, StmObject object) {
@@ -333,33 +351,27 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         private boolean commitChanges() {
-            long commitVersion = heap.write(snapshot.getVersion(), new CommitIterator());
-            if (commitVersion >= 0) {
-                committedCount.incrementAndGet();
+            HeapCommitResult result = heap.commit(snapshot.getVersion(), new CommitIterator());
+
+            if (result.success) {
+                transactionsCommitedCount.incrementAndGet();
+
+                if (result.writeCount == 0)
+                    transactionsReadonlyCount.incrementAndGet();
+                else
+                    writeCount = result.writeCount;
                 return true;
             } else {
+                transactionsConflictedCount.incrementAndGet();
                 return false;
             }
-
-            //for (; it.hasNext();) {
-            //     StmObject citizen = it.next();
-            //     if (citizen.___isDirty()) {
-            //         DehydratedStmObject dehydrated = citizen.___dehydrate();
-            //         writeToHeap(citizen.___getHandle(), true, dehydrated);
-            //     }
-            // }
-            //if (numberOfWrites > 0)
-            //    activeVersion.incrementAndGet();
-            //else
-            //readonlyCount.incrementAndGet();
-
         }
 
         public void abort() {
             switch (status) {
                 case active:
                     status = TransactionStatus.aborted;
-                    abortedCount.incrementAndGet();
+                    transactionsAbortedCount.incrementAndGet();
                     break;
                 case committed:
                     throw new IllegalStateException();

@@ -16,7 +16,7 @@ public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
     public void testFreshObjectsAreNotCommitted() {
         Person p1 = new Person();
         Person p2 = new Person();
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         createActiveTransaction();
         transaction.attachAsRoot(p1);
@@ -30,7 +30,7 @@ public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
 
     public void testChangesAreNotCommitted() {
         long ptr = atomicInsert(new Person());
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         createActiveTransaction();
         Person p = (Person) transaction.read(ptr);

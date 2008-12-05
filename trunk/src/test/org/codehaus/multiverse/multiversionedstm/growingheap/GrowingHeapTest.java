@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
+import org.codehaus.multiverse.multiversionedstm.HeapCommitResult;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
 public class GrowingHeapTest extends TestCase {
@@ -29,15 +30,15 @@ public class GrowingHeapTest extends TestCase {
 
     public void writeUnconflicted(DehydratedStmObject... dehydratedStmObjects) {
         long beforeCommitVersion = heap.getSnapshot().getVersion();
-        long commitVersion = heap.write(beforeCommitVersion, new ArrayIterator(dehydratedStmObjects));
-        assertEquals(heap.getSnapshot().getVersion(), commitVersion);
-        assertTrue(commitVersion > 0);
+        HeapCommitResult result = heap.commit(beforeCommitVersion, new ArrayIterator(dehydratedStmObjects));
+        assertTrue(result.success);
+        assertTrue(result.writeCount>0);
     }
 
     public void writeConflicted(long startVersion, DehydratedStmObject... dehydratedObjects) {
         long beforeCommitVersion = heap.getSnapshot().getVersion();
-        long commitVersion = heap.write(startVersion, dehydratedObjects);
-        assertEquals(-1, commitVersion);
+        HeapCommitResult result = heap.write(startVersion, dehydratedObjects);
+        assertFalse(result.success);
         assertEquals(beforeCommitVersion, heap.getSnapshot().getVersion());
     }
 
@@ -60,7 +61,7 @@ public class GrowingHeapTest extends TestCase {
         assertHeapContent(initialVersion + 3, content);
     }
 
-    //================ write ===============================
+    //================ commit ===============================
 
     public void testWrite() {
         long handle = 1000;
@@ -76,10 +77,10 @@ public class GrowingHeapTest extends TestCase {
         long version = 1;
         long handle = 10;
         DehydratedStmObject contentOld = new DummyDehydratedStmObject(handle, version);
-        write(contentOld);
+        commit(contentOld);
 
         try {
-            write(new DummyDehydratedStmObject(handle, version));
+            commit(new DummyDehydratedStmObject(handle, version));
             fail();
         } catch (BadVersionException ex) {
         }

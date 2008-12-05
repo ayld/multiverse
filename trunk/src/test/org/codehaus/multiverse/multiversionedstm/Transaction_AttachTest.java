@@ -40,7 +40,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointerAndTransaction(freshPerson, ptr, transaction);
+        assertHasHandleAndTransaction(freshPerson, ptr, transaction);
     }
 
     public void testAttachOfDehydratedCitizen() {
@@ -51,7 +51,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         transaction.attachAsRoot(dehydratedPerson);
 
         assertTransactionIsActive();
-        assertHasPointerAndTransaction(dehydratedPerson, ptr, transaction);
+        assertHasHandleAndTransaction(dehydratedPerson, ptr, transaction);
     }
 
     public void testReferenceIsMadeAfterAttach() {
@@ -66,8 +66,8 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
 
-        assertHasPointerAndTransaction(child, childPtr, transaction);
-        assertHasPointerAndTransaction(parent, 0, null);
+        assertHasHandleAndTransaction(child, childPtr, transaction);
+        assertHasHandleAndTransaction(parent, 0, null);
     }
 
     public void testSameObjectAttachedMultipleTimes() {
@@ -80,7 +80,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertEquals("multiple attachAsRoot should give the same content for the same object ", ptr1, ptr2);
-        assertHasPointer(ptr1, person);
+        assertHasHandle(ptr1, person);
     }
 
     public void testShallowCycle() {
@@ -92,7 +92,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         long personPtr = transaction.attachAsRoot(person);
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointerAndTransaction(person, personPtr, transaction);
+        assertHasHandleAndTransaction(person, personPtr, transaction);
     }
 
     public void testDeepCycle() {
@@ -110,7 +110,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointer(person4Ptr, person4);
+        assertHasHandle(person4Ptr, person4);
         //todo: person2 ptr
         //todo: person3 ptr
         //todo: person1 ptr
@@ -130,7 +130,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointerAndTransaction(child, ptr, transaction);
+        assertHasHandleAndTransaction(child, ptr, transaction);
         //todo: ptr parent
         //todo: ptr grandparent
         assertHasTransaction(transaction, parent, grandparent);
@@ -148,8 +148,8 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointerAndTransaction(child, childPtr, transaction);
-        assertHasPointerAndTransaction(parent, parentPtr, transaction);
+        assertHasHandleAndTransaction(child, childPtr, transaction);
+        assertHasHandleAndTransaction(parent, parentPtr, transaction);
     }
 
     public void testMultipleFreshAndUnreferencedItems() {
@@ -163,8 +163,8 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointerAndTransaction(person1, person1Ptr, transaction);
-        assertHasPointerAndTransaction(person2, person2Ptr, transaction);
+        assertHasHandleAndTransaction(person1, person1Ptr, transaction);
+        assertHasHandleAndTransaction(person2, person2Ptr, transaction);
     }
 
     public void testAlreadyAttachedToDifferentTransaction() {
@@ -182,7 +182,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertHasPointerAndTransaction(person, personPtr, otherTransaction);
+        assertHasHandleAndTransaction(person, personPtr, otherTransaction);
     }
 
     public void testReachableObjectAttachedToDifferentTransaction() {
@@ -202,8 +202,8 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
 
-        assertHasPointerAndTransaction(child, 0, null);
-        assertHasPointerAndTransaction(parent, parentPtr, otherTransaction);
+        assertHasHandleAndTransaction(child, 0, null);
+        assertHasHandleAndTransaction(parent, parentPtr, otherTransaction);
         //todo: testen dat de parent bij het comitten gaat zeuren dat die aan een verkeerde transactie zit
     }
 
@@ -221,15 +221,15 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
 
-        assertHasPointerAndTransaction(child, childPtr, transaction);
-        assertHasPointerAndTransaction(parent, parentPtr, otherTransaction);
+        assertHasHandleAndTransaction(child, childPtr, transaction);
+        assertHasHandleAndTransaction(parent, parentPtr, otherTransaction);
     }
 
     //================ the other states a transaction can be in
 
     public void testTransactionIsRolledback() {
         createAbortedTransaction();
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         Person obj = new Person();
         try {
@@ -241,12 +241,12 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsAborted();
         assertTransactionHasNoWrites();
         assertStmActiveVersion(version);
-        assertHasPointerAndTransaction(obj, 0, null);
+        assertHasHandleAndTransaction(obj, 0, null);
     }
 
     public void testTransactionIsComitted() {
         createCommittedTransaction();
-        long version = stm.getActiveVersion();
+        long version = stm.getCurrentVersion();
 
         Person object = new Person();
         try {
@@ -258,6 +258,6 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsCommitted();
         assertTransactionHasNoWrites();
         assertStmActiveVersion(version);
-        assertHasPointerAndTransaction(object, 0, null);
+        assertHasHandleAndTransaction(object, 0, null);
     }
 }

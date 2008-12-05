@@ -66,9 +66,9 @@ public interface Heap {
      * of the write (success, failure etc) but also statistics, or information about the write conflicts.
      *
      * @param changes a resetable iterator over the
-     * @return the version under which the changes where committed. -1 if there was a write conflict.
+     * @return the HeapCommitResult. This object contains information regarding the
      */
-    long write(long startVersion, ResetableIterator<DehydratedStmObject> changes);
+    HeapCommitResult commit(long startVersion, ResetableIterator<DehydratedStmObject> changes);
 
     /**
      * Creates a {@link Latch} that is opened when a write is done on of the handle.
@@ -91,4 +91,5 @@ public interface Heap {
     void listen(Latch latch, long[] handles, long transactionVersion);
 
     void signalVersionDied(long version);
+
 }
