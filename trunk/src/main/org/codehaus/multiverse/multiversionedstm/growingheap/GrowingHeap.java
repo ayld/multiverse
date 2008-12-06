@@ -177,7 +177,6 @@ public final class GrowingHeap implements Heap {
     //class is immutable.
     private class GrowingHeapSnapshot implements HeapSnapshot {
         private final GrowingHeapSnapshot parentSnapshot;
-        //private final Bucket[] buckets;
         private final HeapTreeNode root;
         private final long version;
         private final long[] roots;
@@ -321,9 +320,9 @@ public final class GrowingHeap implements Heap {
                 return true;
 
             //the object is found in both snapshots. If the version still is the same, there is no commit conflict.
-            //if the version isn't the same, it means that it has been updated by a different transaction in the mean
-            //while.
-            return newVersion > previousVersion;
+            //if the version isn't the same, it means that it has been updated by a different transaction in the
+            //mean while.
+            return newVersion != previousVersion;
         }
 
 

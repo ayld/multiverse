@@ -6,6 +6,10 @@ import java.util.*;
 
 public class TestUtils {
 
+    public static long randomLong(long i, int diff){
+        return (long)(i + (diff * (Math.random()-0.5)));            
+    }
+
     public static void startAll(Thread... threads){
         for(Thread thread: threads)
             thread.start();
