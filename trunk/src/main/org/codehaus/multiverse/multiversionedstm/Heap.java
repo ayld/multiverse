@@ -90,6 +90,13 @@ public interface Heap {
      */
     void listen(Latch latch, long[] handles, long transactionVersion);
 
-    void signalVersionDied(long version);
+    /**
+     * Returns the number of alive Snapshots. When a snapshot is not needed anymore, it can be garbage
+     * collected, so it is removed from the alived set of Snapshots. The number will always be equal or
+     * larger than 1. The returned value could be stale as soon as it is received.
+     *
+     * @return the number of alive Snapshots.
+     */
+    int getSnapshotAliveCount();
 
 }

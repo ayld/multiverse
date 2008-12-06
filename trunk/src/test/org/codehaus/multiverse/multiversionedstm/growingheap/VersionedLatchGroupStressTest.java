@@ -5,25 +5,21 @@ import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.util.latches.Latch;
 import org.codehaus.multiverse.util.latches.StandardLatch;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Create a number if listen latches and register them by multiple threads.
- * Create a number of version increasing threads.
- * Let the test run from beginVersion to endVersion
- * check that all the latches that are registered including endVersion have been openen
- */
 public class VersionedLatchGroupStressTest extends TestCase {
+    private static final int MAX_DELAY_MS = 0;
+
     private List<Latch> latches;
     private VersionedLatchGroup latchGroup;
-    private long maxVersion = 1000000;
+    private long maxVersion = 100000;
 
     @Override
     public void setUp() {
         latchGroup = new VersionedLatchGroup(0);
-        latches = new ArrayList(1000000);
+        latches = new Vector(1000000);
     }
 
     public void assertAllLatchesAreOpened() {
@@ -68,6 +64,7 @@ public class VersionedLatchGroupStressTest extends TestCase {
     AtomicInteger threadCounter = new AtomicInteger();
 
     class AddLatchThread extends Thread {
+
         public AddLatchThread() {
             super("addLatchThread-" + threadCounter.incrementAndGet());
         }
@@ -83,7 +80,7 @@ public class VersionedLatchGroupStressTest extends TestCase {
                     version = maxVersion;
 
                 latchGroup.addLatch(version, latch);
-                sleepRandom(5);
+                sleepRandom(MAX_DELAY_MS);
             } while (version < maxVersion);
         }
     }
@@ -98,7 +95,7 @@ public class VersionedLatchGroupStressTest extends TestCase {
             do {
                 version = randomLong(latchGroup.getActiveVersion(), 10);
                 latchGroup.activateVersion(version);
-                sleepRandom(5);
+                sleepRandom(MAX_DELAY_MS);
             } while (version < maxVersion);
         }
     }

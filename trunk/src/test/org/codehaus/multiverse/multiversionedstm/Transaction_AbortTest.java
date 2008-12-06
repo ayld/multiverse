@@ -2,7 +2,7 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 
-public class Transaction_RollbackTest extends AbstractMultiversionedStmTest {
+public class Transaction_AbortTest extends AbstractMultiversionedStmTest {
 
     public void testFreshTransaction() {
         createActiveTransaction();

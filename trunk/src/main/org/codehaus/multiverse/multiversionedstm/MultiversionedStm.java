@@ -283,7 +283,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
          * Dependencies of the object are not checked, on the object itself.
          *
          * @param object the StmObject to check.
-         * @throws BadTransactionException if there is a transaction conflict.
+         * @throws org.codehaus.multiverse.transaction.BadTransactionException
+         *          if there is a transaction conflict.
          */
         private void assertNoAftachConflict(StmObject object) {
             Transaction transaction = object.___getTransaction();
@@ -335,12 +336,14 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             switch (status) {
                 case active:
 
-                    if (!commitChanges()) {
+                    try {
+                        commitChanges();
+                        status = TransactionStatus.committed;
+                    } catch (RuntimeException ex) {
                         abort();
-                        throw new AbortedException("Transaction is aborted because of a write conflict");
+                        throw ex;
                     }
 
-                    status = TransactionStatus.committed;
                     break;
                 case committed:
                     //ignore, transaction already is committed, can't do any harm to commit again
@@ -350,7 +353,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        private boolean commitChanges() {
+        private void commitChanges() {
             HeapCommitResult result = heap.commit(snapshot.getVersion(), new CommitIterator());
 
             if (result.success) {
@@ -360,10 +363,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     transactionsReadonlyCount.incrementAndGet();
                 else
                     writeCount = result.writeCount;
-                return true;
             } else {
                 transactionsConflictedCount.incrementAndGet();
-                return false;
+                throw new WriteConflictException("Transaction is aborted because of a write conflict");
             }
         }
 
