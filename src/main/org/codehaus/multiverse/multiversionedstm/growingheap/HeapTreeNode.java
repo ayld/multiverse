@@ -173,6 +173,4 @@ public final class HeapTreeNode {
 
         return null;
     }
-
-
 }

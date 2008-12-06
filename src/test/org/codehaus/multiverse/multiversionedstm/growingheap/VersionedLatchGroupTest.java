@@ -6,7 +6,6 @@ import org.codehaus.multiverse.util.latches.OpenLatch;
 import org.codehaus.multiverse.util.latches.StandardLatch;
 
 /**
- *
  * todo: we needs to some really good concurrent tests for this class.
  */
 public class VersionedLatchGroupTest extends TestCase {
@@ -54,17 +53,17 @@ public class VersionedLatchGroupTest extends TestCase {
         assertActiveVersionHasNotChanges();
     }
 
-    public void testAddLatch_minimalTriggerVersionAlreadyHasBeenReached() {
-        Latch latch = new StandardLatch();
-        latchGroup.addLatch(initialActiveVersion, latch);
-
-        assertIsOpen(latch);
-        assertActiveVersionHasNotChanges();
+    public void testAddLatch_minimalTriggerVersionAlreadyHasPassed() {
+        testAddLatch_minimalTriggerVersion(initialActiveVersion);
     }
 
-    public void testAddLatch_minimalTriggerVersionAlreadyHasPassed() {
+    public void testAddLatch_minimalTrigger() {
+        testAddLatch_minimalTriggerVersion(initialActiveVersion - 1);
+    }
+
+    public void testAddLatch_minimalTriggerVersion(long version) {
         Latch latch = new StandardLatch();
-        latchGroup.addLatch(initialActiveVersion - 1, latch);
+        latchGroup.addLatch(version, latch);
 
         assertIsOpen(latch);
         assertActiveVersionHasNotChanges();
@@ -100,7 +99,7 @@ public class VersionedLatchGroupTest extends TestCase {
         latchGroup.addLatch(initialActiveVersion + 1, latch1);
         latchGroup.addLatch(initialActiveVersion + 2, latch2);
 
-        latchGroup.activateVersion(initialActiveVersion-1);
+        latchGroup.activateVersion(initialActiveVersion - 1);
 
         assertActiveVersionHasNotChanges();
         assertIsClosed(latch1, latch2);
@@ -117,7 +116,7 @@ public class VersionedLatchGroupTest extends TestCase {
 
         latchGroup.activateVersion(initialActiveVersion + 2);
 
-        assertActiveVersion(initialActiveVersion+2);
+        assertActiveVersion(initialActiveVersion + 2);
         assertIsOpen(latch1);
         assertIsOpen(latch2);
         assertIsClosed(latch3);
