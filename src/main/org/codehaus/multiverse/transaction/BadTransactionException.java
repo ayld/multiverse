@@ -5,8 +5,8 @@ import org.codehaus.multiverse.StmException;
 import static java.lang.String.format;
 
 /**
- * {@link StmException} to indicate that an action is done on the stm, but a bad transaction is used. For example
- * the attach of an item, that already is attached to another transaction.
+ * A {@link StmException} to indicate that a bad transaction is used. For example
+ * the attach of an item to a transaction, that already is attached to another transaction.
  *
  * @author Peter Veentjer.
  */

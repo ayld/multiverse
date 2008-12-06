@@ -68,11 +68,9 @@ public interface Transaction {
      *
      * This method is not threadsafe.
      *
-     * todo: what to do if the transaction can't commit because it is realyonly (not important for now)
-     * todo: what to do if the transaction can't commit because it's content is attached to a different transaction
-     *
      * @throws IllegalStateException if the Transaction is already aborted.
-     * @throws AbortedException    if the Transaction can't be committed.
+     * @throws WriteConflictException if a WriteConflict happens when
+     * @throws BadTransactionException if one or more of the reachable objects is bound to a different transaction.
      */
     void commit();
 

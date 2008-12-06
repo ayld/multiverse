@@ -1,8 +1,9 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
-import org.codehaus.multiverse.transaction.AbortedException;
 import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.transaction.BadTransactionException;
+import org.codehaus.multiverse.transaction.WriteConflictException;
 
 public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
 
@@ -189,7 +190,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         try {
             transaction.commit();
             fail();
-        } catch (AbortedException ex) {
+        } catch (WriteConflictException ex) {
         }
 
         assertTransactionIsAborted();
@@ -218,7 +219,12 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
 
         child.setParent(parent);
 
-        transaction.commit();
+        try {
+            transaction.commit();
+            fail();
+        } catch (BadTransactionException ex) {
+
+        }
 
         assertTransactionIsAborted();
         assertTransactionHasNoWrites();

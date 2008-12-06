@@ -1,8 +1,8 @@
 package org.codehaus.multiverse;
 
-import org.codehaus.multiverse.transaction.AbortedException;
 import org.codehaus.multiverse.transaction.RetryException;
 import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.transaction.WriteConflictException;
 
 /**
  * The TransactionTemplate  is a template that contains all plumbing logic for the start, retry etc of
@@ -41,9 +41,7 @@ public abstract class TransactionTemplate<E> {
                     //System.out.println(Thread.currentThread() + " retried");
                     transaction.abort();
                     predecessor = transaction;
-                } catch (AbortedException ex) {
-                    //System.out.println(Thread.currentThread() + " aborted");
-                    transaction.abort();
+                } catch (WriteConflictException ex) {
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }

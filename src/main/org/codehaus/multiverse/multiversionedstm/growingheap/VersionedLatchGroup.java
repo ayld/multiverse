@@ -11,9 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * A VersionedLatchGroup is a group of Latches listening on a specific handle, but perhaps waiting for different versions.
  * One transaction started listening from version 10 for example, and another one could start listening from version 20.
- *
+ * <p/>
  * todo:
- * Could it ever happen that a thread starts to listen to a version that hasn't occurred yet? 
+ * Could it ever happen that a thread starts to listen to a version that hasn't occurred yet?
  *
  * @author Peter Veentjer.
  */
@@ -108,6 +108,9 @@ public class VersionedLatchGroup {
         //it is now the responsibility of the writer to open the latch.
     }
 
+    /**
+     * Contians all latches that are waiting for a specific version.
+     */
     private static class LatchGroupByVersion {
         Set<Latch> latches = new HashSet<Latch>();
         volatile boolean isOpen = false;
@@ -116,13 +119,15 @@ public class VersionedLatchGroup {
             if (isOpen)
                 return;
 
+            Set<Latch> localizedLatches;
             synchronized (this) {
                 isOpen = true;
-                for (Latch latch : latches)
-                    latch.open();
-
+                localizedLatches = latches;
                 latches = null;
             }
+
+            for (Latch latch : localizedLatches)
+                latch.open();
         }
 
         public void add(Latch latch) {
@@ -142,6 +147,16 @@ public class VersionedLatchGroup {
 
                 latches.add(latch);
             }
+        }
+    }
+
+    private static class LatchNode {
+        final LatchNode prev;
+        final Latch latch;
+
+        private LatchNode(LatchNode prev, Latch latch) {
+            this.prev = prev;
+            this.latch = latch;
         }
     }
 }

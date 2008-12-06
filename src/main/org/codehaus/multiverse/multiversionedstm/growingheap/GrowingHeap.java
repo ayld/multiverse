@@ -60,6 +60,17 @@ public final class GrowingHeap implements Heap {
         return commit(startVersion, new ArrayIterator<DehydratedStmObject>(changes));
     }
 
+    public int getSnapshotAliveCount() {
+        int result = 0;
+        GrowingHeapSnapshot current = currentSnapshotReference.get();
+        do {
+            result++;
+            current = current.parentSnapshot;
+        } while (current != null);
+
+        return result;
+    }
+
     public HeapCommitResult commit(long startVersion, ResetableIterator<DehydratedStmObject> changes) {
         assert changes != null;
 
@@ -148,10 +159,6 @@ public final class GrowingHeap implements Heap {
             //no other transaction have made updates, so it is now the responsibility of an updating transaction
             //to wake up the listener.
         }
-    }
-
-    public void signalVersionDied(long version) {
-        throw new RuntimeException();
     }
 
     static class CreateNewResult {
