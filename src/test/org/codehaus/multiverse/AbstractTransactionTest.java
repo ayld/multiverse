@@ -1,7 +1,8 @@
 package org.codehaus.multiverse;
 
-import org.codehaus.multiverse.transaction.TransactionStatus;
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.TransactionStatus;
+import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.core.Stm;
 import org.codehaus.multiverse.AbstractStmTest;
 
 public abstract class AbstractTransactionTest<S extends Stm, T extends Transaction> extends AbstractStmTest<S> {

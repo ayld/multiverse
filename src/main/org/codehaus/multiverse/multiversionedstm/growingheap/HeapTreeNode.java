@@ -94,8 +94,7 @@ public final class HeapTreeNode {
                 } else {
                     newRight = right.createNew(change, changeVersion);
                 }
-                HeapTreeNode x = new HeapTreeNode(content, changeVersion, left, newRight);
-                return x;
+                return new HeapTreeNode(content, changeVersion, left, newRight);
             case -1:
                 HeapTreeNode newLeft;
                 if (left == null) {

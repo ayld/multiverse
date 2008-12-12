@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.transaction;
+package org.codehaus.multiverse.core;
 
 
 /**

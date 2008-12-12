@@ -4,6 +4,8 @@ import static junit.framework.Assert.assertEquals;
 
 import java.util.*;
 
+import org.codehaus.multiverse.util.latches.Latch;
+
 public class TestUtils {
 
     public static long randomLong(long i, int diff){
@@ -64,5 +66,9 @@ public class TestUtils {
             Thread.interrupted();
             throw new RuntimeException(ex);
         }
+    }
+
+    public static void assertIsOpen(Latch latch, boolean isOpen) {
+        assertEquals(isOpen, latch.isOpen());
     }
 }

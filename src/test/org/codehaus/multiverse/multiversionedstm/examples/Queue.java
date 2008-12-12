@@ -3,7 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.*;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.Transaction;
 
 import java.util.Iterator;
 
@@ -38,7 +38,7 @@ public class Queue<E> implements StmObject {
 
     //================== generated =================
 
-    private long ptr;
+    private long handle;
     private Transaction transaction;
     private DehydratedQueue initialDehydratedQueue;
 
@@ -46,24 +46,21 @@ public class Queue<E> implements StmObject {
         return initialDehydratedQueue;
     }
 
-    public void ___onAttach(Transaction transaction) {
+    public void ___onAttach(Transaction transaction, long handle) {
         this.transaction = transaction;
+        this.handle = handle;
     }
 
     public Transaction ___getTransaction() {
         return transaction;
     }
 
-    public Iterator<StmObject> ___directReferencedIterator() {
+    public Iterator<StmObject> ___loadedMembers() {
         return new ArrayIterator<StmObject>(readyToPopStack, pushedStack);
     }
 
     public long ___getHandle() {
-        return ptr;
-    }
-
-    public void ___setHandle(long ptr) {
-        this.ptr = ptr;
+        return handle;
     }
 
     public DehydratedStmObject ___dehydrate() {
@@ -87,13 +84,13 @@ public class Queue<E> implements StmObject {
             this.pushedStackPtr = queue.pushedStack.___getHandle();
         }
 
-        public Iterator<Long> getDirect() {
+        public Iterator<Long> members() {
             throw new RuntimeException();
         }
 
         public Queue hydrate(Transaction transaction) {
             Queue queue = new Queue();
-            queue.ptr = getHandle();
+            queue.handle = getHandle();
             queue.transaction = transaction;
             queue.readyToPopStack = (Stack) transaction.read(readyToPopStackPtr);
             queue.pushedStack = (Stack) transaction.read(pushedStackPtr);

@@ -3,9 +3,9 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.TestUtils;
 import static org.codehaus.multiverse.TestUtils.joinAll;
 import static org.codehaus.multiverse.TestUtils.startAll;
-import org.codehaus.multiverse.TransactionTemplate;
+import org.codehaus.multiverse.core.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.Transaction;
 
 import java.util.Collections;
 import java.util.HashSet;

@@ -1,6 +1,7 @@
 package org.codehaus.multiverse.util.iterators;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * An {@link Iterator} that is a special case iterator when you don't need to iterate over elements.
@@ -19,7 +20,7 @@ public final class EmptyIterator<E> implements Iterator<E> {
     }
 
     public E next() {
-        throw new UnsupportedOperationException();
+        throw new NoSuchElementException();
     }
 
     public void remove() {

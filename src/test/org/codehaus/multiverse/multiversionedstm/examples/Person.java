@@ -2,7 +2,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.util.PtrUtils;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -77,18 +77,14 @@ public class Person implements StmObject {
         return initialDehydratedPerson;
     }
 
-    public void ___setHandle(long ptr) {
-        this.handle = ptr;
-    }
-
-    public Iterator<StmObject> ___directReferencedIterator() {
+    public Iterator<StmObject> ___loadedMembers() {
         if (parent != null && parent != this)
             return new ArrayIterator(parent);
 
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(Transaction transaction) {
+    public void ___onAttach(Transaction transaction, long handle) {
         if (transaction == null)
             throw new NullPointerException();
 
@@ -99,6 +95,7 @@ public class Person implements StmObject {
             throw new IllegalArgumentException("Object already bound to another transaction");
 
         this.transaction = transaction;
+        this.handle = handle;
     }
 
     public Transaction ___getTransaction() {
@@ -137,13 +134,13 @@ public class Person implements StmObject {
             this.parentPtr = PtrUtils.getHandle(person.getParent());
         }
 
-        public Iterator<Long> getDirect() {
+        public Iterator<Long> members() {
             throw new RuntimeException();
         }
 
         public StmObject hydrate(Transaction transaction) {
             try {
-                Person person = (Person) Person.class.newInstance();
+                Person person = Person.class.newInstance();
                 //initialization of operational properties
                 person.handle = getHandle();
                 person.transaction = transaction;

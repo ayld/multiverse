@@ -1,4 +1,4 @@
-package org.codehaus.multiverse;
+package org.codehaus.multiverse.core;
 
 /**
  * A {@link RuntimeException} where subclasses are thrown by stm if STM related problems occur. Usefull if you want

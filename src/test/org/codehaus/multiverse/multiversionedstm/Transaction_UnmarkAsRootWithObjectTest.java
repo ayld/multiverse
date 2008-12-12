@@ -2,8 +2,8 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
-import org.codehaus.multiverse.transaction.BadTransactionException;
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.BadTransactionException;
+import org.codehaus.multiverse.core.Transaction;
 
 public class Transaction_UnmarkAsRootWithObjectTest extends AbstractMultiversionedStmTest {
 

@@ -1,9 +1,9 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
-import org.codehaus.multiverse.transaction.Transaction;
-import org.codehaus.multiverse.transaction.BadTransactionException;
-import org.codehaus.multiverse.transaction.WriteConflictException;
+import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.core.BadTransactionException;
+import org.codehaus.multiverse.core.WriteConflictException;
 
 public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
 
@@ -184,7 +184,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
 
         MultiversionedStm.MultiversionedTransaction interferingTransaction = atomicIncAge(ptr);
 
-        long commitCount = stm.getTransactionsCommitedCount();
+        long commitCount = stm.getStatistics().getTransactionsCommitedCount();
 
         p1.setAge(p1.getAge() + 10);
         try {

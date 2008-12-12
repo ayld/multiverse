@@ -3,7 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import static org.codehaus.multiverse.TransactionMethods.retry;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
 import java.util.Iterator;
@@ -73,13 +73,14 @@ public class Stack<E> implements StmObject {
         return initialStack;
     }
 
-    public Iterator<StmObject> ___directReferencedIterator() {
+    public Iterator<StmObject> ___loadedMembers() {
         //todo: alle elementen van de stack moeten bij lang worden gelopen
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(Transaction transaction) {
+    public void ___onAttach(Transaction transaction, long handle) {
         this.transaction = transaction;
+        this.handle = handle;
     }
 
     public Transaction ___getTransaction() {
@@ -88,10 +89,6 @@ public class Stack<E> implements StmObject {
 
     public long ___getHandle() {
         return handle;
-    }
-
-    public void ___setHandle(long ptr) {
-        this.handle = ptr;
     }
 
     public DehydratedStack ___dehydrate() {
@@ -116,7 +113,7 @@ public class Stack<E> implements StmObject {
             this.head = stack.head;
         }
 
-        public Iterator<Long> getDirect() {
+        public Iterator<Long> members() {
             throw new RuntimeException();
         }
 

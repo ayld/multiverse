@@ -1,8 +1,9 @@
-package org.codehaus.multiverse;
+package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.transaction.RetryException;
-import org.codehaus.multiverse.transaction.Transaction;
-import org.codehaus.multiverse.transaction.WriteConflictException;
+import org.codehaus.multiverse.core.RetryException;
+import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.core.WriteConflictException;
+import org.codehaus.multiverse.core.Stm;
 
 /**
  * The TransactionTemplate  is a template that contains all plumbing logic for the start, retry etc of

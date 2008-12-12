@@ -3,8 +3,8 @@ package org.codehaus.multiverse.multiversionedstm.growingheap;
 import junit.framework.TestCase;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
-import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedstm.HeapCommitResult;
+import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
 public class GrowingHeapTest extends TestCase {
@@ -13,7 +13,7 @@ public class GrowingHeapTest extends TestCase {
 
     public void setUp() {
         heap = new GrowingHeap();
-        initialVersion = heap.getSnapshot().getVersion();
+        initialVersion = heap.getActiveSnapshot().getVersion();
     }
 
     public void assertHeapContent(long version, DehydratedStmObject expected) {
@@ -29,24 +29,24 @@ public class GrowingHeapTest extends TestCase {
     }
 
     public void writeUnconflicted(DehydratedStmObject... dehydratedStmObjects) {
-        long beforeCommitVersion = heap.getSnapshot().getVersion();
+        long beforeCommitVersion = heap.getActiveSnapshot().getVersion();
         HeapCommitResult result = heap.commit(beforeCommitVersion, new ArrayIterator(dehydratedStmObjects));
         assertTrue(result.success);
-        assertTrue(result.writeCount>0);
+        assertTrue(result.writeCount > 0);
     }
 
     public void writeConflicted(long startVersion, DehydratedStmObject... dehydratedObjects) {
-        long beforeCommitVersion = heap.getSnapshot().getVersion();
-        HeapCommitResult result = heap.write(startVersion, dehydratedObjects);
+        long beforeCommitVersion = heap.getActiveSnapshot().getVersion();
+        HeapCommitResult result = heap.commit(startVersion, dehydratedObjects);
         assertFalse(result.success);
-        assertEquals(beforeCommitVersion, heap.getSnapshot().getVersion());
+        assertEquals(beforeCommitVersion, heap.getActiveSnapshot().getVersion());
     }
 
     //================ read ===============================
 
 
     public void testRead_nonExistingHandle() {
-        DehydratedStmObject cell = heap.getSnapshot(1).read(1);
+        DehydratedStmObject cell = heap.getActiveSnapshot().read(1);
         assertNull(cell);
     }
 
@@ -57,7 +57,7 @@ public class GrowingHeapTest extends TestCase {
 
         assertHeapNull(initialVersion, handle);
         assertHeapContent(initialVersion + 1, content);
-        assertHeapContent(initialVersion + 2 + 1, content);
+        assertHeapContent(initialVersion + 2, content);
         assertHeapContent(initialVersion + 3, content);
     }
 
@@ -69,7 +69,7 @@ public class GrowingHeapTest extends TestCase {
         writeUnconflicted(content);
 
         assertHeapNull(initialVersion, handle);
-        assertHeapContent(initialVersion+1, content);
+        assertHeapContent(initialVersion + 1, content);
     }
 
     /*
@@ -94,7 +94,7 @@ public class GrowingHeapTest extends TestCase {
         DehydratedStmObject initialCell = new DummyDehydratedStmObject(handle);
         writeUnconflicted(initialCell);
 
-        long version = heap.getSnapshot().getVersion();
+        long version = heap.getActiveSnapshot().getVersion();
 
         DehydratedStmObject thatCell = new DummyDehydratedStmObject(handle);
         writeUnconflicted(thatCell);
@@ -148,7 +148,7 @@ public class GrowingHeapTest extends TestCase {
         DehydratedStmObject version3Content = new DummyDehydratedStmObject(handle);
 
         writeUnconflicted(version1Content);
-        writeUnconflicted( version2Content);
+        writeUnconflicted(version2Content);
         writeUnconflicted(version3Content);
 
         assertHeapNull(initialVersion, handle);
@@ -159,11 +159,11 @@ public class GrowingHeapTest extends TestCase {
 
     // ==========================================
 
-    public void testListenForEventThatHasNotYetOccurred(){
+    public void testListenForEventThatHasNotYetOccurred() {
 
     }
 
-    public void testListenForEventThatAlreadyHasOccurred(){
+    public void testListenForEventThatAlreadyHasOccurred() {
 
-    }        
+    }
 }

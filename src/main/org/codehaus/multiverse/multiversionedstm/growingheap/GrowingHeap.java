@@ -4,8 +4,8 @@ import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.Heap;
 import org.codehaus.multiverse.multiversionedstm.HeapCommitResult;
 import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
-import org.codehaus.multiverse.transaction.BadVersionException;
-import org.codehaus.multiverse.transaction.NoSuchObjectException;
+import org.codehaus.multiverse.core.BadVersionException;
+import org.codehaus.multiverse.core.NoSuchObjectException;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.Latch;
@@ -13,10 +13,7 @@ import org.codehaus.multiverse.util.latches.Latch;
 import static java.lang.String.format;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,9 +29,9 @@ public final class GrowingHeap implements Heap {
 
     private final AtomicLong nextFreeHandler = new AtomicLong();
 
-    private final ConcurrentMap<Long, VersionedLatchGroup> latchGroups = new ConcurrentHashMap<Long, VersionedLatchGroup>();
     private final AtomicReference<GrowingHeapSnapshot> currentSnapshotReference = new AtomicReference<GrowingHeapSnapshot>();
     private final GrowingHeapStatistics statistics = new GrowingHeapStatistics();
+    private final ListenerSupport listenerSupport = new DefaultListenerSupport();
 
     public GrowingHeap() {
         currentSnapshotReference.set(new GrowingHeapSnapshot());
@@ -48,7 +45,7 @@ public final class GrowingHeap implements Heap {
         return nextFreeHandler.incrementAndGet();
     }
 
-    public HeapSnapshot getSnapshot() {
+    public HeapSnapshot getActiveSnapshot() {
         return currentSnapshotReference.get();
     }
 
@@ -56,7 +53,15 @@ public final class GrowingHeap implements Heap {
         return currentSnapshotReference.get().getSnapshot(version);
     }
 
-    public HeapCommitResult write(long startVersion, DehydratedStmObject... changes) {
+    /**
+     * Commits the changes to the heap. This is a convenience method that allows for a varargs.
+     *
+     * @param startVersion
+     * @param changes
+     * @return
+     * @see #commit(long, org.codehaus.multiverse.util.iterators.ResetableIterator)
+     */
+    public HeapCommitResult commit(long startVersion, DehydratedStmObject... changes) {
         return commit(startVersion, new ArrayIterator<DehydratedStmObject>(changes));
     }
 
@@ -72,43 +77,45 @@ public final class GrowingHeap implements Heap {
     }
 
     public HeapCommitResult commit(long startVersion, ResetableIterator<DehydratedStmObject> changes) {
-        assert changes != null;
+        if (changes == null) throw new NullPointerException();
 
-        //todo: check if there are changes. If there are no changes.. you don't have to create a new snapshot.
-        if (!changes.hasNext())
+        statistics.commitNonBlockingStatistics.incEnterCount();
+
+        if (!changes.hasNext()) {
+            //if there are no changes to write to the heap, the transaction was readonly and we are done.
+            statistics.commitReadonlyCount.incrementAndGet();
             return HeapCommitResult.createReadOnly(currentSnapshotReference.get());
-
-        statistics.incCommitTriesCount();
+        }
 
         GrowingHeapSnapshot newSnapshot;
-        boolean someoneElseDidAnUpdate;
+        boolean anotherTransactionDidCommit;
         CreateNewResult createNewResult;
         do {
             GrowingHeapSnapshot currentSnapshot = currentSnapshotReference.get();
             createNewResult = currentSnapshot.createNew(changes, startVersion);
             if (!createNewResult.success) {
-                //a commit conflict was detected, so return -1 to indicate that
-                statistics.incCommitWriteConlictCount();
+                //if there was a write conflict, we can end by returning a writeconflict-result 
+                statistics.commitWriteConflictCount.incrementAndGet();
                 return HeapCommitResult.createWriteConflict();
             }
 
             newSnapshot = createNewResult.snapshot;
 
-            someoneElseDidAnUpdate = !currentSnapshotReference.compareAndSet(currentSnapshot, newSnapshot);
-            if (someoneElseDidAnUpdate) {
-                statistics.incCommitRetryCount();
+            anotherTransactionDidCommit = !currentSnapshotReference.compareAndSet(currentSnapshot, newSnapshot);
+            if (anotherTransactionDidCommit) {
+                //if another transaction also did a commit while we were creating a new snapshot, we
+                //have to try again. We need to reset the changes iterator for that.
+                statistics.commitNonBlockingStatistics.incFailureCount();
                 changes.reset();
             }
+        } while (anotherTransactionDidCommit);
 
-        } while (someoneElseDidAnUpdate);
-
-        newSnapshot.wakeupListeners();
-
-        statistics.incCommitSuccessCount();
-        statistics.incCommittedStoreCount(createNewResult.handles.size());
+        //the commit was a success, so lets update the state.
+        listenerSupport.wakeupListeners(newSnapshot.getVersion(), createNewResult.toHandlesArray());
+        statistics.commitSuccessCount.incrementAndGet();
+        statistics.committedStoreCount.addAndGet(createNewResult.handles.size());
         return HeapCommitResult.createSuccess(createNewResult.snapshot, createNewResult.handles.size());
     }
-
 
     public void listen(Latch latch, long[] handles, long transactionVersion) {
         if (latch == null) throw new NullPointerException();
@@ -120,53 +127,58 @@ public final class GrowingHeap implements Heap {
             return;
         }
 
-        GrowingHeapSnapshot currentSnapshot = currentSnapshotReference.get();
+        statistics.listenNonBlockingStatistics.incEnterCount();
 
-        //this is the snapshot where the latches get added to.
-        GrowingHeapSnapshot transactionSnapshot = currentSnapshot.getSpecificSnapshot(transactionVersion);
-        for (long handle : handles) {
-            long version = currentSnapshot.getVersion(handle);
-            if (version == -1) {
-                //the object doesn't exist anymore.
-                //lets open the latch so that is can be cleaned up.
-                latch.open();
-                throw new NoSuchObjectException(handle, currentSnapshot.version);
-            } else if (version > transactionVersion) {
-                //woohoo, we have an overwrite, the latch can be opened, and we can end this method.
-                //The event the transaction is waiting for already has occurred.
-                latch.open();
-                return;
-            } else {
-                //The event the transaction is waiting for, hasn't occurred yet. So lets register the latch.
-                //The latch is always registered on the Snapshot of the transaction version. 
-                VersionedLatchGroup latchGroup = transactionSnapshot.getOrCreateLatchGroup(handle);
-                latchGroup.addLatch(transactionVersion + 1, latch);
+        //the latch only needs to be registered once.
+        boolean listenersAdded = false;
+        boolean success;
+        do {
+            GrowingHeapSnapshot snapshot = currentSnapshotReference.get();
+            for (long handle : handles) {
+                if (hasUpdate(snapshot, handle, latch, transactionVersion))
+                    return;
+
+                //if the latch is opened
+                if (latch.isOpen())
+                    return;
             }
 
-            //if the latch is opened, we don't have to register the other handles and we can return
-            if (latch.isOpen())
-                return;
-        }
+            if (!listenersAdded) {
+                listenersAdded = true;
+                listenerSupport.addListener(transactionVersion + 1, handles, latch);
+            }
 
-        GrowingHeapSnapshot newSnapshot = currentSnapshotReference.get();
-        if (newSnapshot != currentSnapshot) {
-            //another transaction made an update. And chances are that it didn't wakeup the listener we just registered,
-            //so lets do that ourselfes to make sure that it has been done. If we don't do this, it could be that
-            //a latch is not openend, even though an interesting update has taken place. This is undesirable behavior.
-            //todo: this can be done on another thread.
-            newSnapshot.wakeupListeners();
+            success = snapshot == currentSnapshotReference.get();
+            if (!success)
+                statistics.listenNonBlockingStatistics.incFailureCount();
+        } while (!success);
+    }
+
+    private boolean hasUpdate(GrowingHeapSnapshot currentSnapshot, long handle, Latch latch, long transactionVersion) {
+        long version = currentSnapshot.readVersion(handle);
+        if (version == -1) {
+            //the object doesn't exist anymore.
+            //lets open the latch so that is can be cleaned up.
+            latch.open();
+            throw new NoSuchObjectException(handle, currentSnapshot.version);
+        } else if (version > transactionVersion) {
+            //woohoo, we have an overwrite, the latch can be opened, and we can end this method.
+            //The event the transaction is waiting for already has occurred.
+            latch.open();
+            return true;
         } else {
-            //no other transaction have made updates, so it is now the responsibility of an updating transaction
-            //to wake up the listener.
+            //The event the transaction is waiting for, hasn't occurred yet. So lets register the latch.
+            //The latch is always registered on the Snapshot of the transaction version.
+            return false;
         }
     }
 
-    static class CreateNewResult {
+    private static class CreateNewResult {
         GrowingHeapSnapshot snapshot;
         Set<Long> handles;
         boolean success;
 
-        public static CreateNewResult createSuccess(Set<Long> handles, GrowingHeapSnapshot snapshot) {
+        static CreateNewResult createSuccess(Set<Long> handles, GrowingHeapSnapshot snapshot) {
             CreateNewResult result = new CreateNewResult();
             result.handles = handles;
             result.snapshot = snapshot;
@@ -174,20 +186,34 @@ public final class GrowingHeap implements Heap {
             return result;
         }
 
-        public static CreateNewResult createWriteConflict() {
+        static CreateNewResult createWriteConflict() {
             CreateNewResult result = new CreateNewResult();
             result.success = false;
             return result;
         }
+
+        long[] toHandlesArray() {
+            int handlesLength = handles.size();
+            long[] result = new long[handlesLength];
+            Iterator<Long> it = handles.iterator();
+            for (int k = 0; k < handlesLength; k++) {
+                result[k] = it.next();
+            }
+
+            return result;
+        }
     }
 
-    //class is immutable.
+    /**
+     * GrowingHeap specific HeapSnapshot implementation.
+     * <p/>
+     * Class is completely immutable.
+     */
     private class GrowingHeapSnapshot implements HeapSnapshot {
         private final GrowingHeapSnapshot parentSnapshot;
         private final HeapTreeNode root;
         private final long version;
         private final long[] roots;
-
 
         GrowingHeapSnapshot() {
             version = 0;
@@ -253,10 +279,18 @@ public final class GrowingHeap implements Heap {
         }
 
         public DehydratedStmObject read(long handle) {
+            statistics.readCount.incrementAndGet();
+
+            if (handle == 0)
+                return null;
+
             return root == null ? null : root.find(handle).getContent();
         }
 
-        public long getVersion(long handle) {
+        public long readVersion(long handle) {
+            if (handle == 0)
+                return -1;
+
             return root == null ? -1 : root.find(handle).getVersion();
         }
 
@@ -312,14 +346,14 @@ public final class GrowingHeap implements Heap {
             if (startSnapshot == this)
                 return false;
 
-            long previousVersion = startSnapshot.getVersion(handle);
+            long previousVersion = startSnapshot.readVersion(handle);
 
             //if the object is new to the heap, there is no commit conflict.
             if (previousVersion == -1)
                 return false;
 
             //the version of object in the current snapshot.
-            long newVersion = getVersion(handle);
+            long newVersion = readVersion(handle);
 
             //the object was in the heap at some point in time and not visible from the current HeapSnapshot anymore,
             //because it has been removed, so there is a commit conflict
@@ -330,69 +364,6 @@ public final class GrowingHeap implements Heap {
             //if the version isn't the same, it means that it has been updated by a different transaction in the
             //mean while.
             return newVersion != previousVersion;
-        }
-
-
-        private VersionedLatchGroup getOrCreateLatchGroup(long handle) {
-            VersionedLatchGroup latchGroup = latchGroups.get(handle);
-            if (latchGroup == null) {
-                VersionedLatchGroup newLatchGroup = new VersionedLatchGroup(version);
-                latchGroup = latchGroups.putIfAbsent(handle, newLatchGroup);
-                if (latchGroup == null) {
-                    latchGroup = newLatchGroup;
-                }
-            }
-            return latchGroup;
-        }
-
-        /**
-         * Wakes up all listeners. This is called by a writing thread that has just updated the heap.
-         *
-         * @param handles
-         */
-        public void wakeupListenersByWriter(Iterator<Long> handles) {
-            for (; handles.hasNext();) {
-                //this is the address a commit has happened.
-                long handle = handles.next();
-
-                //so you need to wakup listeners at the specified handle. But which version(s)?
-                //do you need to check listeners on all version?
-                //at the moment this is required: it could be the there is a listener listening on version 6
-                //and also a listener for 7...8... etc..
-                //so if an update happens, they all need to be notified. And the big problem is that the complexity
-                //of this behavior is O(n) with n being the number of versions. The complexity should be reduced to
-                //O(c). The question is: how can this be done.. Is there some way to prevent checking the other
-                //versions. When a new snapshot is activated, can't it get hold of the listeners of the previous
-                //snapshot? If you have the guarantee that all listeners are attached to the current snapshot.. you
-                //don't need to look far.
-            }
-
-            //GrowingHeapSnapshot current = parentSnapshot;
-            //do {
-            //    for (Map.Entry<Long, LatchGroup> entry : parentSnapshot.latchGroups.entrySet()) {
-            //        long handle = entry.getKey();
-            //        long newestVersion = getVersion(handle);
-            //        if (newestVersion == -1) {
-            //            //todo
-            //            throw new RuntimeException();
-            //        } else if (newestVersion > parentSnapshot.version) {
-            //            LatchGroup latchGroup = entry.getValue();
-            //            latchGroup.open();
-            //            //parentSnapshot.latchGroups.remove(handle);
-            //        }
-            //    }
-            //
-            //    //if (current.version < transactionVersion)
-            //    //    return;
-            //
-            //    current = curret.parentSnapshot;
-            //} while (current != null);
-        }
-
-        public void wakeupListeners() {
-            for (Map.Entry<Long, VersionedLatchGroup> entry : latchGroups.entrySet()) {
-                entry.getValue().activateVersion(version);
-            }
         }
     }
 }
