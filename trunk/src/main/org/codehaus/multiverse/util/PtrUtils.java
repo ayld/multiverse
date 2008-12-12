@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.util;
 
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.transaction.NoSuchObjectException;
+import org.codehaus.multiverse.core.NoSuchObjectException;
 
 import static java.lang.String.format;
 

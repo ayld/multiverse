@@ -4,16 +4,17 @@ import org.codehaus.multiverse.util.IdentityHashSet;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.CompositeIterator;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * An {@link Iterator} that iterates over {@link StmObject}, including their references that
- * are loaded or set. References that are lazy loaded, are not traversed. It uses the
- * {@link StmObject#___directReferencedIterator()} for iteration.
+ * An {@link Iterator} that iterates over {@link StmObject}, including their loaded members. Members are not
+ * traversed if they are not loaded because we don't want to load very large object graphs. It uses the
+ * {@link StmObject#___loadedMembers()} for iteration.
  * <p/>
- * This iterator also gives the guarantee that each item is traversed only once.
+ * This iterator gives the guarantee that each item is returned only once.
  * <p/>
- * This iterator is protected against cycles, so nothing to worry about.
+ * This iterator is has protected against cycles, so for you don't need to worry about that.
  * <p/>
  * This iterator doesn't support removal.
  * <p/>
@@ -23,13 +24,14 @@ import java.util.*;
  */
 public final class StmObjectIterator implements Iterator<StmObject> {
 
-    //all dehydratedObjects that already have been returned with the next method.
+    //all StmObject that already are returned. This prevent multiple returns of the same item.
     private final IdentityHashSet<StmObject> touchedSet = new IdentityHashSet();
-    //all citizen objects that need to be traversed
-    private final IdentityHashSet<StmObject> iterateSet = new IdentityHashSet();
+    //all StmObjects which members need to be traversed.
+    private final IdentityHashSet<StmObject> todoMembers = new IdentityHashSet();
+
     private Iterator<StmObject> iterator;
 
-    private StmObject nextCitizen;
+    private StmObject next;
 
     public StmObjectIterator(Iterator<StmObject>... rootIterators) {
         if (rootIterators == null) throw new NullPointerException();
@@ -42,11 +44,11 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     }
 
     public boolean hasNext() {
-        if (nextCitizen != null)
+        if (next != null)
             return true;
 
         do {
-            if (findNextCitizenInCurrentIterator())
+            if (findNextInCurrentIterator())
                 return true;
         } while (findNextIterator());
 
@@ -59,24 +61,24 @@ public final class StmObjectIterator implements Iterator<StmObject> {
      * @return true if one if found, false otherwise.
      */
     private boolean findNextIterator() {
-        if (iterateSet.isEmpty())
+        if (todoMembers.isEmpty())
             return false;
 
-        iterator = removeRandomItemFromIteratorSet().___directReferencedIterator();
+        iterator = takeItemFromTodoMembers().___loadedMembers();
         return true;
     }
 
     /**
-     * Removes a random element from the iterator set.
+     * Takes an item from the todoMembers
      *
-     * @return the
+     * @return the taken item.
      * @throws NoSuchElementException if the iteratorSet is empty.
      */
-    private StmObject removeRandomItemFromIteratorSet() {
-        Iterator<StmObject> it = iterateSet.iterator();
-        StmObject citizen = it.next();
+    private StmObject takeItemFromTodoMembers() {
+        Iterator<StmObject> it = todoMembers.iterator();
+        StmObject result = it.next();
         it.remove();
-        return citizen;
+        return result;
     }
 
     /**
@@ -87,12 +89,12 @@ public final class StmObjectIterator implements Iterator<StmObject> {
      *
      * @return true if one if found, false otherwise.
      */
-    private boolean findNextCitizenInCurrentIterator() {
+    private boolean findNextInCurrentIterator() {
         while (iterator.hasNext()) {
-            StmObject citizen = iterator.next();
-            if (touchedSet.add(citizen)) {
-                iterateSet.add(citizen);
-                nextCitizen = citizen;
+            StmObject object = iterator.next();
+            if (touchedSet.add(object)) {
+                todoMembers.add(object);
+                next = object;
                 return true;
             }
         }
@@ -101,19 +103,27 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     }
 
     public StmObject next() {
-        if (nextCitizen != null || hasNext())
-            return returnNextCitizen();
+        if (hasNext())
+            return returnNext();
 
         throw new NoSuchElementException();
     }
 
-    private StmObject returnNextCitizen() {
-        StmObject result = nextCitizen;
-        nextCitizen = null;
+    /**
+     * Returns the next StmObject. This method requires that the next is set.
+     *
+     * @return the next StmObject. Value will always be no equal to null.
+     */
+    private StmObject returnNext() {
+        assert next != null;
+        StmObject result = next;
+        next = null;
         return result;
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @throws UnsupportedOperationException
      */
     public void remove() {

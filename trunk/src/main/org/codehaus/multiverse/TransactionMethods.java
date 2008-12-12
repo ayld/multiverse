@@ -1,6 +1,6 @@
 package org.codehaus.multiverse;
 
-import org.codehaus.multiverse.transaction.RetryException;
+import org.codehaus.multiverse.core.RetryException;
 
 /**
  *

@@ -1,8 +1,9 @@
 package org.codehaus.multiverse;
 
 import junit.framework.TestCase;
-import org.codehaus.multiverse.transaction.Transaction;
-import org.codehaus.multiverse.transaction.NoSuchObjectException;
+import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.core.NoSuchObjectException;
+import org.codehaus.multiverse.core.Stm;
 
 public abstract class AbstractStmTest<S extends Stm> extends TestCase {
 

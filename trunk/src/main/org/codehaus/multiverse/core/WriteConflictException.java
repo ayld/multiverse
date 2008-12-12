@@ -1,6 +1,6 @@
-package org.codehaus.multiverse.transaction;
+package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.StmException;
+import org.codehaus.multiverse.core.StmException;
 
 /**
  * An {@link StmException} that is thrown when a write conflict is found.

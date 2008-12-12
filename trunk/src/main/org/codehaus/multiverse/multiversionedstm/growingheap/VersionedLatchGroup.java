@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-public class VersionedLatchGroup {
+public final class VersionedLatchGroup {
 
     private final AtomicLong activeVersionReference;
     //in the future some kind of treemap could be used so to make it easier which versions are interesting.
@@ -147,16 +147,6 @@ public class VersionedLatchGroup {
 
                 latches.add(latch);
             }
-        }
-    }
-
-    private static class LatchNode {
-        final LatchNode prev;
-        final Latch latch;
-
-        private LatchNode(LatchNode prev, Latch latch) {
-            this.prev = prev;
-            this.latch = latch;
         }
     }
 }

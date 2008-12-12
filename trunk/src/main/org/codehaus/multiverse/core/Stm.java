@@ -1,6 +1,6 @@
-package org.codehaus.multiverse;
+package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.Transaction;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;

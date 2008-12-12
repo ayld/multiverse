@@ -2,9 +2,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
-import org.codehaus.multiverse.transaction.RetryException;
-import org.codehaus.multiverse.transaction.Transaction;
-import org.codehaus.multiverse.transaction.TransactionStatus;
+import org.codehaus.multiverse.core.RetryException;
 
 public class RetryTest extends AbstractMultiversionedStmTest {
 

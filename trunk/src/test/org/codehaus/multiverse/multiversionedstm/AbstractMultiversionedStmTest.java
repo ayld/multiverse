@@ -2,7 +2,7 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.AbstractTransactionTest;
 import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.Transaction;
 
 public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
     protected GrowingHeap heap;
@@ -35,7 +35,7 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     }
 
     public void assertActualVersion(long ptr, long expectedVersion) {
-        long foundVersion = heap.getSnapshot().getVersion(ptr);
+        long foundVersion = heap.getActiveSnapshot().readVersion(ptr);
         assertEquals(expectedVersion, foundVersion);
     }
 
@@ -44,15 +44,15 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     }
 
     public void assertCommitCount(long expected) {
-        assertEquals(expected, stm.getTransactionsCommitedCount());
+        assertEquals(expected, stm.getStatistics().getTransactionsCommitedCount());
     }
 
     public void assertStartedCount(long expected) {
-        assertEquals(expected, stm.getTransactionsStartedCount());
+        assertEquals(expected, stm.getStatistics().getTransactionsStartedCount());
     }
 
     public void assertAbortedCount(long expected) {
-        assertEquals(expected, stm.getTransactionsAbortedCount());
+        assertEquals(expected, stm.getStatistics().getTransactionsAbortedCount());
     }
 
     public void assertHasHandleAndTransaction(StmObject citizen, long expectedPtr, Transaction expectedTrans) {
@@ -84,7 +84,7 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
     public void assertHeapContainsNow(long handle, long expectedVersion, DehydratedStmObject expected) {
         assertEquals("Versions don't match. -1 indicates no cell with given address",
                 expectedVersion,
-                heap.getSnapshot().getVersion(handle));
+                heap.getActiveSnapshot().readVersion(handle));
         DehydratedStmObject found = heap.getSnapshot(expectedVersion).read(handle);
         assertEquals("Content doesn't match", expected, found);
     }

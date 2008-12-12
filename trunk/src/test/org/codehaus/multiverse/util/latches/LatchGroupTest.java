@@ -1,13 +1,10 @@
 package org.codehaus.multiverse.util.latches;
 
 import junit.framework.TestCase;
+import org.codehaus.multiverse.TestUtils;
 
 import static java.util.Arrays.asList;
 import java.util.HashSet;
-
-import org.codehaus.multiverse.util.latches.CheapLatch;
-import org.codehaus.multiverse.util.latches.Latch;
-import org.codehaus.multiverse.util.latches.LatchGroup;
 
 public class LatchGroupTest extends TestCase {
     private LatchGroup latchGroup;
@@ -19,10 +16,6 @@ public class LatchGroupTest extends TestCase {
 
     public void assertIsOpen(boolean open) {
         assertEquals(open, latchGroup.isOpen());
-    }
-
-    public void assertIsOpen(Latch latch, boolean isOpen) {
-        assertEquals(isOpen, latch.isOpen());
     }
 
     public void assertNoLatches() {
@@ -51,8 +44,8 @@ public class LatchGroupTest extends TestCase {
 
         assertIsOpen(true);
         assertNoLatches();
-        assertIsOpen(latch1, true);
-        assertIsOpen(latch2, true);
+        TestUtils.assertIsOpen(latch1, true);
+        TestUtils.assertIsOpen(latch2, true);
     }
 
     public void testAddOpenLatchToClosedLatchGroup() {
@@ -71,7 +64,7 @@ public class LatchGroupTest extends TestCase {
 
         assertIsOpen(true);
         assertNoLatches();
-        assertIsOpen(latch, true);
+        TestUtils.assertIsOpen(latch, true);
     }
 
     public void testAddOpenedLatchToOpenedLatchGroup() {
@@ -82,7 +75,7 @@ public class LatchGroupTest extends TestCase {
 
         assertIsOpen(true);
         assertNoLatches();
-        assertIsOpen(latch, true);
+        TestUtils.assertIsOpen(latch, true);
     }
 
     public void testClosedLatchToClosedLatchGroup() {
@@ -93,7 +86,7 @@ public class LatchGroupTest extends TestCase {
 
         assertIsOpen(false);
         assertLatches(latch1, latch2);
-        assertIsOpen(latch1, false);
-        assertIsOpen(latch2, false);
+        TestUtils.assertIsOpen(latch1, false);
+        TestUtils.assertIsOpen(latch2, false);
     }
 }

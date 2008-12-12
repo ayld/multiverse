@@ -1,14 +1,18 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.transaction.Transaction;
+import org.codehaus.multiverse.core.Transaction;
 
 import java.util.Iterator;
 
 
 /**
- * A DehydratedStmObject is the immutable result of the dehydration of an {@link StmObject}.
+ * A DehydratedStmObject is the immutable result of the dehydration of an {@link StmObject}. Each
+ * DehydratedStmObject should be completely immutable.
+ *
+ * By using polymorfism ( {@link #hydrate(Transaction)} different classes can be instantiated.
  *
  * @author Peter Veentjer.
+ * @see StmObject
  */
 public abstract class DehydratedStmObject {
 
@@ -18,27 +22,36 @@ public abstract class DehydratedStmObject {
         handle = 0;
     }
 
-    protected DehydratedStmObject(long handle) {
+    public DehydratedStmObject(long handle) {
         this.handle = handle;
     }
 
+    /**
+     * Returns the handle of the DehydratedStmObject
+     *
+     * @return the handle of the DehydratedStmObject.
+     * @see StmObject#___getHandle()
+     */
     public long getHandle() {
         return handle;
     }
 
     /**
-     * Returns an iterator containing all direct-handles to other HeapCells (so all objects that are directly
-     * reachble from this HeapCell).
+     * Returns an iterator containing all handles to the member {@link DehydratedStmObject}. It could be that the
+     * iterator contains the handle of the object itself. So if cycles become an issue, the caller should take
+     * care of this.
      *
-     * @return
+     * @return an iterator over all direct-handles.
+     * @see StmObject#___loadedMembers()
      */
-    public abstract Iterator<Long> getDirect();
+    public abstract Iterator<Long> members();
 
     /**
-     * Hydrates a HeapCell to the original Citizen. 
+     * Hydrates a HeapCell to a StmObject. This method is the inverse of {@link StmObject#___dehydrate()}.
      *
-     * @param transaction
-     * @return
+     * @param transaction the transaction the created StmObject is part of.
+     * @return the created StmObject.
+     * @see StmObject#___dehydrate()
      */
     public abstract StmObject hydrate(Transaction transaction);
 }

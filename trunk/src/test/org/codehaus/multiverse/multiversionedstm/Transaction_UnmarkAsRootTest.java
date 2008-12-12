@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.transaction.NoSuchObjectException;
+import org.codehaus.multiverse.core.NoSuchObjectException;
 
 public class Transaction_UnmarkAsRootTest extends AbstractMultiversionedStmTest {
 

@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.transaction;
+package org.codehaus.multiverse.core;
 
 /**
  * An enumaration of all states a {@link Transaction} can be in.

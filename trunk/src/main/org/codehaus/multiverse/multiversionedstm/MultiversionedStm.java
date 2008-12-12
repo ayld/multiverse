@@ -1,8 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.Stm;
+import org.codehaus.multiverse.core.Stm;
 import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
-import org.codehaus.multiverse.transaction.*;
+import org.codehaus.multiverse.core.*;
 import static org.codehaus.multiverse.util.PtrUtils.assertNotNull;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
@@ -13,21 +13,14 @@ import static java.lang.String.format;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * {@link Stm} implementation that uses multiversion concurrency control as concurrency control mechanism.
  */
 public final class MultiversionedStm implements Stm<MultiversionedStm.MultiversionedTransaction> {
 
-    //statistics.
-    private final AtomicLong transactionsStartedCount = new AtomicLong();
-    private final AtomicLong transactionsCommitedCount = new AtomicLong();
-    private final AtomicLong transactionsConflictedCount = new AtomicLong();
-    private final AtomicLong transactionsAbortedCount = new AtomicLong();
-    private final AtomicLong transactionsReadonlyCount = new AtomicLong();
-
     private final Heap heap;
+    private final MultiversionedStmStatistics statistics = new MultiversionedStmStatistics();
 
     public MultiversionedStm() {
         this(new GrowingHeap());
@@ -38,6 +31,20 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         this.heap = heap;
     }
 
+    /**
+     * Returns the MultiversionedStmStatistics this MultiversionedStm uses to store statistics.
+     *
+     * @return the MultiversionedStmStatistics  this MultiversionedStm  uses to store statistics.
+     */
+    public MultiversionedStmStatistics getStatistics() {
+        return statistics;
+    }
+
+    /**
+     * Returns the Heap this MultiversionedStm uses.
+     *
+     * @return the Heap this MultiversionedStm uses.
+     */
     public Heap getHeap() {
         return heap;
     }
@@ -48,56 +55,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
      * @return the current version of the heap.
      */
     public long getCurrentVersion() {
-        return heap.getSnapshot().getVersion();
+        return heap.getActiveSnapshot().getVersion();
     }
 
-    /**
-     * Returns the current number of active transactions (so are started, but have not committed, or rolled back). The value
-     * is a rough estimation. The returned value will always be larger or equal to zero.
-     *
-     * @return the number of active transactions.
-     */
-    public long getActiveCount() {
-        //since no locking is done, it could be that content are read from different points in time in the stm.
-        long count = getTransactionsStartedCount() - (getTransactionsCommitedCount() + getTransactionsAbortedCount());
-        return count < 0 ? 0 : count;
-    }
-
-    /**
-     * Returns the number of transactions that have aborted.
-     *
-     * @return the number of transactions that have started.
-     */
-    public long getTransactionsStartedCount() {
-        return transactionsStartedCount.longValue();
-    }
-
-    /**
-     * Returns the number of transactions that have committed, but were only readonly.
-     *
-     * @return the number of committed readonly transactions.
-     */
-    public long getTransactionsReadonlyCount() {
-        return transactionsReadonlyCount.longValue();
-    }
-
-    /**
-     * Returns the number of transactions that have committed.
-     *
-     * @return the number of transactions that have committed.
-     */
-    public long getTransactionsCommitedCount() {
-        return transactionsCommitedCount.longValue();
-    }
-
-    /**
-     * Returns the number of transactions that have aborted.
-     *
-     * @return the number of transactions that have aborted.
-     */
-    public long getTransactionsAbortedCount() {
-        return transactionsAbortedCount.longValue();
-    }
 
     public MultiversionedTransaction startTransaction() {
         return new MultiversionedTransaction();
@@ -117,16 +77,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         throw new RuntimeException();
     }
 
-    public String getStatistics() {
-        StringBuffer sb = new StringBuffer();
-        sb.append("stm.transaction.activecount: ").append(getActiveCount()).append("\n");
-        sb.append("stm.transaction.startedcount: ").append(getTransactionsStartedCount()).append("\n");
-        sb.append("stm.transaction.committedcount: ").append(getTransactionsCommitedCount()).append("\n");
-        sb.append("stm.transaction.abortedcount: ").append(getTransactionsAbortedCount()).append("\n");
-        sb.append("stm.transaction.readonlycount: ").append(getTransactionsReadonlyCount()).append("\n");
-        return sb.toString();
-    }
-
     public class MultiversionedTransaction implements Transaction {
 
         private volatile TransactionStatus status = TransactionStatus.active;
@@ -138,14 +88,14 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         private long writeCount = 0;
 
         public MultiversionedTransaction() {
-            snapshot = heap.getSnapshot();
-            transactionsStartedCount.incrementAndGet();
+            snapshot = heap.getActiveSnapshot();
+            statistics.transactionsStartedCount.incrementAndGet();
         }
 
         /**
          * Returns the number of writes done by this transaction.
          *
-         * @return
+         * @return the number of writes done by this transaction.
          */
         public long getWriteCount() {
             return writeCount;
@@ -155,7 +105,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
          * Returns the version of the transaction. This value is equal to the version of the heap when
          * the transaction began.
          *
-         * @return
+         * @return the version of the transacton.
          */
         public long getVersion() {
             return snapshot.getVersion();
@@ -283,14 +233,13 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
          * Dependencies of the object are not checked, on the object itself.
          *
          * @param object the StmObject to check.
-         * @throws org.codehaus.multiverse.transaction.BadTransactionException
+         * @throws org.codehaus.multiverse.core.BadTransactionException
          *          if there is a transaction conflict.
          */
         private void assertNoAftachConflict(StmObject object) {
             Transaction transaction = object.___getTransaction();
-            if (transaction != this && transaction != null) {
+            if (transaction != this && transaction != null)
                 throw createBadTransactionException(object);
-            }
         }
 
         private BadTransactionException createBadTransactionException(StmObject object) {
@@ -314,11 +263,10 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         private void attach(StmObject stmObject) {
             Transaction transaction = stmObject.___getTransaction();
             if (transaction == null) {
-                long ptr = heap.createHandle();
-                stmObject.___setHandle(ptr);
-                stmObject.___onAttach(this);
+                long handle = heap.createHandle();
+                stmObject.___onAttach(this, handle);
                 //todo: could this cause a concurrentmodificationexception?
-                newlybornObjects.put(ptr, stmObject);
+                newlybornObjects.put(handle, stmObject);
             } else if (transaction != this) {
                 throw createBadTransactionException(stmObject);
             }
@@ -357,14 +305,14 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             HeapCommitResult result = heap.commit(snapshot.getVersion(), new CommitIterator());
 
             if (result.success) {
-                transactionsCommitedCount.incrementAndGet();
+                statistics.transactionsCommitedCount.incrementAndGet();
 
                 if (result.writeCount == 0)
-                    transactionsReadonlyCount.incrementAndGet();
+                    statistics.transactionsReadonlyCount.incrementAndGet();
                 else
                     writeCount = result.writeCount;
             } else {
-                transactionsConflictedCount.incrementAndGet();
+                statistics.transactionsConflictedCount.incrementAndGet();
                 throw new WriteConflictException("Transaction is aborted because of a write conflict");
             }
         }
@@ -373,7 +321,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             switch (status) {
                 case active:
                     status = TransactionStatus.aborted;
-                    transactionsAbortedCount.incrementAndGet();
+                    statistics.transactionsAbortedCount.incrementAndGet();
                     break;
                 case committed:
                     throw new IllegalStateException();

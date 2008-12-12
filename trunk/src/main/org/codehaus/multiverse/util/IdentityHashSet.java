@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @author Peter Veentjer.
  */
-public final class IdentityHashSet<E> extends AbstractSet<E> {
+public final class IdentityHashSet<E> extends AbstractSet<E> implements Cloneable {
 
     // Dummy value to associate with an Object in the backing Map
     private static final Object PRESENT = new Object();
