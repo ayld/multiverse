@@ -9,11 +9,6 @@ that is the merged version of the two cells. Since there is no conflict on field
 
 - statisch about which classes/objects/fields has lead to a write conflict.
 
-- memory indication of numbers of cells and content of each cell.
-
-- improve concurrency: transaction.validate can be done under a readlock. the transaction.makePermanent can be
-executed under a writelock.
-
 -changes in arrays are not seen.
 
 - when an object is modified, just like in oracle, the row can be locked exclusive. At the moment nothing is locked,
@@ -30,10 +25,6 @@ it is read. A version with timeout configuration (no wait) could also be added.
 - instead of waiting for a commit to find out that the transaction can't be comitted, it could be done
 sooner. 
 
-- limit the size of the heap
-    -number of cells
-    -limit history length
-
 - readonly transactions: transactions that don't allow any writes. When to check it? On the commit? Or as soon
 as a write occurs.
 
@@ -45,46 +36,7 @@ be stacked).
 - optimization. The validate method of Transactionized could do duplicate work for a single commit, because this
 method can be called on the same method more than once if the root objects share objects (not uncommon).
 
-- observation: number of reads/writes to stm from transaction
-
 - add reason why a transaction is aborted
 
 DONE
-
-- 'condition' variables. When a transaction does a retry, the cells it has read must be monitored. As soon as
-the value of one of the cells changes, the transaction should be given a new try.
-
-- transaction that only have done a reads, should not increase the commit nr.
-    -all reads and writes should go through the transaction, not drectly to main memory because logging of
-    reads and writes is going to be easier to add.
-
-- hashset is replaced by an identifyhashset in the transaction of the multiversionedstm.
-
-- observation: number of created transactions, number of comitted transactions, number of failed transactions
-
-- retrieve the object based on a pointer. One of the problems is that within a single transaction, it should not
-be allowed that 2 instances of the same 'object' exist.
-
-- commit has to be threadsafe: or change (single thread) or read (multiple threads)
-
-- stm version of the wait notify mechamism.
-    -send an event when an update has been done to a specfic address
-
-- the queuetest shows to many consumes of the same message. This looks like a problem.
-
-- the stacktest shows that multiple consumes of same message (0). This looks like a problem. Perhaps this is causing
-the issue with the queuetest as well.
-    -vermoeden at the moment is dat het zit in de multiversionedcell
-
-- memory indication of number of cells
-
-- memory indication of number of cells and versions.
-
-- has the version to be increased after every commit? (even readonly commits).
-
-- numer of readonly transactions is very low
-    - transactions for stacks and queues that retry, are aborted. so the readolytransactioncount is not
-     increased
-
-- what happens when a fresh object is connected to an attached object. Is the fresh object also attached?
 
