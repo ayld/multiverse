@@ -1,13 +1,13 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 /**
- * A snapshot of a {@link Heap}. It provides a read consistent view over the heap. So even though the heap
+ * A snapshot of a {@link MultiversionedHeap}. It provides a read consistent view over the heap. So even though the heap
  * is modified by other transactions, these changes will not be visible in the snapshot. So isolation problems like
  * a dirty read, unrepeatable read, and phantom read are not allowed.
  *
  * @author Peter Veentjer.
  */
-public interface HeapSnapshot {
+public interface MultiversionedHeapSnapshot {
 
     /**
      * Reads the content at the specified handle. If no content is stored, null is returned. A null also

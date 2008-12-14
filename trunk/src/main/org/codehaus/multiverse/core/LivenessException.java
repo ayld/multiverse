@@ -1,6 +1,8 @@
 package org.codehaus.multiverse.core;
 
 /**
+ * A {@link StmException} that can be thrown when a liveness problem occurs like a livelock or a deadlock.
+ *
  * @author Peter Veentjer.
  */
 public class LivenessException extends StmException {

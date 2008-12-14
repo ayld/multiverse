@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.core.*;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 import static org.codehaus.multiverse.util.HandleUtils.assertNotNull;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
@@ -18,14 +18,14 @@ import java.util.concurrent.TimeoutException;
  */
 public final class MultiversionedStm implements Stm<MultiversionedStm.MultiversionedTransaction> {
 
-    private final Heap heap;
+    private final MultiversionedHeap heap;
     private final MultiversionedStmStatistics statistics = new MultiversionedStmStatistics();
 
     public MultiversionedStm() {
-        this(new GrowingHeap());
+        this(new GrowingMultiversionedHeap());
     }
 
-    public MultiversionedStm(Heap heap) {
+    public MultiversionedStm(MultiversionedHeap heap) {
         if (heap == null) throw new NullPointerException();
         this.heap = heap;
     }
@@ -44,7 +44,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
      *
      * @return the Heap this MultiversionedStm uses.
      */
-    public Heap getHeap() {
+    public MultiversionedHeap getHeap() {
         return heap;
     }
 
@@ -78,7 +78,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     public class MultiversionedTransaction implements Transaction {
 
         private volatile TransactionStatus status = TransactionStatus.active;
-        private final HeapSnapshot snapshot;
+        private final MultiversionedHeapSnapshot snapshot;
         private final Map<Long, StmObject> newlybornObjects = new HashMap<Long, StmObject>();
         private final Map<Long, StmObject> dehydratedObjects = new Hashtable<Long, StmObject>();
         private final Set<Long> detachedHandles = new HashSet<Long>();

@@ -1,10 +1,14 @@
 package org.codehaus.multiverse.util.iterators;
 
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * An {@link Iterator} that is a composition of other iterators.
+ *
+ * @author Peter Veentjer.
+ * @param <E>
+ */
 public final class CompositeIterator<E> implements Iterator<E> {
     private final Iterator<E>[] iterators;
     private Iterator<E> currentIterator;

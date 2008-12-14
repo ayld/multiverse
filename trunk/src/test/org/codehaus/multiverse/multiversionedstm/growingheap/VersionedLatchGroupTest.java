@@ -1,8 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
 import junit.framework.TestCase;
+import org.codehaus.multiverse.util.latches.CheapLatch;
 import org.codehaus.multiverse.util.latches.Latch;
-import org.codehaus.multiverse.util.latches.OpenLatch;
 import org.codehaus.multiverse.util.latches.StandardLatch;
 
 /**
@@ -46,7 +46,7 @@ public class VersionedLatchGroupTest extends TestCase {
     }
 
     public void testAddLatch_openLatch() {
-        Latch latch = OpenLatch.INSTANCE;
+        Latch latch = CheapLatch.OPEN_LATCH;
         latchGroup.addLatch(latchGroup.getActiveVersion() + 10, latch);
 
         assertIsOpen(latch);

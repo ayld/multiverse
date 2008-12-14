@@ -2,11 +2,11 @@ package org.codehaus.multiverse.core;
 
 
 /**
- * All operations done on the stm are always done through a transaction. A Transaction can be compared to a
+ * All operations done on the {@link Stm} are always done through a transaction. A Transaction can be compared to a
  * Hibernate Session.
  * <p/>
  * A Transaction is not threadsafe and should not be shared between threads, unless it is safely moved from
- * one thread to another. todo: think about the future need for a threadlocal to store the transaction
+ * one thread to another.
  *
  * @author Peter Veentjer
  */
@@ -33,7 +33,8 @@ public interface Transaction {
     long attachAsRoot(Object root);
 
     /**
-     * Reads an object from the stm using this Transaction. Only if the handle is 0, null is returned.
+     * Reads an object from the stm using this Transaction. Only if the handle is 0, null is returned. The same
+     * instance will always be returned.
      * <p/>
      * This method is not threadsafe.
      *
@@ -42,18 +43,6 @@ public interface Transaction {
      * @throws NoSuchObjectException if the object with the given handle doesn't exist.
      */
     Object read(long handle);
-
-    /**
-     * todo
-     *
-     * @param handle the pointer of the object to remove.
-     */
-    void unmarkAsRoot(long handle);
-
-    /**
-     * todo
-     */
-    void unmarkAsRoot(Object root);
 
     /**
      * Returns the status of this Transaction
@@ -65,8 +54,8 @@ public interface Transaction {
     TransactionStatus getStatus();
 
     /**
-     * Commits the changes to STM. Multiple commits are ignored. If an exception is thrown during commit,
-     * the transaction will be aborted automatically.
+     * Commits the changes to STM. If the transaction already is committed, the call is ignored. If an exception
+     * is thrown during commit, the transaction will be aborted automatically.
      * <p/>
      * This method is not threadsafe.
      *

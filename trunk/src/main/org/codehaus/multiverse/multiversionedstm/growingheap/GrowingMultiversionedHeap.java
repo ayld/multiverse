@@ -12,26 +12,23 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Default {@link Heap} implementation that is able to grow.
- * <p/>
- * idea: when a write is done, you know which overwrites there are. With this information you know which listeners
- * to wakeup.
+ * Default {@link MultiversionedHeap} implementation that is able to grow.
  *
  * @author Peter Veentjer.
  */
-public final class GrowingHeap implements Heap {
+public final class GrowingMultiversionedHeap implements MultiversionedHeap {
 
     private final AtomicLong nextFreeHandler = new AtomicLong();
 
-    private final HeapSnapshotChain<GrowingHeapSnapshot> snapshotChain =
-            new HeapSnapshotChain<GrowingHeapSnapshot>(new GrowingHeapSnapshot());
-    private final GrowingHeapStatistics statistics = new GrowingHeapStatistics();
+    private final HeapSnapshotChain<MultiversionedHeapSnapshotImpl> snapshotChain =
+            new HeapSnapshotChain<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
+    private final GrowingMultiversionedHeapStatistics statistics = new GrowingMultiversionedHeapStatistics();
     private final ListenerSupport listenerSupport = new DefaultListenerSupport();
 
-    public GrowingHeap() {
+    public GrowingMultiversionedHeap() {
     }
 
-    public GrowingHeapStatistics getStatistics() {
+    public GrowingMultiversionedHeapStatistics getStatistics() {
         return statistics;
     }
 
@@ -39,11 +36,11 @@ public final class GrowingHeap implements Heap {
         return nextFreeHandler.incrementAndGet();
     }
 
-    public HeapSnapshot getActiveSnapshot() {
+    public MultiversionedHeapSnapshot getActiveSnapshot() {
         return snapshotChain.getHead();
     }
 
-    public HeapSnapshot getSnapshot(long version) {
+    public MultiversionedHeapSnapshot getSnapshot(long version) {
         return snapshotChain.getSnapshot(version);
     }
 
@@ -74,11 +71,11 @@ public final class GrowingHeap implements Heap {
             return HeapCommitResult.createReadOnly(snapshotChain.getHead());
         }
 
-        GrowingHeapSnapshot newSnapshot;
+        MultiversionedHeapSnapshotImpl newSnapshot;
         boolean anotherTransactionDidCommit;
         CreateNewResult createNewResult;
         do {
-            GrowingHeapSnapshot currentSnapshot = snapshotChain.getHead();
+            MultiversionedHeapSnapshotImpl currentSnapshot = snapshotChain.getHead();
             createNewResult = currentSnapshot.createNew(changes, startVersion);
             if (!createNewResult.success) {
                 //if there was a write conflict, we can end by returning a writeconflict-result 
@@ -120,7 +117,7 @@ public final class GrowingHeap implements Heap {
         boolean listenersAdded = false;
         boolean success;
         do {
-            GrowingHeapSnapshot snapshot = snapshotChain.getHead();
+            MultiversionedHeapSnapshotImpl snapshot = snapshotChain.getHead();
             for (long handle : handles) {
                 if (hasUpdate(snapshot, handle, latch, transactionVersion))
                     return;
@@ -141,7 +138,7 @@ public final class GrowingHeap implements Heap {
         } while (!success);
     }
 
-    private boolean hasUpdate(GrowingHeapSnapshot currentSnapshot, long handle, Latch latch, long transactionVersion) {
+    private boolean hasUpdate(MultiversionedHeapSnapshotImpl currentSnapshot, long handle, Latch latch, long transactionVersion) {
         long version = currentSnapshot.readVersion(handle);
         if (version == -1) {
             //the object doesn't exist anymore.
@@ -161,11 +158,11 @@ public final class GrowingHeap implements Heap {
     }
 
     private static class CreateNewResult {
-        GrowingHeapSnapshot snapshot;
+        MultiversionedHeapSnapshotImpl snapshot;
         Set<Long> handles;
         boolean success;
 
-        static CreateNewResult createSuccess(Set<Long> handles, GrowingHeapSnapshot snapshot) {
+        static CreateNewResult createSuccess(Set<Long> handles, MultiversionedHeapSnapshotImpl snapshot) {
             CreateNewResult result = new CreateNewResult();
             result.handles = handles;
             result.snapshot = snapshot;
@@ -196,16 +193,16 @@ public final class GrowingHeap implements Heap {
      * <p/>
      * Class is completely immutable.
      */
-    private class GrowingHeapSnapshot implements HeapSnapshot {
+    private class MultiversionedHeapSnapshotImpl implements MultiversionedHeapSnapshot {
         private final HeapTreeNode root;
         private final long version;
 
-        GrowingHeapSnapshot() {
+        MultiversionedHeapSnapshotImpl() {
             version = 0;
             root = null;
         }
 
-        GrowingHeapSnapshot(HeapTreeNode root, long version) {
+        MultiversionedHeapSnapshotImpl(HeapTreeNode root, long version) {
             this.root = root;
             this.version = version;
         }
@@ -250,7 +247,7 @@ public final class GrowingHeap implements Heap {
             HeapTreeNode newRoot = root;
             //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
             //loaded from this version.
-            GrowingHeapSnapshot startSnapshot = snapshotChain.getSpecificSnapshot(startVersion);
+            MultiversionedHeapSnapshotImpl startSnapshot = snapshotChain.getSpecificSnapshot(startVersion);
             Set<Long> handles = new HashSet<Long>();
 
             for (; changes.hasNext();) {
@@ -269,7 +266,7 @@ public final class GrowingHeap implements Heap {
                     newRoot = newRoot.createNew(stmObject, commitVersion);
             }
 
-            GrowingHeapSnapshot newSnapshot = new GrowingHeapSnapshot(newRoot, commitVersion);
+            MultiversionedHeapSnapshotImpl newSnapshot = new MultiversionedHeapSnapshotImpl(newRoot, commitVersion);
             return CreateNewResult.createSuccess(handles, newSnapshot);
         }
 
@@ -280,7 +277,7 @@ public final class GrowingHeap implements Heap {
          * @param startSnapshot the Snapshot of the Heap when the transaction that wants to write
          * @return true if there was a write conflict, false otherwise.
          */
-        private boolean hasWriteConflict(long handle, GrowingHeapSnapshot startSnapshot) {
+        private boolean hasWriteConflict(long handle, MultiversionedHeapSnapshotImpl startSnapshot) {
             //if the current snapshot is the same as the startSnapshot, other transactions didn't update the heap.
             //so we know that there is no commit conflict. Further checking is not needed.
             if (startSnapshot == this)
@@ -295,7 +292,7 @@ public final class GrowingHeap implements Heap {
             //the version of object in the current snapshot.
             long newVersion = readVersion(handle);
 
-            //the object was in the heap at some point in time and not visible from the current HeapSnapshot anymore,
+            //the object was in the heap at some point in time and not visible from the current MultiversionedHeapSnapshot anymore,
             //because it has been removed, so there is a commit conflict
             if (newVersion == -1)
                 return true;

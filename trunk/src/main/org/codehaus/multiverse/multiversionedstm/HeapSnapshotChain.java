@@ -8,10 +8,30 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public final class HeapSnapshotChain<H extends HeapSnapshot> {
+/**
+ * A an object that is responsible for maintaining the chain of HeapSnapshots used. Every time a commit is done,
+ * a new HeapSnapshot is created and stored in this HeapSnapshotChain.
+ * <p/>
+ * Garbage collection:
+ * As soon as a HeapSnapshot isn't used anymore, it will be garbage collected (except the first). Each HeapSnapshot
+ * is wrapped in a WeakReference, so that the garbage collector can clean up unused HeapSnapshots.
+ * <p/>
+ * Non Blocking:
+ * This HeapSnapshotChain has a non blocking add {@link #compareAndAdd(MultiversionedHeapSnapshot , MultiversionedHeapSnapshot)}.
+ *
+ * @author Peter Veentjer
+ * @param <H>
+ */
+public final class HeapSnapshotChain<H extends MultiversionedHeapSnapshot> {
 
     private final AtomicReference<Node> headReference = new AtomicReference<Node>();
 
+    /**
+     * Creates a new HeapSnapshotChain .
+     *
+     * @param heapSnapshot the initial HeapSnapshot.
+     * @throws NullPointerException if heapSnapshot is null.
+     */
     public HeapSnapshotChain(H heapSnapshot) {
         if (headReference == null) throw new NullPointerException();
         headReference.set(new Node(heapSnapshot, null));
@@ -19,25 +39,46 @@ public final class HeapSnapshotChain<H extends HeapSnapshot> {
         new PrinterThread().start();
     }
 
-    public boolean compareAndAdd(H expected, H added) {
-        if (expected == null || added == null) throw new NullPointerException();
-        if (added.getVersion() <= expected.getVersion())
+    /**
+     * Adds the newSnapshot to this HeapSnapshotChain. This call is non blocking, so the expectedSnapshot
+     * is needed as well, to see if there was a failure while adding.
+     *
+     * @param expectedSnapshot the HeapSnapshot we expected to be in place.
+     * @param newSnapshot      the HeapSnapshot to add.
+     * @return true if the HeapSnapshot  was added successfully, false otherwise.
+     * @throws NullPointerException     if expected or added is null.
+     * @throws IllegalArgumentException if the version of the added is not larger than the version of the expected.
+     */
+    public boolean compareAndAdd(H expectedSnapshot, H newSnapshot) {
+        if (expectedSnapshot == null || newSnapshot == null) throw new NullPointerException();
+        if (newSnapshot.getVersion() <= expectedSnapshot.getVersion())
             throw new IllegalArgumentException();
 
         Node oldHead = headReference.get();
-        if (oldHead.strongReferenceToSnapshot != expected)
+        if (oldHead.strongSnapshotReference != expectedSnapshot)
             return false;
 
-        Node newHead = new Node(added, oldHead);
+        Node newHead = new Node(newSnapshot, oldHead);
         if (!headReference.compareAndSet(oldHead, newHead))
             return false;
 
-        oldHead.strongReferenceToSnapshot = null;
+        oldHead.strongSnapshotReference = null;
         return true;
     }
 
+    /**
+     * Gets the head HeapSnapshot. This reflects the most up to date 'reality'.
+     *
+     * @return the head Snapshot. The returned value will never be null. Value could be stale as soon as
+     *         it is returned.
+     */
     public H getHead() {
-        return headReference.get().weakReferenceToSnapshot.get();
+        //needs to be done in a loop because a new head could be placed, and the MultiversionedHeapSnapshot is garbage collected.
+        while (true) {
+            H snapshot = headReference.get().weakSnapshotReference.get();
+            if (snapshot != null)
+                return snapshot;
+        }
     }
 
     /**
@@ -52,7 +93,7 @@ public final class HeapSnapshotChain<H extends HeapSnapshot> {
         Node node = headReference.get();
         long oldest = -1;
         do {
-            H snapshot = node.weakReferenceToSnapshot.get();
+            H snapshot = node.weakSnapshotReference.get();
             if (snapshot != null) {
                 oldest = snapshot.getVersion();
 
@@ -69,8 +110,6 @@ public final class HeapSnapshotChain<H extends HeapSnapshot> {
 
     /**
      * Get the Snapshot with the specific version.
-     * <p/>
-     * todo: what to do if the snapshots with version doesn't exist anymore.
      *
      * @param version the specific version of the HeapSnapshot to look for.
      * @return the found HeapSnapshot. The value will always be not null
@@ -83,11 +122,17 @@ public final class HeapSnapshotChain<H extends HeapSnapshot> {
         return snapshot;
     }
 
+    /**
+     * Returns the number of alive Snapshots. Since unused HeapSnapshots are garbage collected, the count
+     * should remain a lot smaller than the total number of transactions.
+     *
+     * @return the number of alive Snapshots.
+     */
     public int getSnapshotAliveCount() {
         int result = 0;
         Node node = headReference.get();
         do {
-            if (node.weakReferenceToSnapshot.get() != null)
+            if (node.weakSnapshotReference.get() != null)
                 result++;
             node = node.next;
         } while (node != null);
@@ -96,14 +141,14 @@ public final class HeapSnapshotChain<H extends HeapSnapshot> {
     }
 
     class Node {
-        final WeakReference<H> weakReferenceToSnapshot;
-        volatile H strongReferenceToSnapshot;
+        final WeakReference<H> weakSnapshotReference;
+        volatile H strongSnapshotReference;
         final Node next;
 
         Node(H snapshot, Node next) {
-            this.weakReferenceToSnapshot = new WeakReference(snapshot, queue);
+            this.strongSnapshotReference = snapshot;
+            this.weakSnapshotReference = new WeakReference(snapshot, queue);
             this.next = next;
-            this.strongReferenceToSnapshot = snapshot;
         }
     }
 

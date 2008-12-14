@@ -4,26 +4,26 @@ import junit.framework.TestCase;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.HeapCommitResult;
-import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
-public class GrowingHeapTest extends TestCase {
-    private GrowingHeap heap;
+public class GrowingMultiversionedHeapTest extends TestCase {
+    private GrowingMultiversionedHeap heap;
     private long initialVersion;
 
     public void setUp() {
-        heap = new GrowingHeap();
+        heap = new GrowingMultiversionedHeap();
         initialVersion = heap.getActiveSnapshot().getVersion();
     }
 
     public void assertHeapContent(long version, DehydratedStmObject expected) {
-        HeapSnapshot snapshot = heap.getSnapshot(version);
+        MultiversionedHeapSnapshot snapshot = heap.getSnapshot(version);
         DehydratedStmObject found = snapshot.read(expected.getHandle());
         assertSame(expected, found);
     }
 
     public void assertHeapNull(long version, long handle) {
-        HeapSnapshot snapshot = heap.getSnapshot(version);
+        MultiversionedHeapSnapshot snapshot = heap.getSnapshot(version);
         DehydratedStmObject found = snapshot.read(handle);
         assertNull(found);
     }
