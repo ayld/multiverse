@@ -1,9 +1,9 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import static org.codehaus.multiverse.TransactionMethods.retry;
+import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.core.Transaction;
+import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
 import java.util.Iterator;

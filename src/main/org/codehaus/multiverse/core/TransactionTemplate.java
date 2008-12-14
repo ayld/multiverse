@@ -1,13 +1,10 @@
 package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.core.RetryException;
-import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.core.WriteConflictException;
-import org.codehaus.multiverse.core.Stm;
-
 /**
  * The TransactionTemplate  is a template that contains all plumbing logic for the start, retry etc of
  * Transactions. It could be compared to one of the Spring templates like the JdbcTemplate.
+ * <p/>
+ * todo: protection against livelock
  *
  * @author Peter Veentjer.
  */
@@ -32,18 +29,24 @@ public abstract class TransactionTemplate<E> {
             Transaction predecessor = null;
             E result = null;
             do {
-                Transaction transaction = predecessor == null ? stm.startTransaction() : stm.startRetriedTransaction(predecessor);
+                Transaction transaction = createTransaction(predecessor);
+
                 try {
                     predecessor = null;
                     result = execute(transaction);
                     transaction.commit();
                     success = true;
-                } catch (RetryException ex) {
+                } catch (RetryError ex) {
                     //System.out.println(Thread.currentThread() + " retried");
                     transaction.abort();
                     predecessor = transaction;
                 } catch (WriteConflictException ex) {
+
+                } catch (RuntimeException ex) {
+                    transaction.abort();
+                    throw ex;
                 } catch (Exception ex) {
+                    transaction.abort();
                     throw new RuntimeException(ex);
                 }
             } while (!success);
@@ -53,5 +56,12 @@ public abstract class TransactionTemplate<E> {
             Thread.interrupted();
             throw new RuntimeException(ex);
         }
+    }
+
+    private Transaction createTransaction(Transaction predecessor) throws InterruptedException {
+        if (predecessor == null)
+            return stm.startTransaction();
+        else
+            return stm.startRetriedTransaction(predecessor);
     }
 }

@@ -8,8 +8,8 @@ import java.util.Iterator;
 /**
  * A DehydratedStmObject is the immutable result of the dehydration of an {@link StmObject}. Each
  * DehydratedStmObject should be completely immutable.
- *
- * By using polymorfism ( {@link #hydrate(Transaction)} different classes can be instantiated.
+ * <p/>
+ * By using polymorfism, ( {@link #hydrate(Transaction)} different classes can be instantiated.
  *
  * @author Peter Veentjer.
  * @see StmObject
@@ -18,11 +18,8 @@ public abstract class DehydratedStmObject {
 
     private final long handle;
 
-    public DehydratedStmObject(){
-        handle = 0;
-    }
-
     public DehydratedStmObject(long handle) {
+        assert handle != 0;
         this.handle = handle;
     }
 

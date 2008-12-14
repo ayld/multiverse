@@ -1,7 +1,5 @@
 package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.core.Transaction;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -36,7 +34,7 @@ public interface Stm<T extends Transaction> {
      * @throws InterruptedException if the thread is interrupted.
      * @throws NullPointerException if predecessor is null.
      */
-    T startRetriedTransaction(Transaction predecessor) throws InterruptedException;
+    T startRetriedTransaction(T predecessor) throws InterruptedException;
 
     /**
      * Starts a new Transaction as soon as the reality the precessor thread saw has changed, or blocks of no
@@ -52,5 +50,5 @@ public interface Stm<T extends Transaction> {
      * @throws TimeoutException     if a timeout occurred.
      * @throws NullPointerException if predecessor or unit is null.
      */
-    T tryStartRetriedTransaction(Transaction predecessor, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
+    T tryStartRetriedTransaction(T predecessor, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException;
 }

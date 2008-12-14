@@ -1,9 +1,9 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
+import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.util.PtrUtils;
+import org.codehaus.multiverse.util.HandleUtils;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
@@ -43,8 +43,7 @@ public class Person implements StmObject {
     public Person getParent() {
         //GENERATED
         if (!parent_localized) {
-            long parentPtr = initialDehydratedPerson.parentPtr;
-            parent = parentPtr == 0 ? null : (Person) transaction.read(parentPtr);
+            parent = (Person) transaction.read(initialDehydratedPerson.parentPtr);
             parent_localized = true;
         }
 
@@ -131,7 +130,7 @@ public class Person implements StmObject {
             super(person.___getHandle());
             this.age = person.age;
             this.name = person.name;
-            this.parentPtr = PtrUtils.getHandle(person.getParent());
+            this.parentPtr = HandleUtils.getHandle(person.getParent());
         }
 
         public Iterator<Long> members() {

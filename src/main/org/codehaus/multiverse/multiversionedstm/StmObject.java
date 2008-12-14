@@ -8,7 +8,7 @@ import java.util.Iterator;
  * Each persistant object that wants to live in the {@link MultiversionedStm} needs to implement this interface.
  * In the end some kind of bytecode instrumentation can add this interface and implement the methods automatically
  * on certain pojo's.
- *
+ * <p/>
  * The reason that all methods have such a strange prefix, is that normal pojo's will be instrumented so that they
  * implement this interface. The prefix prevents name clashes.
  *
@@ -18,13 +18,11 @@ public interface StmObject {
 
     /**
      * Attaches the StmObject to a transaction. As soon as an object is attached to a transaction, a handle
-     * will be assigned to it.
-     *
-     * todo: what to do if the object already is attached to another transaction.
-     * todo: what to do if the handle is 0 (so resembles a null).
+     * will be assigned to it. No checks are done if the object already is connected to another transaction
+     * or if the handle it set. It is up the the stm implementation to deal with this.
      *
      * @param transaction the transaction this StmObject attaches to. The value should not be null.
-     * @param handle the handle of the StmObject.
+     * @param handle      the handle of the StmObject.
      */
     void ___onAttach(Transaction transaction, long handle);
 
@@ -41,7 +39,7 @@ public interface StmObject {
      * Returns an Iterator over all members. If a member is not loaded (lazy) it is not iterated over.
      * This is because we don't want to load complete objects graphs in heap.
      *
-     * @return  the iterator over all direct referenced citizens.
+     * @return the iterator over all direct referenced citizens.
      */
     Iterator<StmObject> ___loadedMembers();
 

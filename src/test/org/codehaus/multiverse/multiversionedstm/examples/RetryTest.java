@@ -1,8 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.multiversionedstm.examples.Stack;
+import org.codehaus.multiverse.core.RetryError;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
-import org.codehaus.multiverse.core.RetryException;
 
 public class RetryTest extends AbstractMultiversionedStmTest {
 
@@ -15,7 +14,7 @@ public class RetryTest extends AbstractMultiversionedStmTest {
         try {
             stack.pop();
             fail();
-        } catch (RetryException ex) {
+        } catch (RetryError ex) {
         }
 
         assertTransactionIsActive();
