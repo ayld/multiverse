@@ -15,6 +15,7 @@
     <property name="target" value="target"/>
     <property name="classes.main" value="${target}/classes.main"/>
     <property name="classes.test" value="${target}/classes.test"/>
+    <property name="javadoc" value="${target}/javadoc"/>
     <property name="unitreports" value="${target}/junit-reports"/>
 
     <path id="classpath.provided">
@@ -89,6 +90,25 @@
             description="Compiles all the sources"
             depends="compile.main, compile.test"/>
 
+    <target name="javadoc"
+            description="Generates the Javadoc"
+            depends="compile.main">
+
+        <mkdir dir="${javadoc}"/>
+
+        <javadoc packagenames="org.codehaus.multiverse.*"
+                 sourcepath="${src.main}"
+                 defaultexcludes="yes"
+                 destdir="${javadoc}"
+                 author="true"
+                 version="true"
+                 use="true"
+                 windowtitle="Multiverse API">
+            <doctitle><![CDATA[<h1>Multiverse</h1>]]></doctitle>
+            <tag name="todo" scope="all" description="To do:"/>
+        </javadoc>
+    </target>
+
     <target name="jar"
             depends="compile.main"
             description="Builds the jar without including dependant jars">
@@ -123,6 +143,6 @@
 
     <target name="dist"
             description="Builds all the binaries from scratch"
-            depends="clean, compile.main, test, jar"/>
+            depends="clean, compile.main, javadoc, test, jar"/>
 
 </project>

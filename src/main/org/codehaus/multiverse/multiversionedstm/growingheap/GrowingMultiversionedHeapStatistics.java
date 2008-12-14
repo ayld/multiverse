@@ -5,7 +5,7 @@ import org.codehaus.multiverse.util.NonBlockingStatistics;
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
 
-public final class GrowingHeapStatistics {
+public final class GrowingMultiversionedHeapStatistics {
 
     //the total number of commits that have been attempted on this heap.
     //the total number of retries that were needed to do a commit because of the non blocking approach this
@@ -28,7 +28,7 @@ public final class GrowingHeapStatistics {
     public void renderAsString(StringBuffer sb) {
         sb.append(format("heap.commit.readonly %s\n", commitReadonlyCount.longValue()));
         sb.append(format("heap.commit.conflicts %s\n", commitWriteConflictCount.longValue()));
-        sb.append(format("heap.commit.succeeded %s\n", commitSuccessCount.longValue()));                
+        sb.append(format("heap.commit.succeeded %s\n", commitSuccessCount.longValue()));
         commitNonBlockingStatistics.renderAsString(sb);
         listenNonBlockingStatistics.renderAsString(sb);
         sb.append(format("heap.reads %s\n", readCount));

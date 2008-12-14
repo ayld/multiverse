@@ -70,9 +70,9 @@ public interface StmObject {
 
     /**
      * Checks if this StmObject needs to be written to heap when the transaction commits. Changes in
-     * StmObjects that can be reached from this StmObject don't matter.
+     * StmObjects that can be reached from this StmObject don't matter. A fresh StmObject is dirty by default.
      *
-     * @return true if this StmObject is dirty (so has changes).
+     * @return true if this StmObject is dirty (so has changes), false otherwise.
      */
     boolean ___isDirty();
 }

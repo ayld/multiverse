@@ -1,7 +1,5 @@
 package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.core.StmException;
-
 import static java.lang.String.format;
 
 /**
@@ -10,19 +8,20 @@ import static java.lang.String.format;
  *
  * @author Peter Veentjer.
  */
-public class BadTransactionException extends StmException{
+public class BadTransactionException extends StmException {
 
-    public static BadTransactionException createAttachedToDifferentTransaction(Object item){
+    public static BadTransactionException createAttachedToDifferentTransaction(Object item) {
         return new BadTransactionException(format("%s is attached to a different Transaction", item));
     }
 
-    public static BadTransactionException createNoTransaction(Object item){
+    public static BadTransactionException createNoTransaction(Object item) {
         return new BadTransactionException(format("%s is not attached to a Transaction", item));
     }
 
-    public BadTransactionException(){}
+    public BadTransactionException() {
+    }
 
-    public BadTransactionException(String msg){
+    public BadTransactionException(String msg) {
         super(msg);
     }
 }

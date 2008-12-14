@@ -1,7 +1,5 @@
 package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.core.StmException;
-
 import static java.lang.String.format;
 
 /**

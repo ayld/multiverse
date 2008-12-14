@@ -1,24 +1,33 @@
 package org.codehaus.multiverse.util.latches;
 
-import org.codehaus.multiverse.util.latches.Latch;
-
-import java.util.concurrent.TimeUnit;
 import static java.lang.String.format;
+import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link Latch} based on the intrinsic lock. It can't do any timed waits.
+ * A {@link Latch} based on the intrinsic lock and uses the minimal amount of resources. It uses the CheapLatch object
+ * itself for the monitor lock. It can't do any timed waits.
  *
  * @author Peter Veentjer.
  */
 public final class CheapLatch implements Latch {
 
+    public final static CheapLatch OPEN_LATCH = new CheapLatch(true);
+
     private volatile boolean isOpen;
 
-    public CheapLatch(){
+    /**
+     * Creates a new closed CheapLatch.
+     */
+    public CheapLatch() {
         this(false);
     }
 
-    public CheapLatch(boolean isOpen){
+    /**
+     * Creates a new CheapLatch.
+     *
+     * @param isOpen true if the latch already is open, false if the latch is closed.
+     */
+    public CheapLatch(boolean isOpen) {
         this.isOpen = isOpen;
     }
 
@@ -44,6 +53,8 @@ public final class CheapLatch implements Latch {
 
     /**
      * This operation is not supported on the CheapLatch.
+     *
+     * @throws UnsupportedOperationException because timed waits are not supported by this CheapLatch.
      */
     public void tryAwait(long timeout, TimeUnit unit) throws InterruptedException {
         throw new UnsupportedOperationException();
@@ -54,7 +65,7 @@ public final class CheapLatch implements Latch {
     }
 
     @Override
-    public String toString(){
-        return format("CheapLatch(open=%s)",isOpen);
+    public String toString() {
+        return format("CheapLatch(open=%s)", isOpen);
     }
 }

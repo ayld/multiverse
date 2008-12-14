@@ -1,18 +1,16 @@
 package org.codehaus.multiverse.util.iterators;
 
-import org.codehaus.multiverse.util.iterators.ResetableIterator;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A {@link Iterator} that iterates over an array. It prevents converting the array to a {@link java.util.List}.
+ * An {@link Iterator} that iterates over an array. It prevents converting the array to a {@link java.util.List}.
  * It doesn't support removal of items.
- *
+ * <p/>
  * This class is not threadsafe.
  *
- * @param <E>
  * @author Peter Veentjer.
+ * @param <E>
  */
 public final class ArrayIterator<E> implements ResetableIterator<E> {
     private final E[] array;
@@ -28,7 +26,7 @@ public final class ArrayIterator<E> implements ResetableIterator<E> {
     }
 
     public boolean hasNext() {
-        return index+1 < array.length;
+        return index + 1 < array.length;
     }
 
     public E next() {

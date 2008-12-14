@@ -2,13 +2,13 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.AbstractTransactionTest;
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 
 public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
-    protected GrowingHeap heap;
+    protected GrowingMultiversionedHeap heap;
 
     public MultiversionedStm createStm() {
-        heap = new GrowingHeap();
+        heap = new GrowingMultiversionedHeap();
         return new MultiversionedStm(heap);
     }
 

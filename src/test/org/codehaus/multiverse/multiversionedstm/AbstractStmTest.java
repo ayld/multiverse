@@ -2,22 +2,22 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import junit.framework.TestCase;
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 
 public abstract class AbstractStmTest extends TestCase {
 
     protected MultiversionedStm stm;
-    protected GrowingHeap heap;
+    protected GrowingMultiversionedHeap heap;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        heap = new GrowingHeap();
+        heap = new GrowingMultiversionedHeap();
         stm = new MultiversionedStm(heap);
     }
 
-    public void sleepRandom(long ms){
-        sleep((long)(Math.random()*ms));
+    public void sleepRandom(long ms) {
+        sleep((long) (Math.random() * ms));
     }
 
     public void sleep(long ms) {

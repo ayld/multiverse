@@ -3,20 +3,30 @@ package org.codehaus.multiverse.core;
 /**
  * The TransactionTemplate  is a template that contains all plumbing logic for the start, retry etc of
  * Transactions. It could be compared to one of the Spring templates like the JdbcTemplate.
- * <p/>
- * todo: protection against livelock
  *
  * @author Peter Veentjer.
+ * @param <E> the type of the object to return.
  */
 public abstract class TransactionTemplate<E> {
 
     private final Stm stm;
 
+    /**
+     * Creates a new TransactionTemplate.
+     *
+     * @param stm the Stm this TransactionTemplate uses.
+     * @throws NullPointerException if stm is null.
+     */
     protected TransactionTemplate(Stm stm) {
         if (stm == null) throw new NullPointerException();
         this.stm = stm;
     }
 
+    /**
+     * Returns the Stm used by this TransactionTemplate.
+     *
+     * @return the Stm used by this TransactionTemplate.
+     */
     public Stm getStm() {
         return stm;
     }
@@ -29,19 +39,17 @@ public abstract class TransactionTemplate<E> {
             Transaction predecessor = null;
             E result = null;
             do {
-                Transaction transaction = createTransaction(predecessor);
-
+                Transaction transaction = startTransaction(predecessor);
                 try {
                     predecessor = null;
                     result = execute(transaction);
                     transaction.commit();
                     success = true;
                 } catch (RetryError ex) {
-                    //System.out.println(Thread.currentThread() + " retried");
                     transaction.abort();
                     predecessor = transaction;
                 } catch (WriteConflictException ex) {
-
+                    transaction.abort();
                 } catch (RuntimeException ex) {
                     transaction.abort();
                     throw ex;
@@ -58,7 +66,7 @@ public abstract class TransactionTemplate<E> {
         }
     }
 
-    private Transaction createTransaction(Transaction predecessor) throws InterruptedException {
+    private Transaction startTransaction(Transaction predecessor) throws InterruptedException {
         if (predecessor == null)
             return stm.startTransaction();
         else

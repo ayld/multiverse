@@ -4,15 +4,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A Software Transactional Memory is a piece of memory where you can create transaction (just like databases) to
- * provide the ACI (Atomic, Consistent, Isolated) properties. So changes are atomic (they make it into the stm or
- * not, not partially. etc etc
+ * A Software Transactional Memory is a piece of memory where you can create a {@link Transaction} (just like
+ * databases) to provide the ACI (Atomic, Consistent, Isolated) properties. So changes are atomic (they make it
+ * into the stm or not, not partially. etc etc
  *
  * @author Peter Veentjer.
  */
 public interface Stm<T extends Transaction> {
-
-    //todo: add version that allows params like readonly
 
     /**
      * Starts a new Transaction.
