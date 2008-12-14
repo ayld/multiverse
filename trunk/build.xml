@@ -7,13 +7,14 @@
 
     <property name="src" value="src"/>
     <property name="src.main" value="${src}/main"/>
+    <property name="src.test" value="${src}/test"/>
     <property name="lib" value="lib"/>
     <property name="lib.provided" value="${lib}/provided"/>
     <property name="lib.support" value="${lib}/support"/>
 
     <property name="target" value="target"/>
     <property name="classes.main" value="${target}/classes.main"/>
-    <property name="classes.tests" value="${target}/classes.test"/>
+    <property name="classes.test" value="${target}/classes.test"/>
     <property name="unitreports" value="${target}/junit-reports"/>
 
     <path id="classpath.provided">
@@ -60,6 +61,34 @@
         </copy>
     </target>
 
+    <target name="compile.test"
+            description="Compiles the sources of the test package"
+            depends="compile.main">
+
+        <mkdir dir="${classes.test}"/>
+
+        <javac debug="on"
+               srcdir="${src.test}"
+               destdir="${classes.test}"
+               source="1.5">
+            <classpath>
+                <path refid="classpath.provided"/>
+                <path refid="classpath.support"/>
+                <path path="${classes.main}"/>
+            </classpath>
+        </javac>
+
+        <copy todir="${classes.test}">
+            <fileset dir="${src.test}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compile.all"
+            description="Compiles all the sources"
+            depends="compile.main, compile.test"/>
+
     <target name="jar"
             depends="compile.main"
             description="Builds the jar without including dependant jars">
@@ -69,8 +98,27 @@
     </target>
 
     <target name="test"
-            depends="compile.main">
+            depends="compile.test">
 
+        <mkdir dir="${unitreports}"/>
+
+        <junit printsummary="yes" haltonfailure="yes">
+            <classpath>
+                <pathelement location="${classes.test}"/>
+                <pathelement location="${classes.main}"/>
+                <path refid="classpath.provided"/>
+                <path refid="classpath.support"/>
+            </classpath>
+
+            <formatter type="plain"/>
+
+            <batchtest fork="yes" todir="${unitreports}">
+                <fileset dir="${src.test}">
+                    <include name="**/*Test.java"/>
+                    <exclude name="**/Abstract*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
     </target>
 
     <target name="dist"
