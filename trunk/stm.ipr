@@ -748,13 +748,21 @@
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
   <component name="libraryTable">
-    <library name="libs">
+    <library name="provided">
       <CLASSES>
-        <root url="file://$PROJECT_DIR$/lib" />
+        <root url="file://$PROJECT_DIR$/lib/provided" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
-      <jarDirectory url="file://$PROJECT_DIR$/lib" recursive="false" />
+      <jarDirectory url="file://$PROJECT_DIR$/lib/provided" recursive="false" />
+    </library>
+    <library name="support">
+      <CLASSES>
+        <root url="file://$PROJECT_DIR$/lib/support" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+      <jarDirectory url="file://$PROJECT_DIR$/lib/support" recursive="false" />
     </library>
   </component>
 </project>

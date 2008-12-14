@@ -2,6 +2,9 @@ package org.codehaus.multiverse.multiversionedstm.growingheap;
 
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 
+/**
+ * @author Peter Veentjer.
+ */
 public final class HeapTreeNode {
     private final DehydratedStmObject content;
     private final HeapTreeNode left;
@@ -69,7 +72,7 @@ public final class HeapTreeNode {
         HeapTreeNode a = p.left;
         HeapTreeNode b = q.left;
         HeapTreeNode c = q.right;
-        HeapTreeNode pNew = new HeapTreeNode(p.getContent(),p.getVersion(), a, b);
+        HeapTreeNode pNew = new HeapTreeNode(p.getContent(), p.getVersion(), a, b);
         return new HeapTreeNode(q.getContent(), q.getVersion(), pNew, c);
     }
 
@@ -90,7 +93,7 @@ public final class HeapTreeNode {
             case 1:
                 HeapTreeNode newRight;
                 if (right == null) {
-                    newRight = new HeapTreeNode(change,changeVersion,  null, null);
+                    newRight = new HeapTreeNode(change, changeVersion, null, null);
                 } else {
                     newRight = right.createNew(change, changeVersion);
                 }

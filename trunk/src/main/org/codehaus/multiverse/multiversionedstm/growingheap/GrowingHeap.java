@@ -1,21 +1,15 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
-import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
-import org.codehaus.multiverse.multiversionedstm.Heap;
-import org.codehaus.multiverse.multiversionedstm.HeapCommitResult;
-import org.codehaus.multiverse.multiversionedstm.HeapSnapshot;
-import org.codehaus.multiverse.core.BadVersionException;
 import org.codehaus.multiverse.core.NoSuchObjectException;
+import org.codehaus.multiverse.multiversionedstm.*;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.Latch;
 
-import static java.lang.String.format;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Default {@link Heap} implementation that is able to grow.
@@ -29,12 +23,12 @@ public final class GrowingHeap implements Heap {
 
     private final AtomicLong nextFreeHandler = new AtomicLong();
 
-    private final AtomicReference<GrowingHeapSnapshot> currentSnapshotReference = new AtomicReference<GrowingHeapSnapshot>();
+    private final HeapSnapshotChain<GrowingHeapSnapshot> snapshotChain =
+            new HeapSnapshotChain<GrowingHeapSnapshot>(new GrowingHeapSnapshot());
     private final GrowingHeapStatistics statistics = new GrowingHeapStatistics();
     private final ListenerSupport listenerSupport = new DefaultListenerSupport();
 
     public GrowingHeap() {
-        currentSnapshotReference.set(new GrowingHeapSnapshot());
     }
 
     public GrowingHeapStatistics getStatistics() {
@@ -46,11 +40,11 @@ public final class GrowingHeap implements Heap {
     }
 
     public HeapSnapshot getActiveSnapshot() {
-        return currentSnapshotReference.get();
+        return snapshotChain.getHead();
     }
 
     public HeapSnapshot getSnapshot(long version) {
-        return currentSnapshotReference.get().getSnapshot(version);
+        return snapshotChain.getSnapshot(version);
     }
 
     /**
@@ -66,14 +60,7 @@ public final class GrowingHeap implements Heap {
     }
 
     public int getSnapshotAliveCount() {
-        int result = 0;
-        GrowingHeapSnapshot current = currentSnapshotReference.get();
-        do {
-            result++;
-            current = current.parentSnapshot;
-        } while (current != null);
-
-        return result;
+        return snapshotChain.getSnapshotAliveCount();
     }
 
     public HeapCommitResult commit(long startVersion, ResetableIterator<DehydratedStmObject> changes) {
@@ -84,14 +71,14 @@ public final class GrowingHeap implements Heap {
         if (!changes.hasNext()) {
             //if there are no changes to write to the heap, the transaction was readonly and we are done.
             statistics.commitReadonlyCount.incrementAndGet();
-            return HeapCommitResult.createReadOnly(currentSnapshotReference.get());
+            return HeapCommitResult.createReadOnly(snapshotChain.getHead());
         }
 
         GrowingHeapSnapshot newSnapshot;
         boolean anotherTransactionDidCommit;
         CreateNewResult createNewResult;
         do {
-            GrowingHeapSnapshot currentSnapshot = currentSnapshotReference.get();
+            GrowingHeapSnapshot currentSnapshot = snapshotChain.getHead();
             createNewResult = currentSnapshot.createNew(changes, startVersion);
             if (!createNewResult.success) {
                 //if there was a write conflict, we can end by returning a writeconflict-result 
@@ -101,7 +88,7 @@ public final class GrowingHeap implements Heap {
 
             newSnapshot = createNewResult.snapshot;
 
-            anotherTransactionDidCommit = !currentSnapshotReference.compareAndSet(currentSnapshot, newSnapshot);
+            anotherTransactionDidCommit = !snapshotChain.compareAndAdd(currentSnapshot, newSnapshot);
             if (anotherTransactionDidCommit) {
                 //if another transaction also did a commit while we were creating a new snapshot, we
                 //have to try again. We need to reset the changes iterator for that.
@@ -133,7 +120,7 @@ public final class GrowingHeap implements Heap {
         boolean listenersAdded = false;
         boolean success;
         do {
-            GrowingHeapSnapshot snapshot = currentSnapshotReference.get();
+            GrowingHeapSnapshot snapshot = snapshotChain.getHead();
             for (long handle : handles) {
                 if (hasUpdate(snapshot, handle, latch, transactionVersion))
                     return;
@@ -148,7 +135,7 @@ public final class GrowingHeap implements Heap {
                 listenerSupport.addListener(transactionVersion + 1, handles, latch);
             }
 
-            success = snapshot == currentSnapshotReference.get();
+            success = snapshot == snapshotChain.getHead();
             if (!success)
                 statistics.listenNonBlockingStatistics.incFailureCount();
         } while (!success);
@@ -210,23 +197,17 @@ public final class GrowingHeap implements Heap {
      * Class is completely immutable.
      */
     private class GrowingHeapSnapshot implements HeapSnapshot {
-        private final GrowingHeapSnapshot parentSnapshot;
         private final HeapTreeNode root;
         private final long version;
-        private final long[] roots;
 
         GrowingHeapSnapshot() {
             version = 0;
-            roots = new long[]{};
-            parentSnapshot = null;
             root = null;
         }
 
-        GrowingHeapSnapshot(GrowingHeapSnapshot parentSnapshot, HeapTreeNode root, long version) {
-            this.parentSnapshot = parentSnapshot;
+        GrowingHeapSnapshot(HeapTreeNode root, long version) {
             this.root = root;
             this.version = version;
-            this.roots = new long[]{};
         }
 
         public long getVersion() {
@@ -234,48 +215,7 @@ public final class GrowingHeap implements Heap {
         }
 
         public long[] getRoots() {
-            return roots;
-        }
-
-        /**
-         * Gets the Snapshot with equal or smaller to the specified version.
-         *
-         * @param version the version of the Snapshot to look for.
-         * @return the found Snapshot.
-         * @throws BadVersionException if no Snapshot exists with a version equal or smaller to the specified version.
-         */
-        GrowingHeapSnapshot getSnapshot(long version) {
-            GrowingHeapSnapshot current = this;
-            long oldest = -1;
-            do {
-                if (current.version <= version)
-                    return current;
-
-                if (current.parentSnapshot == null)
-                    oldest = current.getVersion();
-
-                current = current.parentSnapshot;
-            } while (current != null);
-
-            String msg = format("Snapshot with a version equal or smaller than  %s is not found, oldest version found is %s",
-                    version, oldest);
-            throw new BadVersionException(msg);
-        }
-
-        /**
-         * Get the Snapshot with the specific version.
-         * <p/>
-         * todo: what to do if the snapshots with version doesn't exist anymore.
-         *
-         * @param version the specific version of the HeapSnapshot to look for.
-         * @return the found HeapSnapshot. The value will always be not null
-         * @throws IllegalArgumentException if the Snapshot with the specific version is not found.
-         */
-        private GrowingHeapSnapshot getSpecificSnapshot(long version) {
-            GrowingHeapSnapshot snapshot = getSnapshot(version);
-            if (snapshot.version != version)
-                throw new IllegalArgumentException(format("Snapshot with version %s is not found", version));
-            return snapshot;
+            throw new RuntimeException();
         }
 
         public DehydratedStmObject read(long handle) {
@@ -310,7 +250,7 @@ public final class GrowingHeap implements Heap {
             HeapTreeNode newRoot = root;
             //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
             //loaded from this version.
-            GrowingHeapSnapshot startSnapshot = getSpecificSnapshot(startVersion);
+            GrowingHeapSnapshot startSnapshot = snapshotChain.getSpecificSnapshot(startVersion);
             Set<Long> handles = new HashSet<Long>();
 
             for (; changes.hasNext();) {
@@ -329,7 +269,7 @@ public final class GrowingHeap implements Heap {
                     newRoot = newRoot.createNew(stmObject, commitVersion);
             }
 
-            GrowingHeapSnapshot newSnapshot = new GrowingHeapSnapshot(this, newRoot, commitVersion);
+            GrowingHeapSnapshot newSnapshot = new GrowingHeapSnapshot(newRoot, commitVersion);
             return CreateNewResult.createSuccess(handles, newSnapshot);
         }
 

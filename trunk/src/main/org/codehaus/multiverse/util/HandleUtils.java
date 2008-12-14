@@ -1,15 +1,15 @@
 package org.codehaus.multiverse.util;
 
-import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.core.NoSuchObjectException;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
 
 import static java.lang.String.format;
 
-public final class PtrUtils {
+public final class HandleUtils {
 
-    public static void checkHandleAndVersion(long handle, long version) {
-        assertNotNull(handle);
-        assertValidVersion(version);
+    //todo: this method doesn't belong in this package
+    public static long getHandle(StmObject object) {
+        return object == null ? 0 : object.___getHandle();
     }
 
     public static void assertValidVersion(long version) {
@@ -26,10 +26,6 @@ public final class PtrUtils {
             throw new NoSuchObjectException("Handle can't be 0");
     }
 
-    public static long getHandle(StmObject object) {
-        return object == null ? 0 : object.___getHandle();
-    }
-
-    private PtrUtils() {
+    private HandleUtils() {
     }
 }

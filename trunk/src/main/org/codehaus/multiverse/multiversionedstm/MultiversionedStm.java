@@ -1,9 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.core.Stm;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
 import org.codehaus.multiverse.core.*;
-import static org.codehaus.multiverse.util.PtrUtils.assertNotNull;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
+import static org.codehaus.multiverse.util.HandleUtils.assertNotNull;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.CheapLatch;
@@ -63,9 +62,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return new MultiversionedTransaction();
     }
 
-    public MultiversionedTransaction startRetriedTransaction(Transaction base) throws InterruptedException {
+    public MultiversionedTransaction startRetriedTransaction(MultiversionedStm.MultiversionedTransaction base) throws InterruptedException {
         if (base == null) throw new NullPointerException();
-        if (!(base instanceof MultiversionedTransaction)) throw new IllegalArgumentException();
         MultiversionedTransaction transaction = (MultiversionedTransaction) base;
         Latch latch = new CheapLatch();
         heap.listen(latch, transaction.getReadHandles(), transaction.getVersion());
@@ -73,7 +71,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return startTransaction();
     }
 
-    public MultiversionedTransaction tryStartRetriedTransaction(Transaction base, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+    public MultiversionedTransaction tryStartRetriedTransaction(MultiversionedStm.MultiversionedTransaction x, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
         throw new RuntimeException();
     }
 
@@ -156,9 +154,10 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         public Object read(long handle) {
-            //preconditions
-            assertNotNull(handle);
             assertTransactionActive();
+
+            if (handle == 0)
+                return null;
 
             //if the object already is loaded in this Transaction, the same object should
             //be returned every time. This is the same behavior Hibernate provides for example.

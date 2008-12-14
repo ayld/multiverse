@@ -1,8 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.AbstractTransactionTest;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingHeap;
 
 public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
     protected GrowingHeap heap;
@@ -16,6 +16,7 @@ public abstract class AbstractMultiversionedStmTest extends AbstractTransactionT
         super.tearDown();
         System.out.println(stm.getStatistics());
         System.out.println(heap.getStatistics());
+        System.out.println("heap.snapshots.alive " + heap.getSnapshotAliveCount());
     }
 
     public void assertStmVersionHasNotChanged() {

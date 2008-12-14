@@ -1,24 +1,28 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.core.NoSuchObjectException;
-import org.codehaus.multiverse.multiversionedstm.examples.Person;
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedstm.examples.Person;
 
 public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
-    public void testNegativePointer(){
+    public void testNegativePointer() {
         assertIllegalPointer(-1);
     }
 
-    public void testNullPointer(){
-        assertIllegalPointer(0);
+    public void testNullPointer() {
+        createActiveTransaction();
+
+        Object result = transaction.read(0);
+        assertNull(result);
+        assertTransactionIsActive();
     }
 
     public void testNonExistingPtr() {
         assertIllegalPointer(10000);
     }
 
-    private void assertIllegalPointer(long ptr){
+    private void assertIllegalPointer(long ptr) {
         createActiveTransaction();
         try {
             transaction.read(ptr);
