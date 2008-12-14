@@ -13,6 +13,7 @@
     <property name="lib.support" value="${lib}/support"/>
 
     <property name="target" value="target"/>
+    <property name="dist" value="${target}/dist"/>
     <property name="classes.main" value="${target}/classes.main"/>
     <property name="classes.test" value="${target}/classes.test"/>
     <property name="javadoc" value="${target}/javadoc"/>
@@ -143,6 +144,18 @@
 
     <target name="dist"
             description="Builds all the binaries from scratch"
-            depends="clean, compile.main, javadoc, test, jar"/>
+            depends="clean, compile.main, javadoc, jar">
+
+        <zip destfile="${target}/sources.zip">
+            <zipfileset dir="${src.main}" prefix="src"/>
+        </zip>
+
+
+        <zip destfile="${target}/${application.name}-${application.version}.zip">
+            <zipfileset dir="${javadoc}" prefix="javadoc"/>
+            <fileset dir="${target}" includes="*.jar"/>
+            <fileset dir="${target}" includes="sources.zip"/>
+        </zip>
+    </target>
 
 </project>

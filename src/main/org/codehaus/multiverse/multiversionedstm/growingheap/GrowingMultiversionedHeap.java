@@ -20,8 +20,8 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
 
     private final AtomicLong nextFreeHandler = new AtomicLong();
 
-    private final HeapSnapshotChain<MultiversionedHeapSnapshotImpl> snapshotChain =
-            new HeapSnapshotChain<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
+    private final MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl> snapshotChain =
+            new MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
     private final GrowingMultiversionedHeapStatistics statistics = new GrowingMultiversionedHeapStatistics();
     private final ListenerSupport listenerSupport = new DefaultListenerSupport();
 
