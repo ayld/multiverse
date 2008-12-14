@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Peter Veentjer
  * @param <H>
  */
-public final class HeapSnapshotChain<H extends MultiversionedHeapSnapshot> {
+public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapSnapshot> {
 
     private final AtomicReference<Node> headReference = new AtomicReference<Node>();
 
@@ -32,7 +32,7 @@ public final class HeapSnapshotChain<H extends MultiversionedHeapSnapshot> {
      * @param heapSnapshot the initial HeapSnapshot.
      * @throws NullPointerException if heapSnapshot is null.
      */
-    public HeapSnapshotChain(H heapSnapshot) {
+    public MultiversionedHeapSnapshotChain(H heapSnapshot) {
         if (headReference == null) throw new NullPointerException();
         headReference.set(new Node(heapSnapshot, null));
 
@@ -142,6 +142,8 @@ public final class HeapSnapshotChain<H extends MultiversionedHeapSnapshot> {
 
     class Node {
         final WeakReference<H> weakSnapshotReference;
+        //strong reference only is used to prevent garbage collection. As soon as the head node,
+        //is no head anymore, this reference is set to null.
         volatile H strongSnapshotReference;
         final Node next;
 
