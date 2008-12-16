@@ -62,11 +62,11 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return new MultiversionedTransaction();
     }
 
-    public MultiversionedTransaction startRetriedTransaction(MultiversionedStm.MultiversionedTransaction base) throws InterruptedException {
-        if (base == null) throw new NullPointerException();
-        MultiversionedTransaction transaction = (MultiversionedTransaction) base;
+    public MultiversionedTransaction startRetriedTransaction(MultiversionedStm.MultiversionedTransaction predecessor) throws InterruptedException {
+        if (predecessor == null) throw new NullPointerException();
+
         Latch latch = new CheapLatch();
-        heap.listen(latch, transaction.getReadHandles(), transaction.getVersion());
+        heap.listen(latch, predecessor.getReadHandles(), predecessor.getVersion());
         latch.await();
         return startTransaction();
     }
@@ -91,12 +91,22 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         /**
-         * Returns the number of writes done by this transaction.
+         * Returns the number of writes done by this transaction. Only when the transaction has committed, this value
+         * is set. Before it returns 0.
          *
          * @return the number of writes done by this transaction.
          */
         public long getWriteCount() {
             return writeCount;
+        }
+
+        /**
+         * Returns the number of reads that have been done on the heap.
+         *
+         * @return the number of reads that have been done on the heap.
+         */
+        public long getReadFromHeapCount() {
+            return dehydratedObjects.size();
         }
 
         /**
@@ -282,7 +292,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         public void commit() {
             switch (status) {
                 case active:
-
                     try {
                         commitChanges();
                         status = TransactionStatus.committed;
@@ -295,6 +304,8 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 case committed:
                     //ignore, transaction already is committed, can't do any harm to commit again
                     break;
+                case aborted:
+                    throw new IllegalStateException("Can't commit an already aborted transaction");
                 default:
                     throw new IllegalStateException();
             }
@@ -323,7 +334,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     statistics.transactionsAbortedCount.incrementAndGet();
                     break;
                 case committed:
-                    throw new IllegalStateException();
+                    throw new IllegalStateException("Can't abort an already committed transaction");
                 case aborted:
                     //ignore, transaction already is aborted.
                     break;

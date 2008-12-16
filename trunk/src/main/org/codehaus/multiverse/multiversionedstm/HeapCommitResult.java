@@ -1,12 +1,12 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 /**
- * The result of a {@link MultiversionedHeap#commit(long, org.codehaus.multiverse.util.iterators.ResetableIterator)}. The fields
- * are public since it is just a stupid data container.
+ * The result of a {@link MultiversionedHeap#commit(long, org.codehaus.multiverse.util.iterators.ResetableIterator)}.
+ * The fields are public since it is just a simple data container.
  *
  * @author Peter Veentjer.
  */
-public class HeapCommitResult {
+public final class HeapCommitResult {
     public boolean success = false;
     public MultiversionedHeapSnapshot snapshot;
     public long writeCount = 0;

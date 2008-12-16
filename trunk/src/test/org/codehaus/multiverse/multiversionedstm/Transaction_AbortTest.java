@@ -8,6 +8,7 @@ public class Transaction_AbortTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
 
         transaction.abort();
+
         assertTransactionIsAborted();
         assertStmVersionHasNotChanged();
         assertTransactionHasNoWrites();
@@ -29,24 +30,26 @@ public class Transaction_AbortTest extends AbstractMultiversionedStmTest {
     }
 
     public void testChangesAreNotCommitted() {
-        long ptr = atomicInsert(new Person());
+        long handle = atomicInsert(new Person());
         long version = stm.getCurrentVersion();
 
         createActiveTransaction();
-        Person p = (Person) transaction.read(ptr);
+        Person p = (Person) transaction.read(handle);
         p.setAge(10);
         p.setName("John Doe");
         p.setParent(new Person());
         transaction.abort();
 
         assertCurrentStmVersion(version);
-        assertActualVersion(ptr, version);
+        assertActualVersion(handle, version);
         assertTransactionHasNoWrites();
     }
 
-    public void testAlreadyRolledback() {
+    public void testAlreadyAborted() {
         createAbortedTransaction();
+
         transaction.abort();
+
         assertTransactionIsAborted();
         assertStmVersionHasNotChanged();
         assertTransactionHasNoWrites();

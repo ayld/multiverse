@@ -7,22 +7,24 @@ import org.codehaus.multiverse.multiversionedstm.examples.Person;
 public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
     public void testNegativePointer() {
-        assertIllegalPointer(-1);
+        assertIllegalHandle(-1);
+        assertTransactionHasNoReadsFromHeap();
     }
 
-    public void testNullPointer() {
+    public void testNullHandle() {
         createActiveTransaction();
 
         Object result = transaction.read(0);
         assertNull(result);
         assertTransactionIsActive();
+        assertTransactionHasNoReadsFromHeap();
     }
 
-    public void testNonExistingPtr() {
-        assertIllegalPointer(10000);
+    public void testNonExistingHandle() {
+        assertIllegalHandle(10000);
     }
 
-    private void assertIllegalPointer(long ptr) {
+    private void assertIllegalHandle(long ptr) {
         createActiveTransaction();
         try {
             transaction.read(ptr);
@@ -30,6 +32,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         } catch (NoSuchObjectException ex) {
         }
         assertTransactionIsActive();
+        assertTransactionHasNoReadsFromHeap();
     }
 
     public void testOnlyTooNewVersionExist() {
@@ -49,16 +52,18 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         }
 
         assertTransactionIsActive();
+        assertTransactionHasNoReadsFromHeap();
     }
 
     public void testReadFromPreviousComittedTransaction() {
         int age = 32;
         String name = "peter";
 
-        long ptr = atomicInsertPerson(name, age);
+        long handle = atomicInsertPerson(name, age);
 
         createActiveTransaction();
-        Object found = transaction.read(ptr);
+        Object found = transaction.read(handle);
+
         assertNotNull(found);
         assertTrue(found instanceof Person);
         Person foundPerson = (Person) found;
@@ -66,6 +71,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         assertEquals("peter", foundPerson.getName());
         assertNull(foundPerson.getParent());
         assertTransactionHasNoWrites();
+        assertTransactionReadsFromHeap(1);
     }
 
     public void testUpdatesByLaterTransactionsAreNotSeen() {
@@ -81,35 +87,19 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         assertTransactionHasNoWrites();
     }
 
-    private void atomicIncAge(long ptr, int newage) {
-        MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
-        Person person = (Person) t.read(ptr);
-        person.setAge(newage);
-        t.commit();
-    }
-
-    private long atomicInsertPerson(String name, int age) {
-        Transaction t = stm.startTransaction();
-        Person p = new Person();
-        p.setAge(age);
-        p.setName(name);
-        t.attachAsRoot(p);
-        t.commit();
-        return p.___getHandle();
-    }
-
     public void testRereadSameInstance() {
-        long ptr = atomicInsertPerson("peter", 32);
+        long handle = atomicInsertPerson("peter", 33);
 
         createActiveTransaction();
-        Object found1 = transaction.read(ptr);
-        Object found2 = transaction.read(ptr);
+        Object found1 = transaction.read(handle);
+        Object found2 = transaction.read(handle);
         assertNotNull(found1);
         assertSame(found1, found2);
         assertTransactionHasNoWrites();
+        assertTransactionReadsFromHeap(1);
     }
 
-    public void testReadWhileRolledback() {
+    public void testReadWhileAborted() {
         createAbortedTransaction();
 
         try {
@@ -120,9 +110,10 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
         assertTransactionHasNoWrites();
         assertTransactionIsAborted();
+        assertTransactionHasNoReadsFromHeap();
     }
 
-    public void testReadWhileComitted() {
+    public void testReadWhileCommitted() {
         createCommittedTransaction();
 
         try {
@@ -133,5 +124,6 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
         assertTransactionHasNoWrites();
         assertTransactionIsCommitted();
+        assertTransactionHasNoReadsFromHeap();
     }
 }

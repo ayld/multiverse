@@ -143,8 +143,8 @@
     </target>
 
     <target name="dist"
-            description="Builds all the binaries from scratch"
-            depends="clean, compile.main, javadoc, jar">
+            description="Builds the complete distribution"
+            depends="clean, compile.main, test, javadoc, jar">
 
         <zip destfile="${target}/sources.zip">
             <zipfileset dir="${src.main}" prefix="src"/>

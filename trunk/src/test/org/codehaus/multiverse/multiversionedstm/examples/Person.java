@@ -43,7 +43,7 @@ public class Person implements StmObject {
     public Person getParent() {
         //GENERATED
         if (!parent_localized) {
-            parent = (Person) transaction.read(initialDehydratedPerson.parentPtr);
+            parent = (Person) transaction.read(initialDehydratedPerson.parentHandle);
             parent_localized = true;
         }
 
@@ -107,7 +107,7 @@ public class Person implements StmObject {
 
         return initialDehydratedPerson.age != age ||
                 initialDehydratedPerson.name != null ||
-                (parent_localized && (initialDehydratedPerson.parentPtr != (parent == null ? 0 : parent.___getHandle())));
+                (parent_localized && (initialDehydratedPerson.parentHandle != (parent == null ? 0 : parent.___getHandle())));
     }
 
     public DehydratedStmObject ___dehydrate() {
@@ -117,20 +117,27 @@ public class Person implements StmObject {
     public static class DehydratedPerson extends DehydratedStmObject {
         private final int age;
         private final String name;
-        private final long parentPtr;
+        private final long parentHandle;
 
         public DehydratedPerson(long handle, int age, String name) {
             super(handle);
             this.age = age;
             this.name = name;
-            this.parentPtr = 0;
+            this.parentHandle = 0;
+        }
+
+        public DehydratedPerson(long handle, int age, String name, long parentHandle) {
+            super(handle);
+            this.age = age;
+            this.name = name;
+            this.parentHandle = parentHandle;
         }
 
         public DehydratedPerson(Person person) {
             super(person.___getHandle());
             this.age = person.age;
             this.name = person.name;
-            this.parentPtr = HandleUtils.getHandle(person.getParent());
+            this.parentHandle = HandleUtils.getHandle(person.getParent());
         }
 
         public Iterator<Long> members() {
@@ -172,11 +179,11 @@ public class Person implements StmObject {
             return that.getHandle() == this.getHandle() &&
                     that.name == this.name &&
                     that.age == this.age &&
-                    that.parentPtr == this.parentPtr;
+                    that.parentHandle == this.parentHandle;
         }
 
         public String toString() {
-            return format("DehydratedPerson(age=%s,name=%s,parentPtr=%s", age, name, parentPtr);
+            return format("DehydratedPerson(age=%s,name=%s,parentHandle=%s", age, name, parentHandle);
         }
     }
 }
