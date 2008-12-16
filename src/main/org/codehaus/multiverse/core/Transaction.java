@@ -2,13 +2,55 @@ package org.codehaus.multiverse.core;
 
 
 /**
- * All operations done on the {@link Stm} are always done through a transaction. A Transaction can be compared to a
- * Hibernate Session.
+ * All operations done on the {@link Stm} are always done through a transaction. The transaction makes sure that
+ * all changes are atomic (so all of them enter the stm, or none of them). And the transaction also makes sure that
+ * the it is isolated from other transactions. Unlike a database transaction, the changes are not 'durable', so
+ * when the power is turned of, all changes are lost. And unlike the database transaction the stm transaction is
+ * not responsible for consistency; that is part of the Java code itself.
+ * <p/>
+ * A Transaction can be compared to a Hibernate Session.
  * <p/>
  * A Transaction is not threadsafe and should not be shared between threads, unless it is safely moved from
  * one thread to another.
+ * <p/>
+ * Normally a transaction should not be managed manually, but a {@link TransactionTemplate} should be used for that.
+ * The following examples are just for information (the template does the start/commit/retry for your).
+ * <p/>
+ * Example with creating an item:
+ * <pre>
+ *  Transaction t = stm.startTransaction();
+ *  stackHandle = t.attachAsRoot(new Stack());
+ *  t.commit();
+ * </pre>
+ * The attachAsRoot provides a handle to access the object later. In most cases you only want to have handles of high
+ * level objects. As soon as you have obtained the object the handle points to, you can work with normal object
+ * references.
+ * <p/>
+ * And example with only a read:
+ * <pre>
+ *  Transaction t = stm.startTransaction();
+ *  Stack stack = (Stack)t.read(stackHandle);
+ *  t.commit();
+ * </pre>
+ * <p/>
+ * An example with an update:
+ * <pre>
+ *   Transaction t = stm.startTransaction();
+ *   Person p = (Person)t.read(personHandle);
+ *   person.incAge();
+ *   t.commit();
+ * </pre>
+ * <p/>
+ * An example with traversal of objects:
+ * <pre>
+ *  Transaction t = stm.startTransaction();
+ *  Stack s = (Stack)t.read(stackHandle);
+ *  s.push(new Person());
+ *  t.commit();
+ * </pre>
  *
  * @author Peter Veentjer
+ * @see org.codehaus.multiverse.core.TransactionTemplate
  */
 public interface Transaction {
 
@@ -66,7 +108,8 @@ public interface Transaction {
     void commit();
 
     /**
-     * Rolls back the transaction. Multiple calls on the abort method are ignored.
+     * Aborts the transaction. If changes have been made that become visibile to other threads,
+     * they are rolled back as well. Multiple calls on the abort method are ignored.
      * <p/>
      * This method is not threadsafe.
      *
