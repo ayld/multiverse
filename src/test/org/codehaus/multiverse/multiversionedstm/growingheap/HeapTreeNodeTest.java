@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
 
 import static java.lang.Math.max;
+import java.util.HashSet;
+import java.util.Set;
 
 public class HeapTreeNodeTest extends TestCase {
     private HeapTreeNode node;
@@ -45,7 +47,7 @@ public class HeapTreeNodeTest extends TestCase {
 
     public void assertIsBalanced() {
         int balanceFactor = node.balanceFactor();
-        assertTrue("balanceFactor = " + balanceFactor, balanceFactor == 0 || balanceFactor == -1 || balanceFactor == 1);
+        assertTrue("tree is not balanced, balanceFactor = " + balanceFactor, balanceFactor == 0 || balanceFactor == -1 || balanceFactor == 1);
     }
 
     public HeapTreeNode createLeaf(long handle) {
@@ -264,21 +266,33 @@ public class HeapTreeNodeTest extends TestCase {
         assertEquals(0, balanceFactor);
     }
 
+    private Set<Long> handles = new HashSet<Long>();
+
+    public long createRandomHandle() {
+        long handle = Math.round(Math.random() * 10000);
+        handles.add(handle);
+        return handle;
+    }
+
     public void createTree(int count) {
+        handles.clear();
+
         int checkMod = max(count / 1000, 1);
 
         for (int k = 0; k < count; k++) {
+            long handle = createRandomHandle();
+
             if (node == null)
-                node = new HeapTreeNode(new DummyDehydratedStmObject(k), 0, null, null);
+                node = new HeapTreeNode(new DummyDehydratedStmObject(handle), 0, null, null);
             else
-                node = node.createNew(new DummyDehydratedStmObject(k), 0);
+                node = node.createNew(new DummyDehydratedStmObject(handle), 0);
 
             if (k % checkMod == 0) {
                 assertIsBalanced();
-                assertSize(k + 1);
+                assertSize(handles.size());
 
-                for (int handle = 0; handle < k; handle++) {
-                    HeapTreeNode found = node.find(handle);
+                for (long h : handles) {
+                    HeapTreeNode found = node.find(h);
                     assertNotNull(found);
                 }
             }
@@ -289,7 +303,6 @@ public class HeapTreeNodeTest extends TestCase {
 
     public void testCreate(int count) {
         createTree(count);
-        assertSize(count);
     }
 
     public void testCreate_2() {
@@ -316,7 +329,8 @@ public class HeapTreeNodeTest extends TestCase {
         testCreate(10000);
     }
 
-    public void __testCreate_100000000() {
-        testCreate(100000000);
+    public void testCreate_100000() {
+        testCreate(100000);
     }
+
 }
