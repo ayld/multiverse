@@ -312,15 +312,15 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         private void commitChanges() {
-            HeapCommitResult result = heap.commit(snapshot.getVersion(), new CommitIterator());
+            MultiversionedHeap.CommitResult result = heap.commit(snapshot.getVersion(), new CommitIterator());
 
-            if (result.success) {
+            if (result.isSuccess()) {
                 statistics.transactionsCommitedCount.incrementAndGet();
 
-                if (result.writeCount == 0)
+                if (result.getWriteCount() == 0)
                     statistics.transactionsReadonlyCount.incrementAndGet();
                 else
-                    writeCount = result.writeCount;
+                    writeCount = result.getWriteCount();
             } else {
                 statistics.transactionsConflictedCount.incrementAndGet();
                 throw new WriteConflictException("Transaction is aborted because of a write conflict");

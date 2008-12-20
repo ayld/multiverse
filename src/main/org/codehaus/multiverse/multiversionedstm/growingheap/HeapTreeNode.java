@@ -16,6 +16,15 @@ import static java.lang.Math.max;
  * @author Peter Veentjer.
  */
 public final class HeapTreeNode {
+
+    private static int height(HeapTreeNode node) {
+        return node == null ? 0 : node.height;
+    }
+
+    private static int height(HeapTreeNode left, HeapTreeNode right) {
+        return max(height(left), height(right)) + 1;
+    }
+
     private static final int COMPARE_SPOT_ON = 0;
     private static final int COMPARE_GO_RIGHT = 1;
     private static final int COMPARE_GO_LEFT = -1;
@@ -38,46 +47,69 @@ public final class HeapTreeNode {
         this.height = height(left, right);
     }
 
+    /**
+     * Returns the height of this tree. The height is the maximum of the left and right tree increased
+     * with 1.
+     * <p/>
+     * The value is calculated up front, so it has a O(c) complexity instead of an
+     *
+     * @return the height of this tree.
+     */
     public int height() {
         return height;
     }
 
-    private static int height(HeapTreeNode node) {
-        return node == null ? 0 : node.height();
-    }
-
-    private static int height(HeapTreeNode left, HeapTreeNode right) {
-        return max(height(left), height(right)) + 1;
-    }
-
-    private static int balanceFactor(HeapTreeNode left, HeapTreeNode right) {
-        return height(right) - height(left);
-    }
-
+    /**
+     * The handle of the content. This handle is used to do searches.
+     *
+     * @return the handle of the content.
+     */
     public long getHandle() {
         return content.getHandle();
     }
 
+    /**
+     * Returns the version of the content.
+     *
+     * @return the version of the content.
+     */
     public long getVersion() {
         return version;
     }
 
+    /**
+     * Returns the actual content of this HeapTreeNode. Value will never be null.
+     *
+     * @return the content of this HeapTreeNode.
+     */
     public DehydratedStmObject getContent() {
         return content;
     }
 
+    /**
+     * Returns the left branch of this HeapTreeNode. If no left branch is set, null is returned.
+     *
+     * @return the left branch of this HeapTreeNode.
+     */
     public HeapTreeNode getLeft() {
         return left;
     }
 
+    /**
+     * Returns the right branch of this HeapTreeNode. If no right branch is set, null is returned.
+     *
+     * @return the right branch of this HeapTreeNode.
+     */
     public HeapTreeNode getRight() {
         return right;
     }
 
     /**
+     * Does a single right rotation on this HeapTreeNode.
+     * <p/>
      * http://en.wikipedia.org/wiki/Tree_rotation
      *
-     * @return
+     * @return the result of the single right rotation on this HeapTreeNode.
      */
     public HeapTreeNode singleRotateRight() {
         if (left == null)
@@ -94,9 +126,11 @@ public final class HeapTreeNode {
     }
 
     /**
+     * Does a double right rotation on this HeapTreeNode.
+     * <p/>
      * http://en.wikipedia.org/wiki/Tree_rotation
      *
-     * @return
+     * @return the result of the double right rotation on this HeapTreeNode.
      */
     public HeapTreeNode doubleRotateRight() {
         HeapTreeNode newLeft = left.singleRotateLeft();
@@ -104,9 +138,11 @@ public final class HeapTreeNode {
     }
 
     /**
+     * Does a single left rotation on this HeapTreeNode.
+     * <p/>
      * http://en.wikipedia.org/wiki/Tree_rotation
      *
-     * @return
+     * @return the result of the single left rotation on this HeapTreeNode.
      */
     public HeapTreeNode singleRotateLeft() {
         if (right == null)
@@ -122,9 +158,11 @@ public final class HeapTreeNode {
     }
 
     /**
+     * Does a double left rotation on this HeapTreeNode.
+     * <p/>
      * http://en.wikipedia.org/wiki/Tree_rotation
      *
-     * @return
+     * @return the result of the double left rotation on this HeapTreeNode.
      */
     public HeapTreeNode doubleRotateLeft() {
         HeapTreeNode newRight = right.singleRotateRight();
@@ -134,14 +172,13 @@ public final class HeapTreeNode {
     /**
      * Creates a new HeapTreeNode based on an old one and a change.
      * <p/>
-     * todo: tree is not balanced..
      * todo: algorithm is recursive and not iterative
      * <p/>
      * http://upload.wikimedia.org/wikipedia/en/c/c4/Tree_Rebalancing.gif
      *
-     * @param change
-     * @param changeVersion
-     * @return
+     * @param change        the content of the new heapTreeNode.
+     * @param changeVersion the version of the content of the new HeapTreeNode.
+     * @return the created result.
      */
     public HeapTreeNode createNew(DehydratedStmObject change, long changeVersion) {
         HeapTreeNode unbalanced = createUnbalanced(change, changeVersion);
@@ -179,7 +216,8 @@ public final class HeapTreeNode {
     }
 
     private HeapTreeNode createUnbalanced(DehydratedStmObject change, long changeVersion) {
-        switch (compare(change.getHandle())) {
+        int compare = compare(change.getHandle());
+        switch (compare) {
             case COMPARE_SPOT_ON:
                 //since the left and right trees are balanced, the new node will be balanced.
                 return new HeapTreeNode(change, changeVersion, left, right);
@@ -198,7 +236,7 @@ public final class HeapTreeNode {
                     newLeft = left.createNew(change, changeVersion);
                 return new HeapTreeNode(content, version, newLeft, right);
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("unhandeled compare " + compare);
         }
     }
 
@@ -220,6 +258,12 @@ public final class HeapTreeNode {
         return size;
     }
 
+    /**
+     * Returns the balance factor (the height of the right minus height of the left). This can be used to
+     * balance trees.
+     *
+     * @return the balance factory.
+     */
     public int balanceFactor() {
         return height(right) - height(left);
     }
@@ -234,10 +278,16 @@ public final class HeapTreeNode {
         }
     }
 
-    public HeapTreeNode find(long key) {
+    /**
+     * Finds the HeapTreeNode with the provided handle.
+     *
+     * @param handle the HeapTreeNode to look for.
+     * @return the found HeapTreeNode, or null of none is fonund.
+     */
+    public HeapTreeNode find(long handle) {
         HeapTreeNode node = this;
         do {
-            switch (node.compare(key)) {
+            switch (node.compare(handle)) {
                 case COMPARE_SPOT_ON:
                     return node;
                 case COMPARE_GO_RIGHT:

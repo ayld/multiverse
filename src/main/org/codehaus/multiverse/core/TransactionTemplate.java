@@ -2,7 +2,22 @@ package org.codehaus.multiverse.core;
 
 /**
  * The TransactionTemplate  is a template that contains all plumbing logic for the start, retry etc of
- * Transactions. It could be compared to one of the Spring templates like the JdbcTemplate.
+ * Transactions. TransactionTemplate is the prefered way to deal with a {@link Transaction} and {@link Stm}.
+ * <p/>
+ * It could be compared to one of the Spring templates like the JdbcTemplate.
+ * <p/>
+ * example:
+ * <pre>
+ * String result = new TransactionTemplate(stm){
+ *     public E execute(Transaction t){
+ *          Stack stack = (Stack)t.read(stackHandle);
+ *          return stack.take();
+ *     }
+ * }.execute();
+ * </pre>
+ * <p/>
+ * It really is a shame that closures are not going to be part of Java 7, so we still need to use this
+ * ugly anonymous innerclass syntax.
  *
  * @author Peter Veentjer.
  * @param <E> the type of the object to return.
@@ -49,6 +64,7 @@ public abstract class TransactionTemplate<E> {
                     transaction.abort();
                     predecessor = transaction;
                 } catch (WriteConflictException ex) {
+                    //todo: a write conflict should not be retried?
                     transaction.abort();
                 } catch (RuntimeException ex) {
                     transaction.abort();

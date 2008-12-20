@@ -1,11 +1,15 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
 import org.codehaus.multiverse.core.NoSuchObjectException;
-import org.codehaus.multiverse.multiversionedstm.*;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedHeap;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshotChain;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.Latch;
 
+import static java.lang.String.format;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -41,7 +45,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
     }
 
     public MultiversionedHeapSnapshot getSnapshot(long version) {
-        return snapshotChain.getSnapshot(version);
+        return snapshotChain.get(version);
     }
 
     /**
@@ -52,15 +56,15 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
      * @return
      * @see #commit(long, org.codehaus.multiverse.util.iterators.ResetableIterator)
      */
-    public HeapCommitResult commit(long startVersion, DehydratedStmObject... changes) {
+    public CommitResult commit(long startVersion, DehydratedStmObject... changes) {
         return commit(startVersion, new ArrayIterator<DehydratedStmObject>(changes));
     }
 
     public int getSnapshotAliveCount() {
-        return snapshotChain.getSnapshotAliveCount();
+        return snapshotChain.getAliveCount();
     }
 
-    public HeapCommitResult commit(long startVersion, ResetableIterator<DehydratedStmObject> changes) {
+    public CommitResult commit(long startVersion, ResetableIterator<DehydratedStmObject> changes) {
         if (changes == null) throw new NullPointerException();
 
         statistics.commitNonBlockingStatistics.incEnterCount();
@@ -68,7 +72,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
         if (!changes.hasNext()) {
             //if there are no changes to write to the heap, the transaction was readonly and we are done.
             statistics.commitReadonlyCount.incrementAndGet();
-            return HeapCommitResult.createReadOnly(snapshotChain.getHead());
+            return CommitResult.createReadOnly(snapshotChain.getHead());
         }
 
         MultiversionedHeapSnapshotImpl newSnapshot;
@@ -80,7 +84,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             if (!createNewResult.success) {
                 //if there was a write conflict, we can end by returning a writeconflict-result 
                 statistics.commitWriteConflictCount.incrementAndGet();
-                return HeapCommitResult.createWriteConflict();
+                return CommitResult.createWriteConflict();
             }
 
             newSnapshot = createNewResult.snapshot;
@@ -98,7 +102,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
         listenerSupport.wakeupListeners(newSnapshot.getVersion(), createNewResult.toHandlesArray());
         statistics.commitSuccessCount.incrementAndGet();
         statistics.committedStoreCount.addAndGet(createNewResult.handles.size());
-        return HeapCommitResult.createSuccess(createNewResult.snapshot, createNewResult.handles.size());
+        return CommitResult.createSuccess(createNewResult.snapshot, createNewResult.handles.size());
     }
 
     public void listen(Latch latch, long[] handles, long transactionVersion) {
@@ -157,37 +161,6 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
         }
     }
 
-    private static class CreateNewResult {
-        MultiversionedHeapSnapshotImpl snapshot;
-        Set<Long> handles;
-        boolean success;
-
-        static CreateNewResult createSuccess(Set<Long> handles, MultiversionedHeapSnapshotImpl snapshot) {
-            CreateNewResult result = new CreateNewResult();
-            result.handles = handles;
-            result.snapshot = snapshot;
-            result.success = true;
-            return result;
-        }
-
-        static CreateNewResult createWriteConflict() {
-            CreateNewResult result = new CreateNewResult();
-            result.success = false;
-            return result;
-        }
-
-        long[] toHandlesArray() {
-            int handlesLength = handles.size();
-            long[] result = new long[handlesLength];
-            Iterator<Long> it = handles.iterator();
-            for (int k = 0; k < handlesLength; k++) {
-                result[k] = it.next();
-            }
-
-            return result;
-        }
-    }
-
     /**
      * GrowingHeap specific HeapSnapshot implementation.
      * <p/>
@@ -221,14 +194,22 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             if (handle == 0)
                 return null;
 
-            return root == null ? null : root.find(handle).getContent();
+            if (root == null)
+                return null;
+
+            HeapTreeNode node = root.find(handle);
+            return node == null ? null : node.getContent();
         }
 
         public long readVersion(long handle) {
             if (handle == 0)
                 return -1;
 
-            return root == null ? -1 : root.find(handle).getVersion();
+            if (root == null)
+                return -1;
+
+            HeapTreeNode node = root.find(handle);
+            return node == null ? -1 : node.getVersion();
         }
 
         /**
@@ -247,7 +228,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             HeapTreeNode newRoot = root;
             //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
             //loaded from this version.
-            MultiversionedHeapSnapshotImpl startSnapshot = snapshotChain.getSpecificSnapshot(startVersion);
+            MultiversionedHeapSnapshotImpl startSnapshot = snapshotChain.getSpecific(startVersion);
             Set<Long> handles = new HashSet<Long>();
 
             for (; changes.hasNext();) {
@@ -301,6 +282,42 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             //if the version isn't the same, it means that it has been updated by a different transaction in the
             //mean while.
             return newVersion != previousVersion;
+        }
+
+        public String toString() {
+            return format("Snapshot(version=%s)", version);
+        }
+    }
+
+
+    private static class CreateNewResult {
+        MultiversionedHeapSnapshotImpl snapshot;
+        Set<Long> handles;
+        boolean success;
+
+        static CreateNewResult createSuccess(Set<Long> handles, MultiversionedHeapSnapshotImpl snapshot) {
+            CreateNewResult result = new CreateNewResult();
+            result.handles = handles;
+            result.snapshot = snapshot;
+            result.success = true;
+            return result;
+        }
+
+        static CreateNewResult createWriteConflict() {
+            CreateNewResult result = new CreateNewResult();
+            result.success = false;
+            return result;
+        }
+
+        long[] toHandlesArray() {
+            int handlesLength = handles.size();
+            long[] result = new long[handlesLength];
+            Iterator<Long> it = handles.iterator();
+            for (int k = 0; k < handlesLength; k++) {
+                result[k] = it.next();
+            }
+
+            return result;
         }
     }
 }

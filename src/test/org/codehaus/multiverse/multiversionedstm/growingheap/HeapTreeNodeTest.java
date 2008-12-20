@@ -9,6 +9,8 @@ import java.util.Set;
 
 public class HeapTreeNodeTest extends TestCase {
     private HeapTreeNode node;
+    private static final int HANDLE_RANGE = 10000;
+    private static final int CREATE_TREE_SANITY_CHECK = 1000;
 
     public void assertSize(int expected) {
         assertEquals(expected, node.size());
@@ -266,10 +268,12 @@ public class HeapTreeNodeTest extends TestCase {
         assertEquals(0, balanceFactor);
     }
 
+    // =================== some integration tests that test balancing, size etc ===============
+
     private Set<Long> handles = new HashSet<Long>();
 
     public long createRandomHandle() {
-        long handle = Math.round(Math.random() * 10000);
+        long handle = Math.round(Math.random() * HANDLE_RANGE);
         handles.add(handle);
         return handle;
     }
@@ -277,7 +281,7 @@ public class HeapTreeNodeTest extends TestCase {
     public void createTree(int count) {
         handles.clear();
 
-        int checkMod = max(count / 1000, 1);
+        int checkMod = max(count / CREATE_TREE_SANITY_CHECK, 1);
 
         for (int k = 0; k < count; k++) {
             long handle = createRandomHandle();
@@ -303,6 +307,8 @@ public class HeapTreeNodeTest extends TestCase {
 
     public void testCreate(int count) {
         createTree(count);
+
+        System.out.println("number of cores: " + Runtime.getRuntime().availableProcessors());
     }
 
     public void testCreate_2() {
@@ -332,5 +338,4 @@ public class HeapTreeNodeTest extends TestCase {
     public void testCreate_100000() {
         testCreate(100000);
     }
-
 }

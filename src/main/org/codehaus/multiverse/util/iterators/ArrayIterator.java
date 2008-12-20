@@ -1,11 +1,10 @@
 package org.codehaus.multiverse.util.iterators;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An {@link Iterator} that iterates over an array. It prevents converting the array to a {@link java.util.List}.
- * It doesn't support removal of items.
+ * An {@link ResetableIterator} that iterates over an array. It prevents converting the array to a
+ * {@link java.util.List}. It doesn't support removal of items.
  * <p/>
  * This class is not threadsafe.
  *
