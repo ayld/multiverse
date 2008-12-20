@@ -15,6 +15,9 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * {@link Stm} implementation that uses multiversion concurrency control as concurrency control mechanism.
+ * The content is stored in a {@link MultiversionedHeap}.
+ *
+ * @author Peter Veentjer.
  */
 public final class MultiversionedStm implements Stm<MultiversionedStm.MultiversionedTransaction> {
 
@@ -56,7 +59,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     public long getCurrentVersion() {
         return heap.getActiveSnapshot().getVersion();
     }
-
 
     public MultiversionedTransaction startTransaction() {
         return new MultiversionedTransaction();

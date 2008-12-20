@@ -15,11 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GrowingMultiversionedHeapStressTest extends TestCase {
 
     private static final int TOTAL_COMMIT_COUNT = 20000;
-    private static final int MAX_COMMIT_SIZE = 100;
+    private static final int MAX_COMMIT_SIZE = 50;
     private static final int HANDLE_RANGE = 100000;
     private static final int MAX_DELAY_BETWEEN_TRANSACTIONS = 0;
     private static final int MAX_DELAY_BETWEEN_START_AND_COMMIT = 0;
-
 
     private GrowingMultiversionedHeap heap;
     private AtomicInteger commitCounter = new AtomicInteger();
@@ -44,7 +43,6 @@ public class GrowingMultiversionedHeapStressTest extends TestCase {
     //todo: if a thread fails with an error, the test still succeeds.
     //todo: make sure that snapshots that are connected through a string reference, still can be used and are not deleted
     //todo: if there was an update.. the old version also can be checked. 
-    //todo: make it easy to use variable number of threads.
 
     long randomHandle() {
         return ((System.nanoTime() * 31) % HANDLE_RANGE) + 1;
@@ -59,6 +57,7 @@ public class GrowingMultiversionedHeapStressTest extends TestCase {
         HashMap<Long, DehydratedStmObject> set = new HashMap();
         while (set.size() < unitOfWorkSize) {
             long handle = randomHandle();
+            System.out.println("handle: " + handle);
             if (!set.containsKey(handle))
                 set.put(handle, new DummyDehydratedStmObject(handle));
         }
@@ -75,7 +74,13 @@ public class GrowingMultiversionedHeapStressTest extends TestCase {
         return threads;
     }
 
+    AtomicInteger threadCounter = new AtomicInteger();
+
     class TestThread extends Thread {
+
+        public TestThread() {
+            super("Thread-" + threadCounter.incrementAndGet());
+        }
 
         public void run() {
             int k = 0;
@@ -83,7 +88,7 @@ public class GrowingMultiversionedHeapStressTest extends TestCase {
                 runUnitOfWork();
 
                 if (k % 1000 == 0)
-                    System.out.println(k);
+                    System.out.println(getName() + " commitcount: " + k);
 
                 sleepRandom(MAX_DELAY_BETWEEN_TRANSACTIONS);
                 k++;
