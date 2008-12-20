@@ -14,11 +14,11 @@ public class DefaultListenerSupportTest extends TestCase {
 
     // ============== addListener ==================================
 
-    public void testAddListener(){
-
+    public void testAddListener() {
+        //todo
     }
 
-    public void testAddListener_emptyHandles(){
+    public void testAddListener_emptyHandles() {
         //todo
     }
 

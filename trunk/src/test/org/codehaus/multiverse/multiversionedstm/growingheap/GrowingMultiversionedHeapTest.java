@@ -3,7 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.growingheap;
 import junit.framework.TestCase;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
-import org.codehaus.multiverse.multiversionedstm.HeapCommitResult;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
@@ -30,15 +30,15 @@ public class GrowingMultiversionedHeapTest extends TestCase {
 
     public void writeUnconflicted(DehydratedStmObject... dehydratedStmObjects) {
         long beforeCommitVersion = heap.getActiveSnapshot().getVersion();
-        HeapCommitResult result = heap.commit(beforeCommitVersion, new ArrayIterator(dehydratedStmObjects));
-        assertTrue(result.success);
-        assertTrue(result.writeCount > 0);
+        MultiversionedHeap.CommitResult result = heap.commit(beforeCommitVersion, new ArrayIterator(dehydratedStmObjects));
+        assertTrue(result.isSuccess());
+        assertTrue(result.getWriteCount() > 0);
     }
 
     public void writeConflicted(long startVersion, DehydratedStmObject... dehydratedObjects) {
         long beforeCommitVersion = heap.getActiveSnapshot().getVersion();
-        HeapCommitResult result = heap.commit(startVersion, dehydratedObjects);
-        assertFalse(result.success);
+        MultiversionedHeap.CommitResult result = heap.commit(startVersion, dehydratedObjects);
+        assertFalse(result.isSuccess());
         assertEquals(beforeCommitVersion, heap.getActiveSnapshot().getVersion());
     }
 
@@ -160,10 +160,10 @@ public class GrowingMultiversionedHeapTest extends TestCase {
     // ==========================================
 
     public void testListenForEventThatHasNotYetOccurred() {
-
+        //todo
     }
 
     public void testListenForEventThatAlreadyHasOccurred() {
-
+        //todo
     }
 }

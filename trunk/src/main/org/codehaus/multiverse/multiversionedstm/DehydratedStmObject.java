@@ -7,7 +7,9 @@ import java.util.Iterator;
 
 /**
  * A DehydratedStmObject is the immutable result of the dehydration of an {@link StmObject}. Each
- * DehydratedStmObject should be completely immutable.
+ * DehydratedStmObject should be completely immutable. An DehydratedStmObject is not attached to a
+ * transaction, since the same DehydratedStmObject can be used by multiple transactions simultaniously.
+ * <p/>
  * <p/>
  * By using polymorfism, ( {@link #hydrate(Transaction)} different classes can be instantiated.
  *

@@ -4,7 +4,7 @@ import org.codehaus.multiverse.core.BadVersionException;
 
 import static java.lang.String.format;
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,10 +33,10 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      * @throws NullPointerException if heapSnapshot is null.
      */
     public MultiversionedHeapSnapshotChain(H heapSnapshot) {
-        if (headReference == null) throw new NullPointerException();
+        if (heapSnapshot == null) throw new NullPointerException();
         headReference.set(new Node(heapSnapshot, null));
 
-        new PrinterThread().start();
+        new CleanupThread().start();
     }
 
     /**
@@ -51,17 +51,31 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      */
     public boolean compareAndAdd(H expectedSnapshot, H newSnapshot) {
         if (expectedSnapshot == null || newSnapshot == null) throw new NullPointerException();
-        if (newSnapshot.getVersion() <= expectedSnapshot.getVersion())
-            throw new IllegalArgumentException();
 
         Node oldHead = headReference.get();
-        if (oldHead.strongSnapshotReference != expectedSnapshot)
+        H oldSnapshot = oldHead.strongSnapshotReference;
+        if (oldSnapshot != expectedSnapshot) {
+            //another thread already updated the head since the strong reference already is cleared or updated.
             return false;
+        }
 
+        //a sanity check to make sure that snapshots are not inserted in a bad order.
+        if (oldSnapshot.getVersion() >= newSnapshot.getVersion()) {
+            String msg = format("Can't add snapshot with old version, oldsnaphot.version %s and newSnapshot.version %s",
+                    oldSnapshot.getVersion(),
+                    newSnapshot.getVersion());
+            throw new IllegalArgumentException(msg);
+        }
+
+        //lets try to set the newHead. This is done atomically.
         Node newHead = new Node(newSnapshot, oldHead);
-        if (!headReference.compareAndSet(oldHead, newHead))
+        if (!headReference.compareAndSet(oldHead, newHead)) {
+            //another threads has done an update, so our set didn't succeeed.
             return false;
+        }
 
+        //the new head was set successfully, we can clear the strongSnapshotReference on the oldHead so that
+        //the snapshot can be garbage collected if nobody is using it anymore.
         oldHead.strongSnapshotReference = null;
         return true;
     }
@@ -75,7 +89,7 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
     public H getHead() {
         //needs to be done in a loop because a new head could be placed, and the MultiversionedHeapSnapshot is garbage collected.
         while (true) {
-            H snapshot = headReference.get().weakSnapshotReference.get();
+            H snapshot = headReference.get().softSnapshotReference.get();
             if (snapshot != null)
                 return snapshot;
         }
@@ -89,18 +103,21 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      * @throws org.codehaus.multiverse.core.BadVersionException
      *          if no Snapshot exists with a version equal or smaller to the specified version.
      */
-    public H getSnapshot(long version) {
+    public H get(long version) {
         Node node = headReference.get();
         long oldest = -1;
         do {
-            H snapshot = node.weakSnapshotReference.get();
+            H snapshot = node.softSnapshotReference.get();
+            //since the snapshot could have been removed by the garbage collector, we need to check that is
+            //still is there. If it isn't, we skip this node and go to the next.
             if (snapshot != null) {
                 oldest = snapshot.getVersion();
 
+                //if the snapshot has a version that is smaller or equal to the version we are looking for, we are done
                 if (snapshot.getVersion() <= version)
                     return snapshot;
             }
-            node = node.next;
+            node = node.prev;
         } while (node != null);
 
         String msg = format("Snapshot with a version equal or smaller than  %s is not found, oldest version found is %s",
@@ -115,8 +132,8 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      * @return the found HeapSnapshot. The value will always be not null
      * @throws IllegalArgumentException if the Snapshot with the specific version is not found.
      */
-    public H getSpecificSnapshot(long version) {
-        H snapshot = getSnapshot(version);
+    public H getSpecific(long version) {
+        H snapshot = get(version);
         if (snapshot.getVersion() != version)
             throw new IllegalArgumentException(format("Snapshot with version %s is not found", version));
         return snapshot;
@@ -128,29 +145,29 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      *
      * @return the number of alive Snapshots.
      */
-    public int getSnapshotAliveCount() {
+    public int getAliveCount() {
         int result = 0;
         Node node = headReference.get();
         do {
-            if (node.weakSnapshotReference.get() != null)
+            if (node.softSnapshotReference.get() != null)
                 result++;
-            node = node.next;
+            node = node.prev;
         } while (node != null);
 
         return result;
     }
 
     class Node {
-        final WeakReference<H> weakSnapshotReference;
+        final SoftReference<H> softSnapshotReference;
         //strong reference only is used to prevent garbage collection. As soon as the head node,
         //is no head anymore, this reference is set to null.
         volatile H strongSnapshotReference;
-        final Node next;
+        final Node prev;
 
-        Node(H snapshot, Node next) {
+        Node(H snapshot, Node prev) {
             this.strongSnapshotReference = snapshot;
-            this.weakSnapshotReference = new WeakReference(snapshot, queue);
-            this.next = next;
+            this.softSnapshotReference = new SoftReference(snapshot, queue);
+            this.prev = prev;
         }
     }
 
@@ -158,9 +175,9 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
 
     private final static AtomicInteger gcThreadCounter = new AtomicInteger();
 
-    class PrinterThread extends Thread {
+    class CleanupThread extends Thread {
 
-        public PrinterThread() {
+        public CleanupThread() {
             super("RemoveDeadChainEntries-Garbagecollector-Thread: " + gcThreadCounter.incrementAndGet());
             setDaemon(true);
         }
