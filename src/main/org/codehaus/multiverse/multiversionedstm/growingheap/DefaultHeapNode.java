@@ -1,6 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.growingheap.heapnodes.HeapNode;
 
 import static java.lang.Math.max;
 
@@ -15,13 +16,13 @@ import static java.lang.Math.max;
  *
  * @author Peter Veentjer.
  */
-public final class HeapTreeNode {
+public final class DefaultHeapNode implements HeapNode {
 
-    private static int height(HeapTreeNode node) {
+    private static int height(DefaultHeapNode node) {
         return node == null ? 0 : node.height;
     }
 
-    private static int height(HeapTreeNode left, HeapTreeNode right) {
+    private static int height(DefaultHeapNode left, DefaultHeapNode right) {
         return max(height(left), height(right)) + 1;
     }
 
@@ -30,14 +31,14 @@ public final class HeapTreeNode {
     private static final int COMPARE_GO_LEFT = -1;
 
     private final DehydratedStmObject content;
-    private final HeapTreeNode left;
-    private final HeapTreeNode right;
+    private final DefaultHeapNode left;
+    private final DefaultHeapNode right;
 
     //todo: version should be part of the content.
     private final long version;
     private final int height;
 
-    public HeapTreeNode(DehydratedStmObject content, long version, HeapTreeNode left, HeapTreeNode right) {
+    public DefaultHeapNode(DehydratedStmObject content, long version, DefaultHeapNode left, DefaultHeapNode right) {
         if (content == null) throw new NullPointerException();
         //todo: left en rightside content could be checked for violation
         this.version = version;
@@ -91,7 +92,7 @@ public final class HeapTreeNode {
      *
      * @return the left branch of this HeapTreeNode.
      */
-    public HeapTreeNode getLeft() {
+    public DefaultHeapNode getLeft() {
         return left;
     }
 
@@ -100,7 +101,7 @@ public final class HeapTreeNode {
      *
      * @return the right branch of this HeapTreeNode.
      */
-    public HeapTreeNode getRight() {
+    public DefaultHeapNode getRight() {
         return right;
     }
 
@@ -111,18 +112,18 @@ public final class HeapTreeNode {
      *
      * @return the result of the single right rotation on this HeapTreeNode.
      */
-    public HeapTreeNode singleRotateRight() {
+    public DefaultHeapNode singleRotateRight() {
         if (left == null)
             throw new IllegalStateException("to do a right rotate, the left field can't be null");
 
-        HeapTreeNode q = this;
-        HeapTreeNode p = q.left;
-        HeapTreeNode a = p.left;
-        HeapTreeNode b = p.right;
-        HeapTreeNode c = q.right;
+        DefaultHeapNode q = this;
+        DefaultHeapNode p = q.left;
+        DefaultHeapNode a = p.left;
+        DefaultHeapNode b = p.right;
+        DefaultHeapNode c = q.right;
 
-        HeapTreeNode qNew = new HeapTreeNode(q.getContent(), q.getVersion(), b, c);
-        return new HeapTreeNode(p.getContent(), p.getVersion(), a, qNew);
+        DefaultHeapNode qNew = new DefaultHeapNode(q.getContent(), q.getVersion(), b, c);
+        return new DefaultHeapNode(p.getContent(), p.getVersion(), a, qNew);
     }
 
     /**
@@ -132,9 +133,9 @@ public final class HeapTreeNode {
      *
      * @return the result of the double right rotation on this HeapTreeNode.
      */
-    public HeapTreeNode doubleRotateRight() {
-        HeapTreeNode newLeft = left.singleRotateLeft();
-        return new HeapTreeNode(content, version, newLeft, right).singleRotateRight();
+    public DefaultHeapNode doubleRotateRight() {
+        DefaultHeapNode newLeft = left.singleRotateLeft();
+        return new DefaultHeapNode(content, version, newLeft, right).singleRotateRight();
     }
 
     /**
@@ -144,17 +145,17 @@ public final class HeapTreeNode {
      *
      * @return the result of the single left rotation on this HeapTreeNode.
      */
-    public HeapTreeNode singleRotateLeft() {
+    public DefaultHeapNode singleRotateLeft() {
         if (right == null)
             throw new IllegalStateException("to do a left rotate, the right field can't be null");
 
-        HeapTreeNode p = this;
-        HeapTreeNode q = p.right;
-        HeapTreeNode a = p.left;
-        HeapTreeNode b = q.left;
-        HeapTreeNode c = q.right;
-        HeapTreeNode pNew = new HeapTreeNode(p.getContent(), p.getVersion(), a, b);
-        return new HeapTreeNode(q.getContent(), q.getVersion(), pNew, c);
+        DefaultHeapNode p = this;
+        DefaultHeapNode q = p.right;
+        DefaultHeapNode a = p.left;
+        DefaultHeapNode b = q.left;
+        DefaultHeapNode c = q.right;
+        DefaultHeapNode pNew = new DefaultHeapNode(p.getContent(), p.getVersion(), a, b);
+        return new DefaultHeapNode(q.getContent(), q.getVersion(), pNew, c);
     }
 
     /**
@@ -164,9 +165,9 @@ public final class HeapTreeNode {
      *
      * @return the result of the double left rotation on this HeapTreeNode.
      */
-    public HeapTreeNode doubleRotateLeft() {
-        HeapTreeNode newRight = right.singleRotateRight();
-        return new HeapTreeNode(content, version, left, newRight).singleRotateLeft();
+    public DefaultHeapNode doubleRotateLeft() {
+        DefaultHeapNode newRight = right.singleRotateRight();
+        return new DefaultHeapNode(content, version, left, newRight).singleRotateLeft();
     }
 
     /**
@@ -180,13 +181,12 @@ public final class HeapTreeNode {
      * @param changeVersion the version of the content of the new HeapTreeNode.
      * @return the created result.
      */
-    public HeapTreeNode createNew(DehydratedStmObject change, long changeVersion) {
-        HeapTreeNode unbalanced = createUnbalanced(change, changeVersion);
+    public DefaultHeapNode createNew(DehydratedStmObject change, long changeVersion) {
+        DefaultHeapNode unbalanced = createUnbalanced(change, changeVersion);
         return unbalanced.balance();
-
     }
 
-    private HeapTreeNode balance() {
+    private DefaultHeapNode balance() {
         int balanceFactor = balanceFactor();
         switch (balanceFactor) {
             case 0:
@@ -215,26 +215,26 @@ public final class HeapTreeNode {
         }
     }
 
-    private HeapTreeNode createUnbalanced(DehydratedStmObject change, long changeVersion) {
+    private DefaultHeapNode createUnbalanced(DehydratedStmObject change, long changeVersion) {
         int compare = compare(change.getHandle());
         switch (compare) {
             case COMPARE_SPOT_ON:
                 //since the left and right trees are balanced, the new node will be balanced.
-                return new HeapTreeNode(change, changeVersion, left, right);
+                return new DefaultHeapNode(change, changeVersion, left, right);
             case COMPARE_GO_RIGHT:
-                HeapTreeNode newRight;
+                DefaultHeapNode newRight;
                 if (right == null)
-                    newRight = new HeapTreeNode(change, changeVersion, null, null);
+                    newRight = new DefaultHeapNode(change, changeVersion, null, null);
                 else
                     newRight = right.createNew(change, changeVersion);
-                return new HeapTreeNode(content, version, left, newRight);
+                return new DefaultHeapNode(content, version, left, newRight);
             case COMPARE_GO_LEFT:
-                HeapTreeNode newLeft;
+                DefaultHeapNode newLeft;
                 if (left == null)
-                    newLeft = new HeapTreeNode(change, changeVersion, null, null);
+                    newLeft = new DefaultHeapNode(change, changeVersion, null, null);
                 else
                     newLeft = left.createNew(change, changeVersion);
-                return new HeapTreeNode(content, version, newLeft, right);
+                return new DefaultHeapNode(content, version, newLeft, right);
             default:
                 throw new RuntimeException("unhandeled compare " + compare);
         }
@@ -284,8 +284,8 @@ public final class HeapTreeNode {
      * @param handle the HeapTreeNode to look for.
      * @return the found HeapTreeNode, or null of none is fonund.
      */
-    public HeapTreeNode find(long handle) {
-        HeapTreeNode node = this;
+    public HeapNode find(long handle) {
+        DefaultHeapNode node = this;
         do {
             switch (node.compare(handle)) {
                 case COMPARE_SPOT_ON:

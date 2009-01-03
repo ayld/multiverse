@@ -1,12 +1,12 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.multiversionedstm.utils;
 
 import junit.framework.TestCase;
+import static org.codehaus.multiverse.TestUtils.assertAsSetContent;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
+import org.codehaus.multiverse.multiversionedstm.examples.Person;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
-import org.codehaus.multiverse.multiversionedstm.examples.Person;
-import static org.codehaus.multiverse.TestUtils.assertAsSetContent;
 
 public class StmObjectIteratorTest extends TestCase {
 
@@ -62,7 +62,7 @@ public class StmObjectIteratorTest extends TestCase {
         Iterator it = new StmObjectIterator(p);
         assertAsSetContent(it, p);
     }
-    
+
     public void testIndirectCycleItems() {
         Person p1 = new Person();
         Person p2 = new Person();

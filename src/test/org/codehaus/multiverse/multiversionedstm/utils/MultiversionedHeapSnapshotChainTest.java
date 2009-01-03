@@ -1,4 +1,6 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.multiversionedstm.utils;
+
+import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 
 public class MultiversionedHeapSnapshotChainTest extends AbstractMultiversionedStmTest {
 

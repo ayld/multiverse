@@ -1,9 +1,10 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
-import org.codehaus.multiverse.multiversionedstm.*;
-import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
+import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
 import java.util.Iterator;
 
@@ -38,7 +39,7 @@ public class Queue<E> implements StmObject {
 
     //================== generated =================
 
-    private long handle;
+    private long handle = HandleGenerator.create();
     private Transaction transaction;
     private DehydratedQueue initialDehydratedQueue;
 
@@ -46,9 +47,8 @@ public class Queue<E> implements StmObject {
         return initialDehydratedQueue;
     }
 
-    public void ___onAttach(Transaction transaction, long handle) {
+    public void ___onAttach(Transaction transaction) {
         this.transaction = transaction;
-        this.handle = handle;
     }
 
     public Transaction ___getTransaction() {
@@ -68,7 +68,7 @@ public class Queue<E> implements StmObject {
     }
 
     public boolean ___isDirty() {
-        if(initialDehydratedQueue == null)
+        if (initialDehydratedQueue == null)
             return true;
 
         return false;

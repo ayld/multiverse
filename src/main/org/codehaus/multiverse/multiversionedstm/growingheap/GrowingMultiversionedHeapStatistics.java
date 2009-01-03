@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class GrowingMultiversionedHeapStatistics {
 
+    public final AtomicLong commitTotalCount = new AtomicLong();
     //the total number of commits that have been attempted on this heap.
     //the total number of retries that were needed to do a commit because of the non blocking approach this
     //growing heap uses.
@@ -26,9 +27,17 @@ public final class GrowingMultiversionedHeapStatistics {
     public final AtomicLong readCount = new AtomicLong();
 
     public void renderAsString(StringBuffer sb) {
+        sb.append(format("heap.commit.total %s\n", commitTotalCount.longValue()));
         sb.append(format("heap.commit.readonly %s\n", commitReadonlyCount.longValue()));
-        sb.append(format("heap.commit.conflicts %s\n", commitWriteConflictCount.longValue()));
+        double readonlyPercentage = 100.0 * commitReadonlyCount.get() / commitTotalCount.longValue();
+        sb.append(format("heap.commit.readonly-percentage %s\n", readonlyPercentage));
+
+        sb.append(format("heap.commit.writeconflicts %s\n", commitWriteConflictCount.longValue()));
+        double conflictPercentage = (100.0 * commitWriteConflictCount.longValue() / commitTotalCount.longValue());
+
+        sb.append(format("heap.commit.writeconflict-percentage %s\n", conflictPercentage));
         sb.append(format("heap.commit.succeeded %s\n", commitSuccessCount.longValue()));
+
         commitNonBlockingStatistics.renderAsString(sb);
         listenNonBlockingStatistics.renderAsString(sb);
         sb.append(format("heap.reads %s\n", readCount));

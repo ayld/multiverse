@@ -9,6 +9,7 @@ public final class MultiversionedStmStatistics {
     public final AtomicLong transactionsConflictedCount = new AtomicLong();
     public final AtomicLong transactionsAbortedCount = new AtomicLong();
     public final AtomicLong transactionsReadonlyCount = new AtomicLong();
+    public final AtomicLong transactionRetriedCount = new AtomicLong();
 
     /**
      * Returns the current number of active transactions (so are started, but have not committed, or rolled back). The value
@@ -61,8 +62,14 @@ public final class MultiversionedStmStatistics {
     public void renderAsString(StringBuffer sb) {
         sb.append("stm.transaction.activecount: ").append(getActiveCount()).append("\n");
         sb.append("stm.transaction.startedcount: ").append(getTransactionsStartedCount()).append("\n");
+
         sb.append("stm.transaction.committedcount: ").append(getTransactionsCommitedCount()).append("\n");
+        double committedPercentage = (100 * transactionsCommitedCount.longValue()) / transactionsStartedCount.longValue();
+        sb.append("stm.transaction.committed-percentage: ").append(committedPercentage).append("\n");
+
         sb.append("stm.transaction.abortedcount: ").append(getTransactionsAbortedCount()).append("\n");
+        double abortedPercentage = ((100.0 * transactionsAbortedCount.longValue()) / transactionsStartedCount.longValue());
+        sb.append("stm.transaction.aborted-percentage: ").append(abortedPercentage).append("\n");
         sb.append("stm.transaction.readonlycount: ").append(getTransactionsReadonlyCount()).append("\n");
     }
 

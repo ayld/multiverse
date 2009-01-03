@@ -4,6 +4,10 @@ import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * Statistics that can be used for non blocking algorithms. In some cases a non blocking algorithm needs to
+ * retry untill it succeeds. This could lead to a livelock. This NonBlockingStatistics can be used to track
+ * down problems (if the #getFailurePercentage is high, the system could be in a livelock).
+ *
  * @author Peter Veentjer.
  */
 public final class NonBlockingStatistics {
@@ -43,14 +47,15 @@ public final class NonBlockingStatistics {
         failureCount.incrementAndGet();
     }
 
-    public double getFailureRatio() {
+    public double getFailurePercentage() {
         long enterCountLocal = enterCount.get();
         long failureCountLocal = failureCount.get();
+        long total = enterCountLocal + failureCountLocal;
 
         if (enterCountLocal == 0)
             return 0;
 
-        return (1.0d * failureCountLocal) / enterCountLocal;
+        return (100.0d * failureCountLocal) / total;
     }
 
     public void renderAsString(StringBuffer sb) {
@@ -59,11 +64,11 @@ public final class NonBlockingStatistics {
         if (nameLocal == null) {
             sb.append(format("enter.count %s \n", enterCount.longValue()));
             sb.append(format("failure.count count %s \n", enterCount.longValue()));
-            sb.append(format("failure.ratio: %s\n", getFailureRatio()));
+            sb.append(format("failure.percentage %2f\n", getFailurePercentage()));
         } else {
             sb.append(format("%s.enter.count %s \n", nameLocal, enterCount.longValue()));
             sb.append(format("%s.failure.count %s \n", nameLocal, failureCount.longValue()));
-            sb.append(format("%s.failure.ratio: %s\n", nameLocal, getFailureRatio()));
+            sb.append(format("%s.failure.percentage %2f\n", nameLocal, getFailurePercentage()));
         }
     }
 

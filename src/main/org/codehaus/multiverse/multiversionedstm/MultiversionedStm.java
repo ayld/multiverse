@@ -2,8 +2,10 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.core.*;
 import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
+import org.codehaus.multiverse.multiversionedstm.utils.StmObjectIterator;
 import static org.codehaus.multiverse.util.HandleUtils.assertNotNull;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import org.codehaus.multiverse.util.iterators.CollectionIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.CheapLatch;
 import org.codehaus.multiverse.util.latches.Latch;
@@ -61,6 +63,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     }
 
     public MultiversionedTransaction startTransaction() {
+        statistics.transactionsStartedCount.incrementAndGet();
         return new MultiversionedTransaction();
     }
 
@@ -70,6 +73,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         Latch latch = new CheapLatch();
         heap.listen(latch, predecessor.getReadHandles(), predecessor.getVersion());
         latch.await();
+        statistics.transactionRetriedCount.incrementAndGet();
         return startTransaction();
     }
 
@@ -89,7 +93,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         public MultiversionedTransaction() {
             snapshot = heap.getActiveSnapshot();
-            statistics.transactionsStartedCount.incrementAndGet();
         }
 
         /**
@@ -275,7 +278,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             Transaction transaction = stmObject.___getTransaction();
             if (transaction == null) {
                 long handle = heap.createHandle();
-                stmObject.___onAttach(this, handle);
+                stmObject.___onAttach(this);
                 //todo: could this cause a concurrentmodificationexception?
                 newlybornObjects.put(handle, stmObject);
             } else if (transaction != this) {
@@ -314,7 +317,19 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         private void commitChanges() {
-            MultiversionedHeap.CommitResult result = heap.commit(snapshot.getVersion(), new CommitIterator());
+            List<DehydratedStmObject> commitList = new LinkedList<DehydratedStmObject>();
+            for (Iterator<DehydratedStmObject> it = new DirtyIterator(); it.hasNext();) {
+                commitList.add(it.next());
+            }
+
+            MultiversionedHeap.CommitResult result = heap.commit(
+                    snapshot.getVersion(),
+                    new CollectionIterator<DehydratedStmObject>(commitList));
+
+            //MultiversionedHeap.CommitResult result = heap.commit(
+            //                    snapshot.getVersion(),
+            //                    new DirtyIterator());
+
 
             if (result.isSuccess()) {
                 statistics.transactionsCommitedCount.incrementAndGet();
@@ -345,7 +360,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        class CommitIterator implements ResetableIterator<DehydratedStmObject> {
+        class DirtyIterator implements ResetableIterator<DehydratedStmObject> {
             private Iterator<StmObject> iterator;
             private StmObject next;
 

@@ -1,14 +1,18 @@
 package org.codehaus.multiverse.util;
 
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * A {@link Set} that works based on object identity. Just like the {@link IdentityHashMap}. It even
  * uses a IdentifyHashMap as a map.
- *
+ * <p/>
  * This class is not threadsafe.
- *
+ * <p/>
  * todo: what about equals/hash of set itself?
+ * todo: performance sucks because of the System.identityHashCode being used.
  *
  * @author Peter Veentjer.
  */
@@ -23,7 +27,7 @@ public final class IdentityHashSet<E> extends AbstractSet<E> implements Cloneabl
         this(new IdentityHashMap<E, Object>());
     }
 
-    public IdentityHashSet(IdentityHashMap map) {
+    public IdentityHashSet(IdentityHashMap<E, Object> map) {
         if (map == null) throw new NullPointerException();
         this.map = map;
     }
