@@ -21,14 +21,12 @@ import java.util.Iterator;
 public interface StmObject {
 
     /**
-     * Attaches the StmObject to a transaction. As soon as an object is attached to a transaction, a handle
-     * will be assigned to it. No checks are done if the object already is connected to another transaction
-     * or if the handle it set. It is up the the stm implementation to deal with this.
+     * Attaches the StmObject to a transaction. No checks are done if the object already is connected to another
+     * transaction. It is up the the stm implementation to deal with this.
      *
      * @param transaction the transaction this StmObject attaches to. The value should not be null.
-     * @param handle      the handle of the StmObject.
      */
-    void ___onAttach(Transaction transaction, long handle);
+    void ___onAttach(Transaction transaction);
 
     /**
      * Returns the Transaction this StmObject is part of. The transaction is set on an StmObject when it is attached
@@ -52,7 +50,8 @@ public interface StmObject {
     Iterator<StmObject> ___loadedMembers();
 
     /**
-     * Returns the handle of this StmObject in the heap. If the object is still transient, 0 is returned.
+     * Returns the handle of this StmObject in the heap. A non 0 value always will be returned, no matter
+     * if the object has never been persisted before.
      *
      * @return the handle of this StmObject in the heap.
      */

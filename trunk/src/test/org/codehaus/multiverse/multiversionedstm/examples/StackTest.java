@@ -1,25 +1,34 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import static org.codehaus.multiverse.TestUtils.*;
+import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
-import org.codehaus.multiverse.core.Transaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class StackTest extends AbstractMultiversionedStmTest {
     private long stackPtr;
+    private long startMs;
+    private int produceCount;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         stackPtr = atomicInsert(new Stack());
+        startMs = System.currentTimeMillis();
     }
 
     @Override
     public void tearDown() throws Exception {
         super.tearDown();
         System.out.println(heap.getStatistics());
+
+        long timeMs = (System.currentTimeMillis() - startMs) + 1;
+        System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
+        System.out.println(String.format("%s transactions took %s ms", produceCount, timeMs));
+        System.out.println(String.format("%s transactions/second", (produceCount / (timeMs / 1000.0))));
     }
 
     public void atomicPush(final String item) {
@@ -86,9 +95,11 @@ public class StackTest extends AbstractMultiversionedStmTest {
     }
 
     public void testProducerConsumer(int produceCount) {
-        Thread producer1 = new ProducerThread(produceCount);
-        Thread producer2 = new ProducerThread(produceCount);
-        Thread producer3 = new ProducerThread(produceCount);
+        this.produceCount = produceCount;
+        produceCounter.set(produceCount);
+        Thread producer1 = new ProducerThread();
+        Thread producer2 = new ProducerThread();
+        Thread producer3 = new ProducerThread();
 
         Thread consumer1 = new ConsumerThread();
         Thread consumer2 = new ConsumerThread();
@@ -114,20 +125,31 @@ public class StackTest extends AbstractMultiversionedStmTest {
         testProducerConsumer(10000);
     }
 
+    public void testProduceConsumer_100000() {
+        testProducerConsumer(100000);
+    }
+
+    public void testProduceConsumer_1000000() {
+        testProducerConsumer(1000000);
+    }
+
+    public void testProduceConsumer_10000000() {
+        testProducerConsumer(10000000);
+    }
+
     final static AtomicInteger producerCounter = new AtomicInteger();
+    final static AtomicLong produceCounter = new AtomicLong();
     final static AtomicInteger consumerCounter = new AtomicInteger();
     final static AtomicInteger itemCounter = new AtomicInteger();
 
     private class ProducerThread extends Thread {
-        private int produceCount;
 
-        public ProducerThread(int produceCount) {
+        public ProducerThread() {
             super("producer-" + producerCounter.incrementAndGet());
-            this.produceCount = produceCount;
         }
 
         public void run() {
-            for (int k = 0; k < produceCount; k++) {
+            while (produceCounter.decrementAndGet() > 0) {
                 atomicPush("" + itemCounter.incrementAndGet());
                 //TestUtils.sleepRandom(10);
             }

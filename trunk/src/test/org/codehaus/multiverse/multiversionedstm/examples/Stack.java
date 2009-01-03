@@ -2,6 +2,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -65,7 +66,7 @@ public class Stack<E> implements StmObject {
 
     //generated
     private Node head_initial;
-    private long handle;
+    private long handle = HandleGenerator.create();
     private Transaction transaction;
     private DehydratedStack initialStack;
 
@@ -78,9 +79,8 @@ public class Stack<E> implements StmObject {
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(Transaction transaction, long handle) {
+    public void ___onAttach(Transaction transaction) {
         this.transaction = transaction;
-        this.handle = handle;
     }
 
     public Transaction ___getTransaction() {

@@ -129,10 +129,13 @@ public interface MultiversionedHeap {
         }
 
         public static CommitResult createReadOnly(MultiversionedHeapSnapshot snapshot) {
+            if (snapshot == null) throw new NullPointerException();
             return new CommitResult(true, snapshot, 0);
         }
 
         public static CommitResult createSuccess(MultiversionedHeapSnapshot snapshot, long writeCount) {
+            if (snapshot == null) throw new NullPointerException();
+            if (writeCount < 0) throw new IllegalArgumentException();
             return new CommitResult(true, snapshot, writeCount);
         }
     }

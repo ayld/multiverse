@@ -3,9 +3,11 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.TestUtils;
 import static org.codehaus.multiverse.TestUtils.joinAll;
 import static org.codehaus.multiverse.TestUtils.startAll;
+import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
+import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,10 +18,15 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     private long queuePtr;
     private Set pushed = Collections.synchronizedSet(new HashSet());
     private Set popped = Collections.synchronizedSet(new HashSet());
+    private long startMs;
+    private AtomicInteger produceCounter = new AtomicInteger();
+    private int produceCount;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
+
+        startMs = System.currentTimeMillis();
         queuePtr = atomicInsert(new Queue());
     }
 
@@ -27,6 +34,16 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     public void tearDown() throws Exception {
         super.tearDown();
         assertEquals(pushed, popped);
+
+        long timeMs = (System.currentTimeMillis() - startMs) + 1;
+        System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
+        System.out.println(String.format("%s transactions took %s ms", produceCount, timeMs));
+        System.out.println(String.format("%s transactions/second", (produceCount / (timeMs / 1000.0))));
+    }
+
+    public MultiversionedStm createStm() {
+        heap = new GrowingMultiversionedHeap();
+        return new MultiversionedStm(heap);
     }
 
     public void atomicPush(final String item) {
@@ -134,12 +151,14 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         testProducerConsumer(1000000);
     }
 
-    public void _testProducerConsumer_5000000() {
+    public void testProducerConsumer_5000000() {
         testProducerConsumer(5000000);
     }
 
-    public void testProducerConsumer(int messageCount) {
-        Thread producer = new ProducerThread(messageCount);
+    public void testProducerConsumer(int commitCount) {
+        this.produceCount = commitCount;
+        produceCounter.set(commitCount);
+        Thread producer = new ProducerThread();
         Thread consumer1 = new ConsumerThread();
         Thread consumer2 = new ConsumerThread();
         Thread consumer3 = new ConsumerThread();
@@ -151,17 +170,16 @@ public class QueueTest extends AbstractMultiversionedStmTest {
     static AtomicInteger producerCounter = new AtomicInteger();
 
     private class ProducerThread extends Thread {
-        private int messageCount;
 
-        public ProducerThread(int messageCount) {
+        public ProducerThread() {
             super("producer-" + producerCounter.incrementAndGet());
-            this.messageCount = messageCount;
         }
 
         private int runCount = 0;
 
         public void run() {
-            for (int k = 0; k < messageCount; k++) {
+            int k = produceCounter.decrementAndGet();
+            while (k > 0) {
                 atomicPush("" + k);
 
                 runCount++;
@@ -169,6 +187,7 @@ public class QueueTest extends AbstractMultiversionedStmTest {
                     System.out.println(getName() + " transactioncount: " + runCount);
 
                 //    sleepRandom(3);
+                k = produceCounter.decrementAndGet();
             }
 
             atomicPush("poison");

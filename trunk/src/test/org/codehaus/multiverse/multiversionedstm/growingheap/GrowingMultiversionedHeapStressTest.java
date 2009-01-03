@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 //todo: a long running test to make sure that there are no memory leaks
 public class GrowingMultiversionedHeapStressTest extends TestCase {
 
-    private static final int TOTAL_COMMIT_COUNT = 20000;
-    private static final int MAX_COMMIT_SIZE = 50;
+    private static final int TOTAL_COMMIT_COUNT = 200000;
+    private static final int MAX_COMMIT_SIZE = 2;
     private static final int HANDLE_RANGE = 100000;
     private static final int MAX_DELAY_BETWEEN_TRANSACTIONS = 0;
     private static final int MAX_DELAY_BETWEEN_START_AND_COMMIT = 0;
@@ -35,14 +35,13 @@ public class GrowingMultiversionedHeapStressTest extends TestCase {
         commitCounter.set(TOTAL_COMMIT_COUNT);
         Thread[] threads = createThreads(2);
 
+        long startMs = System.currentTimeMillis();
         startAll(threads);
         joinAll(threads);
+        long timeMs = (System.currentTimeMillis() - startMs) + 1;
+        System.out.println(String.format("%s transactions took %s ms", TOTAL_COMMIT_COUNT, timeMs));
+        System.out.println(String.format("%s transactions/second", (TOTAL_COMMIT_COUNT / (timeMs / 1000))));
     }
-
-    //todo: het aantal alive elementen in de chain checken?
-    //todo: if a thread fails with an error, the test still succeeds.
-    //todo: make sure that snapshots that are connected through a string reference, still can be used and are not deleted
-    //todo: if there was an update.. the old version also can be checked. 
 
     long randomHandle() {
         return ((System.nanoTime() * 31) % HANDLE_RANGE) + 1;
@@ -57,7 +56,6 @@ public class GrowingMultiversionedHeapStressTest extends TestCase {
         HashMap<Long, DehydratedStmObject> set = new HashMap();
         while (set.size() < unitOfWorkSize) {
             long handle = randomHandle();
-            System.out.println("handle: " + handle);
             if (!set.containsKey(handle))
                 set.put(handle, new DummyDehydratedStmObject(handle));
         }

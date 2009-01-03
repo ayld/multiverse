@@ -2,8 +2,9 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.util.HandleUtils;
+import org.codehaus.multiverse.multiversionedstm.StmObjectUtils;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
@@ -17,6 +18,7 @@ public class Person implements StmObject {
     private Person parent;
 
     public Person() {
+        handle = HandleGenerator.create();
     }
 
     public Person(int age, String name) {
@@ -58,15 +60,13 @@ public class Person implements StmObject {
 
     //==================== GENERATED =====================
 
-    //GENERATED
     private boolean parent_localized = true;
 
     private DehydratedPerson initialDehydratedPerson;
-    //GENERATED
+
     private Transaction transaction;
 
-    //GENERATED
-    private long handle;
+    private long handle = HandleGenerator.create();
 
     public long ___getHandle() {
         return handle;
@@ -83,7 +83,7 @@ public class Person implements StmObject {
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(Transaction transaction, long handle) {
+    public void ___onAttach(Transaction transaction) {
         if (transaction == null)
             throw new NullPointerException();
 
@@ -94,7 +94,6 @@ public class Person implements StmObject {
             throw new IllegalArgumentException("Object already bound to another transaction");
 
         this.transaction = transaction;
-        this.handle = handle;
     }
 
     public Transaction ___getTransaction() {
@@ -137,7 +136,7 @@ public class Person implements StmObject {
             super(person.___getHandle());
             this.age = person.age;
             this.name = person.name;
-            this.parentHandle = HandleUtils.getHandle(person.getParent());
+            this.parentHandle = StmObjectUtils.getHandle(person.getParent());
         }
 
         public Iterator<Long> members() {

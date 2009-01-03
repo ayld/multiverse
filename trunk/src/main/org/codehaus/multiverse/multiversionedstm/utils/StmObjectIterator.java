@@ -1,16 +1,15 @@
-package org.codehaus.multiverse.multiversionedstm;
+package org.codehaus.multiverse.multiversionedstm.utils;
 
-import org.codehaus.multiverse.util.IdentityHashSet;
+import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.CompositeIterator;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
- * An {@link Iterator} that iterates over {@link StmObject}, including their loaded members. Members are not
+ * An {@link Iterator} that iterates over {@link org.codehaus.multiverse.multiversionedstm.StmObject}, including their loaded members. Members are not
  * traversed if they are not loaded because we don't want to load very large object graphs. It uses the
- * {@link StmObject#___loadedMembers()} for iteration.
+ * {@link org.codehaus.multiverse.multiversionedstm.StmObject#___loadedMembers()} for iteration.
  * <p/>
  * This iterator gives the guarantee that each item is returned only once.
  * <p/>
@@ -25,9 +24,9 @@ import java.util.NoSuchElementException;
 public final class StmObjectIterator implements Iterator<StmObject> {
 
     //all StmObject that already are returned. This prevent multiple returns of the same item.
-    private final IdentityHashSet<StmObject> touchedSet = new IdentityHashSet();
+    private final Set<Long> touchedSet = new HashSet<Long>();
     //all StmObjects which members need to be traversed.
-    private final IdentityHashSet<StmObject> todoMembers = new IdentityHashSet();
+    private final Map<Long, StmObject> todoMembers = new HashMap<Long, StmObject>();
 
     private Iterator<StmObject> iterator;
 
@@ -75,7 +74,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
      * @throws NoSuchElementException if the iteratorSet is empty.
      */
     private StmObject takeItemFromTodoMembers() {
-        Iterator<StmObject> it = todoMembers.iterator();
+        Iterator<StmObject> it = todoMembers.values().iterator();
         StmObject result = it.next();
         it.remove();
         return result;
@@ -92,8 +91,9 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     private boolean findNextInCurrentIterator() {
         while (iterator.hasNext()) {
             StmObject object = iterator.next();
-            if (touchedSet.add(object)) {
-                todoMembers.add(object);
+            //long handle = object.___getHandle();
+            if (touchedSet.add(object.___getHandle())) {
+                todoMembers.put(object.___getHandle(), object);
                 next = object;
                 return true;
             }
