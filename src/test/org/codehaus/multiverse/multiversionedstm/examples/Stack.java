@@ -13,6 +13,11 @@ public class Stack<E> implements StmObject {
 
     private Node<E> head;
 
+    public Stack() {
+        //generated
+        handle = HandleGenerator.create();
+    }
+
     public void push(E item) {
         if (item == null) throw new NullPointerException();
         head = new Node(item, head);
@@ -54,7 +59,7 @@ public class Stack<E> implements StmObject {
         Node(E value, Node prev) {
             this.value = value;
             this.parent = prev;
-            this.size = parent == null ? 1 : prev.size;
+            this.size = parent == null ? 1 : prev.size + 1;
         }
 
         int size() {
@@ -64,11 +69,18 @@ public class Stack<E> implements StmObject {
 
     //================== generated  ======================
 
-    //generated
     private Node head_initial;
-    private long handle = HandleGenerator.create();
+    private final long handle;
     private Transaction transaction;
     private DehydratedStack initialStack;
+
+    public Stack(DehydratedStack dehydratedStack, Transaction transaction) {
+        this.head = dehydratedStack.head;
+        this.head_initial = dehydratedStack.head;
+        this.transaction = transaction;
+        this.handle = dehydratedStack.getHandle();
+        this.initialStack = dehydratedStack;
+    }
 
     public DehydratedStmObject ___getInitialDehydratedStmObject() {
         return initialStack;
@@ -118,13 +130,7 @@ public class Stack<E> implements StmObject {
         }
 
         public Stack hydrate(Transaction transaction) {
-            Stack stack = new Stack();
-            stack.head = head;
-            stack.head_initial = head;
-            stack.transaction = transaction;
-            stack.handle = getHandle();
-            stack.initialStack = this;
-            return stack;
+            return new Stack(this, transaction);
         }
     }
 }

@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * is wrapped in a WeakReference, so that the garbage collector can clean up unused HeapSnapshots.
  * <p/>
  * Non Blocking:
- * This HeapSnapshotChain has a non blocking add {@link #compareAndAdd(org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot , org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot)}.
+ * This HeapSnapshotChain has a non blocking add {@link #compareAndAdd(MultiversionedHeapSnapshot , MultiversionedHeapSnapshot)}.
  *
  * @author Peter Veentjer
  * @param <H>
@@ -42,12 +42,12 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
         if (heapSnapshot == null) throw new NullPointerException();
         headReference.set(new Node(heapSnapshot, null, referenceQueue));
 
-        new CleanupThread().start();
+        //new CleanupThread().start();
     }
 
     /**
-     * Adds the newSnapshot to this HeapSnapshotChain. This call is non blocking, so the expectedSnapshot
-     * is needed as well, to see if there was a failure while adding.
+     * Adds the newSnapshot to this HeapSnapshotChain under the condition that the expectedSnapshot
+     * still is in place.
      *
      * @param expectedSnapshot the HeapSnapshot we expected to be in place.
      * @param newSnapshot      the HeapSnapshot to add.
@@ -57,6 +57,8 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      */
     public boolean compareAndAdd(H expectedSnapshot, H newSnapshot) {
         if (expectedSnapshot == null || newSnapshot == null) throw new NullPointerException();
+
+        removeUselessNodesFromChain();
 
         Node<H> oldHead = headReference.get();
         H oldSnapshot = oldHead.strongSnapshotReference;
@@ -80,10 +82,8 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
             return false;
         }
 
-        //the new head was set successfully, we can clear the strongSnapshotReference on the oldHead so that
-        //the snapshot can be garbage collected if nobody is using it anymore.
-        oldHead.strongSnapshotReference = null;
-        oldHead.newer = newHead;
+        //the new head was set successfully, we need to signal the oldHead that it isn't the Head anymore.
+        oldHead.downgradeToBody(newHead);
         enteredCounter.incrementAndGet();
         return true;
     }
@@ -97,9 +97,10 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      *         it is returned.
      */
     public H getHead() {
-        //needs to be done in a loop because a new head could be placed, and the MultiversionedHeapSnapshot is garbage collected.
+        //needs to be done in a loop because a new head could be placed, and the MultiversionedHeapSnapshot
+        //already is garbage collected. 
         while (true) {
-            H snapshot = headReference.get().weakSnapshotReference.get();
+            H snapshot = headReference.get().strongSnapshotReference;
             if (snapshot != null)
                 return snapshot;
         }
@@ -107,6 +108,9 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
 
     /**
      * Gets the Snapshot with equal or smaller to the specified version.
+     * <p/>
+     * The complexity if this method is O(n). So perhaps this could be improved in the future.
+     * But atm it doesn't appear in the profiling charts, so not a big issue yet.
      *
      * @param version the version of the Snapshot to look for.
      * @return the found Snapshot.
@@ -119,7 +123,7 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
         do {
             H snapshot = node.weakSnapshotReference.get();
             //since the snapshot could have been removed by the garbage collector, we need to check that is
-            //still is there. If it isn't, we skip this node and go to the newer.
+            //still is there. If it isn't, we skip this node and go to the newHead.
             if (snapshot != null) {
                 oldest = snapshot.getVersion();
 
@@ -127,7 +131,7 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
                 if (snapshot.getVersion() <= version)
                     return snapshot;
             }
-            node = node.older;
+            node = node.oldHead;
         } while (node != null);
 
         String msg = format("Snapshot with a version equal or smaller than  %s is not found, oldest version found is %s",
@@ -137,6 +141,8 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
 
     /**
      * Get the Snapshot with the specific version.
+     * <p/>
+     * It uses the #getVersion to the find the correct Snapshot.
      *
      * @param version the specific version of the HeapSnapshot to look for.
      * @return the found HeapSnapshot. The value will always be not null
@@ -161,7 +167,7 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
         do {
             if (node.weakSnapshotReference.get() != null)
                 result++;
-            node = node.older;
+            node = node.oldHead;
         } while (node != null);
 
         return result;
@@ -172,7 +178,7 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
         Node node = headReference.get();
         do {
             result++;
-            node = node.older;
+            node = node.oldHead;
         } while (node != null);
 
         return result;
@@ -194,13 +200,70 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
         //is no head anymore, this reference is set to null. So in most cases this will be null.
         volatile H strongSnapshotReference;
 
-        volatile Node<H> older;
-        volatile Node<H> newer;
+        //points to the previous head of the chain.
+        volatile Node<H> oldHead;
 
-        Node(H snapshot, Node<H> older, ReferenceQueue<WeakSnapshotReference> referenceQueue) {
+        //the newHead field only is used for removing the node from the Chain.
+        volatile Node<H> newHead;
+
+        Node(H snapshot, Node<H> oldHead, ReferenceQueue<WeakSnapshotReference> referenceQueue) {
             this.strongSnapshotReference = snapshot;
             this.weakSnapshotReference = new WeakSnapshotReference(this, snapshot, referenceQueue);
-            this.older = older;
+            this.oldHead = oldHead;
+        }
+
+        /**
+         * Downgrades this Node from head of the chain, to the body of the chain.
+         * <p/>
+         * Once a new head is set, the old head should be marked that it isn't head anymore.
+         * What happens is that the strong reference to the snapshot is removed. so unless somebody else
+         * is refering to the Snapshot, it can be garbage collected.
+         * <p/>
+         * Once this is done, it should never by redone. No checking is done on this bad behaviour.
+         *
+         * @param newHead the Node that is the new head of the chain.
+         */
+        void downgradeToBody(Node<H> newHead) {
+            this.newHead = newHead;
+            this.strongSnapshotReference = null;
+        }
+
+        /**
+         * Checks if this node is part of the chain. This is done by checking if the strongSnapshotReference
+         * is null.
+         *
+         * @return true if this Node is part of the Snapshot chain, false otherwise.
+         */
+        boolean partOfChain() {
+            return strongSnapshotReference == null;
+        }
+
+        /**
+         * Once the WeakSnapshotReference is garbage collected. the cleanup thread is going to call this method.
+         * This method removes this Node from the chain of nodes.
+         */
+        void removeFromChain() {
+            //nodes that are created by were not successfully set as head (so are not part of the chain) are garbage
+            //collected as well. This check makes sure that the 'cleanup' of such nodes doesn't cause any harm.
+            if (!partOfChain())
+                return;
+
+            //remove the current node of the chain 
+            newHead.oldHead = oldHead;
+
+            //if the older exist, the older.newHead should be set (the last node has no older).
+            if (oldHead != null)
+                oldHead.newHead = newHead;
+        }
+    }
+
+    private void removeUselessNodesFromChain() {
+        while (true) {
+            WeakSnapshotReference reference = (WeakSnapshotReference) referenceQueue.poll();
+            if (reference == null)
+                return;
+
+            reference.node.removeFromChain();
         }
     }
 
@@ -213,51 +276,25 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
         }
 
         public void run() {
-            int counter = 0;
-            int withNewer = 0;
-            int withOlder = 0;
+            int removedCounter = 0;
 
             try {
                 while (true) {
                     try {
                         WeakSnapshotReference reference = (WeakSnapshotReference) referenceQueue.remove();
-                        Node node = reference.node;
-
-                        //a node with a strong reference never has been an element of the chain
-                        if (node.strongSnapshotReference != null)
-                            return;
-
-                        if (counter % 200000 == 0) {
-                            System.out.println("-------------------------------------------------------");
-                            System.out.println(format("count %s", counter));
-                            System.out.println(format("withNewer %s", withNewer));
-                            System.out.println(format("withOlder %s", withOlder));
-                            System.out.println(format("alivecount %s", getAliveCount()));
-                            System.out.println(format("chaincount %s", getChainCount()));
-                            System.out.println(format("enteredcount %s", enteredCounter.get()));
+                        synchronized (MultiversionedHeapSnapshotChain.this) {
+                            reference.node.removeFromChain();
                         }
+                        removedCounter++;
 
-                        counter++;
-
-                        // System.out.println("garbage found");
-
-                        Node older = node.older;
-                        Node newer = node.newer;
-
-                        //todo: could it happen that the newer has not been set when this node is garbage collected?
-                        if (newer != null) {
-                            newer.older = older;
-                            withNewer++;
-                        }
-
-                        //the last node has no older, so a check should be done.
-                        if (older != null) {
-                            withOlder++;
-                            older.newer = newer;
-                        }
-
-                        node.older = null;
-                        node.newer = null;
+                        //if (removedCounter % 1000000 == 0) {
+                        //    System.out.println("-------------------------------------------------------");
+                        //    System.out.println(format("removedCounter %s", removedCounter));
+                        //    System.out.println(format("enteredcount   %s", enteredCounter.get()));
+                        //    System.out.println(format("alivecount     %s", getAliveCount()));
+                        //    System.out.println(format("chaincount     %s", getChainCount()));
+                        //
+                        //}
                     } catch (InterruptedException e) {
                         //todo: what to do with the interrupt status here.
                         interrupt();

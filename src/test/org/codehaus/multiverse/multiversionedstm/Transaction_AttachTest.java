@@ -82,7 +82,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionHasNoWrites();
 
         assertHasHandleAndTransaction(child, childHandle, transaction);
-        assertHasHandleAndTransaction(parent, 0, null);
+        assertHasTransaction(null, parent);
     }
 
     public void testSameObjectAttachedMultipleTimes() {
@@ -214,7 +214,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
 
-        assertHasHandleAndTransaction(child, 0, null);
+        assertHasTransaction(null, child);
         assertHasHandleAndTransaction(parent, parentHandle, otherTransaction);
         //todo: testen dat de parent bij het comitten gaat zeuren dat die aan een verkeerde transactie zit
     }
@@ -253,16 +253,16 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsAborted();
         assertTransactionHasNoWrites();
         assertStmActiveVersion(version);
-        assertHasHandleAndTransaction(obj, 0, null);
+        assertHasTransaction(null, obj);
     }
 
     public void testTransactionIsComitted() {
         createCommittedTransaction();
         long version = stm.getCurrentVersion();
 
-        Person object = new Person();
+        Person person = new Person();
         try {
-            transaction.attachAsRoot(object);
+            transaction.attachAsRoot(person);
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -270,6 +270,6 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsCommitted();
         assertTransactionHasNoWrites();
         assertStmActiveVersion(version);
-        assertHasHandleAndTransaction(object, 0, null);
+        assertHasTransaction(null, person);
     }
 }

@@ -10,7 +10,7 @@ package org.codehaus.multiverse.core;
  * <pre>
  * String result = new TransactionTemplate(stm){
  *     public E execute(Transaction t){
- *          Stack stack = (Stack)t.read(stackHandle);
+ *          Stack<E> stack = (Stack<E>)t.read(stackHandle);
  *          return stack.take();
  *     }
  * }.execute();
@@ -18,6 +18,9 @@ package org.codehaus.multiverse.core;
  * <p/>
  * It really is a shame that closures are not going to be part of Java 7, so we still need to use this
  * ugly anonymous innerclass syntax.
+ * <p/>
+ * The Transaction used in this TransactionTemplate also can be accessed under the TransactionThreadLocal, so
+ * you don't need to drag the instanceof of the Transaction around.
  *
  * @author Peter Veentjer.
  * @param <E> the type of the object to return.
@@ -25,6 +28,7 @@ package org.codehaus.multiverse.core;
 public abstract class TransactionTemplate<E> {
 
     private final Stm stm;
+    private int maximumRetryCount = 0;
 
     /**
      * Creates a new TransactionTemplate.
@@ -35,6 +39,26 @@ public abstract class TransactionTemplate<E> {
     protected TransactionTemplate(Stm stm) {
         if (stm == null) throw new NullPointerException();
         this.stm = stm;
+    }
+
+    /**
+     * Gets the maximum retry count. 0 indicates never stop retrying.
+     *
+     * @return the maximum retry count.
+     */
+    public int getMaximumRetryCount() {
+        return maximumRetryCount;
+    }
+
+    /**
+     * Sets the maximum retry count. A value of 0 means never stop retrying.
+     *
+     * @param maximumRetryCount the value to set.
+     * @throws IllegalArgumentException if maximumRetryCount smaller than 0.
+     */
+    public void setMaximumRetryCount(int maximumRetryCount) {
+        if (maximumRetryCount < 0) throw new IllegalArgumentException();
+        this.maximumRetryCount = maximumRetryCount;
     }
 
     /**
@@ -50,34 +74,39 @@ public abstract class TransactionTemplate<E> {
 
     public final E execute() {
         try {
-            boolean success = false;
             Transaction predecessor = null;
-            E result = null;
+            int retryCount = 0;
             do {
                 Transaction transaction = startTransaction(predecessor);
+                predecessor = null;
+                boolean succes = false;
+                TransactionThreadLocal.set(transaction);
                 try {
-                    predecessor = null;
-                    result = execute(transaction);
+                    E result = execute(transaction);
                     transaction.commit();
-                    success = true;
+                    succes = true;
+                    return result;
                 } catch (RetryError ex) {
-                    transaction.abort();
+                    retryCount++;
                     predecessor = transaction;
                 } catch (WriteConflictException ex) {
-                    //todo: a write conflict should not be retried?
-                    transaction.abort();
-                } catch (RuntimeException ex) {
-                    transaction.abort();
-                    throw ex;
-                } catch (Exception ex) {
-                    transaction.abort();
-                    throw new RuntimeException(ex);
-                }
-            } while (!success);
+                    retryCount++;
+                    predecessor = transaction;
+                } finally {
+                    TransactionThreadLocal.remove();
 
-            return result;
+                    if (succes)
+                        transaction.commit();
+                    else
+                        transaction.abort();
+                }
+            } while (retryCount < maximumRetryCount || maximumRetryCount == 0);
+
+            throw new TooManyRetriesException();
         } catch (InterruptedException ex) {
             Thread.interrupted();
+            throw new RuntimeException(ex);
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
