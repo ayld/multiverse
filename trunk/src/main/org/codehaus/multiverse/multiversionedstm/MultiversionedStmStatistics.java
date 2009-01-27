@@ -64,13 +64,20 @@ public final class MultiversionedStmStatistics {
         sb.append("stm.transaction.startedcount: ").append(getTransactionsStartedCount()).append("\n");
 
         sb.append("stm.transaction.committedcount: ").append(getTransactionsCommitedCount()).append("\n");
-        double committedPercentage = (100 * transactionsCommitedCount.longValue()) / transactionsStartedCount.longValue();
+        double committedPercentage = toPercentage(transactionsCommitedCount.longValue(), transactionsStartedCount.longValue());
         sb.append("stm.transaction.committed-percentage: ").append(committedPercentage).append("\n");
 
         sb.append("stm.transaction.abortedcount: ").append(getTransactionsAbortedCount()).append("\n");
-        double abortedPercentage = ((100.0 * transactionsAbortedCount.longValue()) / transactionsStartedCount.longValue());
+        double abortedPercentage = toPercentage(transactionsAbortedCount.longValue(), transactionsStartedCount.longValue());
         sb.append("stm.transaction.aborted-percentage: ").append(abortedPercentage).append("\n");
         sb.append("stm.transaction.readonlycount: ").append(getTransactionsReadonlyCount()).append("\n");
+    }
+
+    public double toPercentage(long v1, long v2) {
+        if (v2 == 0)
+            return 0;
+        else
+            return (100.0 * v1) / v2;
     }
 
     @Override

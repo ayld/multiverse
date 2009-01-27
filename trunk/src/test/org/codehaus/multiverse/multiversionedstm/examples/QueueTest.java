@@ -147,11 +147,11 @@ public class QueueTest extends AbstractMultiversionedStmTest {
         testProducerConsumer(100000);
     }
 
-    public void testProducerConsumer_1000000() {
+    public void _testProducerConsumer_1000000() {
         testProducerConsumer(1000000);
     }
 
-    public void testProducerConsumer_5000000() {
+    public void _testProducerConsumer_5000000() {
         testProducerConsumer(5000000);
     }
 

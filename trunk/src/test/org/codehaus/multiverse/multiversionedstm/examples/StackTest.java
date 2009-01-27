@@ -31,6 +31,8 @@ public class StackTest extends AbstractMultiversionedStmTest {
         System.out.println(String.format("%s transactions/second", (produceCount / (timeMs / 1000.0))));
     }
 
+    int count;
+
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
@@ -39,6 +41,13 @@ public class StackTest extends AbstractMultiversionedStmTest {
                 return null;
             }
         }.execute();
+
+        //count++;
+        //if(count % 1000000==0){
+        //    System.out.println("pause");
+        //    sleep(1000);
+        //    System.out.println("finished pause");
+        //}
     }
 
     public String atomicPop() {
@@ -96,7 +105,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
 
     public void testProducerConsumer(int produceCount) {
         this.produceCount = produceCount;
-        produceCounter.set(produceCount);
+        produceTodoCounter.set(produceCount);
         Thread producer1 = new ProducerThread();
         Thread producer2 = new ProducerThread();
         Thread producer3 = new ProducerThread();
@@ -133,25 +142,29 @@ public class StackTest extends AbstractMultiversionedStmTest {
         testProducerConsumer(1000000);
     }
 
-    public void testProduceConsumer_10000000() {
-        testProducerConsumer(10000000);
+    public void _testProduceConsumer_10000000() {
+        testProducerConsumer(100000000);
     }
 
-    final static AtomicInteger producerCounter = new AtomicInteger();
-    final static AtomicLong produceCounter = new AtomicLong();
-    final static AtomicInteger consumerCounter = new AtomicInteger();
-    final static AtomicInteger itemCounter = new AtomicInteger();
+    final static AtomicInteger producerThreadCounter = new AtomicInteger();
+    final static AtomicLong produceTodoCounter = new AtomicLong();
+    final static AtomicInteger consumerThreadCounter = new AtomicInteger();
+    final static AtomicInteger producedItemCounter = new AtomicInteger();
 
     private class ProducerThread extends Thread {
 
         public ProducerThread() {
-            super("producer-" + producerCounter.incrementAndGet());
+            super("producer-" + producerThreadCounter.incrementAndGet());
         }
 
         public void run() {
-            while (produceCounter.decrementAndGet() > 0) {
-                atomicPush("" + itemCounter.incrementAndGet());
-                //TestUtils.sleepRandom(10);
+            while (produceTodoCounter.decrementAndGet() > 0) {
+                long itemCount = producedItemCounter.incrementAndGet();
+                atomicPush("" + itemCount);
+
+                if (itemCount % 500000 == 0) {
+                    System.out.println(String.format("Produced %s items", itemCount));
+                }
             }
 
             atomicPush("poison");
@@ -161,7 +174,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
     private class ConsumerThread extends Thread {
 
         public ConsumerThread() {
-            super("consumer-" + consumerCounter.incrementAndGet());
+            super("consumer-" + consumerThreadCounter.incrementAndGet());
         }
 
         public void run() {

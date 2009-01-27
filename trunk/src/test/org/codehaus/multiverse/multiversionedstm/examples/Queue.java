@@ -13,6 +13,11 @@ public class Queue<E> implements StmObject {
     private Stack<E> readyToPopStack = new Stack<E>();
     private Stack<E> pushedStack = new Stack<E>();
 
+    public Queue() {
+        //generated
+        handle = HandleGenerator.create();
+    }
+
     public E pop() {
         if (!readyToPopStack.isEmpty())
             return readyToPopStack.pop();
@@ -39,9 +44,18 @@ public class Queue<E> implements StmObject {
 
     //================== generated =================
 
-    private long handle = HandleGenerator.create();
+    private final long handle;
     private Transaction transaction;
     private DehydratedQueue initialDehydratedQueue;
+
+    public Queue(DehydratedQueue dehydratedQueue, Transaction transaction) {
+        this.handle = dehydratedQueue.getHandle();
+        this.transaction = transaction;
+
+        this.readyToPopStack = (Stack) transaction.read(dehydratedQueue.readyToPopStackPtr);
+        this.pushedStack = (Stack) transaction.read(dehydratedQueue.pushedStackPtr);
+        this.initialDehydratedQueue = dehydratedQueue;
+    }
 
     public DehydratedStmObject ___getInitialDehydratedStmObject() {
         return initialDehydratedQueue;
@@ -89,13 +103,7 @@ public class Queue<E> implements StmObject {
         }
 
         public Queue hydrate(Transaction transaction) {
-            Queue queue = new Queue();
-            queue.handle = getHandle();
-            queue.transaction = transaction;
-            queue.readyToPopStack = (Stack) transaction.read(readyToPopStackPtr);
-            queue.pushedStack = (Stack) transaction.read(pushedStackPtr);
-            queue.initialDehydratedQueue = this;
-            return queue;
+            return new Queue(this, transaction);
         }
     }
 }

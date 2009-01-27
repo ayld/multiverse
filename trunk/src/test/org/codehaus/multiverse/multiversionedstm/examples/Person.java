@@ -24,6 +24,7 @@ public class Person implements StmObject {
     public Person(int age, String name) {
         this.age = age;
         this.name = name;
+        this.handle = HandleGenerator.create();
     }
 
     public int getAge() {
@@ -61,12 +62,21 @@ public class Person implements StmObject {
     //==================== GENERATED =====================
 
     private boolean parent_localized = true;
-
     private DehydratedPerson initialDehydratedPerson;
-
     private Transaction transaction;
+    private final long handle;
 
-    private long handle = HandleGenerator.create();
+    public Person(DehydratedPerson dehydratedPerson, Transaction transaction) {
+        //initialization of operational properties
+        this.handle = dehydratedPerson.getHandle();
+        this.transaction = transaction;
+        this.initialDehydratedPerson = dehydratedPerson;
+
+        //reinitialization of the fields
+        this.age = initialDehydratedPerson.age;
+        this.name = initialDehydratedPerson.name;
+        this.parent_localized = false;
+    }
 
     public long ___getHandle() {
         return handle;
@@ -143,23 +153,8 @@ public class Person implements StmObject {
             throw new RuntimeException();
         }
 
-        public StmObject hydrate(Transaction transaction) {
-            try {
-                Person person = Person.class.newInstance();
-                //initialization of operational properties
-                person.handle = getHandle();
-                person.transaction = transaction;
-                person.initialDehydratedPerson = this;
-
-                //reinitialization of the fields
-                person.age = age;
-                person.name = name;
-                person.parent_localized = false;
-
-                return person;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        public Person hydrate(Transaction transaction) {
+            return new Person(this, transaction);
         }
 
         //equals and hash only are needed for testing purposes
