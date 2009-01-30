@@ -8,6 +8,7 @@
     <property name="src" value="src"/>
     <property name="src.main" value="${src}/main"/>
     <property name="src.test" value="${src}/test"/>
+    <property name="src.japex" value="${src}/japex"/>
     <property name="lib" value="lib"/>
     <property name="lib.provided" value="${lib}/provided"/>
     <property name="lib.support" value="${lib}/support"/>
@@ -16,6 +17,7 @@
     <property name="dist" value="${target}/dist"/>
     <property name="classes.main" value="${target}/classes.main"/>
     <property name="classes.test" value="${target}/classes.test"/>
+    <property name="classes.japex" value="${target}/classes.japex"/>
     <property name="javadoc" value="${target}/javadoc"/>
     <property name="unitreports" value="${target}/junit-reports"/>
 
@@ -87,9 +89,34 @@
         </copy>
     </target>
 
+    <target name="compile.japex"
+            description="Compiles the Japex sources"
+            depends="compile.main">
+
+        <mkdir dir="${classes.japex}"/>
+
+        <javac debug="on"
+               srcdir="${src.japex}"
+               destdir="${classes.japex}"
+               source="1.5">
+            <classpath>
+                <path refid="classpath.provided"/>
+                <path refid="classpath.support"/>
+                <path path="${classes.main}"/>
+            </classpath>
+        </javac>
+
+        <copy todir="${classes.test}">
+            <fileset dir="${src.test}">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+
+
     <target name="compile.all"
             description="Compiles all the sources"
-            depends="compile.main, compile.test"/>
+            depends="compile.main, compile.test, compile.japex"/>
 
     <target name="javadoc"
             description="Generates the Javadoc"

@@ -1,22 +1,24 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
-import junit.framework.TestCase;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.util.latches.Latch;
 import org.codehaus.multiverse.util.latches.StandardLatch;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class VersionedLatchGroupStressTest extends TestCase {
+public class VersionedLatchGroupStressTest {
     private static final int MAX_DELAY_MS = 0;
 
     private List<Latch> latches;
     private VersionedLatchGroup latchGroup;
     private long maxVersion = 100000;
 
-    @Override
+    @Before
     public void setUp() {
         latchGroup = new VersionedLatchGroup(0);
         latches = new Vector(1000000);
@@ -35,6 +37,7 @@ public class VersionedLatchGroupStressTest extends TestCase {
         return result;
     }
 
+    @Test
     public void test() {
         AddLatchThread[] addLatchThreads = createAddLatchThread(20);
         ActivateVersionThread[] activateVersionThreads = createActivateVersionThread(20);
@@ -47,17 +50,17 @@ public class VersionedLatchGroupStressTest extends TestCase {
         assertAllLatchesAreOpened();
     }
 
-    public AddLatchThread[] createAddLatchThread(int count){
+    public AddLatchThread[] createAddLatchThread(int count) {
         AddLatchThread[] result = new AddLatchThread[count];
-        for(int k=0;k<count;k++)
-            result[k]=new AddLatchThread();
+        for (int k = 0; k < count; k++)
+            result[k] = new AddLatchThread();
         return result;
     }
 
-    public ActivateVersionThread[] createActivateVersionThread(int count){
+    public ActivateVersionThread[] createActivateVersionThread(int count) {
         ActivateVersionThread[] result = new ActivateVersionThread[count];
-        for(int k=0;k<count;k++)
-            result[k]=new ActivateVersionThread();
+        for (int k = 0; k < count; k++)
+            result[k] = new ActivateVersionThread();
         return result;
     }
 

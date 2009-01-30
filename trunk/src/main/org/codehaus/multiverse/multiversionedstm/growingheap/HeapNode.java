@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.multiversionedstm.growingheap.heapnodes;
+package org.codehaus.multiverse.multiversionedstm.growingheap;
 
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 
@@ -6,11 +6,9 @@ public interface HeapNode {
 
     long getHandle();
 
-    long getVersion();
-
     DehydratedStmObject getContent();
 
-    HeapNode createNew(DehydratedStmObject change, long changeVersion);
+    HeapNode createNew(DehydratedStmObject change);
 
     HeapNode find(long handle);
 }

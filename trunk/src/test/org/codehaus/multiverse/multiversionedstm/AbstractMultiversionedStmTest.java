@@ -1,11 +1,11 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.AbstractTransactionTest;
+import org.codehaus.multiverse.AbstractStmTest;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 
-public abstract class AbstractMultiversionedStmTest extends AbstractTransactionTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
+public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
     protected GrowingMultiversionedHeap heap;
 
     public MultiversionedStm createStm() {

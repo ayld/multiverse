@@ -26,10 +26,19 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
     private final MultiversionedHeap heap;
     private final MultiversionedStmStatistics statistics = new MultiversionedStmStatistics();
 
+    /**
+     * Creates a new MultiversionedStm with a GrowingMultiversionedHeap as heap.
+     */
     public MultiversionedStm() {
         this(new GrowingMultiversionedHeap());
     }
 
+    /**
+     * Creates a MultiversionedStm with the given heap.
+     *
+     * @param heap the MultiversionedHeap used
+     * @throws NullPointerException if heap is null.
+     */
     public MultiversionedStm(MultiversionedHeap heap) {
         if (heap == null) throw new NullPointerException();
         this.heap = heap;

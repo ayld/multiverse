@@ -1,17 +1,18 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
-import junit.framework.TestCase;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
-import org.codehaus.multiverse.multiversionedstm.growingheap.heapnodes.HeapNode;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 import static java.lang.Math.max;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DefaultHeapNodeTest extends TestCase {
+public class DefaultHeapNodeTest {
     private DefaultHeapNode node;
     private static final int HANDLE_RANGE = 10000;
     private static final int CREATE_TREE_SANITY_CHECK = 1000;
+
 
     public void assertSize(int expected) {
         assertEquals(expected, node.size());
@@ -54,28 +55,29 @@ public class DefaultHeapNodeTest extends TestCase {
     }
 
     public DefaultHeapNode createLeaf(long handle) {
-        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), 1, null, null);
+        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), null, null);
     }
 
     public DefaultHeapNode createBranch(long handle, long leftHandle, long rightHandle) {
-        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), 1, createLeaf(leftHandle), createLeaf(rightHandle));
+        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), createLeaf(leftHandle), createLeaf(rightHandle));
     }
 
     public DefaultHeapNode createBranch(long handle, DefaultHeapNode left, DefaultHeapNode right) {
-        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), 1, left, right);
+        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), left, right);
     }
 
     public DefaultHeapNode createLeftBranch(long handle, long leftHandle) {
-        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), 1, createLeaf(leftHandle), null);
+        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), createLeaf(leftHandle), null);
     }
 
     public DefaultHeapNode createRightBranch(long handle, long rightHandle) {
-        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), 1, null, createLeaf(rightHandle));
+        return new DefaultHeapNode(new DummyDehydratedStmObject(handle), null, createLeaf(rightHandle));
     }
 
 
     // ================== singleRotateLeft ===================
 
+    @Test
     public void testSingleRotateLeft_noRight() {
         node = createLeftBranch(0, 1);
 
@@ -87,6 +89,7 @@ public class DefaultHeapNodeTest extends TestCase {
         }
     }
 
+    @Test
     public void testSingleRotateLeft() {
         DefaultHeapNode a = createLeaf(0);
         DefaultHeapNode b = createLeaf(2);
@@ -108,12 +111,14 @@ public class DefaultHeapNodeTest extends TestCase {
 
     // ================== doubleRotateLeft ===================
 
+    @Test
     public void testDoubleRotateLeft() {
         //todo
     }
 
     // ================== singleRotateRight ===================
 
+    @Test
     public void testSingleRotateRight_noLeft() {
         node = createRightBranch(0, 1);
 
@@ -125,6 +130,7 @@ public class DefaultHeapNodeTest extends TestCase {
         }
     }
 
+    @Test
     public void testSingleRotateRight() {
         DefaultHeapNode a = createLeaf(0);
         DefaultHeapNode b = createLeaf(2);
@@ -143,6 +149,7 @@ public class DefaultHeapNodeTest extends TestCase {
         assertIsLeaf(result.getRight().getRight());
     }
 
+    @Test
     public void testSingleRotatesAreSymetric() {
         DefaultHeapNode a = createLeaf(0);
         DefaultHeapNode b = createLeaf(2);
@@ -165,56 +172,66 @@ public class DefaultHeapNodeTest extends TestCase {
 
     // ================== doubleRotateRight =========================
 
+    @Test
     public void testDoubleRotateRight() {
         //todo
     }
 
     // ================== size =========================
 
+    @Test
     public void testSizeLeaf() {
         node = createLeaf(1);
         assertSize(1);
     }
 
+    @Test
     public void testSize_withLeftBranch() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), 0, createLeaf(1), null);
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), createLeaf(1), null);
         assertSize(2);
     }
 
+    @Test
     public void testSize_withRightBranch() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(1), 0, null, createLeaf(3));
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(1), null, createLeaf(3));
         assertSize(2);
     }
 
+    @Test
     public void testSize_withBranches() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(3), 0, createBranch(0, 1, 2), createLeaf(4));
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(3), createBranch(0, 1, 2), createLeaf(4));
         assertSize(5);
     }
 
     //===================== height =================
 
+    @Test
     public void testHeight_Leaf() {
         node = createLeaf(1);
         assertHeight(1);
     }
 
+    @Test
     public void testHeight_withLeftBranch() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), 0, createLeaf(1), null);
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), createLeaf(1), null);
         assertHeight(2);
     }
 
+    @Test
     public void testHeight_withRightBranch() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(1), 0, null, createLeaf(3));
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(1), null, createLeaf(3));
         assertHeight(2);
     }
 
+    @Test
     public void testHeight_withBranches() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(3), 0, createBranch(0, 1, 2), createLeaf(4));
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(3), createBranch(0, 1, 2), createLeaf(4));
         assertHeight(3);
     }
 
     // =================== find ===========================
 
+    @Test
     public void testFind_foundInLeaf() {
         node = createLeaf(0);
 
@@ -222,6 +239,7 @@ public class DefaultHeapNodeTest extends TestCase {
         assertSame(node, found);
     }
 
+    @Test
     public void testFind_notFoundInLeaf() {
         node = createLeaf(0);
 
@@ -229,15 +247,17 @@ public class DefaultHeapNodeTest extends TestCase {
         assertNull(found);
     }
 
+    @Test
     public void testFind_inLeftBranch() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), 1, createLeaf(1), createLeaf(3));
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), createLeaf(1), createLeaf(3));
 
         HeapNode found = node.find(1);
         assertSame(node.getLeft(), found);
     }
 
+    @Test
     public void testFind_inRightBranch() {
-        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), 1, createLeaf(1), createLeaf(3));
+        node = new DefaultHeapNode(new DummyDehydratedStmObject(2), createLeaf(1), createLeaf(3));
 
         HeapNode found = node.find(3);
         assertSame(node.getRight(), found);
@@ -245,24 +265,28 @@ public class DefaultHeapNodeTest extends TestCase {
 
     //================== balance factor ====================
 
+    @Test
     public void testLeaf() {
         node = createLeaf(1);
         int balanceFactor = node.balanceFactor();
         assertEquals(0, balanceFactor);
     }
 
+    @Test
     public void testLeftHeavy() {
         node = createLeftBranch(1, 2);
         int balanceFactor = node.balanceFactor();
         assertEquals(-1, balanceFactor);
     }
 
+    @Test
     public void testRightHeavy() {
         node = createRightBranch(1, 2);
         int balanceFactor = node.balanceFactor();
         assertEquals(1, balanceFactor);
     }
 
+    @Test
     public void testWithLeftRightLeaf() {
         node = createBranch(1, 0, 2);
         int balanceFactor = node.balanceFactor();
@@ -288,9 +312,9 @@ public class DefaultHeapNodeTest extends TestCase {
             long handle = createRandomHandle();
 
             if (node == null)
-                node = new DefaultHeapNode(new DummyDehydratedStmObject(handle), 0, null, null);
+                node = new DefaultHeapNode(new DummyDehydratedStmObject(handle), null, null);
             else
-                node = node.createNew(new DummyDehydratedStmObject(handle), 0);
+                node = node.createNew(new DummyDehydratedStmObject(handle));
 
             if (k % checkMod == 0) {
                 assertIsBalanced();
@@ -308,34 +332,39 @@ public class DefaultHeapNodeTest extends TestCase {
 
     public void testCreate(int count) {
         createTree(count);
-
-        System.out.println("number of cores: " + Runtime.getRuntime().availableProcessors());
     }
 
+    @Test
     public void testCreate_2() {
         testCreate(2);
     }
 
+    @Test
     public void testCreate_3() {
         testCreate(3);
     }
 
+    @Test
     public void testCreate_10() {
         testCreate(10);
     }
 
+    @Test
     public void testCreate_100() {
         testCreate(100);
     }
 
+    @Test
     public void testCreate_1000() {
         testCreate(1000);
     }
 
+    @Test
     public void testCreate_10000() {
         testCreate(10000);
     }
 
+    @Test
     public void testCreate_100000() {
         testCreate(100000);
     }

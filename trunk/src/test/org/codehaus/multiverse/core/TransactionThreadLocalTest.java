@@ -1,18 +1,23 @@
 package org.codehaus.multiverse.core;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TransactionThreadLocalTest extends TestCase {
+public class TransactionThreadLocalTest {
 
+    @Before
     public void setUp() {
         TransactionThreadLocal.remove();
     }
 
+    @Test
     public void testGetInitial() {
         Transaction t = TransactionThreadLocal.get();
         assertNull(t);
     }
 
+    @Test
     public void testGetAfterInitialization() {
         Transaction t = new DummyTransaction();
         TransactionThreadLocal.set(t);
@@ -21,6 +26,7 @@ public class TransactionThreadLocalTest extends TestCase {
         assertSame(t, found);
     }
 
+    @Test
     public void testSetOfNullTransactionShouldFail() {
         Transaction oldTransaction = new DummyTransaction();
         TransactionThreadLocal.set(oldTransaction);
@@ -36,6 +42,7 @@ public class TransactionThreadLocalTest extends TestCase {
         assertSame(oldTransaction, found);
     }
 
+    @Test
     public void testNestedSetShouldFail() {
         Transaction oldTransaction = new DummyTransaction();
         TransactionThreadLocal.set(oldTransaction);
@@ -51,6 +58,7 @@ public class TransactionThreadLocalTest extends TestCase {
         assertSame(oldTransaction, found);
     }
 
+    @Test
     public void testClean() {
         Transaction oldTransaction = new DummyTransaction();
         TransactionThreadLocal.set(oldTransaction);
@@ -61,6 +69,7 @@ public class TransactionThreadLocalTest extends TestCase {
         assertNull(found);
     }
 
+    @Test
     public void testCleanOfNullTransactionIsIgnored() {
         TransactionThreadLocal.remove();
         TransactionThreadLocal.remove();

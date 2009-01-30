@@ -1,17 +1,20 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
-import junit.framework.TestCase;
 import org.codehaus.multiverse.util.latches.CheapLatch;
 import org.codehaus.multiverse.util.latches.Latch;
 import org.codehaus.multiverse.util.latches.StandardLatch;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * todo: we needs to some really good concurrent tests for this class.
  */
-public class VersionedLatchGroupTest extends TestCase {
+public class VersionedLatchGroupTest {
     private VersionedLatchGroup latchGroup;
     private long initialActiveVersion;
 
+    @Before
     public void setUp() {
         initialActiveVersion = 10;
         latchGroup = new VersionedLatchGroup(initialActiveVersion);
@@ -37,6 +40,7 @@ public class VersionedLatchGroupTest extends TestCase {
 
     // ================== add latch ===========================
 
+    @Test
     public void testAddLatch_nullLatch() {
         try {
             latchGroup.addLatch(initialActiveVersion + 1, null);
@@ -45,6 +49,7 @@ public class VersionedLatchGroupTest extends TestCase {
         }
     }
 
+    @Test
     public void testAddLatch_openLatch() {
         Latch latch = CheapLatch.OPEN_LATCH;
         latchGroup.addLatch(latchGroup.getActiveVersion() + 10, latch);
@@ -53,10 +58,12 @@ public class VersionedLatchGroupTest extends TestCase {
         assertActiveVersionHasNotChanges();
     }
 
+    @Test
     public void testAddLatch_minimalTriggerVersionAlreadyHasPassed() {
         testAddLatch_minimalTriggerVersion(initialActiveVersion);
     }
 
+    @Test
     public void testAddLatch_minimalTrigger() {
         testAddLatch_minimalTriggerVersion(initialActiveVersion - 1);
     }
@@ -69,6 +76,7 @@ public class VersionedLatchGroupTest extends TestCase {
         assertActiveVersionHasNotChanges();
     }
 
+    @Test
     public void testAddLatch_minimalTriggerHasNotHappenedYet() {
         Latch latch = new StandardLatch();
         latchGroup.addLatch(initialActiveVersion + 1, latch);
@@ -79,6 +87,7 @@ public class VersionedLatchGroupTest extends TestCase {
 
     // ==================== activateVersion ===================
 
+    @Test
     public void testActivateVersion_noChange() {
         Latch latch1 = new StandardLatch();
         Latch latch2 = new StandardLatch();
@@ -92,6 +101,7 @@ public class VersionedLatchGroupTest extends TestCase {
         assertIsClosed(latch1, latch2);
     }
 
+    @Test
     public void testActivateVersion_versionIsSmaller() {
         Latch latch1 = new StandardLatch();
         Latch latch2 = new StandardLatch();
@@ -105,6 +115,7 @@ public class VersionedLatchGroupTest extends TestCase {
         assertIsClosed(latch1, latch2);
     }
 
+    @Test
     public void testActivateVersion_versionIsBigger() {
         Latch latch1 = new StandardLatch();
         Latch latch2 = new StandardLatch();

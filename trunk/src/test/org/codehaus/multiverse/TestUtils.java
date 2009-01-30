@@ -1,23 +1,27 @@
 package org.codehaus.multiverse;
 
 import static junit.framework.Assert.assertEquals;
+import org.codehaus.multiverse.util.latches.Latch;
 
 import java.util.*;
 
-import org.codehaus.multiverse.util.latches.Latch;
-
+/**
+ * A Utility class containing various test support methods.
+ *
+ * @author Peter Veentjer.
+ */
 public class TestUtils {
 
-    public static long randomLong(long i, int diff){
-        return (long)(i + (diff * (Math.random()-0.5)));            
+    public static long randomLong(long i, int diff) {
+        return (long) (i + (diff * (Math.random() - 0.5)));
     }
 
-    public static void startAll(Thread... threads){
-        for(Thread thread: threads)
+    public static void startAll(Thread... threads) {
+        for (Thread thread : threads)
             thread.start();
     }
 
-    public static void joinAll(Thread... threads){
+    public static void joinAll(Thread... threads) {
         for (Thread thread : threads) {
             System.out.println("Joining " + thread.getName());
             try {
@@ -58,7 +62,7 @@ public class TestUtils {
 
     public static void sleep(long ms) {
         if (ms == 0)
-            return; 
+            return;
 
         try {
             Thread.sleep(ms);

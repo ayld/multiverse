@@ -1,16 +1,20 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
-import junit.framework.TestCase;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
-public class GrowingMultiversionedHeapTest extends TestCase {
+public class GrowingMultiversionedHeapTest {
+
     private GrowingMultiversionedHeap heap;
     private long initialVersion;
 
+    @Before
     public void setUp() {
         heap = new GrowingMultiversionedHeap();
         initialVersion = heap.getActiveSnapshot().getVersion();
@@ -44,12 +48,13 @@ public class GrowingMultiversionedHeapTest extends TestCase {
 
     //================ read ===============================
 
-
+    @Test
     public void testRead_nonExistingHandle() {
         DehydratedStmObject cell = heap.getActiveSnapshot().read(1);
         assertNull(cell);
     }
 
+    @Test
     public void testRead_versions() {
         long handle = 10;
         DehydratedStmObject content = new DummyDehydratedStmObject(handle);
@@ -63,6 +68,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
 
     //================ commit ===============================
 
+    @Test
     public void testWrite() {
         long handle = 1000;
         DehydratedStmObject content = new DummyDehydratedStmObject(handle);
@@ -73,6 +79,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
     }
 
     /*
+    @Test
     public void testWrite_badVersion() {
         long version = 1;
         long handle = 10;
@@ -88,6 +95,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertHeapContent(contentOld);
     } */
 
+    @Test
     public void testWrite_writeConflict() {
         long handle = 1;
 
@@ -107,6 +115,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertHeapContent(version + 1, thatCell);
     }
 
+    @Test
     public void testWrite_concurrentWritingTransactionsNoConflict() {
         long handle1 = 1;
         long handle2 = 2;
@@ -129,6 +138,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertHeapContent(initialVersion + 3, updated2);
     }
 
+    @Test
     public void testWrite_multipleWrites() {
         DehydratedStmObject content1 = new DummyDehydratedStmObject(1);
         DehydratedStmObject content2 = new DummyDehydratedStmObject(2);
@@ -141,6 +151,7 @@ public class GrowingMultiversionedHeapTest extends TestCase {
         assertHeapContent(initialVersion + 1, content3);
     }
 
+    @Test
     public void testWrite_multipleOverwrites() {
         long handle = 1;
         DehydratedStmObject version1Content = new DummyDehydratedStmObject(handle);
@@ -159,10 +170,12 @@ public class GrowingMultiversionedHeapTest extends TestCase {
 
     // ==========================================
 
+    @Test
     public void testListenForEventThatHasNotYetOccurred() {
         //todo
     }
 
+    @Test
     public void testListenForEventThatAlreadyHasOccurred() {
         //todo
     }
