@@ -1,18 +1,21 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
-import junit.framework.TestCase;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
+import org.junit.After;
+import static org.junit.Assert.assertSame;
+import org.junit.Before;
+import org.junit.Test;
 
 import static java.lang.Math.round;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //todo: a long running test to make sure that there are no memory leaks
-public class GrowingMultiversionedHeapStressTest extends TestCase {
+public class GrowingMultiversionedHeapStressTest {
 
     private static final int TOTAL_COMMIT_COUNT = 200000;
     private static final int MAX_COMMIT_SIZE = 2;
@@ -23,14 +26,17 @@ public class GrowingMultiversionedHeapStressTest extends TestCase {
     private GrowingMultiversionedHeap heap;
     private AtomicInteger commitCounter = new AtomicInteger();
 
+    @Before
     public void setUp() {
         heap = new GrowingMultiversionedHeap();
     }
 
+    @After
     public void tearDown() {
         System.out.println(heap.getStatistics());
     }
 
+    @Test
     public void test() {
         commitCounter.set(TOTAL_COMMIT_COUNT);
         Thread[] threads = createThreads(2);

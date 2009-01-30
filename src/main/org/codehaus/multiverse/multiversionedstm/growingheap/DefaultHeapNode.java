@@ -1,7 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
-import org.codehaus.multiverse.multiversionedstm.growingheap.heapnodes.HeapNode;
 
 import static java.lang.Math.max;
 
@@ -35,13 +34,11 @@ public final class DefaultHeapNode implements HeapNode {
     private final DefaultHeapNode right;
 
     //todo: version should be part of the content.
-    private final long version;
     private final int height;
 
-    public DefaultHeapNode(DehydratedStmObject content, long version, DefaultHeapNode left, DefaultHeapNode right) {
+    public DefaultHeapNode(DehydratedStmObject content, DefaultHeapNode left, DefaultHeapNode right) {
         if (content == null) throw new NullPointerException();
         //todo: left en rightside content could be checked for violation
-        this.version = version;
         this.content = content;
         this.left = left;
         this.right = right;
@@ -75,7 +72,7 @@ public final class DefaultHeapNode implements HeapNode {
      * @return the version of the content.
      */
     public long getVersion() {
-        return version;
+        return content.getVersion();
     }
 
     /**
@@ -122,8 +119,8 @@ public final class DefaultHeapNode implements HeapNode {
         DefaultHeapNode b = p.right;
         DefaultHeapNode c = q.right;
 
-        DefaultHeapNode qNew = new DefaultHeapNode(q.getContent(), q.getVersion(), b, c);
-        return new DefaultHeapNode(p.getContent(), p.getVersion(), a, qNew);
+        DefaultHeapNode qNew = new DefaultHeapNode(q.getContent(), b, c);
+        return new DefaultHeapNode(p.getContent(), a, qNew);
     }
 
     /**
@@ -135,7 +132,7 @@ public final class DefaultHeapNode implements HeapNode {
      */
     public DefaultHeapNode doubleRotateRight() {
         DefaultHeapNode newLeft = left.singleRotateLeft();
-        return new DefaultHeapNode(content, version, newLeft, right).singleRotateRight();
+        return new DefaultHeapNode(content, newLeft, right).singleRotateRight();
     }
 
     /**
@@ -154,8 +151,8 @@ public final class DefaultHeapNode implements HeapNode {
         DefaultHeapNode a = p.left;
         DefaultHeapNode b = q.left;
         DefaultHeapNode c = q.right;
-        DefaultHeapNode pNew = new DefaultHeapNode(p.getContent(), p.getVersion(), a, b);
-        return new DefaultHeapNode(q.getContent(), q.getVersion(), pNew, c);
+        DefaultHeapNode pNew = new DefaultHeapNode(p.getContent(), a, b);
+        return new DefaultHeapNode(q.getContent(), pNew, c);
     }
 
     /**
@@ -167,7 +164,7 @@ public final class DefaultHeapNode implements HeapNode {
      */
     public DefaultHeapNode doubleRotateLeft() {
         DefaultHeapNode newRight = right.singleRotateRight();
-        return new DefaultHeapNode(content, version, left, newRight).singleRotateLeft();
+        return new DefaultHeapNode(content, left, newRight).singleRotateLeft();
     }
 
     /**
@@ -177,12 +174,11 @@ public final class DefaultHeapNode implements HeapNode {
      * <p/>
      * http://upload.wikimedia.org/wikipedia/en/c/c4/Tree_Rebalancing.gif
      *
-     * @param change        the content of the new heapTreeNode.
-     * @param changeVersion the version of the content of the new HeapTreeNode.
+     * @param change the content of the new heapTreeNode.
      * @return the created result.
      */
-    public DefaultHeapNode createNew(DehydratedStmObject change, long changeVersion) {
-        DefaultHeapNode unbalanced = createUnbalanced(change, changeVersion);
+    public DefaultHeapNode createNew(DehydratedStmObject change) {
+        DefaultHeapNode unbalanced = createUnbalanced(change);
         return unbalanced.balance();
     }
 
@@ -215,26 +211,26 @@ public final class DefaultHeapNode implements HeapNode {
         }
     }
 
-    private DefaultHeapNode createUnbalanced(DehydratedStmObject change, long changeVersion) {
+    private DefaultHeapNode createUnbalanced(DehydratedStmObject change) {
         int compare = compare(change.getHandle());
         switch (compare) {
             case COMPARE_SPOT_ON:
                 //since the left and right trees are balanced, the new node will be balanced.
-                return new DefaultHeapNode(change, changeVersion, left, right);
+                return new DefaultHeapNode(change, left, right);
             case COMPARE_GO_RIGHT:
                 DefaultHeapNode newRight;
                 if (right == null)
-                    newRight = new DefaultHeapNode(change, changeVersion, null, null);
+                    newRight = new DefaultHeapNode(change, null, null);
                 else
-                    newRight = right.createNew(change, changeVersion);
-                return new DefaultHeapNode(content, version, left, newRight);
+                    newRight = right.createNew(change);
+                return new DefaultHeapNode(content, left, newRight);
             case COMPARE_GO_LEFT:
                 DefaultHeapNode newLeft;
                 if (left == null)
-                    newLeft = new DefaultHeapNode(change, changeVersion, null, null);
+                    newLeft = new DefaultHeapNode(change, null, null);
                 else
-                    newLeft = left.createNew(change, changeVersion);
-                return new DefaultHeapNode(content, version, newLeft, right);
+                    newLeft = left.createNew(change);
+                return new DefaultHeapNode(content, newLeft, right);
             default:
                 throw new RuntimeException("unhandeled compare " + compare);
         }

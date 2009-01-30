@@ -143,7 +143,7 @@ public class StackTest extends AbstractMultiversionedStmTest {
     }
 
     public void _testProduceConsumer_10000000() {
-        testProducerConsumer(100000000);
+        testProducerConsumer(10000000);
     }
 
     final static AtomicInteger producerThreadCounter = new AtomicInteger();

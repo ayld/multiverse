@@ -1,27 +1,31 @@
 package org.codehaus.multiverse.multiversionedstm.utils;
 
-import junit.framework.TestCase;
 import static org.codehaus.multiverse.TestUtils.assertAsSetContent;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class StmObjectIteratorTest extends TestCase {
+public class StmObjectIteratorTest {
 
+    @Test
     public void testEmpty() {
         Iterator it = new StmObjectIterator(new StmObject[]{});
         assertHasNoNext(it);
         assertNextThrowsNoSuchElementException(it);
     }
 
+    @Test
     public void testSingleItemNoChildren() {
         Person p = new Person();
         Iterator it = new StmObjectIterator(p);
         assertAsSetContent(it, p);
     }
 
+    @Test
     public void testMultipleItemsNoChildren() {
         Person p1 = new Person();
         Person p2 = new Person();
@@ -30,6 +34,7 @@ public class StmObjectIteratorTest extends TestCase {
         assertAsSetContent(it, p1, p2, p3);
     }
 
+    @Test
     public void testItemWithChild() {
         Person p1 = new Person();
         Person p2 = new Person();
@@ -39,6 +44,7 @@ public class StmObjectIteratorTest extends TestCase {
         assertAsSetContent(it, p1, p2);
     }
 
+    @Test
     public void testChain() {
         Person p1 = new Person();
         Person p2 = new Person();
@@ -50,12 +56,14 @@ public class StmObjectIteratorTest extends TestCase {
         assertAsSetContent(it, p1, p2, p3);
     }
 
+    @Test
     public void testDuplicateItems() {
         Person p = new Person();
         Iterator it = new StmObjectIterator(p, p);
         assertAsSetContent(it, p);
     }
 
+    @Test
     public void testDirectCycleItems() {
         Person p = new Person();
         p.setParent(p);
@@ -63,6 +71,7 @@ public class StmObjectIteratorTest extends TestCase {
         assertAsSetContent(it, p);
     }
 
+    @Test
     public void testIndirectCycleItems() {
         Person p1 = new Person();
         Person p2 = new Person();

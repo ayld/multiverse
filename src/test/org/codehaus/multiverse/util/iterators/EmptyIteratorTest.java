@@ -1,20 +1,27 @@
 package org.codehaus.multiverse.util.iterators;
 
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.fail;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.NoSuchElementException;
 
-public class EmptyIteratorTest extends TestCase {
+
+public class EmptyIteratorTest {
     private EmptyIterator it;
 
+    @Before
     public void setUp() {
         it = EmptyIterator.INSTANCE;
     }
 
+    @Test
     public void testHasNext() {
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testNext() {
         try {
             it.next();
@@ -23,6 +30,7 @@ public class EmptyIteratorTest extends TestCase {
         }
     }
 
+    @Test
     public void testRemove() {
         try {
             it.remove();

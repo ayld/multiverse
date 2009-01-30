@@ -1,20 +1,20 @@
 package org.codehaus.multiverse.multiversionedstm.utils;
 
-import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
+import org.junit.Before;
+import org.junit.Test;
 
-public class MultiversionedHeapSnapshotChainTest extends AbstractMultiversionedStmTest {
+public class MultiversionedHeapSnapshotChainTest {
 
     private MultiversionedHeapSnapshotChain snapshotChain;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
         //    snapshotChain = new MultiversionedHeapSnapshotChain(null);
     }
 
     // ================ getHead() ===========================
 
+    @Test
     public void testGetHead_initial() {
         //todo
     }
@@ -22,38 +22,46 @@ public class MultiversionedHeapSnapshotChainTest extends AbstractMultiversionedS
 
     // ================== get(long version) =================
 
+    @Test
     public void testGet() {
         //todo
     }
 
+    @Test
     public void testGetNonExistingVersion() {
         //todo
     }
 
     // ================== getSpecific(long version) ==========
 
+    @Test
     public void testGetSpecific_success() {
         //todo
     }
 
+    @Test
     public void testGetSpecific_noOldOneExist() {
         //todo
     }
 
+    @Test
     public void testGetSpecific_doesntExist() {
         //todo
     }
 
     // ================= compareAndAdd ======================
 
+    @Test
     public void testCompareAndAdd_success() {
         //todo
     }
 
+    @Test
     public void testCompareAndSet_illegalVersion() {
         //todo
     }
 
+    @Test
     public void testCompareAndAdd_null() {
         //todo
     }

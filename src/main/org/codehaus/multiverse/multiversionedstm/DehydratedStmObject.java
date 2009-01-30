@@ -19,10 +19,32 @@ import java.util.Iterator;
 public abstract class DehydratedStmObject {
 
     private final long handle;
+    private long version;
 
     public DehydratedStmObject(long handle) {
         assert handle != 0;
         this.handle = handle;
+    }
+
+    /**
+     * Sets the version of this DehydratedStmObject. The version should only be set once. It can be set
+     * at construction time because the version is not known at that time. And there needs to be a happens
+     * before relation between the write and the reaf this field, this happens before relation is introduced
+     * by the atomicreference that contains the active snapshot in the  MultiversionedHeapSnapshotChain.
+     *
+     * @param version the version to set.
+     */
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+    /**
+     * Gets the version of this DehydratedStmObject.
+     *
+     * @return
+     */
+    public long getVersion() {
+        return version;
     }
 
     /**

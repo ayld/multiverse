@@ -4,7 +4,8 @@ import org.codehaus.multiverse.core.NoSuchObjectException;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
-import org.codehaus.multiverse.multiversionedstm.growingheap.heapnodes.HeapNode;
+import org.codehaus.multiverse.multiversionedstm.utils.DefaultListenerSupport;
+import org.codehaus.multiverse.multiversionedstm.utils.ListenerSupport;
 import org.codehaus.multiverse.multiversionedstm.utils.MultiversionedHeapSnapshotChain;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
@@ -213,7 +214,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
                 return -1;
 
             HeapNode node = root.find(handle);
-            return node == null ? -1 : node.getVersion();
+            return node == null ? -1 : node.getContent().getVersion();
         }
 
         /**
@@ -236,19 +237,20 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             Set<Long> handles = new HashSet<Long>();
 
             for (; changes.hasNext();) {
-                DehydratedStmObject stmObject = changes.next();
+                DehydratedStmObject change = changes.next();
 
-                long handle = stmObject.getHandle();
+                long handle = change.getHandle();
 
                 if (hasWriteConflict(handle, startSnapshot))
                     return CreateNewSnapshotResult.createWriteConflict();
 
                 handles.add(handle);
 
+                change.setVersion(commitVersion);
                 if (newRoot == null)
-                    newRoot = new DefaultHeapNode(stmObject, commitVersion, null, null);
+                    newRoot = new DefaultHeapNode(change, null, null);
                 else
-                    newRoot = newRoot.createNew(stmObject, commitVersion);
+                    newRoot = newRoot.createNew(change);
             }
 
             MultiversionedHeapSnapshotImpl newSnapshot = new MultiversionedHeapSnapshotImpl(newRoot, commitVersion);

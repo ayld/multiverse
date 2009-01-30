@@ -1,5 +1,6 @@
-package org.codehaus.multiverse.multiversionedstm.growingheap;
+package org.codehaus.multiverse.multiversionedstm.utils;
 
+import org.codehaus.multiverse.multiversionedstm.growingheap.VersionedLatchGroup;
 import org.codehaus.multiverse.util.latches.Latch;
 
 import java.util.concurrent.ConcurrentHashMap;
