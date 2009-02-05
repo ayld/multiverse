@@ -1,5 +1,5 @@
 ==Performance impact==
-The STM uses instrumentation to make sure that a 'normal' POJO can participate in the STM. It is going to add some extra logic to access on reading/writing of member fields of the STM object in some cases (scroll down for more info). 
+The STM uses instrumentation to make sure that a 'normal' POJO can participate in the STM. It is going to add some extra logic to some reads/writes of member fields of the STM object in some cases (scroll down for more info). 
 
 ===Performance impact other stm references===
 There is a performance impact on STM objects. If the STM object is lazy loaded, an extra check is needed to see if the object already is loaded, and if it isn't it needs to be loaded. Once it is loaded, only the check needs to be done every time the reference is touched. It also means that getters and setters are not likely to be replaced by direct field access by the JIT-compiler. 
