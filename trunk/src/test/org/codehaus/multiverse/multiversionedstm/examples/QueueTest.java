@@ -1,227 +1,213 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.TestUtils;
-import static org.codehaus.multiverse.TestUtils.joinAll;
-import static org.codehaus.multiverse.TestUtils.startAll;
+import org.codehaus.multiverse.core.RetryError;
+import org.codehaus.multiverse.core.Stm;
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.core.TransactionTemplate;
-import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
+import static java.util.Arrays.asList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.LinkedList;
+import java.util.List;
 
-public class QueueTest extends AbstractMultiversionedStmTest {
-    private long queuePtr;
-    private Set pushed = Collections.synchronizedSet(new HashSet());
-    private Set popped = Collections.synchronizedSet(new HashSet());
-    private long startMs;
-    private AtomicInteger produceCounter = new AtomicInteger();
-    private int produceCount;
+public class QueueTest {
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    @Test
+    public void testBasicUsage() {
+        Queue<String> queue = new Queue();
+        assertTrue(queue.isEmpty());
 
-        startMs = System.currentTimeMillis();
-        queuePtr = atomicInsert(new Queue());
+        String item1 = "1";
+        queue.push(item1);
+        assertEquals(1, queue.size());
+        assertEquals(asList(item1), queue.asList());
+
+        String item2 = "2";
+        queue.push(item2);
+        assertEquals(2, queue.size());
+        assertEquals(asList(item2, item1), queue.asList());
+
+        String item3 = "3";
+        queue.push(item3);
+        assertEquals(3, queue.size());
+        assertEquals(asList(item3, item2, item1), queue.asList());
+
+        assertSame(item1, queue.pop());
+        assertEquals(2, queue.size());
+        assertEquals(asList(item3, item2), queue.asList());
+
+        String item4 = "4";
+        queue.push(item4);
+        assertEquals(3, queue.size());
+        assertEquals(asList(item4, item3, item2), queue.asList());
+
+        String item5 = "5";
+        queue.push(item5);
+        assertEquals(4, queue.size());
+        assertEquals(asList(item5, item4, item3, item2), queue.asList());
+
+        assertSame(item2, queue.pop());
+        assertEquals(3, queue.size());
+        assertEquals(asList(item5, item4, item3), queue.asList());
+
+        assertSame(item3, queue.pop());
+        assertEquals(2, queue.size());
+        assertEquals(asList(item5, item4), queue.asList());
+
+        assertSame(item4, queue.pop());
+        assertEquals(1, queue.size());
+        assertEquals(asList(item5), queue.asList());
+
+        assertSame(item5, queue.pop());
+        assertEquals(0, queue.size());
+        assertEquals(asList(), queue.asList());
     }
 
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        assertEquals(pushed, popped);
+    @Test
+    public void testPeek() {
+        Queue queue = new Queue();
+        assertNull(queue.peek());
 
-        long timeMs = (System.currentTimeMillis() - startMs) + 1;
-        System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
-        System.out.println(String.format("%s transactions took %s ms", produceCount, timeMs));
-        System.out.println(String.format("%s transactions/second", (produceCount / (timeMs / 1000.0))));
+        String item1 = "1";
+        queue.push(item1);
+        assertSame(item1, queue.peek());
+        assertNull(queue.peek());
+
+        String item2 = "2";
+        String item3 = "3";
+        queue.push(item2);
+        queue.push(item3);
+
+        assertSame(item2, queue.peek());
+        String item4 = "4";
+        queue.push(item4);
+        assertSame(item3, queue.peek());
+        assertSame(item4, queue.peek());
+        assertNull(queue.peek());
     }
 
-    public MultiversionedStm createStm() {
-        heap = new GrowingMultiversionedHeap();
-        return new MultiversionedStm(heap);
+    @Test(expected = RetryError.class)
+    public void testPoppingFromEmptyQueue() {
+        Queue queue = new Queue();
+        queue.pop();
     }
 
-    public void atomicPush(final String item) {
-        new TransactionTemplate(stm) {
-            protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
-                queue.push(item);
-                return null;
-            }
-        }.execute();
-
-        pushed.add(item);
-
-        //System.out.println(Thread.currentThread() + " pushed: " + item);
+    @Test
+    public void testIsDirtyFreshEmptyQueue() {
+        Queue queue = new Queue();
+        assertTrue(queue.___isDirty());
     }
 
-    public String atomicPop() {
-        String object = (String) new TransactionTemplate(stm) {
-            protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
-                return queue.pop();
-            }
-        }.execute();
-        popped.add(object);
-        return object;
+    @Test
+    public void testIsDirtyFreshNonEmptyQueue() {
+        Queue queue = new Queue();
+        queue.push("10");
+        assertTrue(queue.___isDirty());
     }
 
-    public int atomicSize() {
-        return (Integer) new TransactionTemplate(stm) {
-            protected Integer execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
-                return queue.size();
-            }
-        }.execute();
+    @Test
+    public void testHydratedReadonlyQueueIsNotDirty() {
+        Stm stm = new MultiversionedStm();
+        long handle = atomicInsertQueue(stm);
+
+        Transaction t2 = stm.startTransaction();
+        Queue queue = (Queue) t2.read(handle);
+        //readonly operation
+        queue.size();
+        assertFalse(queue.___isDirty());
     }
 
-    public void asynchronousPush(final String item) {
-        new Thread() {
-            public void run() {
-                atomicPush(item);
-            }
-        }.start();
+    /**
+     * The queue will never be dirty because it doesn't contain any mutable state itself, all mutable state
+     * is stored in the stacks.
+     */
+    @Test
+    public void testHydratedUpdatedQueueIsNotDirty() {
+        Stm stm = new MultiversionedStm();
+        long handle = atomicInsertQueue(stm);
+
+        Transaction t2 = stm.startTransaction();
+        Queue queue = (Queue) t2.read(handle);
+        //readonly operation
+        queue.push("10");
+        assertFalse(queue.___isDirty());
     }
 
-    public void asynchronousPop() {
-        new Thread() {
-            public void run() {
-                try {
-                    String result = atomicPop();
-                    //System.out.println(Thread.currentThread() + " consumed: " + result);
-                } catch (RuntimeException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }.start();
+    private long atomicInsertQueue(Stm stm) {
+        Transaction t = stm.startTransaction();
+        long handle = t.attachAsRoot(new Queue());
+        t.commit();
+        return handle;
     }
 
-    public void testSequential() {
-        atomicPush("item1");
-        atomicPush("item2");
-
-        String result;
-        result = atomicPop();
-        assertEquals("item1", result);
-        result = atomicPop();
-        assertEquals("item2", result);
+    /**
+     * Although a queue doesn't contain any mutable state itself, the internal stacks do. So that is why
+     * it isn't immutable.
+     */
+    @Test
+    public void testQueueIsNotImmutable() {
+        Queue queue = new Queue();
+        assertFalse(queue.___isImmutable());
     }
 
-    public void test() {
-        asynchronousPop();
-        asynchronousPop();
-        TestUtils.sleep(1000);
-        asynchronousPush("foo");
-        asynchronousPush("bar");
-        TestUtils.sleep(1000);
-
-        //todo: check that content has been returned.
+    @Test
+    public void testDehydratedAndHydrateEmptyQueue() {
+        testDehydrateAndHydrateQueue(new Queue());
     }
 
-    public void testProducerConsumer_1() {
-        testProducerConsumer(1);
+    @Test
+    public void testDehydratedAndHydrateNonEmptyQueue() {
+        Queue queue = new Queue();
+        queue.push("1");
+        queue.push("2");
+        queue.push("3");
+        testDehydrateAndHydrateQueue(queue);
     }
 
-    public void testProducerConsumer_10() {
-        testProducerConsumer(10);
+    private void testDehydrateAndHydrateQueue(Queue originalQueue) {
+        MultiversionedStm stm = new MultiversionedStm();
+        Transaction t1 = stm.startTransaction();
+        t1.attachAsRoot(originalQueue);
+        t1.commit();
+
+        Transaction t2 = stm.startTransaction();
+        Queue hydratedQueue = (Queue) t2.read(originalQueue.___getHandle());
+        assertEquals(originalQueue, hydratedQueue);
     }
 
-    public void testProducerConsumer_100() {
-        testProducerConsumer(100);
-    }
+    @Test
+    public void testMultipleTransactions() {
+        Queue<Integer> queue = new Queue();
 
-    public void testProducerConsumer_1000() {
-        testProducerConsumer(1000);
-    }
+        Stm stm = new MultiversionedStm();
+        Transaction t = stm.startTransaction();
+        long handle = t.attachAsRoot(queue);
+        t.commit();
 
-    public void testProducerConsumer_10000() {
-        testProducerConsumer(10000);
-    }
+        List<Integer> itemsToPush = createItemList(100);
 
-    public void testProducerConsumer_100000() {
-        testProducerConsumer(100000);
-    }
-
-    public void _testProducerConsumer_1000000() {
-        testProducerConsumer(1000000);
-    }
-
-    public void _testProducerConsumer_5000000() {
-        testProducerConsumer(5000000);
-    }
-
-    public void testProducerConsumer(int commitCount) {
-        this.produceCount = commitCount;
-        produceCounter.set(commitCount);
-        Thread producer = new ProducerThread();
-        Thread consumer1 = new ConsumerThread();
-        Thread consumer2 = new ConsumerThread();
-        Thread consumer3 = new ConsumerThread();
-
-        startAll(producer, consumer1, consumer2, consumer3);
-        joinAll(producer, consumer1, consumer2, consumer3);
-    }
-
-    static AtomicInteger producerCounter = new AtomicInteger();
-
-    private class ProducerThread extends Thread {
-
-        public ProducerThread() {
-            super("producer-" + producerCounter.incrementAndGet());
+        for (Integer item : itemsToPush) {
+            t = stm.startTransaction();
+            queue = (Queue<Integer>) t.read(handle);
+            queue.push(item);
+            t.commit();
         }
 
-        private int runCount = 0;
-
-        public void run() {
-            int k = produceCounter.decrementAndGet();
-            while (k > 0) {
-                atomicPush("" + k);
-
-                runCount++;
-                if (runCount % 1000 == 0)
-                    System.out.println(getName() + " transactioncount: " + runCount);
-
-                //    sleepRandom(3);
-                k = produceCounter.decrementAndGet();
-            }
-
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
-        }
+        t = stm.startTransaction();
+        queue = (Queue<Integer>) t.read(handle);
+        List<Integer> drainedItems = queue.asList();
+        Collections.reverse(drainedItems);
+        assertEquals(itemsToPush, drainedItems);
     }
 
-
-    static AtomicInteger consumerCounter = new AtomicInteger();
-
-    private class ConsumerThread extends Thread {
-        private int runCount = 0;
-
-        public ConsumerThread() {
-            super("consumer-" + consumerCounter.incrementAndGet());
-        }
-
-        public void run() {
-            String item;
-            do {
-                item = atomicPop();
-                //System.out.println(toString() + " Consumed: " + item);
-                //    sleepRandom(10);
-
-                runCount++;
-                if (runCount % 1000 == 0)
-                    System.out.println(getName() + " transactioncount: " + runCount);
-
-
-            } while (!"poison".equals(item));
-        }
+    private List<Integer> createItemList(int size) {
+        List<Integer> result = new LinkedList<Integer>();
+        for (int k = 0; k < size; k++)
+            result.add(k);
+        return result;
     }
 }
+
+

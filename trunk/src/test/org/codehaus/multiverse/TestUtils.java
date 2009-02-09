@@ -2,6 +2,7 @@ package org.codehaus.multiverse;
 
 import static junit.framework.Assert.assertEquals;
 import org.codehaus.multiverse.util.latches.Latch;
+import static org.junit.Assert.fail;
 
 import java.util.*;
 
@@ -16,16 +17,20 @@ public class TestUtils {
         return (long) (i + (diff * (Math.random() - 0.5)));
     }
 
-    public static void startAll(Thread... threads) {
+    public static void startAll(TestThread... threads) {
         for (Thread thread : threads)
             thread.start();
     }
 
-    public static void joinAll(Thread... threads) {
-        for (Thread thread : threads) {
+    public static void joinAll(TestThread... threads) {
+        for (TestThread thread : threads) {
             System.out.println("Joining " + thread.getName());
             try {
                 thread.join();
+                if (thread.getThrowable() != null) {
+                    thread.getThrowable().printStackTrace();
+                    fail();
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
@@ -53,7 +58,7 @@ public class TestUtils {
         return result;
     }
 
-    public static void sleepRandom(long maxMs) {
+    public static void sleepRandomMs(long maxMs) {
         if (maxMs == 0)
             return;
 

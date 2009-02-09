@@ -22,21 +22,25 @@ public interface Stm<T extends Transaction> {
     T startTransaction();
 
     /**
-     * Starts a new Transaction as soon as the reality the precessor thread saw has changed, or blocks of no
+     * Starts a new Transaction as soon as the reality the predecessor transaction saw has changed, or blocks if no
      * change has happened. This method is useful for the 'retry' (stm version of condition variables functionality).
      * <p/>
      * This method is threadsafe.
      *
      * @param predecessor
      * @return the started Transaction
-     * @throws InterruptedException if the thread is interrupted.
-     * @throws NullPointerException if predecessor is null.
+     * @throws NoProgressPossibleException
+     * @throws InterruptedException        if the thread is interrupted while blocking.
+     * @throws NullPointerException        if predecessor is null.
      */
     T startRetriedTransaction(T predecessor) throws InterruptedException;
 
     /**
-     * Starts a new Transaction as soon as the reality the precessor thread saw has changed, or blocks of no
+     * Starts a new Transaction as soon as the reality the predecessor transaction saw has changed, or blocks if no
      * change has happened. This method is useful for the 'retry' (stm version of condition variables functionality).
+     * <p/>
+     * <p/>
+     * todo: explain about timeout.
      * <p/>
      * This method is threadsafe.
      *

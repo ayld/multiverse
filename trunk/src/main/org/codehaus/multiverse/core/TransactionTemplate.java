@@ -87,11 +87,15 @@ public abstract class TransactionTemplate<E> {
                     succes = true;
                     return result;
                 } catch (RetryError ex) {
-                    retryCount++;
+                    //with a retryerror, you need to set the predecessor, so that you have access to the
+                    //handles read, and make use of the stm version of condition variables. A retry error
+                    //indicates that the transaction can't make any progress.
                     predecessor = transaction;
+                    retryCount++;
                 } catch (WriteConflictException ex) {
+                    //with a writeconflict, you don't need a predecessor because you are not interested in
+                    //the handles that have been read for the stm-version of condition variables.
                     retryCount++;
-                    predecessor = transaction;
                 } finally {
                     TransactionThreadLocal.remove();
 
@@ -106,7 +110,11 @@ public abstract class TransactionTemplate<E> {
         } catch (InterruptedException ex) {
             Thread.interrupted();
             throw new RuntimeException(ex);
+        } catch (RuntimeException ex) {
+            //we don't want unchecked exceptions to be wrapped again.
+            throw ex;
         } catch (Exception ex) {
+            //wrap the checked exception in an unchecked one.
             throw new RuntimeException(ex);
         }
     }

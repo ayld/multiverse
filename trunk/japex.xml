@@ -9,33 +9,16 @@
     <param name="japex.warmupTime" value="10"/>
     <param name="japex.runTime" value="10"/>
 
-    <driver name="org.codehaus.multiverse.StackDriver">
+    <driver name="org.codehaus.multiverse.HeapSearchDriver">
         <param name="Description" value="Driver performance testing the stack"/>
-        <param name="japex.DriverClass" value="org.codehaus.multiverse.StackDriver"/>
+        <param name="japex.DriverClass" value="org.codehaus.multiverse.HeapSearchDriver"/>
     </driver>
 
-    <!-- testCase name="file1.xml">
-        <param name="japex.inputFile" value="data/file1.xml"/>
-    </testCase -->
-
     <testCase name="Test_10">
-        <param name="size" value="10"/>
+        <param name="heapsize" value="10"/>
+        <param name="readcount" value="10"/>
+        <param name="balanced" value="true"/>
     </testCase>
 
-    <testCase name="Test_100">
-        <param name="size" value="100"/>
-    </testCase>
-
-    <testCase name="Test_1000">
-        <param name="size" value="1000"/>
-    </testCase>
-
-    <testCase name="Test_10000">
-        <param name="size" value="10000"/>
-    </testCase>
-
-    <testCase name="Test_100000">
-        <param name="size" value="100000"/>
-    </testCase>
 
 </testSuite>

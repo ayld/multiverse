@@ -41,7 +41,7 @@ public abstract class DehydratedStmObject {
     /**
      * Gets the version of this DehydratedStmObject.
      *
-     * @return
+     * @return the version of this DehydratedStmObject.
      */
     public long getVersion() {
         return version;
@@ -62,17 +62,20 @@ public abstract class DehydratedStmObject {
      * iterator contains the handle of the object itself. So if cycles become an issue, the caller should take
      * care of this.
      *
-     * @return an iterator over all direct-handles.
-     * @see StmObject#___loadedMembers()
+     * @return an iterator over all handles to member DehydratedStmObjects.
+     * @see StmObject#___getFreshOrLoadedStmMembers()
      */
     public abstract Iterator<Long> members();
 
     /**
-     * Hydrates a HeapCell to a StmObject. This method is the inverse of {@link StmObject#___dehydrate()}.
+     * Hydrates a DehydratedStmObject to a StmObject. This method is the inverse of {@link StmObject#___dehydrate()}.
+     * If the DehydratedStmObject is truly immutable, the same instance needs to be returned. The transaction is
+     * not responsible for this, so there is no load on the transaction if immutable objects are used.
      *
      * @param transaction the transaction the created StmObject is part of.
      * @return the created StmObject.
      * @see StmObject#___dehydrate()
+     * @see StmObject#___isImmutable()
      */
     public abstract StmObject hydrate(Transaction transaction);
 }

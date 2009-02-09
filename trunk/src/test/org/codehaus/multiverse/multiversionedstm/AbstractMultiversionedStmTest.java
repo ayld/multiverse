@@ -47,12 +47,12 @@ public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<Mult
         assertEquals(expected, transaction.getWriteCount());
     }
 
-    public void assertTransactionHasNoReadsFromHeap() {
-        assertEquals(0, transaction.getReadFromHeapCount());
+    public void assertTransactionHasNoHydratedObjects() {
+        assertEquals(0, transaction.getHydratedObjectCount());
     }
 
-    public void assertTransactionReadsFromHeap(long expected) {
-        assertEquals(expected, transaction.getReadFromHeapCount());
+    public void assertTransactionHydratedObjectCount(long expected) {
+        assertEquals(expected, transaction.getHydratedObjectCount());
     }
 
     public void assertActualVersion(long ptr, long expectedVersion) {

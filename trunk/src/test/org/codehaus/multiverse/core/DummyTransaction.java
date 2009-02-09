@@ -9,6 +9,10 @@ public class DummyTransaction implements Transaction {
         throw new RuntimeException();
     }
 
+    public Object readAndRegisterAsConditionVariable(long handle) {
+        throw new RuntimeException();
+    }
+
     public TransactionStatus getStatus() {
         throw new RuntimeException();
     }

@@ -102,28 +102,6 @@ public interface MultiversionedHeap {
 
     public final class CommitResult {
 
-        private final boolean success;
-        private final MultiversionedHeapSnapshot snapshot;
-        private final long writeCount;
-
-        private CommitResult(boolean success, MultiversionedHeapSnapshot snapshot, long writeCount) {
-            this.success = success;
-            this.snapshot = snapshot;
-            this.writeCount = writeCount;
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
-
-        public MultiversionedHeapSnapshot getSnapshot() {
-            return snapshot;
-        }
-
-        public long getWriteCount() {
-            return writeCount;
-        }
-
         public static CommitResult createWriteConflict() {
             return new CommitResult(false, null, 0);
         }
@@ -137,6 +115,45 @@ public interface MultiversionedHeap {
             if (snapshot == null) throw new NullPointerException();
             if (writeCount < 0) throw new IllegalArgumentException();
             return new CommitResult(true, snapshot, writeCount);
+        }
+
+        private final boolean success;
+        private final MultiversionedHeapSnapshot snapshot;
+        private final long writeCount;
+
+        private CommitResult(boolean success, MultiversionedHeapSnapshot snapshot, long writeCount) {
+            this.success = success;
+            this.snapshot = snapshot;
+            this.writeCount = writeCount;
+        }
+
+        /**
+         * True indicates it was a success, false indicates a
+         *
+         * @return
+         */
+        public boolean isSuccess() {
+            return success;
+        }
+
+        /**
+         * Returns the MultiversionedHeapSnapshot that is the result of commit. If the commit was not a success.
+         * the returned value is null.
+         *
+         * @return
+         */
+        public MultiversionedHeapSnapshot getSnapshot() {
+            return snapshot;
+        }
+
+        /**
+         * Return the number of writes that have been done. The value will always be equal or larger than zero.
+         * If this CommitResult was a success, and the writecount was 0, it was a readonly transaction.
+         *
+         * @return
+         */
+        public long getWriteCount() {
+            return writeCount;
         }
     }
 }

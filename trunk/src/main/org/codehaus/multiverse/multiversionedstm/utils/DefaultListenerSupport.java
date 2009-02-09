@@ -29,7 +29,7 @@ public final class DefaultListenerSupport implements ListenerSupport {
     private VersionedLatchGroup getOrCreateLatchGroup(long version, long handle) {
         VersionedLatchGroup latchGroup = latchGroups.get(handle);
         if (latchGroup == null) {
-            VersionedLatchGroup newLatchGroup = new VersionedLatchGroup(version);
+            VersionedLatchGroup newLatchGroup = new VersionedLatchGroup(version - 1);
             latchGroup = latchGroups.putIfAbsent(handle, newLatchGroup);
             if (latchGroup == null)
                 latchGroup = newLatchGroup;

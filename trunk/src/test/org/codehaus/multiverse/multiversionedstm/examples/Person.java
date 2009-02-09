@@ -18,13 +18,13 @@ public class Person implements StmObject {
     private Person parent;
 
     public Person() {
-        handle = HandleGenerator.create();
+        handle = HandleGenerator.createHandle();
     }
 
     public Person(int age, String name) {
         this.age = age;
         this.name = name;
-        this.handle = HandleGenerator.create();
+        this.handle = HandleGenerator.createHandle();
     }
 
     public int getAge() {
@@ -82,11 +82,7 @@ public class Person implements StmObject {
         return handle;
     }
 
-    public DehydratedStmObject ___getInitialDehydratedStmObject() {
-        return initialDehydratedPerson;
-    }
-
-    public Iterator<StmObject> ___loadedMembers() {
+    public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
         if (parent != null && parent != this)
             return new ArrayIterator(parent);
 
@@ -117,6 +113,10 @@ public class Person implements StmObject {
         return initialDehydratedPerson.age != age ||
                 initialDehydratedPerson.name != null ||
                 (parent_localized && (initialDehydratedPerson.parentHandle != (parent == null ? 0 : parent.___getHandle())));
+    }
+
+    public boolean ___isImmutable() {
+        return false;
     }
 
     public DehydratedStmObject ___dehydrate() {

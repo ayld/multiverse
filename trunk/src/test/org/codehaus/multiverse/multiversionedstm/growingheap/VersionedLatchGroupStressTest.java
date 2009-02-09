@@ -1,5 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
+import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.util.latches.Latch;
 import org.codehaus.multiverse.util.latches.StandardLatch;
@@ -66,7 +67,7 @@ public class VersionedLatchGroupStressTest {
 
     AtomicInteger threadCounter = new AtomicInteger();
 
-    class AddLatchThread extends Thread {
+    class AddLatchThread extends TestThread {
 
         public AddLatchThread() {
             super("addLatchThread-" + threadCounter.incrementAndGet());
@@ -83,12 +84,12 @@ public class VersionedLatchGroupStressTest {
                     version = maxVersion;
 
                 latchGroup.addLatch(version, latch);
-                sleepRandom(MAX_DELAY_MS);
+                sleepRandomMs(MAX_DELAY_MS);
             } while (version < maxVersion);
         }
     }
 
-    class ActivateVersionThread extends Thread {
+    class ActivateVersionThread extends TestThread {
         public ActivateVersionThread() {
             super("activateVersionThread-" + threadCounter.incrementAndGet());
         }
@@ -98,7 +99,7 @@ public class VersionedLatchGroupStressTest {
             do {
                 version = randomLong(latchGroup.getActiveVersion(), 10);
                 latchGroup.activateVersion(version);
-                sleepRandom(MAX_DELAY_MS);
+                sleepRandomMs(MAX_DELAY_MS);
             } while (version < maxVersion);
         }
     }

@@ -1,9 +1,10 @@
 package org.codehaus.multiverse.multiversionedstm.utils;
 
 import static org.codehaus.multiverse.TestUtils.assertIsOpen;
+import org.codehaus.multiverse.util.latches.CheapLatch;
 import org.codehaus.multiverse.util.latches.Latch;
 import org.codehaus.multiverse.util.latches.StandardLatch;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,9 +19,19 @@ public class DefaultListenerSupportTest {
     // ============== addListener ==================================
 
     @Test
-    public void testAddListener() {
-        //todo
+    public void testFirstTimeListenerForVersion() {
+        Latch latch = new CheapLatch();
+        long handle = 1;
+        long version = 9;
+        listenerSupport.addListener(version, new long[]{handle}, latch);
+
+        assertFalse(latch.isOpen());
+
+        listenerSupport.wakeupListeners(version + 1, new long[]{handle});
+
+        assertTrue(latch.isOpen());
     }
+
 
     @Test
     public void testAddListener_emptyHandles() {
