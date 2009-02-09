@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
  * @author Peter Veentjer
  * @param <E>
  */
-public final class EmptyIterator<E> implements Iterator<E> {
+public final class EmptyIterator<E> implements ResetableIterator<E> {
 
     public final static EmptyIterator INSTANCE = new EmptyIterator();
 
@@ -22,6 +22,10 @@ public final class EmptyIterator<E> implements Iterator<E> {
      */
     public boolean hasNext() {
         return false;
+    }
+
+    public void reset() {
+        //ignore.
     }
 
     /**

@@ -6,28 +6,53 @@ import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
+import static java.util.Collections.reverse;
 import java.util.Iterator;
+import java.util.List;
 
+/**
+ * Since the Queue itself is immutable (only the member stacks are mutable) dehydrated is very cheap (the previous
+ * dehydratedQueue could be returned.
+ *
+ * @param <E>
+ */
 public class Queue<E> implements StmObject {
 
-    private Stack<E> readyToPopStack = new Stack<E>();
-    private Stack<E> pushedStack = new Stack<E>();
+    private final Stack<E> readyToPopStack;
+    private final Stack<E> pushedStack;
 
     public Queue() {
+        //placed into the constructor.
+        readyToPopStack = new Stack<E>();
+        pushedStack = new Stack<E>();
         //generated
-        handle = HandleGenerator.create();
+        handle = HandleGenerator.createHandle();
+    }
+
+    public E peek() {
+        E result = readyToPopStack.peek();
+        if (result != null)
+            return result;
+
+        flipFromPushedToReadyToPop();
+
+        return readyToPopStack.peek();
     }
 
     public E pop() {
         if (!readyToPopStack.isEmpty())
             return readyToPopStack.pop();
 
+        flipFromPushedToReadyToPop();
+
+        return readyToPopStack.pop();
+    }
+
+    private void flipFromPushedToReadyToPop() {
         while (!pushedStack.isEmpty()) {
             E item = pushedStack.pop();
             readyToPopStack.push(item);
         }
-
-        return readyToPopStack.pop();
     }
 
     public void push(E value) {
@@ -40,6 +65,36 @@ public class Queue<E> implements StmObject {
 
     public int size() {
         return readyToPopStack.size() + pushedStack.size();
+    }
+
+    public List<E> asList() {
+        List<E> result = pushedStack.asList();
+        List<E> popped = readyToPopStack.asList();
+        reverse(popped);
+        result.addAll(popped);
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return asList().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object thatObj) {
+        if (thatObj == this)
+            return true;
+
+        if (!(thatObj instanceof Queue))
+            return false;
+
+        Queue that = (Queue) thatObj;
+        if (that.size() != this.size())
+            return false;
+
+        List<E> thatList = that.asList();
+        List<E> thisList = this.asList();
+        return thatList.equals(thisList);
     }
 
     //================== generated =================
@@ -57,10 +112,6 @@ public class Queue<E> implements StmObject {
         this.initialDehydratedQueue = dehydratedQueue;
     }
 
-    public DehydratedStmObject ___getInitialDehydratedStmObject() {
-        return initialDehydratedQueue;
-    }
-
     public void ___onAttach(Transaction transaction) {
         this.transaction = transaction;
     }
@@ -69,22 +120,30 @@ public class Queue<E> implements StmObject {
         return transaction;
     }
 
-    public Iterator<StmObject> ___loadedMembers() {
-        return new ArrayIterator<StmObject>(readyToPopStack, pushedStack);
-    }
-
     public long ___getHandle() {
         return handle;
+    }
+
+    public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
+        return new ArrayIterator<StmObject>(readyToPopStack, pushedStack);
     }
 
     public DehydratedStmObject ___dehydrate() {
         return new DehydratedQueue(this);
     }
 
+    public boolean ___isImmutable() {
+        //the stacks are mutable, so the queue is mutable.
+        return false;
+    }
+
     public boolean ___isDirty() {
+        //if the object has never been saved before, it is dirty by default.
         if (initialDehydratedQueue == null)
             return true;
 
+        //since the queue has no other state than the stacks (and those are final) it is not dirty.
+        //it is up to the stacks to do the dirty check
         return false;
     }
 

@@ -1,5 +1,10 @@
 package org.codehaus.multiverse.core;
 
+import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
+import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 public class TransactionTemplateTest {
@@ -24,6 +29,10 @@ public class TransactionTemplateTest {
         //todo
     }
 
+    public void testInterruptedException() {
+        //todo
+    }
+
     @Test
     public void testStmException() {
         //todo
@@ -32,5 +41,25 @@ public class TransactionTemplateTest {
     @Test
     public void testSuccess() {
         //todo
+    }
+
+    @Test
+    public void testNoConditionVariablesAndRetryShouldNotResultInInfinitiveLoop() {
+        MultiversionedStm stm = new MultiversionedStm();
+        MultiversionedHeapSnapshot oldSnapshot = stm.getHeap().getActiveSnapshot();
+
+        try {
+            new TransactionTemplate(stm) {
+                @Override
+                protected Object execute(Transaction t) {
+                    retry();
+                    return null;
+                }
+            }.execute();
+
+            fail();
+        } catch (NoProgressPossibleException ex) {
+            assertSame(oldSnapshot, stm.getHeap().getActiveSnapshot());
+        }
     }
 }

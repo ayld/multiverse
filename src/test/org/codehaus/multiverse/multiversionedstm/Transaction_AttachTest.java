@@ -2,9 +2,12 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.core.BadTransactionException;
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedstm.examples.IntegerConstant;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 
 public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
+
+    // ================= testing of arguments ===================
 
     public void testNull() {
         createActiveTransaction();
@@ -31,7 +34,20 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionHasNoWrites();
     }
 
-    public void testFreshStmObject() {
+    // =================== fresh objects ========================
+
+    public void testFreshImmutableStmObject() {
+        createActiveTransaction();
+
+        IntegerConstant integerConstant = new IntegerConstant(10);
+        long handle = transaction.attachAsRoot(integerConstant);
+
+        assertTransactionIsActive();
+        assertTransactionHasNoWrites();
+        assertHasHandleAndTransaction(integerConstant, handle, null);
+    }
+
+    public void testFreshMutableStmObject() {
         createActiveTransaction();
 
         Person freshPerson = new Person();
@@ -42,7 +58,9 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertHasHandleAndTransaction(freshPerson, handle, transaction);
     }
 
-    public void testAttachOfDehydratedStmObject() {
+    // =================== non fresh objects (so previous committed) ========================
+
+    public void testNonFreshMutableObject() {
         long handle = atomicInsert(new Person());
 
         createActiveTransaction();
@@ -52,6 +70,20 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertHasHandleAndTransaction(dehydratedPerson, handle, transaction);
     }
+
+    public void testNonFreshImmutableObject() {
+        IntegerConstant integerConstant = new IntegerConstant(10);
+        long handle = atomicInsert(integerConstant);
+
+        createActiveTransaction();
+        IntegerConstant found = (IntegerConstant) transaction.read(handle);
+        transaction.attachAsRoot(found);
+
+        assertTransactionIsActive();
+        assertHasHandleAndTransaction(integerConstant, handle, null);
+    }
+
+    // ====================================================
 
     public void testReferenceIsMadeBeforeAttach() {
         createActiveTransaction();
@@ -85,7 +117,9 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertHasTransaction(null, parent);
     }
 
-    public void testSameObjectAttachedMultipleTimes() {
+    // ===================== multiple attaches of same object ==================
+
+    public void testFreshMutableObjectAttachedMultipleTimes() {
         createActiveTransaction();
 
         Person person = new Person();
@@ -94,9 +128,24 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
-        assertEquals("multiple attachAsRoot should give the same content for the same object ", handle1, handle2);
+        assertEquals("multiple attachAsRoot should give the same handle for the same object ", handle1, handle2);
         assertHasHandle(handle1, person);
     }
+
+    public void testFreshImmutableObjectAttachedMultipleTimes() {
+        createActiveTransaction();
+
+        IntegerConstant integerConstant = new IntegerConstant(10);
+        long handle1 = transaction.attachAsRoot(integerConstant);
+        long handle2 = transaction.attachAsRoot(integerConstant);
+
+        assertTransactionIsActive();
+        assertTransactionHasNoWrites();
+        assertEquals("multiple attachAsRoot should give the same handle for the same object ", handle1, handle2);
+        assertHasHandle(handle1, integerConstant);
+    }
+
+    // ==================== cycles and chains ===========================
 
     public void testShallowCycle() {
         createActiveTransaction();
@@ -179,7 +228,9 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertHasHandleAndTransaction(person2, person2Handle, transaction);
     }
 
-    public void testAlreadyAttachedToDifferentTransaction() {
+    // ===================== transaction conflicts ===================================
+
+    public void testMutableObjectAlreadyAttachedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person person = new Person();
         long personHandle = otherTransaction.attachAsRoot(person);
@@ -197,7 +248,22 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertHasHandleAndTransaction(person, personHandle, otherTransaction);
     }
 
-    public void testReachableObjectAttachedToDifferentTransaction() {
+    public void testImmutableObjectsAttachedToDifferentTransactions() {
+        IntegerConstant integerConstant = new IntegerConstant(25);
+
+        Transaction otherTransaction = stm.startTransaction();
+        long handle = otherTransaction.attachAsRoot(integerConstant);
+
+        createActiveTransaction();
+
+        transaction.attachAsRoot(integerConstant);
+
+        assertTransactionIsActive();
+        assertTransactionHasNoWrites();
+        assertHasHandleAndTransaction(integerConstant, handle, null);
+    }
+
+    public void testMutableObjectReachableObjectAttachedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person parent = new Person();
         long parentHandle = otherTransaction.attachAsRoot(parent);
@@ -237,7 +303,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertHasHandleAndTransaction(parent, parentHandle, otherTransaction);
     }
 
-    //================ the other states a transaction can be in
+    //================ the other states a transaction can be in ====================
 
     public void testTransactionIsRolledback() {
         createAbortedTransaction();

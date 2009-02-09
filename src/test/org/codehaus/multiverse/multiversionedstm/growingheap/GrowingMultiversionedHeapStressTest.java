@@ -1,5 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.growingheap;
 
+import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.DummyDehydratedStmObject;
@@ -39,7 +40,7 @@ public class GrowingMultiversionedHeapStressTest {
     @Test
     public void test() {
         commitCounter.set(TOTAL_COMMIT_COUNT);
-        Thread[] threads = createThreads(2);
+        TestThread[] threads = createStressThreads(2);
 
         long startMs = System.currentTimeMillis();
         startAll(threads);
@@ -71,18 +72,18 @@ public class GrowingMultiversionedHeapStressTest {
         return result;
     }
 
-    public Thread[] createThreads(int count) {
-        Thread[] threads = new Thread[count];
+    public StressThread[] createStressThreads(int count) {
+        StressThread[] threads = new StressThread[count];
         for (int k = 0; k < count; k++)
-            threads[k] = new TestThread();
+            threads[k] = new StressThread();
         return threads;
     }
 
     AtomicInteger threadCounter = new AtomicInteger();
 
-    class TestThread extends Thread {
+    class StressThread extends TestThread {
 
-        public TestThread() {
+        public StressThread() {
             super("Thread-" + threadCounter.incrementAndGet());
         }
 
@@ -94,7 +95,7 @@ public class GrowingMultiversionedHeapStressTest {
                 if (k % 1000 == 0)
                     System.out.println(getName() + " commitcount: " + k);
 
-                sleepRandom(MAX_DELAY_BETWEEN_TRANSACTIONS);
+                sleepRandomMs(MAX_DELAY_BETWEEN_TRANSACTIONS);
                 k++;
             }
         }
@@ -103,7 +104,7 @@ public class GrowingMultiversionedHeapStressTest {
             DehydratedStmObject[] changes = createUnitOfWork();
             MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
-            sleepRandom(MAX_DELAY_BETWEEN_START_AND_COMMIT);
+            sleepRandomMs(MAX_DELAY_BETWEEN_START_AND_COMMIT);
 
             MultiversionedHeap.CommitResult result = heap.commit(startSnapshot.getVersion(), changes);
             if (result.isSuccess()) {

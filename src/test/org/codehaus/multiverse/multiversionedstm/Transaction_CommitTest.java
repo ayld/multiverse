@@ -3,6 +3,7 @@ package org.codehaus.multiverse.multiversionedstm;
 import org.codehaus.multiverse.core.BadTransactionException;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.WriteConflictException;
+import org.codehaus.multiverse.multiversionedstm.examples.IntegerConstant;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 
 public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
@@ -20,7 +21,47 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertCurrentStmVersion(version);
     }
 
-    public void testFreshObject_noAccessHasBeenMade() {
+    public void testFreshImmutableObject() {
+        createActiveTransaction();
+        long oldVersion = stm.getCurrentVersion();
+
+        IntegerConstant integerConstant = new IntegerConstant(10);
+        transaction.attachAsRoot(integerConstant);
+        transaction.commit();
+
+        assertTransactionIsCommitted();
+        assertTransactionWriteCount(1);
+        assertCurrentStmVersion(oldVersion + 1);
+        assertCommitCount(1);
+        assertAbortedCount(0);
+
+        //long newVersion = stm.getCurrentVersion();
+        //assertHeapContainsNow(integerConstant.___getHandle(), newVersion, new Person.DehydratedPerson(person));
+    }
+
+    public void testNonFreshImmutableObject() {
+        IntegerConstant integerConstant = new IntegerConstant(10);
+        long handle = atomicInsert(integerConstant);
+
+        createActiveTransaction();
+        long oldVersion = stm.getCurrentVersion();
+
+        IntegerConstant foundIntegerConstant = (IntegerConstant) transaction.read(handle);
+        transaction.attachAsRoot(foundIntegerConstant);
+        transaction.commit();
+
+        assertTransactionIsCommitted();
+        assertTransactionWriteCount(0);
+        assertCurrentStmVersion(oldVersion);
+
+        assertCommitCount(2);
+        assertAbortedCount(0);
+
+        //long newVersion = stm.getCurrentVersion();
+        //assertHeapContainsNow(integerConstant.___getHandle(), newVersion, new Person.DehydratedPerson(person));
+    }
+
+    public void testFreshMutableObject_noAccessHasBeenMade() {
         createActiveTransaction();
         long version = stm.getCurrentVersion();
 
@@ -39,7 +80,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertHeapContainsNow(personPtr, newVersion, person.___dehydrate());
     }
 
-    public void testFreshObject_withReadOnStandardFields() {
+    public void testFreshMutableObject_withReadOnStandardFields() {
         createActiveTransaction();
         long oldVersion = stm.getCurrentVersion();
 
@@ -60,7 +101,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertHeapContainsNow(person.___getHandle(), newVersion, new Person.DehydratedPerson(person));
     }
 
-    public void testFreshObject_withWriteOnStandardField() {
+    public void testFreshMutableObject_withWriteOnStandardField() {
         createActiveTransaction();
         long initialVersion = stm.getCurrentVersion();
 
@@ -79,7 +120,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertHeapContainsNow(person.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(person));
     }
 
-    public void testChainOfFreshObjects() {
+    public void testChainOfFreshMutableObjects() {
         createActiveTransaction();
         long initialVersion = stm.getCurrentVersion();
 
@@ -100,7 +141,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertAbortedCount(0);
     }
 
-    public void testFreshObject_DirectCycleShouldNotCrachSystem() {
+    public void testFreshMutableObject_DirectCycleShouldNotCrachSystem() {
         createActiveTransaction();
         long initialVersion = stm.getCurrentVersion();
 
@@ -120,7 +161,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertAbortedCount(0);
     }
 
-    public void testFreshObjects_IndirectCycleShouldNotCrashSystem() {
+    public void testFreshMutableObjects_IndirectCycleShouldNotCrashSystem() {
         createActiveTransaction();
         long initialVersion = stm.getCurrentVersion();
 
@@ -145,7 +186,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertAbortedCount(0);
     }
 
-    public void testPrivatizedObjectWithReadOnStandardMember() {
+    public void testPrivatizedMutableObjectWithReadOnStandardMember() {
         Person person = new Person();
         long handle = atomicInsert(person);
 
@@ -163,7 +204,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertHeapContainsNow(p1.___getHandle(), initialVersion, new Person.DehydratedPerson(person));
     }
 
-    public void testPrivatizedObjectWithReadOnStmMember() {
+    public void testPrivatizedMutableObjectWithReadOnStmMember() {
         Person person = new Person();
         Person parent = new Person();
         person.setParent(parent);
@@ -182,7 +223,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertHeapContainsNow(p1.___getHandle(), initialVersion, new Person.DehydratedPerson(person));
     }
 
-    public void testReadObjectWithWriteOnStandardMember() {
+    public void testReadMutableObjectWithWriteOnStandardMember() {
         int oldAge = 10;
         String name = "peter";
         long handle = atomicInsert(new Person(oldAge, name));
@@ -204,7 +245,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertHeapContainsNow(handle, afterCommitVersion, new Person.DehydratedPerson(handle, newAge, name));
     }
 
-    public void testReadObjectWithWriteOnStmMember() {
+    public void testReadMutableObjectWithWriteOnStmMember() {
         long personHandle = atomicInsert(new Person());
         long parentHandle = atomicInsert(new Person());
 
@@ -258,7 +299,8 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         return transaction;
     }
 
-    public void testReachableObjectIsConnectedToDifferentTransaction() {
+    //todo
+    public void _testReachableObjectIsConnectedToDifferentTransaction() {
         Transaction otherTransaction = stm.startTransaction();
         Person parent = new Person();
         long parentPtr = otherTransaction.attachAsRoot(parent);

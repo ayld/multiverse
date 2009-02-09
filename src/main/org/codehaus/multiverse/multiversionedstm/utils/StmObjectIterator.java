@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * An {@link Iterator} that iterates over {@link org.codehaus.multiverse.multiversionedstm.StmObject}, including their loaded members. Members are not
  * traversed if they are not loaded because we don't want to load very large object graphs. It uses the
- * {@link org.codehaus.multiverse.multiversionedstm.StmObject#___loadedMembers()} for iteration.
+ * {@link org.codehaus.multiverse.multiversionedstm.StmObject#___getFreshOrLoadedStmMembers()} for iteration.
  * <p/>
  * This iterator gives the guarantee that each item is returned only once.
  * <p/>
@@ -63,7 +63,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
         if (todoMembers.isEmpty())
             return false;
 
-        iterator = takeItemFromTodoMembers().___loadedMembers();
+        iterator = takeItemFromTodoMembers().___getFreshOrLoadedStmMembers();
         return true;
     }
 
