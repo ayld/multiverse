@@ -63,6 +63,7 @@ public class TestUtils {
             return;
 
         sleep((long) (Math.random() * maxMs));
+        Thread.yield();
     }
 
     public static void sleep(long ms) {
