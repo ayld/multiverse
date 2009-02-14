@@ -88,6 +88,19 @@ public class QueueTest {
         assertNull(queue.peek());
     }
 
+    @Test
+    public void test() {
+        Queue queue = new Queue(1);
+        queue.push("foo");
+
+        try {
+            queue.push("bar");
+            fail();
+        } catch (RetryError er) {
+            assertEquals(1, queue.size());
+        }
+    }
+
     @Test(expected = RetryError.class)
     public void testPoppingFromEmptyQueue() {
         Queue queue = new Queue();
