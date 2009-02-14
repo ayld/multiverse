@@ -26,7 +26,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     //all StmObject that already are returned. This prevent multiple returns of the same item.
     private final Set<Long> touchedSet = new HashSet<Long>();
     //all StmObjects which members need to be traversed.
-    private final Map<Long, StmObject> todoMembers = new HashMap<Long, StmObject>();
+    private final LinkedList<StmObject> todoList = new LinkedList<StmObject>();
 
     private Iterator<StmObject> iterator;
 
@@ -60,7 +60,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
      * @return true if one if found, false otherwise.
      */
     private boolean findNextIterator() {
-        if (todoMembers.isEmpty())
+        if (todoList.isEmpty())
             return false;
 
         iterator = takeItemFromTodoMembers().___getFreshOrLoadedStmMembers();
@@ -74,10 +74,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
      * @throws NoSuchElementException if the iteratorSet is empty.
      */
     private StmObject takeItemFromTodoMembers() {
-        Iterator<StmObject> it = todoMembers.values().iterator();
-        StmObject result = it.next();
-        it.remove();
-        return result;
+        return todoList.removeFirst();
     }
 
     /**
@@ -93,7 +90,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
             StmObject object = iterator.next();
             //long handle = object.___getHandle();
             if (touchedSet.add(object.___getHandle())) {
-                todoMembers.put(object.___getHandle(), object);
+                todoList.add(object);
                 next = object;
                 return true;
             }
