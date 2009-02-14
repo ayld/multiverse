@@ -4,6 +4,7 @@ import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
+import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 
 import static java.util.Collections.reverse;
@@ -20,13 +21,27 @@ public class Queue<E> implements StmObject {
 
     private final Stack<E> readyToPopStack;
     private final Stack<E> pushedStack;
+    private final int maxCapacity;
 
-    public Queue() {
+    public Queue(int maximumCapacity) {
+        if (maximumCapacity < 1)
+            throw new IllegalArgumentException();
+
+        this.maxCapacity = maximumCapacity;
+
         //placed into the constructor.
         readyToPopStack = new Stack<E>();
         pushedStack = new Stack<E>();
         //generated
         handle = HandleGenerator.createHandle();
+    }
+
+    public Queue() {
+        this(Integer.MAX_VALUE);
+    }
+
+    public int getMaxCapacity() {
+        return maxCapacity;
     }
 
     public E peek() {
@@ -56,6 +71,9 @@ public class Queue<E> implements StmObject {
     }
 
     public void push(E value) {
+        if (size() == maxCapacity)
+            retry();
+
         pushedStack.push(value);
     }
 
@@ -110,6 +128,7 @@ public class Queue<E> implements StmObject {
         this.readyToPopStack = (Stack) transaction.read(dehydratedQueue.readyToPopStackPtr);
         this.pushedStack = (Stack) transaction.read(dehydratedQueue.pushedStackPtr);
         this.initialDehydratedQueue = dehydratedQueue;
+        this.maxCapacity = dehydratedQueue.maxCapacity;
     }
 
     public void ___onAttach(Transaction transaction) {
@@ -150,11 +169,13 @@ public class Queue<E> implements StmObject {
     public static class DehydratedQueue extends DehydratedStmObject {
         private final long readyToPopStackPtr;
         private final long pushedStackPtr;
+        private final int maxCapacity;
 
         DehydratedQueue(Queue queue) {
             super(queue.___getHandle());
             this.readyToPopStackPtr = queue.readyToPopStack.___getHandle();
             this.pushedStackPtr = queue.pushedStack.___getHandle();
+            this.maxCapacity = queue.maxCapacity;
         }
 
         public Iterator<Long> members() {
