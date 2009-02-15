@@ -11,8 +11,8 @@
 
 = Planned =
   * Pessimistic locking & deadlock detection 
-  * Instrumentation of pojo's. 
+  * Instrumentation of pojo's. At the moment the main goal is to create a good Stm implementation and that is why classes need to be instrumented by manually. Once the Stm is nearing completion, the instrumentation will be picked up. 
   * Annotation driven transaction instead of the current template driven version
-  * A lot of statistics
-  * support for OrElse
+  * A lot of statistics to help developers figure out what goes on and how to improve performance.
+  * support for OrElse (is peanuts).
   * readonly transactions
