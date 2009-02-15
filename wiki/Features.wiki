@@ -4,7 +4,7 @@
   * multi version concurrency control (the same mechanism Oracle, Postgresql and other databases use).
   * no overhead on reads/writes of object fields that point to primitives or non stm objects. Instead of working with a transaction log, the object is checked for changes when the commit happens.
   * small overhead (for lazy loading purposes) on non final stm references
-  * special optimisations for immutable stm objects so that loading gets really cheap (O(c)).
+  * special optimisations for immutable stm structures so that loading gets really cheap (O(c)) no matter the size of the structure.
   * non managed stm objects can flow through stm space (for example for handing over an object from one thread to another).
   * transaction level read consistency (the same isolation Oracle provides, so not 100% serialized)
 
