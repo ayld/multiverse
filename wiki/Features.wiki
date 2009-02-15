@@ -16,3 +16,6 @@
   * A lot of statistics to help developers figure out what goes on and how to improve performance.
   * support for OrElse (is peanuts).
   * readonly transactions
+  * garbage collection of non references stm content. Once the objects are committed, they are dehydrated and the heap is pointing to them so the gc won't throw them away even though they are not used anymore.
+  * nested transactions
+  * detachment and reattachment of stm objects
