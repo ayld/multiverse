@@ -1,7 +1,7 @@
 #summary Overview of the (planned) features of Multiverse
 
 = Features =
-  * multi version concurrency control (the same mechanism Oracle, Postgresql and other databases use).
+  * multi version concurrency control (the same mechanism Oracle, Postgresql and other databases use). So readers don't block writers, and writers don't block readers. And transactions with non conflicting writes can be committed in parallel.
   * no overhead on reads/writes of object fields that point to primitives or non stm objects. Instead of working with a transaction log, the object is checked for changes when the commit happens. So all classic compiler optimisations are not obstructed in any way.
   * small overhead (for lazy loading purposes) on mutable stm references. 
   * special optimisations for immutable stm structures so that loading gets really cheap (O(c)) no matter the size of the structure.
