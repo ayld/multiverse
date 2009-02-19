@@ -7,17 +7,21 @@ import org.codehaus.multiverse.core.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class StackIntegrationTest extends AbstractMultiversionedStmTest {
-    private long stackPtr;
+    private long stackHandle;
     private long startMs;
+    private final static AtomicInteger producedItemCounter = new AtomicInteger();
+    private final static AtomicInteger produceTodoCounter = new AtomicInteger();
+
     private int produceCount;
+    private int producerCount = 1;
+    private int consumerCount = 1;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        stackPtr = atomicInsert(new Stack());
+        stackHandle = atomicInsert(new Stack());
         startMs = System.currentTimeMillis();
     }
 
@@ -28,38 +32,27 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
 
         long timeMs = (System.currentTimeMillis() - startMs) + 1;
         System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
-        System.out.println(String.format("%s transactions took %s ms", produceCount, timeMs));
-        System.out.println(String.format("%s transactions/second", (produceCount / (timeMs / 1000.0))));
+        System.out.println(String.format("%s items took %s ms", produceCount, timeMs));
+        System.out.println(String.format("%s transactions/second", stm.getStatistics().getTransactionsCommitedCount() / (timeMs / 1000.0)));
     }
-
-    int count;
 
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Stack stack = (Stack) t.read(stackPtr);
+                Stack<String> stack = (Stack) t.read(stackHandle);
                 stack.push(item);
                 return null;
             }
         }.execute();
-
-        //count++;
-        //if(count % 1000000==0){
-        //    System.out.println("pause");
-        //    sleep(1000);
-        //    System.out.println("finished pause");
-        //}
     }
 
     public String atomicPop() {
-        String item = (String) new TransactionTemplate(stm) {
-            protected Object execute(Transaction t) throws Exception {
-                //    System.out.println(Thread.currentThread() + " trying to pop");
-                Stack stack = (Stack) t.read(stackPtr);
-                return stack.pop();
+        return new TransactionTemplate<String>(stm) {
+            protected String execute(Transaction t) throws Exception {
+                Stack stack = (Stack) t.read(stackHandle);
+                return (String) stack.pop();
             }
         }.execute();
-        return item;
     }
 
     public void asynchronousPush(final String item) {
@@ -74,8 +67,7 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         new Thread() {
             public void run() {
                 try {
-                    String result = atomicPop();
-                    //   System.out.println(Thread.currentThread() + " consumed: " + result);
+                    atomicPop();
                 } catch (RuntimeException ex) {
                     ex.printStackTrace();
                 }
@@ -110,21 +102,6 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         assertEquals(started + 1, stm.getStatistics().getTransactionsStartedCount());
     }
 
-    public void testProducerConsumer(int produceCount) {
-        this.produceCount = produceCount;
-        produceTodoCounter.set(produceCount);
-        ProducerThread producer1 = new ProducerThread();
-        ProducerThread producer2 = new ProducerThread();
-        ProducerThread producer3 = new ProducerThread();
-
-        ConsumerThread consumer1 = new ConsumerThread();
-        ConsumerThread consumer2 = new ConsumerThread();
-        ConsumerThread consumer3 = new ConsumerThread();
-
-        startAll(producer1, producer2, producer3, consumer1, consumer2, consumer3);
-        joinAll(producer1, producer2, producer3, consumer1, consumer2, consumer3);
-    }
-
     public void testProduceConsumer_10() {
         testProducerConsumer(10);
     }
@@ -146,22 +123,47 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
     }
 
     public void testProduceConsumer_1000000() {
-        testProducerConsumer(1000000);
+        testProducerConsumer(2000000);
     }
 
     public void _testProduceConsumer_10000000() {
-        testProducerConsumer(10000000);
+        testProducerConsumer(100000000);
     }
 
-    final static AtomicInteger producerThreadCounter = new AtomicInteger();
-    final static AtomicLong produceTodoCounter = new AtomicLong();
-    final static AtomicInteger consumerThreadCounter = new AtomicInteger();
-    final static AtomicInteger producedItemCounter = new AtomicInteger();
+    public void testProducerConsumer(int produceCount) {
+        this.produceCount = produceCount;
+        produceTodoCounter.set(produceCount);
+
+        ProducerThread[] producerThreads = createProducerThreads();
+        ConsumerThread[] consumerThreads = createConsumerThreads();
+
+        startAll(consumerThreads);
+        startAll(producerThreads);
+
+        joinAll(producerThreads);
+        joinAll(consumerThreads);
+    }
+
+    private ConsumerThread[] createConsumerThreads() {
+        ConsumerThread[] threads = new ConsumerThread[consumerCount];
+        for (int k = 0; k < threads.length; k++)
+            threads[k] = new ConsumerThread();
+        return threads;
+    }
+
+    private ProducerThread[] createProducerThreads() {
+        ProducerThread[] threads = new ProducerThread[producerCount];
+        for (int k = 0; k < threads.length; k++)
+            threads[k] = new ProducerThread();
+        return threads;
+    }
+
+    final static AtomicInteger producerThreadIdGenerator = new AtomicInteger();
 
     private class ProducerThread extends TestThread {
 
         public ProducerThread() {
-            super("producer-" + producerThreadCounter.incrementAndGet());
+            super("producer-" + producerThreadIdGenerator.incrementAndGet());
         }
 
         public void run() {
@@ -170,7 +172,7 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
                 atomicPush("" + itemCount);
 
                 if (itemCount % 500000 == 0) {
-                    System.out.println(String.format("Produced %s items", itemCount));
+                    System.out.printf("Produced %s items\n", itemCount);
                 }
             }
 
@@ -178,10 +180,12 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         }
     }
 
+    final static AtomicInteger consumerThreadIdGenerator = new AtomicInteger();
+
     private class ConsumerThread extends TestThread {
 
         public ConsumerThread() {
-            super("consumer-" + consumerThreadCounter.incrementAndGet());
+            super("consumer-" + consumerThreadIdGenerator.incrementAndGet());
         }
 
         public void run() {

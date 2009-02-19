@@ -92,7 +92,7 @@ public abstract class TransactionTemplate<E> {
                     //indicates that the transaction can't make any progress.
                     predecessor = transaction;
                     retryCount++;
-                } catch (WriteConflictException ex) {
+                } catch (WriteConflictError ex) {
                     //with a writeconflict, you don't need a predecessor because you are not interested in
                     //the handles that have been read for the stm-version of condition variables.
                     retryCount++;

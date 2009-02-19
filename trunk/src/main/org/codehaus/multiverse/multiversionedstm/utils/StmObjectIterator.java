@@ -4,7 +4,8 @@ import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.CompositeIterator;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * An {@link Iterator} that iterates over {@link org.codehaus.multiverse.multiversionedstm.StmObject}, including their loaded members. Members are not
@@ -24,13 +25,19 @@ import java.util.*;
 public final class StmObjectIterator implements Iterator<StmObject> {
 
     //all StmObject that already are returned. This prevent multiple returns of the same item.
-    private final Set<Long> touchedSet = new HashSet<Long>();
+    private final PrimitiveLongSet touchedSet = new PrimitiveLongSet();
+
     //all StmObjects which members need to be traversed.
-    private final LinkedList<StmObject> todoList = new LinkedList<StmObject>();
+    private Bag<Iterator<StmObject>> todoBag;
 
     private Iterator<StmObject> iterator;
 
     private StmObject next;
+
+    public StmObjectIterator(Iterator<StmObject> rootIt) {
+        if (rootIt == null) throw new NullPointerException();
+        iterator = rootIt;
+    }
 
     public StmObjectIterator(Iterator<StmObject>... rootIterators) {
         if (rootIterators == null) throw new NullPointerException();
@@ -60,10 +67,10 @@ public final class StmObjectIterator implements Iterator<StmObject> {
      * @return true if one if found, false otherwise.
      */
     private boolean findNextIterator() {
-        if (todoList.isEmpty())
+        if (todoBag == null || todoBag.isEmpty())
             return false;
 
-        iterator = takeItemFromTodoMembers().___getFreshOrLoadedStmMembers();
+        iterator = takeToDoIterator();
         return true;
     }
 
@@ -73,8 +80,8 @@ public final class StmObjectIterator implements Iterator<StmObject> {
      * @return the taken item.
      * @throws NoSuchElementException if the iteratorSet is empty.
      */
-    private StmObject takeItemFromTodoMembers() {
-        return todoList.removeFirst();
+    private Iterator<StmObject> takeToDoIterator() {
+        return todoBag.takeAny();
     }
 
     /**
@@ -88,9 +95,14 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     private boolean findNextInCurrentIterator() {
         while (iterator.hasNext()) {
             StmObject object = iterator.next();
-            //long handle = object.___getHandle();
             if (touchedSet.add(object.___getHandle())) {
-                todoList.add(object);
+                Iterator<StmObject> it = object.___getFreshOrLoadedStmMembers();
+                if (it.hasNext()) {
+                    if (todoBag == null)
+                        todoBag = new Bag<Iterator<StmObject>>();
+                    todoBag.add(it);
+                }
+
                 next = object;
                 return true;
             }

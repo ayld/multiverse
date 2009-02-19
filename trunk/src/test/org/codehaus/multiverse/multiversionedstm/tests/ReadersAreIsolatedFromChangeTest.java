@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.multiversionedstm.examples;
+package org.codehaus.multiverse.multiversionedstm.tests;
 
 import org.junit.Test;
 

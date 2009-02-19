@@ -11,6 +11,7 @@ package org.codehaus.multiverse.core;
  * to make the retry behavior in the Java language completely transparant, this is needed.
  *
  * @author Peter Veentjer.
+ * @see org.codehaus.multiverse.core.WriteConflictError
  */
 public class RetryError extends Error {
 
