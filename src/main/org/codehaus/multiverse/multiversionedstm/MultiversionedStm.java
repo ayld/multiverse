@@ -10,7 +10,10 @@ import org.codehaus.multiverse.util.latches.CheapLatch;
 import org.codehaus.multiverse.util.latches.Latch;
 
 import static java.lang.String.format;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -109,11 +112,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         private final MultiversionedHeapSnapshot snapshot;
 
-        private final Map<Long, StmObject> attachedObjects = new HashMap<Long, StmObject>();
+        private final Map<Long, StmObject> attachedObjects = new TreeMap<Long, StmObject>();
 
-        private final Map<Long, StmObject> hydratedObjects = new Hashtable<Long, StmObject>();
-
-        private final Set<Long> conditionHandles = new HashSet<Long>();
+        private final Map<Long, StmObject> hydratedObjects = new TreeMap<Long, StmObject>();
 
         private long writeCount = 0;
         private final MultiversionedStm stm;
@@ -337,10 +338,10 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             } else {
                 Transaction transaction = stmObject.___getTransaction();
                 if (transaction == null) {
-                    long handle = heap.createHandle();
+                    //long handle = heap.createHandle();
                     stmObject.___onAttach(this);
                     //todo: could this cause a concurrentmodificationexception?
-                    attachedObjects.put(handle, stmObject);
+                    attachedObjects.put(stmObject.___getHandle(), stmObject);
                 } else if (transaction != this) {
                     throw createBadTransactionException(stmObject);
                 }
@@ -391,7 +392,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     writeCount = result.getWriteCount();
             } else {
                 statistics.transactionsConflictedCount.incrementAndGet();
-                throw new WriteConflictException("Transaction is aborted because of a write conflict");
+                throw WriteConflictError.INSTANCE;
             }
         }
 
@@ -411,6 +412,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
+
         class CommitIterator implements ResetableIterator<DehydratedStmObject> {
             private Iterator<StmObject> iterator;
             private StmObject next;
@@ -425,13 +427,25 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     return true;
 
                 if (iterator == null) {
-                    iterator = new StmObjectIterator(
-                            hydratedObjects.values().iterator(),
-                            attachedObjects.values().iterator());
+                    //the split up of the iterator creation is a 'hack' to figure out if the
+                    //varargs version of the constructor is taking that much time.
+                    if (hydratedObjects.isEmpty()) {
+                        iterator = new StmObjectIterator(attachedObjects.values().iterator());
+                    } else if (attachedObjects.isEmpty()) {
+                        iterator = new StmObjectIterator(hydratedObjects.values().iterator());
+                    } else {
+                        Iterator<StmObject> hydratedIt = hydratedObjects.values().iterator();
+                        Iterator<StmObject> attachedIt = attachedObjects.values().iterator();
+                        iterator = new StmObjectIterator(
+                                hydratedIt,
+                                attachedIt);
+                    }
                 }
 
                 while (iterator.hasNext()) {
                     StmObject object = iterator.next();
+                    //if an object is immutable, it will only be in the attached list if it has not
+                    //been persisted before.
                     if (object.___isImmutable() || object.___isDirty()) {
                         next = object;
                         return true;

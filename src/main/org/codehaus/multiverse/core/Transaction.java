@@ -102,7 +102,7 @@ public interface Transaction {
      * This method is not threadsafe.
      *
      * @throws IllegalStateException   if the transaction is already aborted.
-     * @throws WriteConflictException  if a write conflict has happened
+     * @throws WriteConflictError      if a write conflict has happened
      * @throws BadTransactionException if one or more of the reachable objects is bound to a different transaction.
      */
     void commit();

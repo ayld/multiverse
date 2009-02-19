@@ -1,13 +1,19 @@
-package org.codehaus.multiverse.multiversionedstm.examples;
+package org.codehaus.multiverse.multiversionedstm.tests;
 
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
+import org.codehaus.multiverse.multiversionedstm.examples.Queue;
 import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 import org.junit.After;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * todo: what does the test do.
+ *
+ * @author Peter Veentjer.
+ */
 public class AtomicBehaviorTest {
 
     private MultiversionedStm stm;

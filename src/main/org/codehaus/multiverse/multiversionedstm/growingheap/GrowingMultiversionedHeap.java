@@ -15,7 +15,6 @@ import static java.lang.String.format;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Default {@link MultiversionedHeap} implementation that is able to grow.
@@ -23,8 +22,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Peter Veentjer.
  */
 public final class GrowingMultiversionedHeap implements MultiversionedHeap {
-
-    private final AtomicLong nextFreeHandler = new AtomicLong();
 
     private final MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl> snapshotChain =
             new MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
@@ -42,10 +39,6 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
 
     public GrowingMultiversionedHeapStatistics getStatistics() {
         return statistics;
-    }
-
-    public long createHandle() {
-        return nextFreeHandler.incrementAndGet();
     }
 
     public MultiversionedHeapSnapshot getActiveSnapshot() {
@@ -108,6 +101,8 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
         } while (anotherTransactionDidCommit);
 
         //the commit was a success, so lets update the state.
+        //todo: this could be done on another thread, since it doesn't matter who  wakes up the listeners.
+        //todo: this would help scalability.
         listenerSupport.wakeupListeners(
                 createNewSnapshotResult.snapshot.getVersion(),
                 createNewSnapshotResult.getHandles());
@@ -234,6 +229,8 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
             //loaded from this version.
             MultiversionedHeapSnapshotImpl startSnapshot = snapshotChain.getSpecific(startVersion);
+
+            //the handles of objects that are written to the heap
             Set<Long> handles = new HashSet<Long>();
 
             for (; changes.hasNext();) {
@@ -256,6 +253,43 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             MultiversionedHeapSnapshotImpl newSnapshot = new MultiversionedHeapSnapshotImpl(newRoot, commitVersion);
             return CreateNewSnapshotResult.createSuccess(handles, newSnapshot);
         }
+
+        /*
+        public CreateNewSnapshotResult createoNew(Iterator<StmObject> roots, long startVersion) {
+            long commitVersion = version + 1;
+
+            HeapNode newRoot = root;
+            //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
+            //loaded from this version.
+            MultiversionedHeapSnapshotImpl startSnapshot = snapshotChain.getSpecific(startVersion);
+
+            //the handles of objects that are written to the heap
+            Set<Long> handles = new HashSet<Long>();
+
+            for (; roots.hasNext();) {
+                StmObject change = roots.next();
+
+
+
+                long handle = change.___getHandle();
+
+                if (hasWriteConflict(handle, startSnapshot))
+                    return CreateNewSnapshotResult.createWriteConflict();
+
+
+                handles.add(handle);
+
+                change.setVersion(commitVersion);
+                if (newRoot == null)
+                    newRoot = new DefaultHeapNode(change, null, null);
+                else
+                    newRoot = newRoot.createNew(change);
+            }
+
+            MultiversionedHeapSnapshotImpl newSnapshot = new MultiversionedHeapSnapshotImpl(newRoot, commitVersion);
+            return CreateNewSnapshotResult.createSuccess(handles, newSnapshot);
+        } */
+
 
         /**
          * Checks if the current HeapSnapshot has a write conflict at the specified handle with the startSnapshot.

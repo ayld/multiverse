@@ -47,18 +47,6 @@ public interface MultiversionedHeap {
     MultiversionedHeapSnapshot getSnapshot(long version);
 
     /**
-     * Creates a new handle that can be used to find an object (it could be compared to an alloc function).
-     * <p/>
-     * Method is threadsafe.
-     * <p/>
-     * It could be that handles are created, but eventually are not written to main memory. An example is a
-     * transaction that is aborted.
-     *
-     * @return the created handle.
-     */
-    long createHandle();
-
-    /**
      * Writes changes to the heap. The write has to be 'atomic', so it should not be allowed that a snapshot
      * sees the updates being made.
      * <p/>
