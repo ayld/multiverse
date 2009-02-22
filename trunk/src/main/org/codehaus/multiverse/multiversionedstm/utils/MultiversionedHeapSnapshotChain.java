@@ -32,6 +32,8 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
 
     private final ReferenceQueue<WeakSnapshotReference> referenceQueue = new ReferenceQueue<WeakSnapshotReference>();
 
+    private final AtomicLong cleanupCounter = new AtomicLong();
+
     /**
      * Creates a new HeapSnapshotChain .
      *
@@ -41,7 +43,6 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
     public MultiversionedHeapSnapshotChain(H heapSnapshot) {
         if (heapSnapshot == null) throw new NullPointerException();
         headReference.set(new Node(heapSnapshot, null, referenceQueue));
-
         //new CleanupThread().start();
     }
 
@@ -57,8 +58,6 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
      */
     public boolean compareAndAdd(H expectedSnapshot, H newSnapshot) {
         if (expectedSnapshot == null || newSnapshot == null) throw new NullPointerException();
-
-        removeUselessNodesFromChain();
 
         Node<H> oldHead = headReference.get();
         H oldSnapshot = oldHead.strongSnapshotReference;
@@ -81,6 +80,9 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
             //another threads has done an update, so our set didn't succeeed.
             return false;
         }
+
+        if (cleanupCounter.incrementAndGet() % 10000 == 0)
+            removeUselessNodesFromChain();
 
         //the new head was set successfully, we need to signal the oldHead that it isn't the Head anymore.
         oldHead.downgradeToBody(newHead);
@@ -272,7 +274,7 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
         public CleanupThread() {
             super("RemoveDeadChainEntries-Garbagecollector-Thread: " + gcThreadIdGenerator.incrementAndGet());
             setDaemon(true);
-            setPriority(Thread.MAX_PRIORITY);
+            setPriority(Thread.MIN_PRIORITY);
         }
 
         public void run() {
@@ -280,24 +282,17 @@ public final class MultiversionedHeapSnapshotChain<H extends MultiversionedHeapS
 
             try {
                 while (true) {
-                    try {
-                        WeakSnapshotReference reference = (WeakSnapshotReference) referenceQueue.remove();
-                        synchronized (MultiversionedHeapSnapshotChain.this) {
-                            reference.node.removeFromChain();
-                        }
-                        removedCounter++;
+                    WeakSnapshotReference reference = (WeakSnapshotReference) referenceQueue.remove();
+                    reference.node.removeFromChain();
+                    removedCounter++;
 
-                        //if (removedCounter % 1000000 == 0) {
-                        //    System.out.println("-------------------------------------------------------");
-                        //    System.out.println(format("removedCounter %s", removedCounter));
-                        //    System.out.println(format("enteredcount   %s", enteredCounter.get()));
-                        //    System.out.println(format("alivecount     %s", getAliveCount()));
-                        //    System.out.println(format("chaincount     %s", getChainCount()));
-                        //
-                        //}
-                    } catch (InterruptedException e) {
-                        //todo: what to do with the interrupt status here.
-                        interrupt();
+                    if (removedCounter % 10000000 == 0) {
+                        System.out.println("-------------------------------------------------------");
+                        System.out.println(format("removedCounter %s", removedCounter));
+                        System.out.println(format("enteredcount   %s", enteredCounter.get()));
+                        System.out.println(format("alivecount     %s", getAliveCount()));
+                        System.out.println(format("chaincount     %s", getChainCount()));
+
                     }
                 }
             } catch (Exception ex) {

@@ -4,33 +4,42 @@ import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
-import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
+import org.codehaus.multiverse.multiversionedstm.growingheap.SmartGrowingMultiversionedHeap;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class StackIntegrationTest extends AbstractMultiversionedStmTest {
+public class StackIntegrationTest {
     private long stackHandle;
     private long startMs;
+    private long endMs;
+
     private final static AtomicInteger producedItemCounter = new AtomicInteger();
     private final static AtomicInteger produceTodoCounter = new AtomicInteger();
+    private SmartGrowingMultiversionedHeap heap;
 
     private int produceCount;
     private int producerCount = 1;
     private int consumerCount = 1;
+    private MultiversionedStm stm;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-        stackHandle = atomicInsert(new Stack());
-        startMs = System.currentTimeMillis();
+        heap = new SmartGrowingMultiversionedHeap();
+        stm = new MultiversionedStm(heap);
+        stackHandle = atomicInsert(stm, new Stack());
+
     }
 
-    @Override
+    @After
     public void tearDown() throws Exception {
-        super.tearDown();
         System.out.println(heap.getStatistics());
 
-        long timeMs = (System.currentTimeMillis() - startMs) + 1;
+        long timeMs = (endMs - startMs) + 1;
         System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
         System.out.println(String.format("%s items took %s ms", produceCount, timeMs));
         System.out.println(String.format("%s transactions/second", stm.getStatistics().getTransactionsCommitedCount() / (timeMs / 1000.0)));
@@ -75,6 +84,7 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         }.start();
     }
 
+    @Test
     public void testSequential() {
         atomicPush("foo");
         atomicPush("bar");
@@ -85,7 +95,7 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         assertEquals("foo", item2);
     }
 
-
+    @Test
     public void testAsynchronous() {
         asynchronousPop();
         asynchronousPush("Hello");
@@ -93,6 +103,7 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         //todo: content needs to be checked
     }
 
+    @Test
     public void testPopOnEmptyStackDoesntLoop() {
         long started = stm.getStatistics().getTransactionsStartedCount();
 
@@ -102,31 +113,38 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         assertEquals(started + 1, stm.getStatistics().getTransactionsStartedCount());
     }
 
+    @Test
     public void testProduceConsumer_10() {
         testProducerConsumer(10);
     }
 
+    @Test
     public void testProduceConsumer_100() {
         testProducerConsumer(100);
     }
 
+    @Test
     public void testProduceConsumer_1000() {
         testProducerConsumer(1000);
     }
 
+    @Test
     public void testProduceConsumer_10000() {
         testProducerConsumer(10000);
     }
 
+    @Test
     public void testProduceConsumer_100000() {
         testProducerConsumer(100000);
     }
 
+    @Test
     public void testProduceConsumer_1000000() {
         testProducerConsumer(2000000);
     }
 
-    public void _testProduceConsumer_10000000() {
+    @Test
+    public void testProduceConsumer_10000000() {
         testProducerConsumer(100000000);
     }
 
@@ -137,11 +155,15 @@ public class StackIntegrationTest extends AbstractMultiversionedStmTest {
         ProducerThread[] producerThreads = createProducerThreads();
         ConsumerThread[] consumerThreads = createConsumerThreads();
 
+        startMs = System.currentTimeMillis();
+
         startAll(consumerThreads);
         startAll(producerThreads);
 
         joinAll(producerThreads);
         joinAll(consumerThreads);
+
+        endMs = System.currentTimeMillis();
     }
 
     private ConsumerThread[] createConsumerThreads() {

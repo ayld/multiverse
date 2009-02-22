@@ -1,5 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.utils;
 
+import org.codehaus.multiverse.util.Bag;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,7 +10,7 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A performance test for {@link Bag} to make sure that it performs better than the structure
+ * A performance test for {@link org.codehaus.multiverse.util.Bag} to make sure that it performs better than the structure
  * it replaced: java.util.LinkedList.
  *
  * @author Peter Veentjer.

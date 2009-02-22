@@ -57,7 +57,7 @@ public interface MultiversionedHeap {
      * @param changes      a resetable iterator over the
      * @return the HeapCommitResult. This object contains information regarding the
      */
-    CommitResult commit(long startVersion, ResetableIterator<DehydratedStmObject> changes);
+    CommitResult commit(MultiversionedHeapSnapshot startSnapshot, ResetableIterator<DehydratedStmObject> changes);
 
     /**
      * Creates a {@link Latch} that is opened when an update is done on one of the handles.
@@ -100,8 +100,8 @@ public interface MultiversionedHeap {
         }
 
         public static CommitResult createSuccess(MultiversionedHeapSnapshot snapshot, long writeCount) {
-            if (snapshot == null) throw new NullPointerException();
-            if (writeCount < 0) throw new IllegalArgumentException();
+            //if (snapshot == null) throw new NullPointerException();
+            //if (writeCount < 0) throw new IllegalArgumentException();
             return new CommitResult(true, snapshot, writeCount);
         }
 

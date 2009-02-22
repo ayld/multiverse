@@ -41,6 +41,29 @@ public final class CheapLatch implements Latch {
         }
     }
 
+    @Override
+    public void awaitUniterruptibly() {
+        if (isOpen)
+            return;
+
+        boolean restoreInterrupt = false;
+
+        try {
+            synchronized (this) {
+                while (!isOpen) {
+                    try {
+                        wait();
+                    } catch (InterruptedException ex) {
+                        restoreInterrupt = true;
+                    }
+                }
+            }
+        } finally {
+            if (restoreInterrupt)
+                Thread.currentThread().interrupt();
+        }
+    }
+
     public void open() {
         if (isOpen)
             return;

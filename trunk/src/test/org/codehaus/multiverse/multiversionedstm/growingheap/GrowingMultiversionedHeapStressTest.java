@@ -18,11 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 //todo: a long running test to make sure that there are no memory leaks
 public class GrowingMultiversionedHeapStressTest {
 
-    private static final int TOTAL_COMMIT_COUNT = 200000;
-    private static final int MAX_COMMIT_SIZE = 2;
-    private static final int HANDLE_RANGE = 100000;
-    private static final int MAX_DELAY_BETWEEN_TRANSACTIONS = 0;
-    private static final int MAX_DELAY_BETWEEN_START_AND_COMMIT = 0;
+    private int commitCount = 200000;
+    private int maxCommitSize = 2;
+    private int handleRange = 100000;
+    private int maxDelaysBetweenTransactions = 0;
+    private int maxDelayBetweenStartAndCommit = 0;
 
     private GrowingMultiversionedHeap heap;
     private AtomicInteger commitCounter = new AtomicInteger();
@@ -39,23 +39,24 @@ public class GrowingMultiversionedHeapStressTest {
 
     @Test
     public void test() {
-        commitCounter.set(TOTAL_COMMIT_COUNT);
+        commitCounter.set(commitCount);
         TestThread[] threads = createStressThreads(2);
 
         long startMs = System.currentTimeMillis();
         startAll(threads);
         joinAll(threads);
         long timeMs = (System.currentTimeMillis() - startMs) + 1;
-        System.out.println(String.format("%s transactions took %s ms", TOTAL_COMMIT_COUNT, timeMs));
-        System.out.println(String.format("%s transactions/second", (TOTAL_COMMIT_COUNT / (timeMs / 1000))));
+
+        System.out.printf("%s transactions took %s ms\n", commitCount, timeMs);
+        System.out.printf("%s transactions/second\n", (commitCount / (timeMs / 1000)));
     }
 
     long randomHandle() {
-        return ((System.nanoTime() * 31) % HANDLE_RANGE) + 1;
+        return ((System.nanoTime() * 31) % handleRange) + 1;
     }
 
     int randomUnitOfWorkSize() {
-        return (int) round(Math.random() * MAX_COMMIT_SIZE);
+        return (int) round(Math.random() * maxCommitSize);
     }
 
     DehydratedStmObject[] createUnitOfWork() {
@@ -95,7 +96,7 @@ public class GrowingMultiversionedHeapStressTest {
                 if (k % 1000 == 0)
                     System.out.println(getName() + " commitcount: " + k);
 
-                sleepRandomMs(MAX_DELAY_BETWEEN_TRANSACTIONS);
+                sleepRandomMs(maxDelaysBetweenTransactions);
                 k++;
             }
         }
@@ -104,9 +105,9 @@ public class GrowingMultiversionedHeapStressTest {
             DehydratedStmObject[] changes = createUnitOfWork();
             MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
-            sleepRandomMs(MAX_DELAY_BETWEEN_START_AND_COMMIT);
+            sleepRandomMs(maxDelayBetweenStartAndCommit);
 
-            MultiversionedHeap.CommitResult result = heap.commit(startSnapshot.getVersion(), changes);
+            MultiversionedHeap.CommitResult result = heap.commit(startSnapshot, changes);
             if (result.isSuccess()) {
                 MultiversionedHeapSnapshot foundSnapshot = heap.getSnapshot(result.getSnapshot().getVersion());
                 assertSame(result.getSnapshot(), foundSnapshot);

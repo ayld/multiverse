@@ -40,6 +40,9 @@ public final class DefaultListenerSupport implements ListenerSupport {
     public void wakeupListeners(long version, long[] handles) {
         if (handles == null) throw new NullPointerException();
 
+        if (latchGroups.isEmpty())
+            return;
+
         for (long handle : handles) {
             VersionedLatchGroup latchGroup = latchGroups.get(handle);
             if (latchGroup != null)

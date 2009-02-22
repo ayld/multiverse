@@ -1,5 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.utils;
 
+import org.codehaus.multiverse.util.Bag;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
