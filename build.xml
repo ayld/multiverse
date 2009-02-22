@@ -91,7 +91,7 @@
 
     <target name="compile.japex"
             description="Compiles the Japex sources"
-            depends="compile.main">
+            depends="compile.main, compile.test">
 
         <mkdir dir="${classes.japex}"/>
 
@@ -103,16 +103,16 @@
                 <path refid="classpath.provided"/>
                 <path refid="classpath.support"/>
                 <path path="${classes.main}"/>
+                <path path="${classes.test}"/>
             </classpath>
         </javac>
 
-        <copy todir="${classes.test}">
+        <copy todir="${classes.japex}">
             <fileset dir="${src.test}">
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
     </target>
-
 
     <target name="compile.all"
             description="Compiles all the sources"

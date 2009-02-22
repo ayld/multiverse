@@ -1,12 +1,10 @@
 package org.codehaus.multiverse.util.latches;
 
-import org.codehaus.multiverse.util.latches.Latch;
-
+import static java.lang.String.format;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.TimeUnit;
-import static java.lang.String.format;
 
 /**
  * A {@link Latch} implementation that is based on the {@link Lock}.
@@ -20,20 +18,34 @@ public final class StandardLatch implements Latch {
     private volatile boolean isOpen = false;
 
     public void await() throws InterruptedException {
-        if(isOpen)
+        if (isOpen)
             return;
 
         lock.lockInterruptibly();
-        try{
-            while(!isOpen)
+        try {
+            while (!isOpen)
                 isOpenCondition.await();
-        } finally{
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void awaitUniterruptibly() {
+        if (isOpen)
+            return;
+
+        lock.lock();
+        try {
+            while (!isOpen)
+                isOpenCondition.awaitUninterruptibly();
+        } finally {
             lock.unlock();
         }
     }
 
     public void tryAwait(long timeout, TimeUnit unit) throws InterruptedException {
-        if(unit == null)throw new NullPointerException();
+        if (unit == null) throw new NullPointerException();
         throw new RuntimeException("Not implemented yet");
     }
 
@@ -55,7 +67,7 @@ public final class StandardLatch implements Latch {
     }
 
     @Override
-    public String toString(){
-        return format("StandardLatch(open=%s)",isOpen);
+    public String toString() {
+        return format("StandardLatch(open=%s)", isOpen);
     }
 }

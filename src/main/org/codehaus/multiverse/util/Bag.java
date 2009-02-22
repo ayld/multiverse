@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.multiversionedstm.utils;
+package org.codehaus.multiverse.util;
 
 /**
  * A 'collection' where items can be added fast, and a random item can be removed fast. This structure

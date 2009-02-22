@@ -12,16 +12,16 @@ import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.Latch;
 
 import static java.lang.String.format;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * Default {@link MultiversionedHeap} implementation that is able to grow.
+ * Default {@link org.codehaus.multiverse.multiversionedstm.MultiversionedHeap} implementation that is able to grow.
  *
  * @author Peter Veentjer.
  */
-public final class GrowingMultiversionedHeap implements MultiversionedHeap {
+public final class SmartGrowingMultiversionedHeap implements MultiversionedHeap {
 
     private final MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl> snapshotChain =
             new MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
@@ -30,7 +30,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
 
     private final ListenerSupport listenerSupport = new DefaultListenerSupport();
 
-    public GrowingMultiversionedHeap() {
+    public SmartGrowingMultiversionedHeap() {
     }
 
     public MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl> getSnapshotChain() {
@@ -51,11 +51,6 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
 
     /**
      * Commits the changes to the heap. This is a convenience method that allows for a varargs.
-     *
-     * @param startVersion
-     * @param changes
-     * @return
-     * @see #commit(long, org.codehaus.multiverse.util.iterators.ResetableIterator)
      */
     public CommitResult commit(MultiversionedHeapSnapshot startSnapshot, DehydratedStmObject... changes) {
         return commit(startSnapshot, new ArrayIterator<DehydratedStmObject>(changes));
@@ -76,30 +71,54 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             statistics.commitReadonlyCount.incrementAndGet();
             return CommitResult.createReadOnly(snapshotChain.getHead());
         }
-
-        boolean anotherTransactionDidCommit;
         CreateNewSnapshotResult createNewSnapshotResult;
-        do {
-            MultiversionedHeapSnapshotImpl activeSnapshot = snapshotChain.getHead();
-            createNewSnapshotResult = activeSnapshot.createNew(changes, startSnapshot);
 
-            if (!createNewSnapshotResult.success) {
-                statistics.commitWriteConflictCount.incrementAndGet();
-                return CommitResult.createWriteConflict();
-            }
+        DehydratedStmObject object1 = changes.next();
+        if (!changes.hasNext()) {
+            boolean anotherTransactionDidCommit;
+            do {
+                MultiversionedHeapSnapshotImpl activeSnapshot = snapshotChain.getHead();
+                createNewSnapshotResult = activeSnapshot.createNew(object1, startSnapshot);
 
-            anotherTransactionDidCommit = !snapshotChain.compareAndAdd(
-                    activeSnapshot,
-                    createNewSnapshotResult.snapshot);
+                if (!createNewSnapshotResult.success) {
+                    statistics.commitWriteConflictCount.incrementAndGet();
+                    return CommitResult.createWriteConflict();
+                }
 
-            if (anotherTransactionDidCommit) {
-                //if another transaction also did a commit while we were creating a new snapshot, we
-                //have to try again. We need to reset the changes iterator for that.
-                statistics.commitNonBlockingStatistics.incFailureCount();
-                changes.reset();
-            }
-        } while (anotherTransactionDidCommit);
+                anotherTransactionDidCommit = !snapshotChain.compareAndAdd(
+                        activeSnapshot,
+                        createNewSnapshotResult.snapshot);
 
+                if (anotherTransactionDidCommit) {
+                    //if another transaction also did a commit while we were creating a new snapshot, we
+                    //have to try again. We need to reset the changes iterator for that.
+                    statistics.commitNonBlockingStatistics.incFailureCount();
+                }
+            } while (anotherTransactionDidCommit);
+        } else {
+            boolean anotherTransactionDidCommit;
+            do {
+                MultiversionedHeapSnapshotImpl activeSnapshot = snapshotChain.getHead();
+                createNewSnapshotResult = activeSnapshot.createNew(changes, startSnapshot);
+
+                if (!createNewSnapshotResult.success) {
+                    statistics.commitWriteConflictCount.incrementAndGet();
+                    return CommitResult.createWriteConflict();
+                }
+
+                anotherTransactionDidCommit = !snapshotChain.compareAndAdd(
+                        activeSnapshot,
+                        createNewSnapshotResult.snapshot);
+
+                if (anotherTransactionDidCommit) {
+                    //if another transaction also did a commit while we were creating a new snapshot, we
+                    //have to try again. We need to reset the changes iterator for that.
+                    statistics.commitNonBlockingStatistics.incFailureCount();
+                    changes.reset();
+                }
+            } while (anotherTransactionDidCommit);
+
+        }
         //the commit was a success, so lets update the state.
         //todo: this could be done on another thread, since it doesn't matter who  wakes up the listeners.
         //todo: this would help scalability.
@@ -107,8 +126,8 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
                 createNewSnapshotResult.snapshot.getVersion(),
                 createNewSnapshotResult.getHandles());
         statistics.commitSuccessCount.incrementAndGet();
-        statistics.committedStoreCount.addAndGet(createNewSnapshotResult.handles.size());
-        return CommitResult.createSuccess(createNewSnapshotResult.snapshot, createNewSnapshotResult.handles.size());
+        statistics.committedStoreCount.addAndGet(createNewSnapshotResult.handles.length);
+        return CommitResult.createSuccess(createNewSnapshotResult.snapshot, createNewSnapshotResult.handles.length);
     }
 
     public void listen(Latch latch, long[] handles, long transactionVersion) {
@@ -230,7 +249,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             //loaded from this version.
 
             //the handles of objects that are written to the heap
-            Set<Long> handles = new HashSet<Long>();
+            List<Long> storedHandles = new LinkedList<Long>();
 
             for (; changes.hasNext();) {
                 DehydratedStmObject change = changes.next();
@@ -240,7 +259,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
                 if (hasWriteConflict(handle, startSnapshot))
                     return CreateNewSnapshotResult.createWriteConflict();
 
-                handles.add(handle);
+                storedHandles.add(handle);
 
                 change.setVersion(commitVersion);
                 if (newRoot == null)
@@ -250,8 +269,29 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
             }
 
             MultiversionedHeapSnapshotImpl newSnapshot = new MultiversionedHeapSnapshotImpl(newRoot, commitVersion);
-            return CreateNewSnapshotResult.createSuccess(handles, newSnapshot);
+            return CreateNewSnapshotResult.createSuccess(newSnapshot, storedHandles);
         }
+
+        public CreateNewSnapshotResult createNew(DehydratedStmObject change, MultiversionedHeapSnapshot startSnapshot) {
+            long commitVersion = version + 1;
+
+            HeapNode newRoot = root;
+
+            long handle = change.getHandle();
+
+            if (hasWriteConflict(handle, startSnapshot))
+                return CreateNewSnapshotResult.createWriteConflict();
+
+            change.setVersion(commitVersion);
+            if (newRoot == null)
+                newRoot = new DefaultHeapNode(change, null, null);
+            else
+                newRoot = newRoot.createNew(change);
+
+            MultiversionedHeapSnapshotImpl newSnapshot = new MultiversionedHeapSnapshotImpl(newRoot, commitVersion);
+            return CreateNewSnapshotResult.createSuccess(newSnapshot, handle);
+        }
+
 
         /**
          * Checks if the current HeapSnapshot has a write conflict at the specified handle with the startSnapshot.
@@ -277,7 +317,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
                 return false;
 
             //the version of object in the current snapshot.
-            long newVersion = readVersion(handle);
+            long newVersion = this.readVersion(handle);
 
             //the object was in the heap at some point in time and not visible from the current MultiversionedHeapSnapshot anymore,
             //because it has been removed, so there is a commit conflict
@@ -297,14 +337,27 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
 
     private static class CreateNewSnapshotResult {
         MultiversionedHeapSnapshotImpl snapshot;
-        Set<Long> handles;
+        long[] handles;
         boolean success;
 
-        static CreateNewSnapshotResult createSuccess(Set<Long> handles, MultiversionedHeapSnapshotImpl snapshot) {
+        static CreateNewSnapshotResult createSuccess(MultiversionedHeapSnapshotImpl snapshot, long... handles) {
             CreateNewSnapshotResult snapshotResult = new CreateNewSnapshotResult();
-            snapshotResult.handles = handles;
             snapshotResult.snapshot = snapshot;
             snapshotResult.success = true;
+            snapshotResult.handles = handles;
+            return snapshotResult;
+        }
+
+        static CreateNewSnapshotResult createSuccess(MultiversionedHeapSnapshotImpl snapshot, List<Long> handles) {
+            CreateNewSnapshotResult snapshotResult = new CreateNewSnapshotResult();
+            snapshotResult.snapshot = snapshot;
+            snapshotResult.success = true;
+            snapshotResult.handles = new long[handles.size()];
+            Iterator<Long> it = handles.iterator();
+            for (int k = 0; k < snapshotResult.handles.length; k++)
+                snapshotResult.handles[k] = it.next();
+
+
             return snapshotResult;
         }
 
@@ -315,12 +368,7 @@ public final class GrowingMultiversionedHeap implements MultiversionedHeap {
         }
 
         long[] getHandles() {
-            long[] result = new long[handles.size()];
-            Iterator<Long> it = handles.iterator();
-            for (int k = 0; k < result.length; k++)
-                result[k] = it.next();
-
-            return result;
+            return handles;
         }
     }
 }

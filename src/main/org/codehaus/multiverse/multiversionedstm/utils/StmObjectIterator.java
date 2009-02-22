@@ -1,6 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.utils;
 
 import org.codehaus.multiverse.multiversionedstm.StmObject;
+import org.codehaus.multiverse.util.Bag;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.CompositeIterator;
 

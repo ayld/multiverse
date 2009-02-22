@@ -379,9 +379,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         private void commitChanges() {
-            MultiversionedHeap.CommitResult result = heap.commit(
-                    snapshot.getVersion(),
-                    new CommitIterator());
+            MultiversionedHeap.CommitResult result = heap.commit(snapshot, new CommitIterator());
 
             if (result.isSuccess()) {
                 statistics.transactionsCommitedCount.incrementAndGet();

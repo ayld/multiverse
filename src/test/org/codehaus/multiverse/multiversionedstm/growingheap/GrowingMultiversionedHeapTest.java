@@ -33,17 +33,16 @@ public class GrowingMultiversionedHeapTest {
     }
 
     public void writeUnconflicted(DehydratedStmObject... dehydratedStmObjects) {
-        long beforeCommitVersion = heap.getActiveSnapshot().getVersion();
-        MultiversionedHeap.CommitResult result = heap.commit(beforeCommitVersion, new ArrayIterator(dehydratedStmObjects));
+        MultiversionedHeap.CommitResult result = heap.commit(heap.getActiveSnapshot(), new ArrayIterator(dehydratedStmObjects));
         assertTrue(result.isSuccess());
         assertTrue(result.getWriteCount() > 0);
     }
 
-    public void writeConflicted(long startVersion, DehydratedStmObject... dehydratedObjects) {
-        long beforeCommitVersion = heap.getActiveSnapshot().getVersion();
-        MultiversionedHeap.CommitResult result = heap.commit(startVersion, dehydratedObjects);
+    public void writeConflicted(MultiversionedHeapSnapshot startOfTransactionSnapshot, DehydratedStmObject... dehydratedObjects) {
+        MultiversionedHeapSnapshot startOfCommitSnapshot = heap.getActiveSnapshot();
+        MultiversionedHeap.CommitResult result = heap.commit(startOfTransactionSnapshot, dehydratedObjects);
         assertFalse(result.isSuccess());
-        assertEquals(beforeCommitVersion, heap.getActiveSnapshot().getVersion());
+        assertSame(startOfCommitSnapshot, heap.getActiveSnapshot());
     }
 
     //================ read ===============================
@@ -99,20 +98,22 @@ public class GrowingMultiversionedHeapTest {
     public void testWrite_writeConflict() {
         long handle = 1;
 
-        DehydratedStmObject initialCell = new DummyDehydratedStmObject(handle);
-        writeUnconflicted(initialCell);
+        DehydratedStmObject initial = new DummyDehydratedStmObject(handle);
+        writeUnconflicted(initial);
 
-        long version = heap.getActiveSnapshot().getVersion();
+        MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
+        //this is the first write.
         DehydratedStmObject thatCell = new DummyDehydratedStmObject(handle);
         writeUnconflicted(thatCell);
 
+        //this write should fail, because another write already has happened
         DehydratedStmObject thisCell = new DummyDehydratedStmObject(handle);
-        writeConflicted(version, thisCell);
+        writeConflicted(startSnapshot, thisCell);
 
         assertHeapNull(initialVersion, handle);
-        assertHeapContent(version, initialCell);
-        assertHeapContent(version + 1, thatCell);
+        assertHeapContent(startSnapshot.getVersion(), initial);
+        assertHeapContent(heap.getActiveSnapshot().getVersion(), thatCell);
     }
 
     @Test

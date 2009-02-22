@@ -1,6 +1,8 @@
 package org.codehaus.multiverse;
 
 import static junit.framework.Assert.assertEquals;
+import org.codehaus.multiverse.core.Stm;
+import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.util.latches.Latch;
 import static org.junit.Assert.fail;
 
@@ -12,6 +14,13 @@ import java.util.*;
  * @author Peter Veentjer.
  */
 public class TestUtils {
+
+    public static long atomicInsert(Stm stm, Object item) {
+        Transaction t = stm.startTransaction();
+        long handle = t.attachAsRoot(item);
+        t.commit();
+        return handle;
+    }
 
     public static long randomLong(long i, int diff) {
         return (long) (i + (diff * (Math.random() - 0.5)));

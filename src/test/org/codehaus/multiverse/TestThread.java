@@ -15,6 +15,8 @@ public class TestThread extends Thread {
         setUncaughtExceptionHandler(
                 new UncaughtExceptionHandler() {
                     public void uncaughtException(Thread t, Throwable e) {
+                        System.out.printf("Thread %s has thrown an exception\n", t.getName());
+                        e.printStackTrace();
                         throwable = e;
                     }
                 }

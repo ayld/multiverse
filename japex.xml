@@ -9,16 +9,38 @@
     <param name="japex.warmupTime" value="10"/>
     <param name="japex.runTime" value="10"/>
 
-    <driver name="org.codehaus.multiverse.HeapSearchDriver">
-        <param name="Description" value="Driver performance testing the stack"/>
-        <param name="japex.DriverClass" value="org.codehaus.multiverse.HeapSearchDriver"/>
+    <!-- driver name="org.codehaus.multiverse.multiversionedstm.performance.AccessingFieldPerformanceDriver">
+        <param name="Description"
+               value="Driver for checking the influence (or lack of) of the stm on performance of normal reads/writes"/>
+        <param name="japex.DriverClass"
+               value="org.codehaus.multiverse.multiversionedstm.performance.AccessingFieldPerformanceDriver"/>
     </driver>
 
-    <testCase name="Test_10">
-        <param name="heapsize" value="10"/>
-        <param name="readcount" value="10"/>
-        <param name="balanced" value="true"/>
+    <testCase name="AccessingFieldPerformanceDriver_MAX_INTEGER">
+        <param name="iterations" value="2147483647"/>
+    </testCase -->
+
+    <driver name="org.codehaus.multiverse.multiversionedstm.performance.WorkingOnBareHeapUpdateDriver">
+        <param name="Description"
+               value="Driver for checking the performance of updates on the heap directly"/>
+        <param name="japex.DriverClass"
+               value="org.codehaus.multiverse.multiversionedstm.performance.WorkingOnBareHeapUpdateDriver"/>
+    </driver>
+
+    <testCase name="WorkingOnBareHeapUpdateDriver_50000">
+        <param name="transactionCount" value="50000"/>
     </testCase>
 
+    <testCase name="WorkingOnBareHeapUpdateDriver_500000">
+        <param name="transactionCount" value="500000"/>
+    </testCase>
+
+    <testCase name="WorkingOnBareHeapUpdateDriver_5000000">
+        <param name="transactionCount" value="5000000"/>
+    </testCase>
+
+    <testCase name="WorkingOnBareHeapUpdateDriver_25000000">
+        <param name="transactionCount" value="25000000"/>
+    </testCase>
 
 </testSuite>

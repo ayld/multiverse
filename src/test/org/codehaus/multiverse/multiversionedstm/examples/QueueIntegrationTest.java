@@ -2,80 +2,81 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.TestThread;
 import org.codehaus.multiverse.TestUtils;
-import static org.codehaus.multiverse.TestUtils.joinAll;
-import static org.codehaus.multiverse.TestUtils.startAll;
+import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
-import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
+import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class QueueIntegrationTest extends AbstractMultiversionedStmTest {
-    private long queuePtr;
-    private Set pushed = Collections.synchronizedSet(new HashSet());
-    private Set popped = Collections.synchronizedSet(new HashSet());
-    private long startMs;
-    private AtomicInteger produceCounter = new AtomicInteger();
+public class QueueIntegrationTest {
+    private int producerCount = 1;
+    private int consumerCount = 1;
     private int produceCount;
 
-    @Override
+    private long queueHandle;
+    //private Set pushed = Collections.synchronizedSet(new HashSet());
+    //private Set popped = Collections.synchronizedSet(new HashSet());
+
+    private long startMs;
+    private long endMs;
+
+    private AtomicInteger produceCounter = new AtomicInteger();
+
+    private GrowingMultiversionedHeap heap;
+    private MultiversionedStm stm;
+
+    @Before
     public void setUp() throws Exception {
-        super.setUp();
-
-        startMs = System.currentTimeMillis();
-        queuePtr = atomicInsert(new Queue());
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        assertEquals(pushed, popped);
-
-        long timeMs = (System.currentTimeMillis() - startMs) + 1;
-        System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
-        System.out.println(String.format("%s transactions took %s ms", produceCount, timeMs));
-        System.out.println(String.format("%s transactions/second", (produceCount / (timeMs / 1000.0))));
-    }
-
-    public MultiversionedStm createStm() {
         heap = new GrowingMultiversionedHeap();
-        return new MultiversionedStm(heap);
+        stm = new MultiversionedStm(heap);
+        queueHandle = atomicInsert(stm, new Queue());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        //    assertEquals(pushed, popped);
+
+        System.out.println(heap.getStatistics());
+
+        long timeMs = endMs - startMs;
+        System.out.printf("%s chain alivecount\n", heap.getSnapshotChain().getAliveCount());
+        System.out.printf("tranfer of %s took %s ms\n", produceCount, timeMs);
+        System.out.printf("%s transactions/second\n", (heap.getStatistics().commitSuccessCount.longValue() / (timeMs / 1000.0)));
     }
 
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
+                Queue queue = (Queue) t.read(queueHandle);
                 queue.push(item);
                 return null;
             }
         }.execute();
 
-        pushed.add(item);
-
-        //System.out.println(Thread.currentThread() + " pushed: " + item);
+        //     pushed.add(item);
     }
 
     public String atomicPop() {
         String object = (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
+                Queue queue = (Queue) t.read(queueHandle);
                 return queue.pop();
             }
         }.execute();
-        popped.add(object);
+        //    popped.add(object);
         return object;
     }
 
     public int atomicSize() {
         return (Integer) new TransactionTemplate(stm) {
             protected Integer execute(Transaction t) throws Exception {
-                Queue queue = (Queue) t.read(queuePtr);
+                Queue queue = (Queue) t.read(queueHandle);
                 return queue.size();
             }
         }.execute();
@@ -102,6 +103,7 @@ public class QueueIntegrationTest extends AbstractMultiversionedStmTest {
         }.start();
     }
 
+    @Test
     public void testSequential() {
         atomicPush("item1");
         atomicPush("item2");
@@ -113,6 +115,7 @@ public class QueueIntegrationTest extends AbstractMultiversionedStmTest {
         assertEquals("item2", result);
     }
 
+    @Test
     public void test() {
         asynchronousPop();
         asynchronousPop();
@@ -124,48 +127,76 @@ public class QueueIntegrationTest extends AbstractMultiversionedStmTest {
         //todo: check that content has been returned.
     }
 
+    @Test
     public void testProducerConsumer_1() {
         testProducerConsumer(1);
     }
 
+    @Test
     public void testProducerConsumer_10() {
         testProducerConsumer(10);
     }
 
+    @Test
     public void testProducerConsumer_100() {
         testProducerConsumer(100);
     }
 
+    @Test
     public void testProducerConsumer_1000() {
         testProducerConsumer(1000);
     }
 
+    @Test
     public void testProducerConsumer_10000() {
         testProducerConsumer(10000);
     }
 
+    @Test
     public void testProducerConsumer_100000() {
         testProducerConsumer(100000);
     }
 
-    public void _testProducerConsumer_1000000() {
+    @Test
+    public void testProducerConsumer_1000000() {
         testProducerConsumer(1000000);
     }
 
-    public void _testProducerConsumer_5000000() {
-        testProducerConsumer(5000000);
+    @Test
+    public void testProducerConsumer_5000000() {
+        testProducerConsumer(50000000);
     }
 
     public void testProducerConsumer(int commitCount) {
         this.produceCount = commitCount;
         produceCounter.set(commitCount);
-        ProducerThread producer = new ProducerThread();
-        ConsumerThread consumer1 = new ConsumerThread();
-        ConsumerThread consumer2 = new ConsumerThread();
-        ConsumerThread consumer3 = new ConsumerThread();
 
-        startAll(producer, consumer1, consumer2, consumer3);
-        joinAll(producer, consumer1, consumer2, consumer3);
+        ProducerThread[] producerThreads = createProducerThreads();
+        ConsumerThread[] consumerThreads = createConsumerThreads();
+
+        startMs = System.currentTimeMillis();
+
+        startAll(consumerThreads);
+        startAll(producerThreads);
+
+        joinAll(consumerThreads);
+        joinAll(producerThreads);
+
+        endMs = System.currentTimeMillis();
+    }
+
+    public ProducerThread[] createProducerThreads() {
+        ProducerThread[] threads = new ProducerThread[producerCount];
+        for (int k = 0; k < threads.length; k++)
+            threads[k] = new ProducerThread();
+        return threads;
+    }
+
+    public ConsumerThread[] createConsumerThreads() {
+        ConsumerThread[] threads = new ConsumerThread[consumerCount];
+        for (int k = 0; k < threads.length; k++)
+            threads[k] = new ConsumerThread();
+        return threads;
     }
 
     static AtomicInteger producerCounter = new AtomicInteger();
@@ -181,10 +212,10 @@ public class QueueIntegrationTest extends AbstractMultiversionedStmTest {
         public void run() {
             int k = produceCounter.decrementAndGet();
             while (k > 0) {
-                atomicPush("" + k);
+                atomicPush("foo");
 
                 runCount++;
-                if (runCount % 1000 == 0)
+                if (runCount % 100000 == 0)
                     System.out.println(getName() + " transactioncount: " + runCount);
 
                 //    sleepRandomMs(3);
@@ -199,7 +230,6 @@ public class QueueIntegrationTest extends AbstractMultiversionedStmTest {
             atomicPush("poison");
         }
     }
-
 
     static AtomicInteger consumerCounter = new AtomicInteger();
 
@@ -218,7 +248,7 @@ public class QueueIntegrationTest extends AbstractMultiversionedStmTest {
                 //    sleepRandomMs(10);
 
                 runCount++;
-                if (runCount % 1000 == 0)
+                if (runCount % 100000 == 0)
                     System.out.println(getName() + " transactioncount: " + runCount);
 
 
