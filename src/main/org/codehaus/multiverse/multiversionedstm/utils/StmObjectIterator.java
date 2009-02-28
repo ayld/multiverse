@@ -2,6 +2,7 @@ package org.codehaus.multiverse.multiversionedstm.utils;
 
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.Bag;
+import org.codehaus.multiverse.util.PrimitiveLongSet;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.CompositeIterator;
 
@@ -28,7 +29,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     //all StmObject that already are returned. This prevent multiple returns of the same item.
     private final PrimitiveLongSet touchedSet = new PrimitiveLongSet();
 
-    //all StmObjects which members need to be traversed.
+    //all StmObjects which ___members need to be traversed.
     private Bag<Iterator<StmObject>> todoBag;
 
     private Iterator<StmObject> iterator;

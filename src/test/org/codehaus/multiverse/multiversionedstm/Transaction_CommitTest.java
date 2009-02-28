@@ -77,7 +77,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertCurrentStmVersion(version + 1);
         long newVersion = stm.getCurrentVersion();
         assertHasHandle(personPtr, person);
-        assertHeapContainsNow(personPtr, newVersion, person.___dehydrate());
+        assertHeapContainsNow(personPtr, newVersion, person.___deflate(newVersion));
     }
 
     public void testFreshMutableObject_withReadOnStandardFields() {
@@ -98,7 +98,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertCommitCount(1);
         assertAbortedCount(0);
         long newVersion = stm.getCurrentVersion();
-        assertHeapContainsNow(person.___getHandle(), newVersion, new Person.DehydratedPerson(person));
+        assertHeapContainsNow(person.___getHandle(), newVersion, new Person.DehydratedPerson(person, newVersion));
     }
 
     public void testFreshMutableObject_withWriteOnStandardField() {
@@ -117,7 +117,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertAbortedCount(0);
         long afterCommitVersion = initialVersion + 1;
         assertCurrentStmVersion(afterCommitVersion);
-        assertHeapContainsNow(person.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(person));
+        assertHeapContainsNow(person.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(person, afterCommitVersion));
     }
 
     public void testChainOfFreshMutableObjects() {
@@ -135,8 +135,8 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertTransactionWriteCount(2);
         long afterCommitVersion = initialVersion + 1;
         assertCurrentStmVersion(afterCommitVersion);
-        assertHeapContainsNow(child.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(child));
-        assertHeapContainsNow(parent.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(parent));
+        assertHeapContainsNow(child.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(child, afterCommitVersion));
+        assertHeapContainsNow(parent.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(parent, afterCommitVersion));
         assertCommitCount(1);
         assertAbortedCount(0);
     }
@@ -156,7 +156,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertTransactionWriteCount(1);
         long afterCommitVersion = initialVersion + 1;
         assertCurrentStmVersion(afterCommitVersion);
-        assertHeapContainsNow(person.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(person));
+        assertHeapContainsNow(person.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(person, afterCommitVersion));
         assertCommitCount(1);
         assertAbortedCount(0);
     }
@@ -179,9 +179,9 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertTransactionWriteCount(3);
         long afterCommitVersion = initialVersion + 1;
         assertCurrentStmVersion(afterCommitVersion);
-        assertHeapContainsNow(grandparent.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(grandparent));
-        assertHeapContainsNow(parent.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(parent));
-        assertHeapContainsNow(child.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(child));
+        assertHeapContainsNow(grandparent.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(grandparent, afterCommitVersion));
+        assertHeapContainsNow(parent.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(parent, afterCommitVersion));
+        assertHeapContainsNow(child.___getHandle(), afterCommitVersion, new Person.DehydratedPerson(child, afterCommitVersion));
         assertCommitCount(1);
         assertAbortedCount(0);
     }
@@ -201,7 +201,8 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertTransactionIsCommitted();
         assertTransactionHasNoWrites();
         assertCurrentStmVersion(initialVersion);
-        assertHeapContainsNow(p1.___getHandle(), initialVersion, new Person.DehydratedPerson(person));
+
+        assertHeapContainsNow(p1.___getHandle(), initialVersion, new Person.DehydratedPerson(person, initialVersion + 1));
     }
 
     public void testPrivatizedMutableObjectWithReadOnStmMember() {
@@ -220,7 +221,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertTransactionIsCommitted();
         assertTransactionHasNoWrites();
         assertCurrentStmVersion(initialVersion);
-        assertHeapContainsNow(p1.___getHandle(), initialVersion, new Person.DehydratedPerson(person));
+        assertHeapContainsNow(p1.___getHandle(), initialVersion, new Person.DehydratedPerson(person, initialVersion + 1));
     }
 
     public void testReadMutableObjectWithWriteOnStandardMember() {

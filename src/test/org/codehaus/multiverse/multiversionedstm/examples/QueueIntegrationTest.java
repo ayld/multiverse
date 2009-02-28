@@ -5,49 +5,43 @@ import org.codehaus.multiverse.TestUtils;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class QueueIntegrationTest {
-    private int producerCount = 1;
-    private int consumerCount = 1;
-    private int produceCount;
 
-    private long queueHandle;
-    //private Set pushed = Collections.synchronizedSet(new HashSet());
-    //private Set popped = Collections.synchronizedSet(new HashSet());
+    private List<String> producedList = new LinkedList<String>();
+    private List<String> consumedList = new LinkedList<String>();
 
-    private long startMs;
-    private long endMs;
+    private AtomicInteger produceCountDown = new AtomicInteger();
+    private AtomicInteger consumeCountDown = new AtomicInteger();
 
-    private AtomicInteger produceCounter = new AtomicInteger();
-
-    private GrowingMultiversionedHeap heap;
+    private DefaultMultiversionedHeap heap;
     private MultiversionedStm stm;
+    private long queueHandle;
+
+    private int consumeMaxSleepMs = 10;
+    private int produceMaxSleepMs = 10;
 
     @Before
     public void setUp() throws Exception {
-        heap = new GrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
         queueHandle = atomicInsert(stm, new Queue());
     }
 
     @After
     public void tearDown() throws Exception {
-        //    assertEquals(pushed, popped);
-
         System.out.println(heap.getStatistics());
-
-        long timeMs = endMs - startMs;
-        System.out.printf("%s chain alivecount\n", heap.getSnapshotChain().getAliveCount());
-        System.out.printf("tranfer of %s took %s ms\n", produceCount, timeMs);
-        System.out.printf("%s transactions/second\n", (heap.getStatistics().commitSuccessCount.longValue() / (timeMs / 1000.0)));
     }
 
     public void atomicPush(final String item) {
@@ -58,19 +52,15 @@ public class QueueIntegrationTest {
                 return null;
             }
         }.execute();
-
-        //     pushed.add(item);
     }
 
     public String atomicPop() {
-        String object = (String) new TransactionTemplate(stm) {
+        return (String) new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
                 Queue queue = (Queue) t.read(queueHandle);
                 return queue.pop();
             }
         }.execute();
-        //    popped.add(object);
-        return object;
     }
 
     public int atomicSize() {
@@ -147,112 +137,69 @@ public class QueueIntegrationTest {
         testProducerConsumer(1000);
     }
 
-    @Test
-    public void testProducerConsumer_10000() {
-        testProducerConsumer(10000);
+    public void testProducerConsumer(int itemCount) {
+        produceCountDown.set(itemCount);
+        consumeCountDown.set(itemCount);
+
+        ProducerThread producerThread = new ProducerThread();
+        ConsumerThread consumerThread = new ConsumerThread();
+
+        startAll(consumerThread, producerThread);
+        joinAll(consumerThread, producerThread);
+
+        assertQueueIsEmpty();
+        assertEquals(producedList, consumedList);
     }
 
-    @Test
-    public void testProducerConsumer_100000() {
-        testProducerConsumer(100000);
+    public void assertQueueIsEmpty() {
+        Transaction t = stm.startTransaction();
+        Queue queue = (Queue) t.read(queueHandle);
+        assertTrue(queue.isEmpty());
+        t.commit();
     }
-
-    @Test
-    public void testProducerConsumer_1000000() {
-        testProducerConsumer(1000000);
-    }
-
-    @Test
-    public void testProducerConsumer_5000000() {
-        testProducerConsumer(50000000);
-    }
-
-    public void testProducerConsumer(int commitCount) {
-        this.produceCount = commitCount;
-        produceCounter.set(commitCount);
-
-        ProducerThread[] producerThreads = createProducerThreads();
-        ConsumerThread[] consumerThreads = createConsumerThreads();
-
-        startMs = System.currentTimeMillis();
-
-        startAll(consumerThreads);
-        startAll(producerThreads);
-
-        joinAll(consumerThreads);
-        joinAll(producerThreads);
-
-        endMs = System.currentTimeMillis();
-    }
-
-    public ProducerThread[] createProducerThreads() {
-        ProducerThread[] threads = new ProducerThread[producerCount];
-        for (int k = 0; k < threads.length; k++)
-            threads[k] = new ProducerThread();
-        return threads;
-    }
-
-    public ConsumerThread[] createConsumerThreads() {
-        ConsumerThread[] threads = new ConsumerThread[consumerCount];
-        for (int k = 0; k < threads.length; k++)
-            threads[k] = new ConsumerThread();
-        return threads;
-    }
-
-    static AtomicInteger producerCounter = new AtomicInteger();
 
     private class ProducerThread extends TestThread {
 
         public ProducerThread() {
-            super("producer-" + producerCounter.incrementAndGet());
+            super("ProducerThread");
         }
 
         private int runCount = 0;
 
         public void run() {
-            int k = produceCounter.decrementAndGet();
-            while (k > 0) {
-                atomicPush("foo");
+            while (produceCountDown.getAndDecrement() >= 0) {
+                String item = "item" + System.nanoTime();
+                producedList.add(item);
+                atomicPush(item);
 
                 runCount++;
-                if (runCount % 100000 == 0)
+                if (runCount % 100 == 0)
                     System.out.println(getName() + " transactioncount: " + runCount);
 
-                //    sleepRandomMs(3);
-                k = produceCounter.decrementAndGet();
+                sleepRandomMs(produceMaxSleepMs);
             }
-
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
-            atomicPush("poison");
         }
     }
-
-    static AtomicInteger consumerCounter = new AtomicInteger();
 
     private class ConsumerThread extends TestThread {
         private int runCount = 0;
 
         public ConsumerThread() {
-            super("consumer-" + consumerCounter.incrementAndGet());
+            super("ConsumerThread");
         }
 
         public void run() {
-            String item;
-            do {
-                item = atomicPop();
-                //System.out.println(toString() + " Consumed: " + item);
-                //    sleepRandomMs(10);
+            while (consumeCountDown.getAndDecrement() >= 0) {
+                String item = atomicPop();
+                consumedList.add(item);
+
 
                 runCount++;
-                if (runCount % 100000 == 0)
+                if (runCount % 100 == 0)
                     System.out.println(getName() + " transactioncount: " + runCount);
 
-
-            } while (!"poison".equals(item));
+                sleepRandomMs(consumeMaxSleepMs);
+            }
         }
     }
 }

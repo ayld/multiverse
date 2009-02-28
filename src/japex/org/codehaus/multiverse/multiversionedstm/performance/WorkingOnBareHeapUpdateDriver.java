@@ -4,11 +4,11 @@ import com.sun.japex.Constants;
 import com.sun.japex.JapexDriverBase;
 import com.sun.japex.TestCase;
 import static org.codehaus.multiverse.TestUtils.atomicInsert;
-import org.codehaus.multiverse.multiversionedstm.MultiversionedHeap.CommitResult;
-import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
+import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;
-import org.codehaus.multiverse.multiversionedstm.growingheap.SmartGrowingMultiversionedHeap;
 import org.codehaus.multiverse.util.iterators.InstanceIterator;
 import static org.junit.Assert.fail;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class WorkingOnBareHeapUpdateDriver extends JapexDriverBase {
     private MultiversionedStm stm;
     private long handle;
-    private SmartGrowingMultiversionedHeap heap;
+    private DefaultMultiversionedHeap heap;
 
     private long transactionCount = 100 * 15 * 1000 * 1000;
     private double transactionPerSec;
@@ -25,7 +25,7 @@ public class WorkingOnBareHeapUpdateDriver extends JapexDriverBase {
     @Override
     public void prepare(TestCase testCase) {
         readParams(testCase);
-        heap = new SmartGrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
         setUpStructures();
     }
@@ -44,9 +44,9 @@ public class WorkingOnBareHeapUpdateDriver extends JapexDriverBase {
 
         for (long k = 0; k < transactionCount; k++) {
             MultiversionedHeapSnapshot active = heap.getActiveSnapshot();
-            IntegerValue value = (IntegerValue) active.read(handle).hydrate(null);
+            IntegerValue value = (IntegerValue) active.read(handle).___inflate(null);
             value.inc();
-            CommitResult result = heap.commit(active, new InstanceIterator(value.___dehydrate()));
+            CommitResult result = heap.commit(active, new InstanceIterator(value));
             if (!result.isSuccess())
                 fail();
         }

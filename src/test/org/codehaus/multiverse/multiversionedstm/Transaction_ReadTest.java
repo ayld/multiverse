@@ -67,8 +67,8 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         assertNotNull(found);
         assertTrue(found instanceof Person);
         Person foundPerson = (Person) found;
-        assertEquals(32, foundPerson.getAge());
-        assertEquals("peter", foundPerson.getName());
+        assertEquals(age, foundPerson.getAge());
+        assertEquals(name, foundPerson.getName());
         assertNull(foundPerson.getParent());
         assertTransactionHasNoWrites();
         assertTransactionHydratedObjectCount(1);

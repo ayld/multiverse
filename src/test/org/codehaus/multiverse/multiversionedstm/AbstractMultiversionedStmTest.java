@@ -2,14 +2,15 @@ package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.AbstractStmTest;
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedheap.Deflated;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 
 public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
-    protected GrowingMultiversionedHeap heap;
+    protected DefaultMultiversionedHeap heap;
 
     public MultiversionedStm createStm() {
-        heap = new GrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         return new MultiversionedStm(heap);
     }
 
@@ -103,16 +104,16 @@ public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<Mult
             assertNull("Transaction should be null", citizen.___getTransaction());
     }
 
-    public void assertHeapContains(long handle, long expectedVersion, DehydratedStmObject expected) {
-        DehydratedStmObject found = heap.getSnapshot(expectedVersion).read(handle);
+    public void assertHeapContains(long handle, long expectedVersion, Deflated expected) {
+        Deflated found = heap.getSnapshot(expectedVersion).read(handle);
         assertEquals("Content doesn't match", expected, found);
     }
 
-    public void assertHeapContainsNow(long handle, long expectedVersion, DehydratedStmObject expected) {
+    public void assertHeapContainsNow(long handle, long expectedVersion, Deflated expected) {
         assertEquals("Versions don't match. -1 indicates no cell with given address",
                 expectedVersion,
                 heap.getActiveSnapshot().readVersion(handle));
-        DehydratedStmObject found = heap.getSnapshot(expectedVersion).read(handle);
+        Deflated found = heap.getSnapshot(expectedVersion).read(handle);
         assertEquals("Content doesn't match", expected, found);
     }
 }
