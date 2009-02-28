@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -66,7 +66,7 @@ public class IntegerValue implements StmObject {
     private DehydratedIntegerValue dehydrated;
 
     private IntegerValue(DehydratedIntegerValue dehydratedIntegerValue, Transaction transaction) {
-        this.handle = dehydratedIntegerValue.getHandle();
+        this.handle = dehydratedIntegerValue.___getHandle();
         this.value = dehydratedIntegerValue.value;
         this.dehydrated = dehydratedIntegerValue;
     }
@@ -75,8 +75,8 @@ public class IntegerValue implements StmObject {
         return handle;
     }
 
-    public DehydratedStmObject ___dehydrate() {
-        return new DehydratedIntegerValue(this);
+    public DehydratedIntegerValue ___deflate(long version) {
+        return new DehydratedIntegerValue(this, version);
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
@@ -105,21 +105,26 @@ public class IntegerValue implements StmObject {
         return false;
     }
 
-    static class DehydratedIntegerValue extends DehydratedStmObject {
+    private StmObject next;
+
+    public void setNext(StmObject next) {
+        this.next = next;
+    }
+
+    public StmObject getNext() {
+        return next;
+    }
+
+    static class DehydratedIntegerValue extends AbstractDeflated {
         private final int value;
 
-        DehydratedIntegerValue(IntegerValue integerValue) {
-            super(integerValue.___getHandle());
+        DehydratedIntegerValue(IntegerValue integerValue, long version) {
+            super(integerValue.___getHandle(), version);
             this.value = integerValue.value;
         }
 
         @Override
-        public Iterator<Long> members() {
-            return EmptyIterator.INSTANCE;
-        }
-
-        @Override
-        public StmObject hydrate(Transaction transaction) {
+        public StmObject ___inflate(Transaction transaction) {
             return new IntegerValue(this, transaction);
         }
     }

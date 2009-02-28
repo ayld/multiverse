@@ -4,9 +4,9 @@ import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.Queue;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -32,11 +32,11 @@ public class PipelineTest {
     private int produceCount = 5000;
     private int delayMs = 5;
 
-    private GrowingMultiversionedHeap heap;
+    private DefaultMultiversionedHeap heap;
 
     @Before
     public void setUp() {
-        heap = new GrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
     }
 

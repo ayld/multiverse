@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.multiversionedstm.StmObjectUtils;
@@ -68,7 +68,7 @@ public class Person implements StmObject {
 
     public Person(DehydratedPerson dehydratedPerson, Transaction transaction) {
         //initialization of operational properties
-        this.handle = dehydratedPerson.getHandle();
+        this.handle = dehydratedPerson.___getHandle();
         this.transaction = transaction;
         this.initialDehydratedPerson = dehydratedPerson;
 
@@ -119,41 +119,47 @@ public class Person implements StmObject {
         return false;
     }
 
-    public DehydratedStmObject ___dehydrate() {
-        return new DehydratedPerson(this);
+    public DehydratedPerson ___deflate(long commitVersion) {
+        return new DehydratedPerson(this, commitVersion);
     }
 
-    public static class DehydratedPerson extends DehydratedStmObject {
+    private StmObject next;
+
+    public void setNext(StmObject next) {
+        this.next = next;
+    }
+
+    public StmObject getNext() {
+        return next;
+    }
+
+    public static class DehydratedPerson extends AbstractDeflated {
         private final int age;
         private final String name;
         private final long parentHandle;
 
         public DehydratedPerson(long handle, int age, String name) {
-            super(handle);
+            super(handle, 0);
             this.age = age;
             this.name = name;
             this.parentHandle = 0;
         }
 
         public DehydratedPerson(long handle, int age, String name, long parentHandle) {
-            super(handle);
+            super(handle, 0);
             this.age = age;
             this.name = name;
             this.parentHandle = parentHandle;
         }
 
-        public DehydratedPerson(Person person) {
-            super(person.___getHandle());
+        public DehydratedPerson(Person person, long commitVersion) {
+            super(person.___getHandle(), commitVersion);
             this.age = person.age;
             this.name = person.name;
             this.parentHandle = StmObjectUtils.getHandle(person.getParent());
         }
 
-        public Iterator<Long> members() {
-            throw new RuntimeException();
-        }
-
-        public Person hydrate(Transaction transaction) {
+        public Person ___inflate(Transaction transaction) {
             return new Person(this, transaction);
         }
 
@@ -170,7 +176,7 @@ public class Person implements StmObject {
                 return false;
 
             DehydratedPerson that = (DehydratedPerson) thatObj;
-            return that.getHandle() == this.getHandle() &&
+            return that.___getHandle() == this.___getHandle() &&
                     that.name == this.name &&
                     that.age == this.age &&
                     that.parentHandle == this.parentHandle;

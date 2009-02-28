@@ -1,11 +1,13 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
+import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
+import org.codehaus.multiverse.util.iterators.PLongIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -105,16 +107,32 @@ public class Stack<E> implements StmObject {
         return this.head.equals(that.head);
     }
 
-    public static class Node<E> extends DehydratedStmObject implements StmObject {
+    public static class Node<E> implements StmObject, Deflated {
         final E value;
         final Node parent;
         final int size;
+        final long handle;
 
         Node(E value, Node prev) {
-            super(HandleGenerator.createHandle());
+            this.handle = HandleGenerator.createHandle();
             this.value = value;
             this.parent = prev;
             this.size = parent == null ? 1 : prev.size + 1;
+        }
+
+        @Override
+        public long ___getVersion() {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public Deflated ___deflate(long version) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public PLongIterator ___members() {
+            throw new RuntimeException();
         }
 
         @Override
@@ -152,10 +170,10 @@ public class Stack<E> implements StmObject {
         }
 
         public long ___getHandle() {
-            return getHandle();
+            return handle;
         }
 
-        public DehydratedStmObject ___dehydrate() {
+        public Deflated ___deflate() {
             return this;
         }
 
@@ -163,11 +181,17 @@ public class Stack<E> implements StmObject {
             return EmptyIterator.INSTANCE;
         }
 
-        public Iterator<Long> members() {
-            throw new RuntimeException();
+        private StmObject next;
+
+        public void setNext(StmObject next) {
+            this.next = next;
         }
 
-        public StmObject hydrate(Transaction transaction) {
+        public StmObject getNext() {
+            return next;
+        }
+
+        public StmObject ___inflate(Transaction transaction) {
             return this;
         }
     }
@@ -181,7 +205,7 @@ public class Stack<E> implements StmObject {
     public Stack(DehydratedStack<E> dehydratedStack, Transaction transaction) {
         this.head = dehydratedStack.head;
         this.transaction = transaction;
-        this.handle = dehydratedStack.getHandle();
+        this.handle = dehydratedStack.___getHandle();
         this.initialStack = dehydratedStack;
     }
 
@@ -201,8 +225,8 @@ public class Stack<E> implements StmObject {
         return handle;
     }
 
-    public DehydratedStack<E> ___dehydrate() {
-        return new DehydratedStack<E>(this);
+    public DehydratedStack<E> ___deflate(long commitVersion) {
+        return new DehydratedStack<E>(this, commitVersion);
     }
 
     public boolean ___isImmutable() {
@@ -221,19 +245,25 @@ public class Stack<E> implements StmObject {
         return false;
     }
 
-    public static class DehydratedStack<E> extends DehydratedStmObject {
+    private StmObject next;
+
+    public void setNext(StmObject next) {
+        this.next = next;
+    }
+
+    public StmObject getNext() {
+        return next;
+    }
+
+    public static class DehydratedStack<E> extends AbstractDeflated {
         private final Node<E> head;
 
-        public DehydratedStack(Stack<E> stack) {
-            super(stack.handle);
+        public DehydratedStack(Stack<E> stack, long commitVersion) {
+            super(stack.handle, commitVersion);
             this.head = stack.head;
         }
 
-        public Iterator<Long> members() {
-            throw new RuntimeException();
-        }
-
-        public Stack<E> hydrate(Transaction transaction) {
+        public Stack<E> ___inflate(Transaction transaction) {
             return new Stack<E>(this, transaction);
         }
     }

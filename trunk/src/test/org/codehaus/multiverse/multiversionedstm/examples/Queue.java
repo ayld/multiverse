@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
@@ -122,7 +122,7 @@ public class Queue<E> implements StmObject {
     private DehydratedQueue initialDehydratedQueue;
 
     public Queue(DehydratedQueue dehydratedQueue, Transaction transaction) {
-        this.handle = dehydratedQueue.getHandle();
+        this.handle = dehydratedQueue.___getHandle();
         this.transaction = transaction;
 
         this.readyToPopStack = (Stack) transaction.read(dehydratedQueue.readyToPopStackPtr);
@@ -147,8 +147,8 @@ public class Queue<E> implements StmObject {
         return new ArrayIterator<StmObject>(readyToPopStack, pushedStack);
     }
 
-    public DehydratedStmObject ___dehydrate() {
-        return new DehydratedQueue(this);
+    public DehydratedQueue ___deflate(long commitVersion) {
+        return new DehydratedQueue(this, commitVersion);
     }
 
     public boolean ___isImmutable() {
@@ -166,23 +166,29 @@ public class Queue<E> implements StmObject {
         return false;
     }
 
-    public static class DehydratedQueue extends DehydratedStmObject {
+    private StmObject next;
+
+    public void setNext(StmObject next) {
+        this.next = next;
+    }
+
+    public StmObject getNext() {
+        return next;
+    }
+
+    public static class DehydratedQueue extends AbstractDeflated {
         private final long readyToPopStackPtr;
         private final long pushedStackPtr;
         private final int maxCapacity;
 
-        DehydratedQueue(Queue queue) {
-            super(queue.___getHandle());
+        DehydratedQueue(Queue queue, long commitVersion) {
+            super(queue.___getHandle(), commitVersion);
             this.readyToPopStackPtr = queue.readyToPopStack.___getHandle();
             this.pushedStackPtr = queue.pushedStack.___getHandle();
             this.maxCapacity = queue.maxCapacity;
         }
 
-        public Iterator<Long> members() {
-            throw new RuntimeException();
-        }
-
-        public Queue hydrate(Transaction transaction) {
+        public Queue ___inflate(Transaction transaction) {
             return new Queue(this, transaction);
         }
     }

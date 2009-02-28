@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
+import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -38,8 +38,8 @@ public class IntegerConstant implements StmObject {
         return handle;
     }
 
-    public DehydratedStmObject ___dehydrate() {
-        return new DehydratedIntegerConstant(this);
+    public DehydratedIntegerConstant ___deflate(long commitVersion) {
+        return new DehydratedIntegerConstant(this, commitVersion);
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
@@ -62,21 +62,27 @@ public class IntegerConstant implements StmObject {
         return true;
     }
 
-    public static class DehydratedIntegerConstant extends DehydratedStmObject {
+    private StmObject next;
+
+    public void setNext(StmObject next) {
+        this.next = next;
+    }
+
+    public StmObject getNext() {
+        return next;
+    }
+
+
+    public static class DehydratedIntegerConstant extends AbstractDeflated {
         private final IntegerConstant instance;
 
-        DehydratedIntegerConstant(IntegerConstant instance) {
-            super(instance.___getHandle());
+        DehydratedIntegerConstant(IntegerConstant instance, long commitVersion) {
+            super(instance.___getHandle(), commitVersion);
             this.instance = instance;
         }
 
         @Override
-        public Iterator<Long> members() {
-            return EmptyIterator.INSTANCE;
-        }
-
-        @Override
-        public StmObject hydrate(Transaction transaction) {
+        public StmObject ___inflate(Transaction transaction) {
             return instance;
         }
     }

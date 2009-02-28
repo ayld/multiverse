@@ -1,0 +1,3 @@
+- een lijn in de iterators van multiversionedheap
+    or resetable of iteratorfactory.
+-

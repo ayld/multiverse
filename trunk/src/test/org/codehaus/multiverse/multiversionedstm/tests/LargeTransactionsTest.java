@@ -1,9 +1,9 @@
 package org.codehaus.multiverse.multiversionedstm.tests;
 
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import org.junit.Test;
  * @author Peter Veentjer.
  */
 public class LargeTransactionsTest {
-    private GrowingMultiversionedHeap heap;
+    private DefaultMultiversionedHeap heap;
     private MultiversionedStm stm;
     private long[] handles;
 
@@ -23,7 +23,7 @@ public class LargeTransactionsTest {
 
     @Before
     public void setUp() {
-        heap = new GrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
     }
 
@@ -38,7 +38,7 @@ public class LargeTransactionsTest {
                 value.inc();
             }
             t.commit();
-            System.out.println("Executed transaction: " + k);
+            System.out.printf("Executed transaction: %s\n", k);
         }
 
         assertAllValues();

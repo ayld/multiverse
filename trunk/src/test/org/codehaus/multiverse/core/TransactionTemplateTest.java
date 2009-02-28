@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.core;
 
-import org.codehaus.multiverse.multiversionedstm.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import static org.junit.Assert.assertSame;

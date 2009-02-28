@@ -4,9 +4,9 @@ import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConflictingWritesDontBreakSystemTest {
     private MultiversionedStm stm;
-    private GrowingMultiversionedHeap heap;
+    private DefaultMultiversionedHeap heap;
     private AtomicInteger transactionCountDown = new AtomicInteger();
     private long[] handles;
 
@@ -26,7 +26,7 @@ public class ConflictingWritesDontBreakSystemTest {
 
     @Before
     public void setUp() {
-        heap = new GrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
     }
 
@@ -39,6 +39,7 @@ public class ConflictingWritesDontBreakSystemTest {
         startAll(threads);
         joinAll(threads);
 
+        //the 100 is quite arbitrary.. but we should have quite a number of conflicts.
         assertTrue(heap.getStatistics().commitWriteConflictCount.longValue() > 100);
         assertValues(transactionCount);
     }

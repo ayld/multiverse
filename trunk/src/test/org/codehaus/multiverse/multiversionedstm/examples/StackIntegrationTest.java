@@ -4,32 +4,32 @@ import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.multiversionedstm.growingheap.SmartGrowingMultiversionedHeap;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StackIntegrationTest {
     private long stackHandle;
-    private long startMs;
-    private long endMs;
+    private Set<String> producedSet = new HashSet<String>();
+    private Set<String> consumedSet = new HashSet<String>();
 
-    private final static AtomicInteger producedItemCounter = new AtomicInteger();
-    private final static AtomicInteger produceTodoCounter = new AtomicInteger();
-    private SmartGrowingMultiversionedHeap heap;
+    private final static AtomicInteger consumeCountDown = new AtomicInteger();
+    private final static AtomicInteger produceCountDown = new AtomicInteger();
 
-    private int produceCount;
-    private int producerCount = 1;
-    private int consumerCount = 1;
+    private DefaultMultiversionedHeap heap;
     private MultiversionedStm stm;
 
     @Before
     public void setUp() throws Exception {
-        heap = new SmartGrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
         stackHandle = atomicInsert(stm, new Stack());
 
@@ -38,14 +38,9 @@ public class StackIntegrationTest {
     @After
     public void tearDown() throws Exception {
         System.out.println(heap.getStatistics());
-
-        long timeMs = (endMs - startMs) + 1;
-        System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
-        System.out.println(String.format("%s items took %s ms", produceCount, timeMs));
-        System.out.println(String.format("%s transactions/second", stm.getStatistics().getTransactionsCommitedCount() / (timeMs / 1000.0)));
     }
 
-    public void atomicPush(final String item) {
+    private void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
                 Stack<String> stack = (Stack) t.read(stackHandle);
@@ -55,7 +50,7 @@ public class StackIntegrationTest {
         }.execute();
     }
 
-    public String atomicPop() {
+    private String atomicPop() {
         return new TransactionTemplate<String>(stm) {
             protected String execute(Transaction t) throws Exception {
                 Stack stack = (Stack) t.read(stackHandle);
@@ -64,7 +59,7 @@ public class StackIntegrationTest {
         }.execute();
     }
 
-    public void asynchronousPush(final String item) {
+    private void asynchronousPush(final String item) {
         new Thread() {
             public void run() {
                 atomicPush(item);
@@ -72,7 +67,7 @@ public class StackIntegrationTest {
         }.start();
     }
 
-    public void asynchronousPop() {
+    private void asynchronousPop() {
         new Thread() {
             public void run() {
                 try {
@@ -114,109 +109,63 @@ public class StackIntegrationTest {
     }
 
     @Test
-    public void testProduceConsumer_10() {
-        testProducerConsumer(10);
-    }
-
-    @Test
-    public void testProduceConsumer_100() {
-        testProducerConsumer(100);
-    }
-
-    @Test
-    public void testProduceConsumer_1000() {
-        testProducerConsumer(1000);
-    }
-
-    @Test
     public void testProduceConsumer_10000() {
         testProducerConsumer(10000);
     }
 
-    @Test
-    public void testProduceConsumer_100000() {
-        testProducerConsumer(100000);
+    private void testProducerConsumer(int itemCount) {
+        produceCountDown.set(itemCount);
+        consumeCountDown.set(itemCount);
+
+        long startCommitSuccessCount = heap.getStatistics().commitSuccessCount.longValue();
+        long startCommitReadonlyCount = heap.getStatistics().commitReadonlyCount.longValue();
+
+        ProducerThread producerThread = new ProducerThread();
+        ConsumerThread consumerThread = new ConsumerThread();
+
+        startAll(consumerThread, producerThread);
+        joinAll(consumerThread, producerThread);
+
+        assertEquals(producedSet, consumedSet);
+        assertEquals(startCommitSuccessCount + itemCount * 2, heap.getStatistics().commitSuccessCount.longValue());
+        assertEquals(startCommitReadonlyCount, heap.getStatistics().commitReadonlyCount.longValue());
+
+        assertStackIsEmpty();
     }
 
-    @Test
-    public void testProduceConsumer_1000000() {
-        testProducerConsumer(2000000);
+    private void assertStackIsEmpty() {
+        Transaction t = stm.startTransaction();
+        Stack stack = (Stack) t.read(stackHandle);
+        assertTrue(stack.isEmpty());
+        t.commit();
     }
-
-    @Test
-    public void testProduceConsumer_10000000() {
-        testProducerConsumer(100000000);
-    }
-
-    public void testProducerConsumer(int produceCount) {
-        this.produceCount = produceCount;
-        produceTodoCounter.set(produceCount);
-
-        ProducerThread[] producerThreads = createProducerThreads();
-        ConsumerThread[] consumerThreads = createConsumerThreads();
-
-        startMs = System.currentTimeMillis();
-
-        startAll(consumerThreads);
-        startAll(producerThreads);
-
-        joinAll(producerThreads);
-        joinAll(consumerThreads);
-
-        endMs = System.currentTimeMillis();
-    }
-
-    private ConsumerThread[] createConsumerThreads() {
-        ConsumerThread[] threads = new ConsumerThread[consumerCount];
-        for (int k = 0; k < threads.length; k++)
-            threads[k] = new ConsumerThread();
-        return threads;
-    }
-
-    private ProducerThread[] createProducerThreads() {
-        ProducerThread[] threads = new ProducerThread[producerCount];
-        for (int k = 0; k < threads.length; k++)
-            threads[k] = new ProducerThread();
-        return threads;
-    }
-
-    final static AtomicInteger producerThreadIdGenerator = new AtomicInteger();
 
     private class ProducerThread extends TestThread {
 
         public ProducerThread() {
-            super("producer-" + producerThreadIdGenerator.incrementAndGet());
+            super("ProducerThread");
         }
 
         public void run() {
-            while (produceTodoCounter.decrementAndGet() > 0) {
-                long itemCount = producedItemCounter.incrementAndGet();
-                atomicPush("" + itemCount);
-
-                if (itemCount % 500000 == 0) {
-                    System.out.printf("Produced %s items\n", itemCount);
-                }
+            while (produceCountDown.getAndDecrement() > 0) {
+                String item = "" + System.nanoTime();
+                producedSet.add(item);
+                atomicPush(item);
             }
-
-            atomicPush("poison");
         }
     }
-
-    final static AtomicInteger consumerThreadIdGenerator = new AtomicInteger();
 
     private class ConsumerThread extends TestThread {
 
         public ConsumerThread() {
-            super("consumer-" + consumerThreadIdGenerator.incrementAndGet());
+            super("ConsumerThread");
         }
 
         public void run() {
-            String item;
-            do {
-                item = atomicPop();
-                //System.out.println(Thread.currentThread() + " consumed: " + item);
-                //TestUtils.sleepRandomMs(10);
-            } while (!"poison".equals(item));
+            while (consumeCountDown.getAndDecrement() > 0) {
+                String item = atomicPop();
+                consumedSet.add(item);
+            }
         }
     }
 }

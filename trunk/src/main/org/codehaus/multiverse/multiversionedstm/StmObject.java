@@ -1,6 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedheap.Deflatable;
 
 import java.util.Iterator;
 
@@ -22,7 +23,7 @@ import java.util.Iterator;
  *
  * @author Peter Veentjer.
  */
-public interface StmObject {
+public interface StmObject extends Deflatable {
 
     /**
      * Returns the handle of this StmObject in the heap. A non 0 value always will be returned, no matter
@@ -32,17 +33,6 @@ public interface StmObject {
      */
     long ___getHandle();
 
-    /**
-     * Dehydrates this {@link StmObject} to a {@link DehydratedStmObject} that can be stored in the heap. The result
-     * of this dehydration is a snapshot of the state of this StmObject. Any changes made to this StmObject after
-     * the dehydration, should not be visible in the DehydratedStmObject (since each DehydratedStmObject is
-     * considered to be immutable).
-     * <p/>
-     * todo: what if the object is not attached
-     *
-     * @return the result of the dehydration.
-     */
-    DehydratedStmObject ___dehydrate();
 
     /**
      * Returns an Iterator over all loaded or fresh StmObject members. If a member is not loaded (lazy) it is not
@@ -85,4 +75,8 @@ public interface StmObject {
     boolean ___isDirty();
 
     boolean ___isImmutable();
+
+    void setNext(StmObject o);
+
+    StmObject getNext();
 }

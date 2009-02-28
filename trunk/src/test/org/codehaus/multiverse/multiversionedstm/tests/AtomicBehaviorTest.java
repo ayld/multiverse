@@ -1,16 +1,16 @@
 package org.codehaus.multiverse.multiversionedstm.tests;
 
 import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.Queue;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
 import org.junit.After;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * todo: what does the test do.
+ * This test makes sure that all of the changes are committed, or none of them are committed.
  *
  * @author Peter Veentjer.
  */
@@ -20,11 +20,11 @@ public class AtomicBehaviorTest {
     private long[] queues;
     private int queueCount = 10;
 
-    private GrowingMultiversionedHeap heap;
+    private DefaultMultiversionedHeap heap;
 
     @Before
     public void setUp() {
-        heap = new GrowingMultiversionedHeap();
+        heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
     }
 
@@ -42,6 +42,7 @@ public class AtomicBehaviorTest {
         for (long handle : queues) {
             Queue queue = (Queue) t.read(handle);
             queue.push("foo");
+            queue.push("bar");
         }
         t.abort();
 

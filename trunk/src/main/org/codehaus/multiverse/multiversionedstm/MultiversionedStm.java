@@ -1,7 +1,10 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.core.*;
-import org.codehaus.multiverse.multiversionedstm.growingheap.GrowingMultiversionedHeap;
+import org.codehaus.multiverse.multiversionedheap.Deflated;
+import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap;
+import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.utils.StmObjectIterator;
 import static org.codehaus.multiverse.util.HandleUtils.assertNotNull;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
@@ -19,20 +22,20 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * {@link Stm} implementation that uses multiversion concurrency control as concurrency control mechanism.
- * The content is stored in a {@link MultiversionedHeap}.
+ * The content is stored in a {@link org.codehaus.multiverse.multiversionedheap.MultiversionedHeap}.
  *
  * @author Peter Veentjer.
  */
 public final class MultiversionedStm implements Stm<MultiversionedStm.MultiversionedTransaction> {
 
-    private final MultiversionedHeap heap;
+    private final MultiversionedHeap<Deflated, StmObject> heap;
     private final MultiversionedStmStatistics statistics = new MultiversionedStmStatistics();
 
     /**
      * Creates a new MultiversionedStm with a GrowingMultiversionedHeap as heap.
      */
     public MultiversionedStm() {
-        this(new GrowingMultiversionedHeap());
+        this(new DefaultMultiversionedHeap());
     }
 
     /**
@@ -80,10 +83,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
     public MultiversionedTransaction startRetriedTransaction(MultiversionedStm.MultiversionedTransaction predecessor) throws InterruptedException {
         ensureValidPredecessor(predecessor);
-        ensureProgressPossible(predecessor);
         Latch latch = new CheapLatch();
 
-        heap.listen(latch, predecessor.getConditionHandles(), predecessor.getVersion());
+        heap.listen(predecessor.snapshot, latch, predecessor.getConditionHandles());
         latch.await();
         statistics.transactionRetriedCount.incrementAndGet();
         return startTransaction();
@@ -94,11 +96,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         if (predecessor.stm != this)
             throw new IllegalArgumentException();
-    }
-
-    private void ensureProgressPossible(MultiversionedTransaction predecessor) {
-        if (predecessor.getConditionHandles().length == 0)
-            throw new NoProgressPossibleException();
     }
 
     public MultiversionedTransaction tryStartRetriedTransaction(MultiversionedStm.MultiversionedTransaction x, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
@@ -223,15 +220,15 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
             //so the object doesn't exist in the current transaction, lets look in the heap if there is
             //a dehydrated version.
-            DehydratedStmObject dehydratedObject = snapshot.read(handle);
+            Deflated dehydratedObject = snapshot.read(handle);
             //if dehydrated doesn't exist in the heap, the handle that is used is not valid.
             if (dehydratedObject == null)
                 throw new NoSuchObjectException(handle, getVersion());
 
-            //dehydrated was found in the heap, lets hydrate so we get a stmObject instance
+            //dehydrated was found in the heap, lets ___inflate so we get a stmObject instance
             StmObject hydratedObject;
             try {
-                hydratedObject = dehydratedObject.hydrate(this);
+                hydratedObject = (StmObject) dehydratedObject.___inflate(this);
             } catch (Exception e) {
                 String msg = format("Failed to dehydrate %s instance with handle %s", dehydratedObject, handle);
                 throw new RuntimeException(msg, e);
@@ -378,8 +375,37 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
+        /**
+         * Returns the head of the chain.
+         *
+         * @return
+         */
+        private StmObject initNextChainForCommit() {
+            StmObject head = null;
+
+            for (StmObject root : attachedObjects.values())
+                head = initNextChainForCommit(head, root);
+
+            for (StmObject root : hydratedObjects.values())
+                head = initNextChainForCommit(head, root);
+
+            return head;
+        }
+
+        private StmObject initNextChainForCommit(StmObject head, StmObject root) {
+            if (root.___isDirty() || root.___isImmutable()) {
+                root.setNext(head);
+                //no traversal is done.
+                head = root;
+            }
+
+            return head;
+        }
+
         private void commitChanges() {
-            MultiversionedHeap.CommitResult result = heap.commit(snapshot, new CommitIterator());
+            StmObject first = initNextChainForCommit();
+
+            MultiversionedHeap.CommitResult result = heap.commit(snapshot, new CommitIterator(first));
 
             if (result.isSuccess()) {
                 statistics.transactionsCommitedCount.incrementAndGet();
@@ -410,56 +436,30 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
+        class CommitIterator implements ResetableIterator<StmObject> {
+            final StmObject first;
+            StmObject nextToReturn;
 
-        class CommitIterator implements ResetableIterator<DehydratedStmObject> {
-            private Iterator<StmObject> iterator;
-            private StmObject next;
+            CommitIterator(StmObject first) {
+                this.first = first;
+                this.nextToReturn = first;
+            }
 
             public void reset() {
-                next = null;
-                iterator = null;
+                nextToReturn = first;
             }
 
             public boolean hasNext() {
-                if (next != null)
-                    return true;
-
-                if (iterator == null) {
-                    //the split up of the iterator creation is a 'hack' to figure out if the
-                    //varargs version of the constructor is taking that much time.
-                    if (hydratedObjects.isEmpty()) {
-                        iterator = new StmObjectIterator(attachedObjects.values().iterator());
-                    } else if (attachedObjects.isEmpty()) {
-                        iterator = new StmObjectIterator(hydratedObjects.values().iterator());
-                    } else {
-                        Iterator<StmObject> hydratedIt = hydratedObjects.values().iterator();
-                        Iterator<StmObject> attachedIt = attachedObjects.values().iterator();
-                        iterator = new StmObjectIterator(
-                                hydratedIt,
-                                attachedIt);
-                    }
-                }
-
-                while (iterator.hasNext()) {
-                    StmObject object = iterator.next();
-                    //if an object is immutable, it will only be in the attached list if it has not
-                    //been persisted before.
-                    if (object.___isImmutable() || object.___isDirty()) {
-                        next = object;
-                        return true;
-                    }
-                }
-
-                return false;
+                return nextToReturn != null;
             }
 
-            public DehydratedStmObject next() {
+            public StmObject next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
 
-                StmObject tmp = next;
-                next = null;
-                return tmp.___dehydrate();
+                StmObject result = nextToReturn;
+                nextToReturn = nextToReturn.getNext();
+                return result;
             }
 
             public void remove() {
