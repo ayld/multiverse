@@ -4,6 +4,7 @@ import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
+import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
 import static java.lang.String.format;
@@ -30,12 +31,21 @@ public class IntegerValue implements StmObject {
         value++;
     }
 
+    public void dec() {
+        value--;
+    }
+
     public void setValue(int newValue) {
         this.value = newValue;
     }
 
-    public int getValue() {
+    public int value() {
         return value;
+    }
+
+    public void await(int value) {
+        if (this.value != value)
+            retry();
     }
 
     @Override
