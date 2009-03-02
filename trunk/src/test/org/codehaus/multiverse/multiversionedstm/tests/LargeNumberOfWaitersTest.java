@@ -56,8 +56,8 @@ public class LargeNumberOfWaitersTest {
     public void test() {
         wakeupCountDown.set(totalWakeupCount);
         notifyCountDown.set(totalWakeupCount);
-        waiterLatchHandle = atomicInsert(stm, new IntegerValue(0));
-        notifyLatchHandle = atomicInsert(stm, new IntegerValue(1));
+        waiterLatchHandle = commit(stm, new IntegerValue(0));
+        notifyLatchHandle = commit(stm, new IntegerValue(1));
 
         NotifyThread notifyThread = new NotifyThread(0);
         WaiterThread[] waiterThreads = createWaiterThreads();
@@ -70,9 +70,9 @@ public class LargeNumberOfWaitersTest {
 
         Transaction t = stm.startTransaction();
         IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
-        assertEquals(0, waiterLatch.value());
+        assertEquals(0, waiterLatch.get());
         IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
-        assertEquals(1, notifyLatch.value());
+        assertEquals(1, notifyLatch.get());
         t.commit();
     }
 
@@ -118,7 +118,7 @@ public class LargeNumberOfWaitersTest {
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
                     IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
-                    if (notifyLatch.value() == 0)
+                    if (notifyLatch.get() == 0)
                         retry();
                     notifyLatch.setValue(0);
 
@@ -148,11 +148,11 @@ public class LargeNumberOfWaitersTest {
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
                     IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
-                    if (waiterLatch.value() <= 0)
+                    if (waiterLatch.get() <= 0)
                         retry();
                     waiterLatch.dec();
 
-                    if (waiterLatch.value() == 0) {
+                    if (waiterLatch.get() == 0) {
                         IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
                         notifyLatch.setValue(1);
                     }

@@ -15,11 +15,19 @@ import java.util.*;
  */
 public class TestUtils {
 
-    public static long atomicInsert(Stm stm, Object item) {
+    public static long commit(Stm stm, Object item) {
         Transaction t = stm.startTransaction();
         long handle = t.attachAsRoot(item);
         t.commit();
         return handle;
+    }
+
+    public static boolean randomBoolean() {
+        return randomInteger(10) % 2 == 0;
+    }
+
+    public static int randomInteger(int max) {
+        return (int) Math.round(Math.random() * max);
     }
 
     public static long randomLong(long i, int diff) {

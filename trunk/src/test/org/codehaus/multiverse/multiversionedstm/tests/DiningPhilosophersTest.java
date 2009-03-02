@@ -58,7 +58,7 @@ public class DiningPhilosophersTest {
         Transaction t = stm.startTransaction();
         for (long forkHandle : forkHandles) {
             IntegerValue fork = (IntegerValue) t.read(forkHandle);
-            assertEquals(1, fork.value());
+            assertEquals(1, fork.get());
         }
         t.commit();
     }
@@ -142,7 +142,7 @@ public class DiningPhilosophersTest {
 
         private void obtainFork(Transaction t, long forkHandle) {
             IntegerValue fork = (IntegerValue) t.read(forkHandle);
-            if (fork.value() == 0)
+            if (fork.get() == 0)
                 retry();
             fork.setValue(0);
         }
