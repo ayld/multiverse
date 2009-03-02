@@ -1,71 +1,112 @@
 package org.codehaus.multiverse.multiversionedstm.tests;
 
+import org.codehaus.multiverse.TestThread;
+import static org.codehaus.multiverse.TestUtils.*;
+import org.codehaus.multiverse.core.AbortedTransaction;
 import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
+import org.codehaus.multiverse.core.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.multiversionedstm.examples.Queue;
-import org.junit.After;
+import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
- * This test makes sure that all of the changes are committed, or none of them are committed.
+ * A test that checks if modifications are done atomically. So a transactions that are aborted, should
+ * not be committed (not even partially) to the heap.
+ * <p/>
+ * The test: there is a modification thread that updates an integervalue. The only valid value that is permitted
+ * in the heap is a value that can be divided by 2. The update is done in 2 staps that increase the value by one
+ * and in some cases the transaction is aborted.
  *
  * @author Peter Veentjer.
  */
 public class AtomicBehaviorTest {
 
     private MultiversionedStm stm;
-    private long[] queues;
-    private int queueCount = 10;
 
-    private DefaultMultiversionedHeap heap;
+    private long handle;
+    private int modifyCount = 500;
+    private AtomicInteger modifyCountDown = new AtomicInteger();
 
     @Before
     public void setUp() {
-        heap = new DefaultMultiversionedHeap();
-        stm = new MultiversionedStm(heap);
-    }
-
-    @After
-    public void teatDown() {
-        System.out.println(stm.getStatistics());
-        System.out.println(heap.getStatistics());
+        stm = new MultiversionedStm();
+        handle = commit(stm, new IntegerValue());
     }
 
     @Test
     public void test() {
-        queues = createQueues();
+        modifyCountDown.set(modifyCount);
 
-        Transaction t = stm.startTransaction();
-        for (long handle : queues) {
-            Queue queue = (Queue) t.read(handle);
-            queue.push("foo");
-            queue.push("bar");
-        }
-        t.abort();
+        ModifyThread modifyThread = new ModifyThread(0);
+        ObserverThread observerThread = new ObserverThread();
 
-        assertQueuesAreEmpty();
+        startAll(modifyThread, observerThread);
+        joinAll(modifyThread, observerThread);
     }
 
-    public void assertQueuesAreEmpty() {
-        Transaction t = stm.startTransaction();
-        for (long handle : queues) {
-            Queue queue = (Queue) t.read(handle);
-            if (!queue.isEmpty())
-                fail();
+    class ModifyThread extends TestThread {
+        public ModifyThread(int id) {
+            super("ModifyThread-" + id);
         }
 
-        t.commit();
+        public void run() {
+            while (modifyCountDown.getAndDecrement() > 0) {
+                try {
+                    doit();
+                } catch (AbortedTransaction ex) {
+                }
+            }
+        }
+
+        public void doit() {
+            new TransactionTemplate(stm) {
+                @Override
+                protected Object execute(Transaction t) throws Exception {
+                    IntegerValue value = (IntegerValue) t.read(handle);
+                    if (value.get() % 2 != 0)
+                        fail();
+
+                    value.inc();
+
+                    sleepRandomMs(100);
+
+                    if (randomBoolean()) {
+                        t.abort();
+                        return null;
+                    }
+
+                    value.inc();
+                    return null;
+                }
+            }.execute();
+        }
     }
 
-    private long[] createQueues() {
-        Transaction t = stm.startTransaction();
-        long[] handles = new long[queueCount];
-        for (int k = 0; k < queueCount; k++)
-            handles[k] = t.attachAsRoot(new Queue());
-        t.commit();
-        return handles;
+    class ObserverThread extends TestThread {
+        public ObserverThread() {
+            super("ObserverThread");
+        }
+
+        @Override
+        public void run() {
+            while (modifyCountDown.get() > 0) {
+                new TransactionTemplate(stm) {
+                    @Override
+                    protected Object execute(Transaction t) throws Exception {
+                        IntegerValue value = (IntegerValue) t.read(handle);
+                        if (value.get() % 2 != 0)
+                            fail();
+
+                        return null;
+                    }
+                }.execute();
+
+                sleepRandomMs(5);
+            }
+        }
     }
 }

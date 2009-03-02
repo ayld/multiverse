@@ -2,7 +2,7 @@ package org.codehaus.multiverse.multiversionedstm.performance;
 
 import com.sun.japex.JapexDriverBase;
 import com.sun.japex.TestCase;
-import static org.codehaus.multiverse.TestUtils.atomicInsert;
+import static org.codehaus.multiverse.TestUtils.commit;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;
@@ -28,7 +28,7 @@ public class AccessingFieldPerformanceDriver extends JapexDriverBase {
     }
 
     private void setUpStructures() {
-        handle = atomicInsert(stm, new IntegerValue());
+        handle = commit(stm, new IntegerValue());
     }
 
     private void readParams(TestCase testCase) {

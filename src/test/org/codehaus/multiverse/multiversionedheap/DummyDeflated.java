@@ -31,7 +31,7 @@ public class DummyDeflated extends AbstractDeflated {
     }
 
     public String toString() {
-        return format("DummyDeflated(handle=%s, version=%s, value=%s)", ___getHandle(), ___getVersion(), getValue());
+        return format("DummyDeflated(handle=%s, version=%s, get=%s)", ___getHandle(), ___getVersion(), getValue());
     }
 
     @Override

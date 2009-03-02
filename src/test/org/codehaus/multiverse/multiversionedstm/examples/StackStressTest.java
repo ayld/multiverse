@@ -35,7 +35,7 @@ public class StackStressTest {
     public void setUp() throws Exception {
         heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
-        stackHandle = atomicInsert(stm, new Stack());
+        stackHandle = commit(stm, new Stack());
     }
 
     @After

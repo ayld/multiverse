@@ -27,7 +27,7 @@ public class IntegerConstant implements StmObject {
     }
 
     public String toString() {
-        return format("IntegerConstant(value=%s)", value);
+        return format("IntegerConstant(get=%s)", value);
     }
 
     // ==================== generated ================

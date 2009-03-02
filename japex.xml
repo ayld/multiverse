@@ -11,13 +11,13 @@
 
     <!-- driver name="org.codehaus.multiverse.multiversionedstm.performance.AccessingFieldPerformanceDriver">
         <param name="Description"
-               value="Driver for checking the influence (or lack of) of the stm on performance of normal reads/writes"/>
+               get="Driver for checking the influence (or lack of) of the stm on performance of normal reads/writes"/>
         <param name="japex.DriverClass"
-               value="org.codehaus.multiverse.multiversionedstm.performance.AccessingFieldPerformanceDriver"/>
+               get="org.codehaus.multiverse.multiversionedstm.performance.AccessingFieldPerformanceDriver"/>
     </driver>
 
     <testCase name="AccessingFieldPerformanceDriver_MAX_INTEGER">
-        <param name="iterations" value="2147483647"/>
+        <param name="iterations" get="2147483647"/>
     </testCase -->
 
     <driver name="org.codehaus.multiverse.multiversionedstm.performance.WorkingOnBareHeapUpdateDriver">

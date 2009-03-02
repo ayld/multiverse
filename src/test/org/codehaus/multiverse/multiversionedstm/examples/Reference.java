@@ -4,58 +4,47 @@ import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
 import static java.lang.String.format;
 import java.util.Iterator;
 
 /**
- * An example of a simple mutable StmObject. The IntegerValue is a container for an int.
+ * A Reference is an example of an StmObject that can be used to let a non stm object be placed in and retrieved
+ * from an stm. The ref should not be shared concurrently ofcourse. It can be used for messagepassing for example
+ * where each message is touched by only one thread at most at any give time. The ref should not be used inside
+ * the transaction but only once the transaction completes.`
  *
- * @author Peter Veentjer.
+ * @param <E>
  */
-public class IntegerValue implements StmObject {
-    private int value;
+public class Reference<E> implements StmObject {
+    private E ref;
 
-    public IntegerValue() {
-        this(0);
+    public Reference() {
+        this(null);
     }
 
-    public IntegerValue(int value) {
-        this.value = value;
+    public Reference(E ref) {
+        this.ref = ref;
         this.handle = HandleGenerator.createHandle();
     }
 
-    public void inc() {
-        value++;
+    public void set(E newValue) {
+        this.ref = newValue;
     }
 
-    public void dec() {
-        value--;
-    }
-
-    public void setValue(int newValue) {
-        this.value = newValue;
-    }
-
-    public int get() {
-        return value;
-    }
-
-    public void await(int value) {
-        if (this.value != value)
-            retry();
+    public E get() {
+        return ref;
     }
 
     @Override
     public String toString() {
-        return format("IntegerValue(get=%s)", value);
+        return format("IntegerValue(get=%s)", ref);
     }
 
     @Override
     public int hashCode() {
-        return value;
+        return ref == null ? 0 : ref.hashCode();
     }
 
     @Override
@@ -63,21 +52,24 @@ public class IntegerValue implements StmObject {
         if (thatObj == this)
             return true;
 
-        if (!(thatObj instanceof IntegerValue))
+        if (!(thatObj instanceof Reference))
             return false;
 
-        IntegerValue that = (IntegerValue) thatObj;
-        return that.value == this.value;
+        Reference that = (Reference) thatObj;
+        if (that.ref == null)
+            return this.ref == null;
+
+        return that.ref.equals(this.ref);
     }
 
     // ================ generated ======================
     private final long handle;
     private Transaction transaction;
-    private DehydratedIntegerValue dehydrated;
+    private DehydratedReference dehydrated;
 
-    private IntegerValue(DehydratedIntegerValue dehydratedIntegerValue, Transaction transaction) {
+    private Reference(DehydratedReference<E> dehydratedIntegerValue, Transaction transaction) {
         this.handle = dehydratedIntegerValue.___getHandle();
-        this.value = dehydratedIntegerValue.value;
+        this.ref = dehydratedIntegerValue.ref;
         this.dehydrated = dehydratedIntegerValue;
     }
 
@@ -85,8 +77,8 @@ public class IntegerValue implements StmObject {
         return handle;
     }
 
-    public DehydratedIntegerValue ___deflate(long version) {
-        return new DehydratedIntegerValue(this, version);
+    public DehydratedReference<E> ___deflate(long version) {
+        return new DehydratedReference<E>(this, version);
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
@@ -105,7 +97,7 @@ public class IntegerValue implements StmObject {
         if (dehydrated == null)
             return true;
 
-        if (dehydrated.value != value)
+        if (dehydrated.ref != ref)
             return true;
 
         return false;
@@ -125,17 +117,17 @@ public class IntegerValue implements StmObject {
         return next;
     }
 
-    static class DehydratedIntegerValue extends AbstractDeflated {
-        private final int value;
+    static class DehydratedReference<E> extends AbstractDeflated {
+        private final E ref;
 
-        DehydratedIntegerValue(IntegerValue integerValue, long version) {
-            super(integerValue.___getHandle(), version);
-            this.value = integerValue.value;
+        DehydratedReference(Reference<E> reference, long version) {
+            super(reference.___getHandle(), version);
+            this.ref = reference.ref;
         }
 
         @Override
-        public StmObject ___inflate(Transaction transaction) {
-            return new IntegerValue(this, transaction);
+        public Reference<E> ___inflate(Transaction transaction) {
+            return new Reference<E>(this, transaction);
         }
     }
 }

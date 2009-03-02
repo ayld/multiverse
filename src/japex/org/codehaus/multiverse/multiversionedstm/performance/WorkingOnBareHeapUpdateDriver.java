@@ -3,7 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.performance;
 import com.sun.japex.Constants;
 import com.sun.japex.JapexDriverBase;
 import com.sun.japex.TestCase;
-import static org.codehaus.multiverse.TestUtils.atomicInsert;
+import static org.codehaus.multiverse.TestUtils.commit;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
@@ -31,7 +31,7 @@ public class WorkingOnBareHeapUpdateDriver extends JapexDriverBase {
     }
 
     private void setUpStructures() {
-        handle = atomicInsert(stm, new IntegerValue());
+        handle = commit(stm, new IntegerValue());
     }
 
     private void readParams(TestCase testCase) {

@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.tests;
 
-import static org.codehaus.multiverse.TestUtils.atomicInsert;
+import static org.codehaus.multiverse.TestUtils.commit;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
@@ -30,8 +30,8 @@ public class BrokenSerializedTest {
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        stackHandle1 = atomicInsert(stm, new Stack());
-        stackHandle2 = atomicInsert(stm, new Stack());
+        stackHandle1 = commit(stm, new Stack());
+        stackHandle2 = commit(stm, new Stack());
     }
 
     @Test

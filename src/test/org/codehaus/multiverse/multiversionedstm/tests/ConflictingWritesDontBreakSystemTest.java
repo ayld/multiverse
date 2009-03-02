@@ -48,7 +48,7 @@ public class ConflictingWritesDontBreakSystemTest {
         Transaction t = stm.startTransaction();
         for (long handle : handles) {
             IntegerValue integerValue = (IntegerValue) t.read(handle);
-            assertEquals(value, integerValue.value());
+            assertEquals(value, integerValue.get());
         }
         t.commit();
     }

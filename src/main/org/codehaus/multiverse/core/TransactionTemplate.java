@@ -72,6 +72,11 @@ public abstract class TransactionTemplate<E> {
 
     abstract protected E execute(Transaction t) throws Exception;
 
+    /**
+     * @return
+     * @throws AbortedTransaction if the transaction is aborted.
+     * @throws RuntimeException   that is thrown in the template method.
+     */
     public final E execute() {
         try {
             Transaction predecessor = null;
@@ -83,6 +88,9 @@ public abstract class TransactionTemplate<E> {
                 TransactionThreadLocal.set(transaction);
                 try {
                     E result = execute(transaction);
+                    if (transaction.getStatus().equals(TransactionStatus.aborted))
+                        throw new AbortedTransaction();
+
                     transaction.commit();
                     succes = true;
                     return result;

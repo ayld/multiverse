@@ -48,7 +48,7 @@ public class LargeTransactionsTest {
         Transaction t = stm.startTransaction();
         for (long handle : handles) {
             IntegerValue value = (IntegerValue) t.read(handle);
-            assertEquals(transactionCount, value.value());
+            assertEquals(transactionCount, value.get());
         }
         t.commit();
     }
