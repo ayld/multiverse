@@ -41,7 +41,9 @@ public interface Deflated {
      *
      * @return an iterator over all handles to Deflated members.
      */
-    PLongIterator ___members();
+    PLongIterator ___memberHandles();
+
+    //boolean hasWriteConflict(Deflated older);
 
     /**
      * Inflates a Deflated to a Deflatable.
@@ -49,7 +51,7 @@ public interface Deflated {
      * @param transaction the transaction the created Deflatable is part of.
      * @return the created StmObject.
      * @see org.codehaus.multiverse.multiversionedstm.StmObject#___deflate ()
-     * @see org.codehaus.multiverse.multiversionedstm.StmObject#___isImmutable()
+     * @see org.codehaus.multiverse.multiversionedstm.StmObject#___isImmutableObjectGraph()
      */
     Deflatable ___inflate(Transaction transaction);
 }

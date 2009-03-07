@@ -110,14 +110,14 @@ public class QueueTest {
     @Test
     public void testIsDirtyFreshEmptyQueue() {
         Queue queue = new Queue();
-        assertTrue(queue.___isDirty());
+        assertTrue(queue.___isDirtyIgnoringStmMembers());
     }
 
     @Test
     public void testIsDirtyFreshNonEmptyQueue() {
         Queue queue = new Queue();
         queue.push("10");
-        assertTrue(queue.___isDirty());
+        assertTrue(queue.___isDirtyIgnoringStmMembers());
     }
 
     @Test
@@ -129,7 +129,7 @@ public class QueueTest {
         Queue queue = (Queue) t2.read(handle);
         //readonly operation
         queue.size();
-        assertFalse(queue.___isDirty());
+        assertFalse(queue.___isDirtyIgnoringStmMembers());
     }
 
     /**
@@ -145,7 +145,7 @@ public class QueueTest {
         Queue queue = (Queue) t2.read(handle);
         //readonly operation
         queue.push("10");
-        assertFalse(queue.___isDirty());
+        assertFalse(queue.___isDirtyIgnoringStmMembers());
     }
 
     private long atomicInsertQueue(Stm stm) {
@@ -162,12 +162,24 @@ public class QueueTest {
     @Test
     public void testQueueIsNotImmutable() {
         Queue queue = new Queue();
-        assertFalse(queue.___isImmutable());
+        assertFalse(queue.___isImmutableObjectGraph());
     }
 
     @Test
     public void testDehydratedAndHydrateEmptyQueue() {
         testDehydrateAndHydrateQueue(new Queue());
+    }
+
+    @Test
+    public void testDehydrateEmptyQueue() {
+        Queue queue = new Queue();
+
+        MultiversionedStm stm = new MultiversionedStm();
+        MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
+        t.attachAsRoot(queue);
+        t.commit();
+
+        assertEquals(3, t.getWriteCount());
     }
 
     @Test

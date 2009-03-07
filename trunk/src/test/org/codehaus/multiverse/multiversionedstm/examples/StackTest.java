@@ -4,6 +4,7 @@ import org.codehaus.multiverse.core.RetryError;
 import org.codehaus.multiverse.core.Stm;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
+import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -59,7 +60,7 @@ public class StackTest {
     @Test
     public void testFreshStackIsDirty() {
         Stack stack = new Stack();
-        assertTrue(stack.___isDirty());
+        assertTrue(stack.___isDirtyIgnoringStmMembers());
     }
 
     @Test
@@ -73,12 +74,12 @@ public class StackTest {
 
         Transaction t2 = stm.startTransaction();
         Stack hydratedStack = (Stack) t2.read(handle);
-        assertFalse(hydratedStack.___isDirty());
+        assertFalse(hydratedStack.___isDirtyIgnoringStmMembers());
 
         //do readonly operation
         int size = stack.size();
         //make sure that it isn't dirty.
-        assertFalse(hydratedStack.___isDirty());
+        assertFalse(hydratedStack.___isDirtyIgnoringStmMembers());
     }
 
     @Test
@@ -93,7 +94,7 @@ public class StackTest {
         Transaction t2 = stm.startTransaction();
         Stack hydratedStack = (Stack) t2.read(handle);
         hydratedStack.push(10);
-        assertTrue(hydratedStack.___isDirty());
+        assertTrue(hydratedStack.___isDirtyIgnoringStmMembers());
     }
 
     @Test
@@ -137,7 +138,7 @@ public class StackTest {
     @Test
     public void testOnAttach() {
         MultiversionedStm stm = new MultiversionedStm();
-        Transaction t = stm.startTransaction();
+        MyTransaction t = stm.startTransaction();
         Stack stack = new Stack();
 
         stack.___onAttach(t);
@@ -185,7 +186,7 @@ public class StackTest {
     @Test
     public void testStackIsNotImmutable() {
         Stack stack = new Stack();
-        assertFalse(stack.___isImmutable());
+        assertFalse(stack.___isImmutableObjectGraph());
     }
 
     @Test

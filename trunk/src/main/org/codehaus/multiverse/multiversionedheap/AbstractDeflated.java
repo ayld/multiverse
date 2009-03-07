@@ -19,7 +19,7 @@ public abstract class AbstractDeflated implements Deflated {
         this.handle = handle;
     }
 
-    public PLongIterator ___members() {
+    public PLongIterator ___memberHandles() {
         return new PLongArrayIterator();
     }
 

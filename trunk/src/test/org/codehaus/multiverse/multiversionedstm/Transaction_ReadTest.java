@@ -83,7 +83,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
 
         assertSame(integerConstant, found);
         assertTransactionHasNoWrites();
-        assertTransactionHydratedObjectCount(0);
+        assertTransactionHydratedObjectCount(1);
     }
 
     public void testUpdatesOnMutableObjectByLaterTransactionsAreNotSeen() {
@@ -121,7 +121,7 @@ public class Transaction_ReadTest extends AbstractMultiversionedStmTest {
         assertNotNull(found1);
         assertSame(found1, found2);
         assertTransactionHasNoWrites();
-        assertTransactionHydratedObjectCount(0);
+        assertTransactionHydratedObjectCount(1);
     }
 
 

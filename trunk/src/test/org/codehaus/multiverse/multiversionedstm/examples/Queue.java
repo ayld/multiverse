@@ -3,6 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
+import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
@@ -50,7 +51,6 @@ public class Queue<E> implements StmObject {
             return result;
 
         flipFromPushedToReadyToPop();
-
         return readyToPopStack.peek();
     }
 
@@ -59,7 +59,6 @@ public class Queue<E> implements StmObject {
             return readyToPopStack.pop();
 
         flipFromPushedToReadyToPop();
-
         return readyToPopStack.pop();
     }
 
@@ -118,24 +117,24 @@ public class Queue<E> implements StmObject {
     //================== generated =================
 
     private final long handle;
-    private Transaction transaction;
+    private MyTransaction transaction;
     private DehydratedQueue initialDehydratedQueue;
 
-    public Queue(DehydratedQueue dehydratedQueue, Transaction transaction) {
+    public Queue(DehydratedQueue dehydratedQueue, MyTransaction transaction) {
         this.handle = dehydratedQueue.___getHandle();
         this.transaction = transaction;
+        this.initialDehydratedQueue = dehydratedQueue;
 
         this.readyToPopStack = (Stack) transaction.read(dehydratedQueue.readyToPopStackPtr);
         this.pushedStack = (Stack) transaction.read(dehydratedQueue.pushedStackPtr);
-        this.initialDehydratedQueue = dehydratedQueue;
         this.maxCapacity = dehydratedQueue.maxCapacity;
     }
 
-    public void ___onAttach(Transaction transaction) {
+    public void ___onAttach(MyTransaction transaction) {
         this.transaction = transaction;
     }
 
-    public Transaction ___getTransaction() {
+    public MyTransaction ___getTransaction() {
         return transaction;
     }
 
@@ -151,12 +150,12 @@ public class Queue<E> implements StmObject {
         return new DehydratedQueue(this, commitVersion);
     }
 
-    public boolean ___isImmutable() {
+    public boolean ___isImmutableObjectGraph() {
         //the stacks are mutable, so the queue is mutable.
         return false;
     }
 
-    public boolean ___isDirty() {
+    public boolean ___isDirtyIgnoringStmMembers() {
         //if the object has never been saved before, it is dirty by default.
         if (initialDehydratedQueue == null)
             return true;
@@ -164,16 +163,6 @@ public class Queue<E> implements StmObject {
         //since the queue has no other state than the stacks (and those are final) it is not dirty.
         //it is up to the stacks to do the dirty check
         return false;
-    }
-
-    private StmObject next;
-
-    public void setNext(StmObject next) {
-        this.next = next;
-    }
-
-    public StmObject getNext() {
-        return next;
     }
 
     public static class DehydratedQueue extends AbstractDeflated {
@@ -189,7 +178,8 @@ public class Queue<E> implements StmObject {
         }
 
         public Queue ___inflate(Transaction transaction) {
-            return new Queue(this, transaction);
+            //todo  cast should be removed
+            return new Queue(this, (MyTransaction) transaction);
         }
     }
 }

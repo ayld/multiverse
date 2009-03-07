@@ -74,8 +74,9 @@ public abstract class TransactionTemplate<E> {
 
     /**
      * @return
-     * @throws AbortedTransaction if the transaction is aborted.
-     * @throws RuntimeException   that is thrown in the template method.
+     * @throws AbortedTransactionException if the transaction is aborted.
+     * @throws TooManyRetriesException     if the transaction needs to be retried too many times.
+     * @throws RuntimeException
      */
     public final E execute() {
         try {
@@ -84,15 +85,15 @@ public abstract class TransactionTemplate<E> {
             do {
                 Transaction transaction = startTransaction(predecessor);
                 predecessor = null;
-                boolean succes = false;
+                boolean abort = true;
                 TransactionThreadLocal.set(transaction);
                 try {
                     E result = execute(transaction);
                     if (transaction.getStatus().equals(TransactionStatus.aborted))
-                        throw new AbortedTransaction();
+                        throw new AbortedTransactionException();
 
                     transaction.commit();
-                    succes = true;
+                    abort = false;
                     return result;
                 } catch (RetryError ex) {
                     //with a retryerror, you need to set the predecessor, so that you have access to the
@@ -102,25 +103,24 @@ public abstract class TransactionTemplate<E> {
                     retryCount++;
                 } catch (WriteConflictError ex) {
                     //with a writeconflict, you don't need a predecessor because you are not interested in
-                    //the handles that have been read for the stm-version of condition variables.
+                    //the handles that have been read for the stm-version of condition variables. The transacties
+                    //can be retried.
                     retryCount++;
                 } finally {
                     TransactionThreadLocal.remove();
 
-                    if (succes)
-                        transaction.commit();
-                    else
+                    if (abort)
                         transaction.abort();
                 }
             } while (retryCount < maximumRetryCount || maximumRetryCount == 0);
 
             throw new TooManyRetriesException();
-        } catch (InterruptedException ex) {
-            Thread.interrupted();
-            throw new RuntimeException(ex);
         } catch (RuntimeException ex) {
             //we don't want unchecked exceptions to be wrapped again.
             throw ex;
+        } catch (InterruptedException ex) {
+            Thread.interrupted();
+            throw new RuntimeException(ex);
         } catch (Exception ex) {
             //wrap the checked exception in an unchecked one.
             throw new RuntimeException(ex);

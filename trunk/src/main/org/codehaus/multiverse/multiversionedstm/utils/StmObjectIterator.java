@@ -29,7 +29,7 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     //all StmObject that already are returned. This prevent multiple returns of the same item.
     private final PrimitiveLongSet touchedSet = new PrimitiveLongSet();
 
-    //all StmObjects which ___members need to be traversed.
+    //all StmObjects which ___memberHandles need to be traversed.
     private Bag<Iterator<StmObject>> todoBag;
 
     private Iterator<StmObject> iterator;
@@ -87,10 +87,10 @@ public final class StmObjectIterator implements Iterator<StmObject> {
     }
 
     /**
-     * Finds the nextCitizen in the current iterator. If one if found, the nextCitizen field is updated
+     * Finds the next in the current iterator. If one if found, the next field is updated
      * with the found value. If the found citizen is already touched (so already had its turn) it can't
      * be used, and the next element in the iterator has to be checked. If an untouched citizen is found,
-     * the nextCitizen field is set, and it is added to the iterateSet.
+     * the next field is set, and it is added to the iterateSet.
      *
      * @return true if one if found, false otherwise.
      */

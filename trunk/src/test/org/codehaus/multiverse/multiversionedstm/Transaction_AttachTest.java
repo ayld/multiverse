@@ -60,17 +60,6 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
     // =================== non fresh objects (so previous committed) ========================
 
-    public void testNonFreshMutableObject() {
-        long handle = atomicInsert(new Person());
-
-        createActiveTransaction();
-        Person dehydratedPerson = (Person) transaction.read(handle);
-        transaction.attachAsRoot(dehydratedPerson);
-
-        assertTransactionIsActive();
-        assertHasHandleAndTransaction(dehydratedPerson, handle, transaction);
-    }
-
     public void testNonFreshImmutableObject() {
         IntegerConstant integerConstant = new IntegerConstant(10);
         long handle = atomicInsert(integerConstant);
@@ -81,6 +70,17 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
         assertTransactionIsActive();
         assertHasHandleAndTransaction(integerConstant, handle, null);
+    }
+
+    public void testNonFreshMutableObject() {
+        long handle = atomicInsert(new Person());
+
+        createActiveTransaction();
+        Person dehydratedPerson = (Person) transaction.read(handle);
+        transaction.attachAsRoot(dehydratedPerson);
+
+        assertTransactionIsActive();
+        assertHasHandleAndTransaction(dehydratedPerson, handle, transaction);
     }
 
     // ====================================================
@@ -98,7 +98,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionHasNoWrites();
 
         assertHasHandleAndTransaction(child, childHandle, transaction);
-        assertHasHandleAndTransaction(parent, transaction);
+        assertHasNoTransaction(parent);
     }
 
     public void testReferenceIsMadeAfterAttach() {
@@ -114,7 +114,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionHasNoWrites();
 
         assertHasHandleAndTransaction(child, childHandle, transaction);
-        assertHasTransaction(null, parent);
+        assertHasNoTransaction(parent);
     }
 
     // ===================== multiple attaches of same object ==================
@@ -175,7 +175,8 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasHandle(person4Handle, person4);
-        assertHasTransaction(transaction, person1, person2, person3, person4);
+        assertHasTransaction(transaction, person4);
+        assertHasNoTransaction(person1, person2, person3);
     }
 
     public void testFreshChain() {
@@ -192,9 +193,7 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
         assertHasHandleAndTransaction(child, handle, transaction);
-        assertHasHandleAndTransaction(parent, transaction);
-        assertHasHandleAndTransaction(grandparent, transaction);
-        assertHasTransaction(transaction, parent, grandparent);
+        assertHasNoTransaction(parent, grandparent);
     }
 
     public void testIndirectReferenceAlreadyAttached() {
@@ -271,16 +270,13 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
         Person child = new Person();
         child.setParent(parent);
-        try {
-            transaction.attachAsRoot(child);
-            fail();
-        } catch (BadTransactionException ex) {
-        }
+
+        transaction.attachAsRoot(child);
 
         assertTransactionIsActive();
         assertTransactionHasNoWrites();
 
-        assertHasTransaction(null, child);
+        assertHasTransaction(transaction, child);
         assertHasHandleAndTransaction(parent, parentHandle, otherTransaction);
         //todo: testen dat de parent bij het comitten gaat zeuren dat die aan een verkeerde transactie zit
     }
