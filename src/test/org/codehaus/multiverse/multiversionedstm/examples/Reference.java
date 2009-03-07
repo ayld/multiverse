@@ -3,6 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
+import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
@@ -64,10 +65,10 @@ public class Reference<E> implements StmObject {
 
     // ================ generated ======================
     private final long handle;
-    private Transaction transaction;
+    private MyTransaction transaction;
     private DehydratedReference dehydrated;
 
-    private Reference(DehydratedReference<E> dehydratedIntegerValue, Transaction transaction) {
+    private Reference(DehydratedReference<E> dehydratedIntegerValue, MyTransaction transaction) {
         this.handle = dehydratedIntegerValue.___getHandle();
         this.ref = dehydratedIntegerValue.ref;
         this.dehydrated = dehydratedIntegerValue;
@@ -85,15 +86,15 @@ public class Reference<E> implements StmObject {
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(Transaction transaction) {
+    public void ___onAttach(MyTransaction transaction) {
         this.transaction = transaction;
     }
 
-    public Transaction ___getTransaction() {
+    public MyTransaction ___getTransaction() {
         return transaction;
     }
 
-    public boolean ___isDirty() {
+    public boolean ___isDirtyIgnoringStmMembers() {
         if (dehydrated == null)
             return true;
 
@@ -103,18 +104,8 @@ public class Reference<E> implements StmObject {
         return false;
     }
 
-    public boolean ___isImmutable() {
+    public boolean ___isImmutableObjectGraph() {
         return false;
-    }
-
-    private StmObject next;
-
-    public void setNext(StmObject next) {
-        this.next = next;
-    }
-
-    public StmObject getNext() {
-        return next;
     }
 
     static class DehydratedReference<E> extends AbstractDeflated {
@@ -127,7 +118,8 @@ public class Reference<E> implements StmObject {
 
         @Override
         public Reference<E> ___inflate(Transaction transaction) {
-            return new Reference<E>(this, transaction);
+            //todo: remove cast
+            return new Reference<E>(this, (MyTransaction) transaction);
         }
     }
 }

@@ -3,6 +3,7 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
+import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -72,7 +73,7 @@ public class IntegerValue implements StmObject {
 
     // ================ generated ======================
     private final long handle;
-    private Transaction transaction;
+    private MyTransaction transaction;
     private DehydratedIntegerValue dehydrated;
 
     private IntegerValue(DehydratedIntegerValue dehydratedIntegerValue, Transaction transaction) {
@@ -93,15 +94,15 @@ public class IntegerValue implements StmObject {
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(Transaction transaction) {
+    public void ___onAttach(MyTransaction transaction) {
         this.transaction = transaction;
     }
 
-    public Transaction ___getTransaction() {
+    public MyTransaction ___getTransaction() {
         return transaction;
     }
 
-    public boolean ___isDirty() {
+    public boolean ___isDirtyIgnoringStmMembers() {
         if (dehydrated == null)
             return true;
 
@@ -111,21 +112,11 @@ public class IntegerValue implements StmObject {
         return false;
     }
 
-    public boolean ___isImmutable() {
+    public boolean ___isImmutableObjectGraph() {
         return false;
     }
 
-    private StmObject next;
-
-    public void setNext(StmObject next) {
-        this.next = next;
-    }
-
-    public StmObject getNext() {
-        return next;
-    }
-
-    static class DehydratedIntegerValue extends AbstractDeflated {
+    public static class DehydratedIntegerValue extends AbstractDeflated {
         private final int value;
 
         DehydratedIntegerValue(IntegerValue integerValue, long version) {
@@ -136,6 +127,38 @@ public class IntegerValue implements StmObject {
         @Override
         public StmObject ___inflate(Transaction transaction) {
             return new IntegerValue(this, transaction);
+        }
+
+        @Override
+        public String toString() {
+            return format("DehydratedIntegerValue(handle=%s, version=%s, value=%s)",
+                    ___getHandle(), ___getVersion(), value);
+        }
+
+        @Override
+        public int hashCode() {
+            return value;
+        }
+
+        @Override
+        public boolean equals(Object thatObj) {
+            if (thatObj == this)
+                return true;
+
+            if (!(thatObj instanceof DehydratedIntegerValue))
+                return false;
+
+            DehydratedIntegerValue that = (DehydratedIntegerValue) thatObj;
+            if (that.___getHandle() != this.___getHandle())
+                return false;
+
+            if (that.___getVersion() != this.___getVersion())
+                return false;
+
+            if (that.value != this.value)
+                return false;
+
+            return true;
         }
     }
 }

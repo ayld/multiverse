@@ -2,7 +2,7 @@ package org.codehaus.multiverse.multiversionedstm.tests;
 
 import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
-import org.codehaus.multiverse.core.AbortedTransaction;
+import org.codehaus.multiverse.core.AbortedTransactionException;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
@@ -57,7 +57,7 @@ public class AtomicBehaviorTest {
             while (modifyCountDown.getAndDecrement() > 0) {
                 try {
                     doit();
-                } catch (AbortedTransaction ex) {
+                } catch (AbortedTransactionException ex) {
                 }
             }
         }

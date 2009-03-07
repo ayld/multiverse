@@ -94,16 +94,16 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
             return new CommitResult(true, snapshot, 0);
         }
 
-        public static CommitResult createSuccess(MultiversionedHeapSnapshot snapshot, long writeCount) {
+        public static CommitResult createSuccess(MultiversionedHeapSnapshot snapshot, int writeCount) {
             assert snapshot != null && writeCount > 0;
             return new CommitResult(true, snapshot, writeCount);
         }
 
         private final boolean success;
         private final MultiversionedHeapSnapshot snapshot;
-        private final long writeCount;
+        private final int writeCount;
 
-        private CommitResult(boolean success, MultiversionedHeapSnapshot snapshot, long writeCount) {
+        private CommitResult(boolean success, MultiversionedHeapSnapshot snapshot, int writeCount) {
             this.success = success;
             this.snapshot = snapshot;
             this.writeCount = writeCount;
@@ -134,7 +134,7 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
          *
          * @return the number of writes that have been done.
          */
-        public long getWriteCount() {
+        public int getWriteCount() {
             return writeCount;
         }
     }

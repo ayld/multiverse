@@ -1,6 +1,5 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.Deflatable;
 
 import java.util.Iterator;
@@ -33,11 +32,20 @@ public interface StmObject extends Deflatable {
      */
     long ___getHandle();
 
+    /**
+     * Returns the Transaction this StmObject is part of. The transaction is set on a mutable StmObject when it is
+     * attached to a transaction or loaded through a transaction. If the StmObject is new or immutable null is returned
+     * since it doesn't need to use a transaction, so that it can be shared between transactions (optimization).
+     * <p/>
+     * todo: what about immutable objects.
+     *
+     * @return the Transaction this StmObject is part of, or null if it isn't attached to a transaction or immutable.
+     */
+    MyTransaction ___getTransaction();
 
     /**
-     * Returns an Iterator over all loaded or fresh StmObject members. If a member is not loaded (lazy) it is not
-     * iterated over. This is because we don't want to load complete objects graphs in heap. Other types of members,
-     * like primitives and other non StmObjects, or ignored.
+     * Returns an Iterator over all fresh or loaded StmObject members. Other types of members, like primitives
+     * and other non StmObjects, or ignored.
      * <p/>
      * The returned iterator is allowed to contain cycles. It is up to the caller to deal with it.
      *
@@ -45,38 +53,43 @@ public interface StmObject extends Deflatable {
      */
     Iterator<StmObject> ___getFreshOrLoadedStmMembers();
 
+
+    /**
+     * Checks if this StmObject is dirty. This is needed to figure out if changes made in this stm object
+     * need to be written to heap. State changes in stmmembers, are ignored.
+     * <p/>
+     * A fresh StmObject always is dirty by default.
+     * <p/>
+     * todo: what about immutable objects.
+     *
+     * @return true if this StmObject is dirty (so needs to be written to heap), false otherwise.
+     */
+    boolean ___isDirtyIgnoringStmMembers();
+
+    /**
+     * Checks if this StmObject and all objects that can be reached from it are immutable. Immutable means
+     * that the pre-instrumented StmObject doesn't have any modifyable state, so if there is any field (primitive
+     * non primitive) or stmobject reachable from that object, can be updated, it is mutable.
+     * <p/>
+     * for example:
+     * A Queue uses 2 stacks, and since the stacks are not immutable, the queue isn't immutable even though
+     * itself doesn't contain any state (state is in the stacks).
+     * <p/>
+     * another example:
+     * the IntegerConstant is immutable, and doesn't have any dependencies, so it is an immutable object
+     * graph.
+     *
+     * @return true if this object including all dependencies are immutable.
+     */
+    boolean ___isImmutableObjectGraph();
+
     /**
      * Attaches the StmObject to a transaction. No checks are done if the object already is connected to another
      * transaction. It is up the the stm implementation to deal with this.
+     * <p/>
+     * todo: what about immutable objects.
      *
      * @param transaction the transaction this StmObject attaches to. The value should not be null.
      */
-    void ___onAttach(Transaction transaction);
-
-    /**
-     * Returns the Transaction this StmObject is part of. The transaction is set on a mutable StmObject when it is
-     * attached to a transaction or loaded through a transaction. If the StmObject is new or immutable null is returned
-     * since it doesn't need to use a transaction, so that it can be shared between transactions (optimization).
-     *
-     * @return the Transaction this StmObject is part of, or null if it isn't attached to a transaction or immutable.
-     */
-    Transaction ___getTransaction();
-
-    /**
-     * Checks if this StmObject needs to be written to heap when the transaction commits. Changes in
-     * StmObjects that can be reached from this StmObject don't matter. A fresh StmObject should always be dirty
-     * so that is will be persisted. Immutable StmObjects have an undefined return value.
-     * <p/>
-     * todo: what if the object is not attached
-     * todo: what about immutable objects.
-     *
-     * @return true if this StmObject is dirty (so has changes), false otherwise.
-     */
-    boolean ___isDirty();
-
-    boolean ___isImmutable();
-
-    void setNext(StmObject o);
-
-    StmObject getNext();
+    void ___onAttach(MyTransaction transaction);
 }

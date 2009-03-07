@@ -1,12 +1,11 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
+import org.codehaus.multiverse.TestUtils;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
-import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.multiversionedstm.StmObjectUtils;
-import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import org.codehaus.multiverse.multiversionedstm.*;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
+import org.codehaus.multiverse.util.iterators.InstanceIterator;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -35,6 +34,10 @@ public class Person implements StmObject {
         this.age = age;
     }
 
+    public void incAge() {
+        age++;
+    }
+
     public String getName() {
         return name;
     }
@@ -45,9 +48,9 @@ public class Person implements StmObject {
 
     public Person getParent() {
         //GENERATED
-        if (!parent_localized) {
-            parent = (Person) transaction.read(initialDehydratedPerson.parentHandle);
-            parent_localized = true;
+        if (parendHolder != null) {
+            parent = parendHolder.getAndLoadIfNeeded(transaction);
+            parendHolder = null;
         }
 
         return parent;
@@ -55,27 +58,29 @@ public class Person implements StmObject {
 
     public void setParent(Person parent) {
         //GENERATED
-        parent_localized = true;
+        parendHolder = null;
         this.parent = parent;
     }
 
+    //todo: equals and hashcode
+
     //==================== GENERATED =====================
 
-    private boolean parent_localized = true;
+    private UnloadedHolder<Person> parendHolder;
     private DehydratedPerson initialDehydratedPerson;
-    private Transaction transaction;
+    private MyTransaction transaction;
     private final long handle;
 
-    public Person(DehydratedPerson dehydratedPerson, Transaction transaction) {
+    public Person(DehydratedPerson dehydratedPerson, MyTransaction transaction) {
         //initialization of operational properties
         this.handle = dehydratedPerson.___getHandle();
         this.transaction = transaction;
         this.initialDehydratedPerson = dehydratedPerson;
 
         //reinitialization of the fields
-        this.age = initialDehydratedPerson.age;
-        this.name = initialDehydratedPerson.name;
-        this.parent_localized = false;
+        this.age = dehydratedPerson.age;
+        this.name = dehydratedPerson.name;
+        this.parendHolder = transaction.readHolder(dehydratedPerson.parentHandle);
     }
 
     public long ___getHandle() {
@@ -83,39 +88,37 @@ public class Person implements StmObject {
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
-        if (parent != null && parent != this)
-            return new ArrayIterator(parent);
+        if (parendHolder != null || parent == null)
+            return EmptyIterator.INSTANCE;
 
-        return EmptyIterator.INSTANCE;
+        return new InstanceIterator(parent);
     }
 
-    public void ___onAttach(Transaction transaction) {
-        if (transaction == null)
-            throw new NullPointerException();
-
-        if (this.transaction == transaction)
-            return;
-
-        if (this.transaction != null)
-            throw new IllegalArgumentException("Object already bound to another transaction");
-
+    public void ___onAttach(MyTransaction transaction) {
         this.transaction = transaction;
     }
 
-    public Transaction ___getTransaction() {
+    public MyTransaction ___getTransaction() {
         return transaction;
     }
 
-    public boolean ___isDirty() {
+    public boolean ___isDirtyIgnoringStmMembers() {
         if (initialDehydratedPerson == null)
             return true;
 
-        return initialDehydratedPerson.age != age ||
-                initialDehydratedPerson.name != null ||
-                (parent_localized && (initialDehydratedPerson.parentHandle != (parent == null ? 0 : parent.___getHandle())));
+        if (initialDehydratedPerson.age != age)
+            return true;
+
+        if (initialDehydratedPerson.name != name)
+            return true;
+
+        if (parendHolder == null)
+            return true;
+
+        return false;
     }
 
-    public boolean ___isImmutable() {
+    public boolean ___isImmutableObjectGraph() {
         return false;
     }
 
@@ -123,34 +126,10 @@ public class Person implements StmObject {
         return new DehydratedPerson(this, commitVersion);
     }
 
-    private StmObject next;
-
-    public void setNext(StmObject next) {
-        this.next = next;
-    }
-
-    public StmObject getNext() {
-        return next;
-    }
-
     public static class DehydratedPerson extends AbstractDeflated {
         private final int age;
         private final String name;
         private final long parentHandle;
-
-        public DehydratedPerson(long handle, int age, String name) {
-            super(handle, 0);
-            this.age = age;
-            this.name = name;
-            this.parentHandle = 0;
-        }
-
-        public DehydratedPerson(long handle, int age, String name, long parentHandle) {
-            super(handle, 0);
-            this.age = age;
-            this.name = name;
-            this.parentHandle = parentHandle;
-        }
 
         public DehydratedPerson(Person person, long commitVersion) {
             super(person.___getHandle(), commitVersion);
@@ -160,14 +139,15 @@ public class Person implements StmObject {
         }
 
         public Person ___inflate(Transaction transaction) {
-            return new Person(this, transaction);
+            return new Person(this, (MyTransaction) transaction);
         }
 
         //equals and hash only are needed for testing purposes
         public int hashCode() {
-            return 0;
+            return new Long(___getHandle()).hashCode();
         }
 
+        //equals and hash for testing purposes.
         public boolean equals(Object thatObj) {
             if (thatObj == this)
                 return true;
@@ -176,14 +156,27 @@ public class Person implements StmObject {
                 return false;
 
             DehydratedPerson that = (DehydratedPerson) thatObj;
-            return that.___getHandle() == this.___getHandle() &&
-                    that.name == this.name &&
-                    that.age == this.age &&
-                    that.parentHandle == this.parentHandle;
+            if (that.___getHandle() != this.___getHandle())
+                return false;
+
+            if (that.___getVersion() != this.___getVersion())
+                return false;
+
+            if (that.age != this.age)
+                return false;
+
+            if (that.parentHandle != this.parentHandle)
+                return false;
+
+            if (!TestUtils.equals(that.name, this.name))
+                return false;
+
+            return true;
         }
 
         public String toString() {
-            return format("DehydratedPerson(age=%s,name=%s,parentHandle=%s", age, name, parentHandle);
+            return format("DehydratedPerson(handle=%s, version=%s, age=%s,name=%s,parentHandle=%s)",
+                    ___getHandle(), ___getVersion(), age, name, parentHandle);
         }
     }
 }

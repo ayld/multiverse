@@ -4,6 +4,7 @@ import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
+import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -131,7 +132,7 @@ public class Stack<E> implements StmObject {
         }
 
         @Override
-        public PLongIterator ___members() {
+        public PLongIterator ___memberHandles() {
             throw new RuntimeException();
         }
 
@@ -153,19 +154,19 @@ public class Stack<E> implements StmObject {
             return this.parent.equals(that.parent);
         }
 
-        public void ___onAttach(Transaction transaction) {
+        public void ___onAttach(MyTransaction transaction) {
             throw new RuntimeException();
         }
 
-        public Transaction ___getTransaction() {
+        public MyTransaction ___getTransaction() {
             throw new RuntimeException();
         }
 
-        public boolean ___isDirty() {
+        public boolean ___isDirtyIgnoringStmMembers() {
             throw new RuntimeException();
         }
 
-        public boolean ___isImmutable() {
+        public boolean ___isImmutableObjectGraph() {
             return true;
         }
 
@@ -181,16 +182,6 @@ public class Stack<E> implements StmObject {
             return EmptyIterator.INSTANCE;
         }
 
-        private StmObject next;
-
-        public void setNext(StmObject next) {
-            this.next = next;
-        }
-
-        public StmObject getNext() {
-            return next;
-        }
-
         public StmObject ___inflate(Transaction transaction) {
             return this;
         }
@@ -200,9 +191,9 @@ public class Stack<E> implements StmObject {
 
     private final long handle;
     private final DehydratedStack initialStack;
-    private Transaction transaction;
+    private MyTransaction transaction;
 
-    public Stack(DehydratedStack<E> dehydratedStack, Transaction transaction) {
+    public Stack(DehydratedStack<E> dehydratedStack, MyTransaction transaction) {
         this.head = dehydratedStack.head;
         this.transaction = transaction;
         this.handle = dehydratedStack.___getHandle();
@@ -210,14 +201,15 @@ public class Stack<E> implements StmObject {
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
+        //todo: at the moment the nodes are not returned.
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(Transaction transaction) {
+    public void ___onAttach(MyTransaction transaction) {
         this.transaction = transaction;
     }
 
-    public Transaction ___getTransaction() {
+    public MyTransaction ___getTransaction() {
         return transaction;
     }
 
@@ -229,11 +221,11 @@ public class Stack<E> implements StmObject {
         return new DehydratedStack<E>(this, commitVersion);
     }
 
-    public boolean ___isImmutable() {
+    public boolean ___isImmutableObjectGraph() {
         return false;
     }
 
-    public boolean ___isDirty() {
+    public boolean ___isDirtyIgnoringStmMembers() {
         //if the object has not been saved before, it is dirty by default.
         if (initialStack == null)
             return true;
@@ -245,16 +237,6 @@ public class Stack<E> implements StmObject {
         return false;
     }
 
-    private StmObject next;
-
-    public void setNext(StmObject next) {
-        this.next = next;
-    }
-
-    public StmObject getNext() {
-        return next;
-    }
-
     public static class DehydratedStack<E> extends AbstractDeflated {
         private final Node<E> head;
 
@@ -264,7 +246,8 @@ public class Stack<E> implements StmObject {
         }
 
         public Stack<E> ___inflate(Transaction transaction) {
-            return new Stack<E>(this, transaction);
+            //todo: remove cast
+            return new Stack<E>(this, (MyTransaction) transaction);
         }
     }
 }

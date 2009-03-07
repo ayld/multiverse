@@ -6,14 +6,11 @@ import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.utils.StmObjectIterator;
-import static org.codehaus.multiverse.util.HandleUtils.assertNotNull;
-import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.CheapLatch;
 import org.codehaus.multiverse.util.latches.Latch;
 
 import static java.lang.String.format;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
@@ -102,7 +99,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         throw new RuntimeException();
     }
 
-    public class MultiversionedTransaction implements Transaction {
+    public class MultiversionedTransaction implements MyTransaction {
 
         //is volatile so that other threads are also able to read the status.
         private volatile TransactionStatus status = TransactionStatus.active;
@@ -111,9 +108,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         private final Map<Long, StmObject> attachedObjects = new TreeMap<Long, StmObject>();
 
-        private final Map<Long, StmObject> hydratedObjects = new TreeMap<Long, StmObject>();
+        private final Map<Long, UnloadedHolderImpl> holderMap = new TreeMap<Long, UnloadedHolderImpl>();
 
-        private long writeCount = 0;
+        private int writeCount = 0;
         private final MultiversionedStm stm;
 
         public MultiversionedTransaction() {
@@ -122,12 +119,12 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         }
 
         /**
-         * Returns the number of writes done by this transaction. Only when the transaction has committed, this value
-         * is set. Before it returns 0.
+         * Returns the number of writes done by this transaction. Only when the transaction has committed,
+         * this value is set. If the state is any other than committed, an undefined value is returned.
          *
          * @return the number of writes done by this transaction.
          */
-        public long getWriteCount() {
+        public int getWriteCount() {
             return writeCount;
         }
 
@@ -135,11 +132,19 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
          * Returns the number of objects that are hydrated within this transaction. Since immutable StmObjects
          * don't need hydration (the instance is contained in the DehydratedStmObject} they will part of the
          * returned count.
+         * <p/>
+         * The complexity is lineair to the number of holders (all holders need to be looked at).
          *
          * @return the number of hydrated objects within this transaction.
          */
-        public long getHydratedObjectCount() {
-            return hydratedObjects.size();
+        public int getHydratedObjectCount() {
+            int result = 0;
+            for (UnloadedHolderImpl holder : holderMap.values()) {
+                if (holder.ref != null)
+                    result++;
+            }
+
+            return result;
         }
 
         /**
@@ -163,42 +168,13 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
          * @return an array containing all handles that have been read by this Transaction.
          */
         public long[] getConditionHandles() {
-            long[] result = new long[hydratedObjects.size()];
+            long[] result = new long[holderMap.size()];
             int index = 0;
-            for (long handle : hydratedObjects.keySet()) {
+            for (long handle : holderMap.keySet()) {
                 result[index] = handle;
                 index++;
             }
             return result;
-        }
-
-        public void unmarkAsRoot(long handle) {
-            assertNotNull(handle);
-            assertTransactionActive();
-
-            throw new RuntimeException();
-        }
-
-        public void unmarkAsRoot(Object root) {
-            assertStmObjectInstance(root);
-            assertTransactionActive();
-
-            StmObject object = (StmObject) root;
-            assertNoTransactionProblemsForUnmarkAsRoot(root, object);
-            //detachedHandles.add(object.___getHandle());
-            //todo
-            throw new RuntimeException();
-        }
-
-        private void assertNoTransactionProblemsForUnmarkAsRoot(Object root, StmObject object) {
-            if (object.___isImmutable())
-                return;
-
-            Transaction transaction = object.___getTransaction();
-            if (transaction == null)
-                throw BadTransactionException.createNoTransaction(root);
-            if (transaction != this)
-                throw BadTransactionException.createAttachedToDifferentTransaction(root);
         }
 
         public StmObject read(long handle) {
@@ -207,61 +183,69 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             if (handle == 0)
                 return null;
 
-            //if the object already is loaded in this Transaction, the same object should
-            //be returned every time. This is the same behavior Hibernate provides for example.
-            StmObject previouslyHydratedObject = hydratedObjects.get(handle);
-            if (previouslyHydratedObject != null)
-                return previouslyHydratedObject;
+            UnloadedHolderImpl holder = readHolder(handle);
+            return holder.getAndLoadIfNeeded(this);
+        }
 
-            //if the object is fresh, this object should be returned.
-            StmObject freshObject = attachedObjects.get(handle);
-            if (freshObject != null)
-                return freshObject;
+        public <S extends StmObject> UnloadedHolderImpl readHolder(long handle) {
+            assertTransactionActive();
 
-            //so the object doesn't exist in the current transaction, lets look in the heap if there is
-            //a dehydrated version.
-            Deflated dehydratedObject = snapshot.read(handle);
-            //if dehydrated doesn't exist in the heap, the handle that is used is not valid.
-            if (dehydratedObject == null)
-                throw new NoSuchObjectException(handle, getVersion());
+            if (handle == 0)
+                return null;
 
-            //dehydrated was found in the heap, lets ___inflate so we get a stmObject instance
-            StmObject hydratedObject;
-            try {
-                hydratedObject = (StmObject) dehydratedObject.___inflate(this);
-            } catch (Exception e) {
-                String msg = format("Failed to dehydrate %s instance with handle %s", dehydratedObject, handle);
-                throw new RuntimeException(msg, e);
+            UnloadedHolderImpl holder = holderMap.get(handle);
+            if (holder == null) {
+                //so the object doesn't exist in the current transaction, lets look in the heap if there is
+                //a dehydrated version.
+                Deflated dehydratedObject = snapshot.read(handle);
+
+                //if dehydratedObject doesn't exist in the heap, the handle that is used is not valid.
+                if (dehydratedObject == null)
+                    throw new NoSuchObjectException(handle, getVersion());
+
+                holder = new UnloadedHolderImpl(dehydratedObject);
+                holderMap.put(handle, holder);
             }
-
-            if (!hydratedObject.___isImmutable()) {
-                //the stmObject instance needs to be registered, so that the next request for the same
-                //handle returns the same stmObject. We are not registrating immutableStmObjects to prevent overhead.
-                //So a read of a immutable object, always go to the heap.
-                hydratedObjects.put(handle, hydratedObject);
-            }
-
-            //lets return the instance.
-            return hydratedObject;
+            return holder;
         }
 
         public long attachAsRoot(Object root) {
             assertStmObjectInstance(root);
             assertTransactionActive();
 
-            StmObject stmObject = (StmObject) root;
+            StmObject stmRoot = (StmObject) root;
+            long handle = stmRoot.___getHandle();
 
-            if (stmObject.___isImmutable()) {
-                //if the object already is.. todo: what about version?
-                if (snapshot.read(stmObject.___getHandle()) == null) {
-                    attachDeep(new ArrayIterator<StmObject>(stmObject));
+            //if the object already is attached as root, this call can be ignored.            
+            if (attachedObjects.containsKey(handle))
+                return handle;
+
+            if (stmRoot.___isImmutableObjectGraph()) {
+                boolean isFresh = snapshot.read(handle) == null;
+
+                //if the object already is not committed before it needs to be committed.
+                //if it has been committed before and since it is immutable, another commit doesn't
+                //provide any value.
+                if (isFresh) {
+                    attachedObjects.put(handle, stmRoot);
                 }
+
+                //reminder:
+                //if another transaction commits the object after this transaction has started, this
+                //transaction will commit it again. It can't do any damage, but needs to be fixed in the future
             } else {
-                assertNoAttachConflicts(new ArrayIterator(stmObject));
-                attachDeep(new ArrayIterator<StmObject>(stmObject));
+                Transaction transaction = stmRoot.___getTransaction();
+                if (transaction == null) {
+                    stmRoot.___onAttach(this);
+                    attachedObjects.put(handle, stmRoot);
+                } else if (transaction == this) {
+                    attachedObjects.put(handle, stmRoot);
+                } else {
+                    throw createBadTransactionException(stmRoot);
+                }
             }
 
-            return stmObject.___getHandle();
+            return handle;
         }
 
         /**
@@ -278,71 +262,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 throw new IllegalArgumentException();
         }
 
-        private void assertNoAttachConflicts(Iterator<StmObject>... roots) {
-            for (Iterator<StmObject> it = new StmObjectIterator(roots); it.hasNext();) {
-                StmObject stmObject = it.next();
-                assertNoShallowAttachConflict(stmObject);
-            }
-        }
-
-        /**
-         * Makes sure that the stmObject can be attached to this transaction. It can be attached if the transaction
-         * inside the StmObject is null, or if the transaction is the same as the current transaction (multiple attach
-         * of the same object to the same transaction should be ignored).
-         * <p/>
-         * Dependencies of the object are not checked, on the object itself.
-         *
-         * @param object the StmObject to check.
-         * @throws org.codehaus.multiverse.core.BadTransactionException
-         *          if there is a transaction conflict.
-         */
-        private void assertNoShallowAttachConflict(StmObject object) {
-            if (object.___isImmutable())
-                return;
-
-            Transaction transaction = object.___getTransaction();
-            if (transaction != this && transaction != null)
-                throw createBadTransactionException(object);
-        }
-
         private BadTransactionException createBadTransactionException(StmObject object) {
             String msg = format("object %s already is attached to another transaction %s", object, this);
             return new BadTransactionException(msg);
-        }
-
-        /**
-         * Attaches all objects that can be reached from the array of root iterators (directly or indirectly)
-         * to this Transaction.
-         *
-         * @param rootIterators an array of iterators containing root objects.
-         */
-        private void attachDeep(Iterator<StmObject>... rootIterators) {
-            for (Iterator<StmObject> it = new StmObjectIterator(rootIterators); it.hasNext();) {
-                StmObject stmObject = it.next();
-                attachShallow(stmObject);
-            }
-        }
-
-        private void attachShallow(StmObject stmObject) {
-            if (stmObject.___isImmutable()) {
-                long handle = stmObject.___getHandle();
-
-                //if the stmObject has not been persisted before, it should be added to the newlyborns so
-                //that it will be persisted.
-                if (snapshot.read(handle) == null) {
-                    attachedObjects.put(handle, stmObject);
-                }
-            } else {
-                Transaction transaction = stmObject.___getTransaction();
-                if (transaction == null) {
-                    //long handle = heap.createHandle();
-                    stmObject.___onAttach(this);
-                    //todo: could this cause a concurrentmodificationexception?
-                    attachedObjects.put(stmObject.___getHandle(), stmObject);
-                } else if (transaction != this) {
-                    throw createBadTransactionException(stmObject);
-                }
-            }
         }
 
         /**
@@ -359,6 +281,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     try {
                         commitChanges();
                         status = TransactionStatus.committed;
+                    } catch (WriteConflictError ex) {
+                        abort();
+                        throw ex;
                     } catch (RuntimeException ex) {
                         abort();
                         throw ex;
@@ -375,37 +300,31 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             }
         }
 
-        /**
-         * Returns the head of the chain.
-         *
-         * @return
-         */
-        private StmObject initNextChainForCommit() {
-            StmObject head = null;
+        private CommitNode createCommitChain() {
+            TreeMap<Long, StmObject> s = new TreeMap<Long, StmObject>();
+            s.putAll(attachedObjects);
 
-            for (StmObject root : attachedObjects.values())
-                head = initNextChainForCommit(head, root);
+            for (UnloadedHolderImpl holder : holderMap.values()) {
+                if (holder.ref != null) {
+                    s.put(holder.dehydratedObject.___getHandle(), holder.ref);
+                }
+            }
 
-            for (StmObject root : hydratedObjects.values())
-                head = initNextChainForCommit(head, root);
-
-            return head;
-        }
-
-        private StmObject initNextChainForCommit(StmObject head, StmObject root) {
-            if (root.___isDirty() || root.___isImmutable()) {
-                root.setNext(head);
-                //no traversal is done.
-                head = root;
+            CommitNode head = null;
+            for (StmObjectIterator it = new StmObjectIterator(s.values().iterator()); it.hasNext();) {
+                StmObject obj = it.next();
+                if (obj.___isDirtyIgnoringStmMembers() || obj.___isImmutableObjectGraph()) {
+                    head = new CommitNode(obj, head);
+                }
             }
 
             return head;
         }
 
         private void commitChanges() {
-            StmObject first = initNextChainForCommit();
+            CommitNode head = createCommitChain();
 
-            MultiversionedHeap.CommitResult result = heap.commit(snapshot, new CommitIterator(first));
+            MultiversionedHeap.CommitResult result = heap.commit(snapshot, new CommitIterator(head));
 
             if (result.isSuccess()) {
                 statistics.transactionsCommitedCount.incrementAndGet();
@@ -435,36 +354,76 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     throw new IllegalStateException();
             }
         }
+    }
 
-        class CommitIterator implements ResetableIterator<StmObject> {
-            final StmObject first;
-            StmObject nextToReturn;
+    private static class CommitNode {
+        final StmObject ref;
+        final CommitNode parent;
 
-            CommitIterator(StmObject first) {
-                this.first = first;
-                this.nextToReturn = first;
+        private CommitNode(StmObject ref, CommitNode parent) {
+            this.ref = ref;
+            this.parent = parent;
+        }
+    }
+
+    /**
+     * This iterator traverses over all stmobjects that need to be committed to the heap.
+     */
+    private class CommitIterator implements ResetableIterator<StmObject> {
+        final CommitNode head;
+        CommitNode current;
+
+        CommitIterator(CommitNode head) {
+            this.head = head;
+            this.current = head;
+        }
+
+        public void reset() {
+            current = head;
+        }
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public StmObject next() {
+            if (!hasNext())
+                throw new NoSuchElementException();
+
+            StmObject result = current.ref;
+            current = current.parent;
+            return result;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class UnloadedHolderImpl implements UnloadedHolder {
+        private final Deflated dehydratedObject;
+        private StmObject ref;
+
+        private UnloadedHolderImpl(Deflated dehydratedObject) {
+            this.dehydratedObject = dehydratedObject;
+        }
+
+        public long getHandle() {
+            return dehydratedObject.___getHandle();
+        }
+
+        public StmObject getAndLoadIfNeeded(MyTransaction transaction) {
+            if (ref == null) {
+                //dehydrated was found in the heap, lets ___inflate so we get a stmObject instance
+                try {
+                    ref = (StmObject) dehydratedObject.___inflate(transaction);
+                } catch (Exception e) {
+                    //todo: improve message, version also can be included
+                    String msg = format("Failed to dehydrate %s instance with handle %s", dehydratedObject, dehydratedObject.___getHandle());
+                    throw new RuntimeException(msg, e);
+                }
             }
-
-            public void reset() {
-                nextToReturn = first;
-            }
-
-            public boolean hasNext() {
-                return nextToReturn != null;
-            }
-
-            public StmObject next() {
-                if (!hasNext())
-                    throw new NoSuchElementException();
-
-                StmObject result = nextToReturn;
-                nextToReturn = nextToReturn.getNext();
-                return result;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
+            return ref;
         }
     }
 }

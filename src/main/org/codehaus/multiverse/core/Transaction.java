@@ -70,7 +70,8 @@ public interface Transaction {
      *                                  type for the root, can't be used, because compile time the instrumentation
      *                                  of additional interfaces has not been done.
      * @throws BadTransactionException  if root, or any object that can be reached through this,
-     *                                  root, already is attached to a different transaction
+     *                                  root, already is attached to a different transaction. It depends on the
+     *                                  implementation how deep an object graph is traversed.
      */
     long attachAsRoot(Object root);
 

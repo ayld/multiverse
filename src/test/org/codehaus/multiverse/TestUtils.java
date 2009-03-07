@@ -15,11 +15,25 @@ import java.util.*;
  */
 public class TestUtils {
 
+    public static boolean equals(Object o1, Object o2) {
+        if (o1 == null)
+            return o2 == null;
+
+        return o1.equals(o2);
+    }
+
     public static long commit(Stm stm, Object item) {
         Transaction t = stm.startTransaction();
         long handle = t.attachAsRoot(item);
         t.commit();
         return handle;
+    }
+
+    public static void commitAll(Stm stm, Object... items) {
+        Transaction t = stm.startTransaction();
+        for (Object item : items)
+            t.attachAsRoot(item);
+        t.commit();
     }
 
     public static boolean randomBoolean() {
