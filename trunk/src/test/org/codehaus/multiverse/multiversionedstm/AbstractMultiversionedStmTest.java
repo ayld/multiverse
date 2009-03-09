@@ -1,7 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import org.codehaus.multiverse.AbstractStmTest;
-import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
@@ -77,31 +76,14 @@ public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<Mult
         assertEquals(expected, stm.getStatistics().getTransactionsAbortedCount());
     }
 
-    public void assertHasHandleAndTransaction(StmObject object, long expectedPtr, Transaction expectedTrans) {
+    public void assertHasHandle(StmObject object, long expectedHandle) {
         assertNotNull(object);
-        assertEquals(expectedPtr, object.___getHandle());
-        assertEquals(expectedTrans, object.___getTransaction());
-    }
-
-    public void assertHasHandleAndTransaction(StmObject object, Transaction expectedTrans) {
-        assertNotNull(object);
-        assertFalse(0 == object.___getHandle());
-        assertEquals(expectedTrans, object.___getTransaction());
+        assertEquals(expectedHandle, object.___getHandle());
     }
 
     public void assertHasHandle(long expectedPtr, StmObject... citizens) {
         for (StmObject citizen : citizens)
             assertEquals("Pointer is not the same", expectedPtr, citizen.___getHandle());
-    }
-
-    public void assertHasTransaction(Transaction expected, StmObject... citizens) {
-        for (StmObject citizen : citizens)
-            assertSame("Transaction is not the same", expected, citizen.___getTransaction());
-    }
-
-    public void assertHasNoTransaction(StmObject... citizens) {
-        for (StmObject citizen : citizens)
-            assertNull("Transaction should be null", citizen.___getTransaction());
     }
 
     public void assertHeapContains(long handle, long expectedVersion, Deflated expected) {

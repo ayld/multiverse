@@ -27,14 +27,13 @@ public class Queue<E> implements StmObject {
     public Queue(int maximumCapacity) {
         if (maximumCapacity < 1)
             throw new IllegalArgumentException();
-
         this.maxCapacity = maximumCapacity;
 
-        //placed into the constructor.
-        readyToPopStack = new Stack<E>();
-        pushedStack = new Stack<E>();
+        //moved into the constructor.
+        this.readyToPopStack = new Stack<E>();
+        this.pushedStack = new Stack<E>();
         //generated
-        handle = HandleGenerator.createHandle();
+        this.handle = HandleGenerator.createHandle();
     }
 
     public Queue() {
@@ -117,25 +116,15 @@ public class Queue<E> implements StmObject {
     //================== generated =================
 
     private final long handle;
-    private MyTransaction transaction;
-    private DehydratedQueue initialDehydratedQueue;
+    private DehydratedQueue dehydratedQueue;
 
     public Queue(DehydratedQueue dehydratedQueue, MyTransaction transaction) {
         this.handle = dehydratedQueue.___getHandle();
-        this.transaction = transaction;
-        this.initialDehydratedQueue = dehydratedQueue;
+        this.dehydratedQueue = dehydratedQueue;
 
         this.readyToPopStack = (Stack) transaction.read(dehydratedQueue.readyToPopStackPtr);
         this.pushedStack = (Stack) transaction.read(dehydratedQueue.pushedStackPtr);
         this.maxCapacity = dehydratedQueue.maxCapacity;
-    }
-
-    public void ___onAttach(MyTransaction transaction) {
-        this.transaction = transaction;
-    }
-
-    public MyTransaction ___getTransaction() {
-        return transaction;
     }
 
     public long ___getHandle() {
@@ -147,17 +136,12 @@ public class Queue<E> implements StmObject {
     }
 
     public DehydratedQueue ___deflate(long commitVersion) {
-        return new DehydratedQueue(this, commitVersion);
-    }
-
-    public boolean ___isImmutableObjectGraph() {
-        //the stacks are mutable, so the queue is mutable.
-        return false;
+        return dehydratedQueue = new DehydratedQueue(this, commitVersion);
     }
 
     public boolean ___isDirtyIgnoringStmMembers() {
         //if the object has never been saved before, it is dirty by default.
-        if (initialDehydratedQueue == null)
+        if (dehydratedQueue == null)
             return true;
 
         //since the queue has no other state than the stacks (and those are final) it is not dirty.

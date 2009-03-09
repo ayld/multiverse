@@ -4,7 +4,7 @@ import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.util.iterators.PLongIterator;
 
 /**
- * A Deflated is the immutable result deflation of a Deflatable. A Deflated should not be mutable because
+ * A Deflated is the immutable result of a deflation of a Deflatable. A Deflated should not be mutable because
  * a single deflated instance could be shared between concurrent transactions.
  * <p/>
  * So if you have for example a Person class that is part of the stm, a Person can be deflated when the commit
@@ -38,6 +38,8 @@ public interface Deflated {
      * Returns an iterator containing all handles to the member {@link Deflated}. It could be that the
      * iterator contains the handle of the object itself. So if cycles become an issue, the caller should take
      * care of this.
+     * <p/>
+     * This is not used atm.
      *
      * @return an iterator over all handles to Deflated members.
      */

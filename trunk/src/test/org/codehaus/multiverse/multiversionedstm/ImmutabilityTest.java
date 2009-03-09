@@ -11,10 +11,8 @@ public class ImmutabilityTest extends AbstractMultiversionedStmTest {
         createActiveTransaction();
         IntegerConstant foundConstant = (IntegerConstant) transaction.read(handle);
         assertSame(constant, foundConstant);
-        assertTransactionHasNoHydratedObjects();
+        //assertTransactionHasNoHydratedObjects();
     }
 
-    public void testStack() {
 
-    }
 }

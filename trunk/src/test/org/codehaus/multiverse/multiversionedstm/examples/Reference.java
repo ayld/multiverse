@@ -3,7 +3,6 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
@@ -22,7 +21,7 @@ public class Reference<E> implements StmObject {
     private E ref;
 
     public Reference() {
-        this(null);
+        this((E) null);
     }
 
     public Reference(E ref) {
@@ -65,10 +64,9 @@ public class Reference<E> implements StmObject {
 
     // ================ generated ======================
     private final long handle;
-    private MyTransaction transaction;
-    private DehydratedReference dehydrated;
+    private DehydratedReference<E> dehydrated;
 
-    private Reference(DehydratedReference<E> dehydratedIntegerValue, MyTransaction transaction) {
+    private Reference(DehydratedReference<E> dehydratedIntegerValue) {
         this.handle = dehydratedIntegerValue.___getHandle();
         this.ref = dehydratedIntegerValue.ref;
         this.dehydrated = dehydratedIntegerValue;
@@ -79,19 +77,11 @@ public class Reference<E> implements StmObject {
     }
 
     public DehydratedReference<E> ___deflate(long version) {
-        return new DehydratedReference<E>(this, version);
+        return dehydrated = new DehydratedReference<E>(this, version);
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
         return EmptyIterator.INSTANCE;
-    }
-
-    public void ___onAttach(MyTransaction transaction) {
-        this.transaction = transaction;
-    }
-
-    public MyTransaction ___getTransaction() {
-        return transaction;
     }
 
     public boolean ___isDirtyIgnoringStmMembers() {
@@ -101,10 +91,6 @@ public class Reference<E> implements StmObject {
         if (dehydrated.ref != ref)
             return true;
 
-        return false;
-    }
-
-    public boolean ___isImmutableObjectGraph() {
         return false;
     }
 
@@ -118,8 +104,7 @@ public class Reference<E> implements StmObject {
 
         @Override
         public Reference<E> ___inflate(Transaction transaction) {
-            //todo: remove cast
-            return new Reference<E>(this, (MyTransaction) transaction);
+            return new Reference<E>(this);
         }
     }
 }

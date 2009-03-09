@@ -155,16 +155,6 @@ public class QueueTest {
         return handle;
     }
 
-    /**
-     * Although a queue doesn't contain any mutable state itself, the internal stacks do. So that is why
-     * it isn't immutable.
-     */
-    @Test
-    public void testQueueIsNotImmutable() {
-        Queue queue = new Queue();
-        assertFalse(queue.___isImmutableObjectGraph());
-    }
-
     @Test
     public void testDehydratedAndHydrateEmptyQueue() {
         testDehydrateAndHydrateQueue(new Queue());

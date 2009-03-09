@@ -71,8 +71,7 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
     public CommitResult commit(MultiversionedHeapSnapshot<I> startSnapshot, ResetableIterator<D> changes) {
         if (changes == null) throw new NullPointerException();
 
-        statistics.commitTotalCount.incrementAndGet();
-        statistics.commitNonBlockingStatistics.incEnterCount();
+        beforeCommit();
 
         if (!changes.hasNext()) {
             //if there are no changes to write to the heap, the transaction was readonly and we are done.
@@ -86,11 +85,13 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             MultiversionedHeapSnapshotImpl activeSnapshot = snapshotChain.getHead();
             createNewSnapshotResult = activeSnapshot.createNew(changes, startSnapshot);
 
+            //if there was a writeconflict, we are done
             if (!createNewSnapshotResult.success) {
                 statistics.commitWriteConflictCount.incrementAndGet();
                 return CommitResult.createWriteConflict();
             }
 
+            //lets try to activate the created snapshot.
             anotherTransactionDidCommit = !snapshotChain.compareAndAdd(
                     activeSnapshot,
                     createNewSnapshotResult.snapshot);
@@ -103,6 +104,16 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             }
         } while (anotherTransactionDidCommit);
 
+        return afterCommit(createNewSnapshotResult);
+    }
+
+    private void beforeCommit() {
+        statistics.commitTotalCount.incrementAndGet();
+        statistics.commitNonBlockingStatistics.incEnterCount();
+    }
+
+    private CommitResult afterCommit(CreateNewSnapshotResult createNewSnapshotResult) {
+        //yes.. the snapshot was activated, lets update statistics and lets wakeup listeners.
         listenerSupport.wakeupListeners(
                 createNewSnapshotResult.snapshot.getVersion(),
                 createNewSnapshotResult.getHandles());
