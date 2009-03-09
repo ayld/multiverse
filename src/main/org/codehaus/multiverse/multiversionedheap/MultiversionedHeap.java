@@ -54,6 +54,9 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      * The commit doesn't check for duplicate Deflatables in the ResetableIterator. This is responsibility
      * of the layer on top of the MultiversionedHeap  (probably the STM). When duplicate items are committed,
      * behavior is undefined.
+     * <p/>
+     * The iterator is resetable because it could be that multiple attempts are needed to commit (optimistic
+     * locking failures). This is a leaky abstraction, so needs to be looked at probably.
      *
      * @param startSnapshot the snapshot of heap when the transaction begin. This information is needed
      *                      for detecting writeconflicts.

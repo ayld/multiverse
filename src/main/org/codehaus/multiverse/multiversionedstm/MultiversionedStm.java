@@ -184,7 +184,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 return null;
 
             UnloadedHolderImpl holder = readHolder(handle);
-            return holder.getAndLoadIfNeeded(this);
+            return holder.getAndLoadIfNeeded();
         }
 
         public <S extends StmObject> UnloadedHolderImpl readHolder(long handle) {
@@ -220,30 +220,9 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             if (attachedObjects.containsKey(handle))
                 return handle;
 
-            if (stmRoot.___isImmutableObjectGraph()) {
-                boolean isFresh = snapshot.read(handle) == null;
+            //todo: if the holder already contains an different reference for the same stm entity check
 
-                //if the object already is not committed before it needs to be committed.
-                //if it has been committed before and since it is immutable, another commit doesn't
-                //provide any value.
-                if (isFresh) {
-                    attachedObjects.put(handle, stmRoot);
-                }
-
-                //reminder:
-                //if another transaction commits the object after this transaction has started, this
-                //transaction will commit it again. It can't do any damage, but needs to be fixed in the future
-            } else {
-                Transaction transaction = stmRoot.___getTransaction();
-                if (transaction == null) {
-                    stmRoot.___onAttach(this);
-                    attachedObjects.put(handle, stmRoot);
-                } else if (transaction == this) {
-                    attachedObjects.put(handle, stmRoot);
-                } else {
-                    throw createBadTransactionException(stmRoot);
-                }
-            }
+            attachedObjects.put(handle, stmRoot);
 
             return handle;
         }
@@ -313,7 +292,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             CommitNode head = null;
             for (StmObjectIterator it = new StmObjectIterator(s.values().iterator()); it.hasNext();) {
                 StmObject obj = it.next();
-                if (obj.___isDirtyIgnoringStmMembers() || obj.___isImmutableObjectGraph()) {
+                if (obj.___isDirtyIgnoringStmMembers()) {
                     head = new CommitNode(obj, head);
                 }
             }
@@ -354,6 +333,34 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                     throw new IllegalStateException();
             }
         }
+
+        private class UnloadedHolderImpl implements UnloadedHolder {
+            private final Deflated dehydratedObject;
+            private StmObject ref;
+
+            private UnloadedHolderImpl(Deflated dehydratedObject) {
+                this.dehydratedObject = dehydratedObject;
+            }
+
+            public long getHandle() {
+                return dehydratedObject.___getHandle();
+            }
+
+            public StmObject getAndLoadIfNeeded() {
+                if (ref == null) {
+                    //dehydrated was found in the heap, lets ___inflate so we get a stmObject instance
+                    try {
+                        ref = (StmObject) dehydratedObject.___inflate(MultiversionedTransaction.this);
+                    } catch (Exception e) {
+                        //todo: improve message, version also can be included
+                        String msg = format("Failed to dehydrate %s instance with handle %s", dehydratedObject, dehydratedObject.___getHandle());
+                        throw new RuntimeException(msg, e);
+                    }
+                }
+                return ref;
+            }
+        }
+
     }
 
     private static class CommitNode {
@@ -397,33 +404,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         public void remove() {
             throw new UnsupportedOperationException();
-        }
-    }
-
-    private static class UnloadedHolderImpl implements UnloadedHolder {
-        private final Deflated dehydratedObject;
-        private StmObject ref;
-
-        private UnloadedHolderImpl(Deflated dehydratedObject) {
-            this.dehydratedObject = dehydratedObject;
-        }
-
-        public long getHandle() {
-            return dehydratedObject.___getHandle();
-        }
-
-        public StmObject getAndLoadIfNeeded(MyTransaction transaction) {
-            if (ref == null) {
-                //dehydrated was found in the heap, lets ___inflate so we get a stmObject instance
-                try {
-                    ref = (StmObject) dehydratedObject.___inflate(transaction);
-                } catch (Exception e) {
-                    //todo: improve message, version also can be included
-                    String msg = format("Failed to dehydrate %s instance with handle %s", dehydratedObject, dehydratedObject.___getHandle());
-                    throw new RuntimeException(msg, e);
-                }
-            }
-            return ref;
         }
     }
 }

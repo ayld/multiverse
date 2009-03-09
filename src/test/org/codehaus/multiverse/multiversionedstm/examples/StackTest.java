@@ -4,7 +4,6 @@ import org.codehaus.multiverse.core.RetryError;
 import org.codehaus.multiverse.core.Stm;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -136,17 +135,6 @@ public class StackTest {
     }
 
     @Test
-    public void testOnAttach() {
-        MultiversionedStm stm = new MultiversionedStm();
-        MyTransaction t = stm.startTransaction();
-        Stack stack = new Stack();
-
-        stack.___onAttach(t);
-
-        assertSame(t, stack.___getTransaction());
-    }
-
-    @Test
     public void testDehydratedAndHydrateEmptyStack() {
         testDehydrateAndHydrateStack(new Stack());
     }
@@ -172,21 +160,9 @@ public class StackTest {
     }
 
     @Test
-    public void testFreshStackHasNoTransaction() {
-        Stack stack = new Stack();
-        assertNull(stack.___getTransaction());
-    }
-
-    @Test
     public void testGetHandle() {
         Stack stack = new Stack();
         assertFalse(stack.___getHandle() == 0);
-    }
-
-    @Test
-    public void testStackIsNotImmutable() {
-        Stack stack = new Stack();
-        assertFalse(stack.___isImmutableObjectGraph());
     }
 
     @Test

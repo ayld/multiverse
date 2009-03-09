@@ -154,20 +154,8 @@ public class Stack<E> implements StmObject {
             return this.parent.equals(that.parent);
         }
 
-        public void ___onAttach(MyTransaction transaction) {
-            throw new RuntimeException();
-        }
-
-        public MyTransaction ___getTransaction() {
-            throw new RuntimeException();
-        }
-
         public boolean ___isDirtyIgnoringStmMembers() {
             throw new RuntimeException();
-        }
-
-        public boolean ___isImmutableObjectGraph() {
-            return true;
         }
 
         public long ___getHandle() {
@@ -191,11 +179,9 @@ public class Stack<E> implements StmObject {
 
     private final long handle;
     private final DehydratedStack initialStack;
-    private MyTransaction transaction;
 
     public Stack(DehydratedStack<E> dehydratedStack, MyTransaction transaction) {
         this.head = dehydratedStack.head;
-        this.transaction = transaction;
         this.handle = dehydratedStack.___getHandle();
         this.initialStack = dehydratedStack;
     }
@@ -205,24 +191,12 @@ public class Stack<E> implements StmObject {
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(MyTransaction transaction) {
-        this.transaction = transaction;
-    }
-
-    public MyTransaction ___getTransaction() {
-        return transaction;
-    }
-
     public long ___getHandle() {
         return handle;
     }
 
     public DehydratedStack<E> ___deflate(long commitVersion) {
         return new DehydratedStack<E>(this, commitVersion);
-    }
-
-    public boolean ___isImmutableObjectGraph() {
-        return false;
     }
 
     public boolean ___isDirtyIgnoringStmMembers() {

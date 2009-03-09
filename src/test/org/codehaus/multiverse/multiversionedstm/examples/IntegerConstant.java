@@ -3,7 +3,6 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
 
@@ -58,28 +57,15 @@ public class IntegerConstant implements StmObject {
     }
 
     public DehydratedIntegerConstant ___deflate(long commitVersion) {
-        dehydrated = new DehydratedIntegerConstant(this, commitVersion);
-        return dehydrated;
+        return dehydrated = new DehydratedIntegerConstant(this, commitVersion);
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
         return EmptyIterator.INSTANCE;
     }
 
-    public void ___onAttach(MyTransaction transaction) {
-        throw new RuntimeException();
-    }
-
-    public MyTransaction ___getTransaction() {
-        return null;
-    }
-
     public boolean ___isDirtyIgnoringStmMembers() {
-        return false;
-    }
-
-    public boolean ___isImmutableObjectGraph() {
-        return true;
+        return dehydrated == null;
     }
 
     public static class DehydratedIntegerConstant extends AbstractDeflated {

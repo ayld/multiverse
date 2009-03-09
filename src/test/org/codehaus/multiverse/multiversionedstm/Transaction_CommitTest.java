@@ -1,7 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
 import static org.codehaus.multiverse.TestUtils.commitAll;
-import org.codehaus.multiverse.core.BadTransactionException;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.core.WriteConflictError;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerConstant;
@@ -266,36 +265,31 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
     }
 
     public void testNonFreshObjectWithReadOnStandardMember() {
-        Person person = new Person();
-        Person parent = new Person();
-        person.setParent(parent);
-        long handle = atomicInsert(person);
+        IntegerValue original = new IntegerValue();
+        long handle = atomicInsert(original);
 
         long initialVersion = stm.getCurrentVersion();
 
         createActiveTransaction();
-        Person p1 = (Person) transaction.read(handle);
-        p1.getParent();
+        IntegerValue p1 = (IntegerValue) transaction.read(handle);
+        p1.get();
         transaction.commit();
 
         assertTransactionIsCommitted();
         assertTransactionHasNoWrites();
         assertCurrentStmVersion(initialVersion);
-        assertHeapContainsNow(person.___getHandle(), initialVersion, person.___deflate(initialVersion));
-        assertHeapContainsNow(parent.___getHandle(), initialVersion, parent.___deflate(initialVersion));
+        assertHeapContainsNow(handle, initialVersion, original.___deflate(initialVersion));
     }
 
     public void testNonFreshMutableObjectWithWriteOnStandardMember() {
-        int oldAge = 10;
-        String name = "peter";
-        Person oringalPerson = new Person(oldAge, name);
-        long handle = atomicInsert(oringalPerson);
+        IntegerValue original = new IntegerValue(1);
+        long handle = atomicInsert(original);
 
         long initialVersion = stm.getCurrentVersion();
 
         createActiveTransaction();
-        Person updatedPerson = (Person) transaction.read(handle);
-        updatedPerson.incAge();
+        IntegerValue loaded = (IntegerValue) transaction.read(handle);
+        loaded.setValue(10);
         transaction.commit();
 
         long afterCommitVersion = initialVersion + 1;
@@ -303,30 +297,8 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertTransactionIsCommitted();
         assertTransactionWriteCount(1);
         assertCurrentStmVersion(afterCommitVersion);
-        assertHeapContains(handle, initialVersion, oringalPerson.___deflate(initialVersion));
-        assertHeapContainsNow(handle, afterCommitVersion, updatedPerson.___deflate(afterCommitVersion));
-    }
-
-    public void testNonFreshObjectWithWriteOnStmMember() {
-        Person person = new Person();
-        Person parent = new Person();
-        atomicInsert(person);
-        atomicInsert(parent);
-
-        long initialVersion = stm.getCurrentVersion();
-
-        createActiveTransaction();
-        Person loadedPerson = (Person) transaction.read(person.___getHandle());
-        Person loadedParent = (Person) transaction.read(parent.___getHandle());
-        loadedPerson.setParent(loadedParent);
-        transaction.commit();
-
-        assertTransactionIsCommitted();
-        assertTransactionWriteCount(1);
-        long afterCommitVersion = initialVersion + 1;
-        assertCurrentStmVersion(afterCommitVersion);
-
-        assertHeapContainsNow(loadedPerson.___getHandle(), afterCommitVersion, loadedPerson.___deflate(afterCommitVersion));
+        assertHeapContains(handle, initialVersion, original.___deflate(initialVersion));
+        assertHeapContainsNow(handle, afterCommitVersion, loaded.___deflate(afterCommitVersion));
     }
 
     public void testMultipleUpdatedNonFreshObjects() {
@@ -359,32 +331,6 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         assertHeapContainsNow(c1.___getHandle(), afterCommitVersion, c2.___deflate(afterCommitVersion));
     }
 
-    /// ================================= bad transactions ======================
-
-    public void testReachableObjectIsConnectedToDifferentTransaction() {
-        Transaction otherTransaction = stm.startTransaction();
-        Person parent = new Person();
-        long parentHandle = otherTransaction.attachAsRoot(parent);
-
-        createActiveTransaction();
-        Person child = new Person();
-        long childHandle = transaction.attachAsRoot(child);
-
-        child.setParent(parent);
-
-        try {
-            transaction.commit();
-            fail();
-        } catch (BadTransactionException ex) {
-        }
-
-        assertTransactionIsAborted();
-        assertTransactionHasNoWrites();
-
-        assertHasHandleAndTransaction(child, childHandle, transaction);
-        assertHasHandleAndTransaction(parent, parentHandle, otherTransaction);
-        //todo: assert state of heap content
-    }
 
     // ====================== write conflicts ==========================
 

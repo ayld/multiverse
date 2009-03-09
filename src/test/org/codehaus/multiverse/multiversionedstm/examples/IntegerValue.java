@@ -3,7 +3,6 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.core.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.multiversionedstm.MyTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -73,7 +72,6 @@ public class IntegerValue implements StmObject {
 
     // ================ generated ======================
     private final long handle;
-    private MyTransaction transaction;
     private DehydratedIntegerValue dehydrated;
 
     private IntegerValue(DehydratedIntegerValue dehydratedIntegerValue, Transaction transaction) {
@@ -87,19 +85,11 @@ public class IntegerValue implements StmObject {
     }
 
     public DehydratedIntegerValue ___deflate(long version) {
-        return new DehydratedIntegerValue(this, version);
+        return dehydrated = new DehydratedIntegerValue(this, version);
     }
 
     public Iterator<StmObject> ___getFreshOrLoadedStmMembers() {
         return EmptyIterator.INSTANCE;
-    }
-
-    public void ___onAttach(MyTransaction transaction) {
-        this.transaction = transaction;
-    }
-
-    public MyTransaction ___getTransaction() {
-        return transaction;
     }
 
     public boolean ___isDirtyIgnoringStmMembers() {
@@ -109,10 +99,6 @@ public class IntegerValue implements StmObject {
         if (dehydrated.value != value)
             return true;
 
-        return false;
-    }
-
-    public boolean ___isImmutableObjectGraph() {
         return false;
     }
 

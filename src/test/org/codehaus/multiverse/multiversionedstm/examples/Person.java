@@ -49,7 +49,7 @@ public class Person implements StmObject {
     public Person getParent() {
         //GENERATED
         if (parendHolder != null) {
-            parent = parendHolder.getAndLoadIfNeeded(transaction);
+            parent = parendHolder.getAndLoadIfNeeded();
             parendHolder = null;
         }
 
@@ -68,13 +68,11 @@ public class Person implements StmObject {
 
     private UnloadedHolder<Person> parendHolder;
     private DehydratedPerson initialDehydratedPerson;
-    private MyTransaction transaction;
     private final long handle;
 
     public Person(DehydratedPerson dehydratedPerson, MyTransaction transaction) {
         //initialization of operational properties
         this.handle = dehydratedPerson.___getHandle();
-        this.transaction = transaction;
         this.initialDehydratedPerson = dehydratedPerson;
 
         //reinitialization of the fields
@@ -94,14 +92,6 @@ public class Person implements StmObject {
         return new InstanceIterator(parent);
     }
 
-    public void ___onAttach(MyTransaction transaction) {
-        this.transaction = transaction;
-    }
-
-    public MyTransaction ___getTransaction() {
-        return transaction;
-    }
-
     public boolean ___isDirtyIgnoringStmMembers() {
         if (initialDehydratedPerson == null)
             return true;
@@ -115,10 +105,6 @@ public class Person implements StmObject {
         if (parendHolder == null)
             return true;
 
-        return false;
-    }
-
-    public boolean ___isImmutableObjectGraph() {
         return false;
     }
 
