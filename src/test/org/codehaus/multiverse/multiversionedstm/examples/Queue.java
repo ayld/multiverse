@@ -1,9 +1,9 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.multiversionedstm.MyTransaction;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
@@ -118,7 +118,7 @@ public class Queue<E> implements StmObject {
     private final long handle;
     private DehydratedQueue dehydratedQueue;
 
-    public Queue(DehydratedQueue dehydratedQueue, MyTransaction transaction) {
+    public Queue(DehydratedQueue dehydratedQueue, MultiversionedTransaction transaction) {
         this.handle = dehydratedQueue.___getHandle();
         this.dehydratedQueue = dehydratedQueue;
 
@@ -163,7 +163,7 @@ public class Queue<E> implements StmObject {
 
         public Queue ___inflate(Transaction transaction) {
             //todo  cast should be removed
-            return new Queue(this, (MyTransaction) transaction);
+            return new Queue(this, (MultiversionedTransaction) transaction);
         }
     }
 }

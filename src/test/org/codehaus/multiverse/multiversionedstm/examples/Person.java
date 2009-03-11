@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.TestUtils;
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.*;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -70,7 +70,7 @@ public class Person implements StmObject {
     private DehydratedPerson initialDehydratedPerson;
     private final long handle;
 
-    public Person(DehydratedPerson dehydratedPerson, MyTransaction transaction) {
+    public Person(DehydratedPerson dehydratedPerson, MultiversionedTransaction transaction) {
         //initialization of operational properties
         this.handle = dehydratedPerson.___getHandle();
         this.initialDehydratedPerson = dehydratedPerson;
@@ -125,7 +125,7 @@ public class Person implements StmObject {
         }
 
         public Person ___inflate(Transaction transaction) {
-            return new Person(this, (MyTransaction) transaction);
+            return new Person(this, (MultiversionedTransaction) transaction);
         }
 
         //equals and hash only are needed for testing purposes

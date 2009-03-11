@@ -5,7 +5,7 @@ import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 
-public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<MultiversionedStm, MultiversionedStm.MultiversionedTransaction> {
+public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<MultiversionedStm, MultiversionedStm.MultiversionedTransactionImpl> {
     protected DefaultMultiversionedHeap heap;
 
     public MultiversionedStm createStm() {
@@ -17,11 +17,10 @@ public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<Mult
         super.tearDown();
         System.out.println(stm.getStatistics());
         System.out.println(heap.getStatistics());
-        System.out.println("heap.snapshots.alive " + heap.getSnapshotAliveCount());
     }
 
     public void atomicIncAge(long handle, int newage) {
-        MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
+        MultiversionedStm.MultiversionedTransactionImpl t = stm.startTransaction();
         Person person = (Person) t.read(handle);
         person.setAge(newage);
         t.commit();
@@ -87,15 +86,16 @@ public abstract class AbstractMultiversionedStmTest extends AbstractStmTest<Mult
     }
 
     public void assertHeapContains(long handle, long expectedVersion, Deflated expected) {
-        Deflated found = heap.getSnapshot(expectedVersion).read(handle);
-        assertEquals("Content doesn't match", expected, found);
+        //Deflated found = heap.getSnapshot(expectedVersion).read(handle);
+        //assertEquals("Content doesn't match", expected, found);
+        fail();
     }
 
     public void assertHeapContainsNow(long handle, long expectedVersion, Deflated expected) {
         assertEquals("Versions don't match. -1 indicates no cell with given address",
                 expectedVersion,
                 heap.getActiveSnapshot().readVersion(handle));
-        Deflated found = heap.getSnapshot(expectedVersion).read(handle);
+        Deflated found = heap.getActiveSnapshot().read(handle);
         assertEquals("Content doesn't match", expected, found);
     }
 }

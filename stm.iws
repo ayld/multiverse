@@ -16,36 +16,161 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerConstant.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerConstant.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/references" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValue.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValue.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Reference.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Reference.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/AbstractMultiversionedStmTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/AbstractMultiversionedStmTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_AttachTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_AttachTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/UnloadedHolder.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/UnloadedHolder.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/file/FileResourceUndoManager.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/NoProgressPossibleException.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/WriteConflictError.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritePerformanceTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritePerformanceTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/NonConflcitingWritesCanBeExecutedInParallelTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/NonConflcitingWritesCanBeExecutedInParallelTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/memory" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/file/MemoryUndoManager.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSet.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSet.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/util/TurnBarrier.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/DefaultHierarchicalLockManager.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/transactiongc" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionStatus.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionStatus.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/DefaultTransaction.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSetTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSetTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/TransactionalResourceManager.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/BadVersionException.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/Deflated.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/Deflated.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSetTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/StmObject.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/StmObject.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/Block.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/Block.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/MultiversionedHeap.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/MultiversionedHeap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/ImmutabilityTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/ImmutabilityTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_CommitTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_CommitTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Queue.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Queue.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValueTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Person.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Person.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/AbortedTransactionException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/AbstractLockManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/memory/TxMap.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/TransactionMethods.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/TransactionMethods.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Stm.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Stm.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeap_LockNoWaitTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MyTransaction.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedTransaction.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/util" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/LargeTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/LargeTransactionsTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/core/TransactionStatus.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionStatus.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/DetachedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Stack.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Stack.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/memory/package.html" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionTemplate.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionTemplate.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/japex/org/codehaus/multiverse/multiversionedstm/performance/AccessingFieldPerformanceDriver.java" afterPath="$PROJECT_DIR$/src/japex/org/codehaus/multiverse/multiversionedstm/performance/AccessingFieldPerformanceDriver.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestUtils.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestUtils.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/DefaultHeapNode.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/DefaultHeapNode.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/resource" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/core" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/NoSuchObjectException.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/DummyTransaction.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/DummyTransaction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValueTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValueTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/util/FileHelper.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_AttachTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_AttachTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/memory/PessimisticTxMap.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/HierarchicalLockManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/LockManager.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/MultiversionedHeapSnapshot.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/MultiversionedHeapSnapshot.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/memory/BasicTxMap.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/DeadlockException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/StmException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/util/RendezvousBarrier.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/DummyDeflated.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/DummyDeflated.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/file" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/snapshotchain" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/snapshotchain/MultiversionedHeapSnapshotChainTest.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/MultiversionedHeap.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/MultiversionedHeap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Queue.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Queue.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/file/FileSequence.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/locks" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/DetachedTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/DetachedTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/resource/ResourceManager.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/AbortedTransactionException.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/Transaction.java" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/core/Transaction.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Transaction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/DeadlockException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerConstant.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerConstant.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/locks/ResourceRWLock.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/RWLockManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/NoProgressPossibleException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/LivenessException.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/transactiongc/DefaultTransationGc.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/core/TransactionThreadLocal.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionThreadLocal.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/core/TransactionThreadLocalTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionThreadLocalTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/core" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/util/HandleUtils.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/util/HandleUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Reference.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Reference.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/MultiversionedStmTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/MultiversionedStmTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WaitOnMultiConditionVariableTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WaitOnMultiConditionVariableTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/PessimisticLockingFailureException.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/file/package.html" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/core/Stm.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Stm.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/core/TransactionTemplateTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionTemplateTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/PipelineTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/Block.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/Block.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/file/FileResourceManager.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackIntegrationTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/file/TxFileResourceManager.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/RetryError.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/LockException.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeap.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeap.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WorkingOnBareHeapStackTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WorkingOnBareHeapStackTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/NoSuchObjectException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/RetryTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueStressTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/snapshotchain/MultiversionedHeapSnapshotChain.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/RetryError.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/LockMode.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/AbstractStmTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/AbstractStmTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeapTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeapTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionId.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/BadTransactionException.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Transaction.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Transaction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionTemplateTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionTemplateTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/package.html" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionThreadLocal.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionThreadLocal.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValue.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValue.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TooManyRetriesException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/snapshotchain" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/LivenessException.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/core/DummyTransaction.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/DummyTransaction.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/package.html" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/AbstractMultiversionedStmTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/AbstractMultiversionedStmTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/ManageableResourceManager.java" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/core/TransactionTemplate.java" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionTemplate.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/AbstractTransactionalResourceManager.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultHeapNodeTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultHeapNodeTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionThreadLocalTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionThreadLocalTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/locking/SimpleLockManager.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/resource/StreamableResource.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackStressTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/WriteConflictError.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_ReadTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_ReadTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/LivelockException.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/transactiongc/TransactionGc.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/TransactionException.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_CommitTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_CommitTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/TooManyRetriesException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/LivelockException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Person.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Person.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/memory/OptimisticTxMap.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionIsDetectedTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/StmException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Stack.java" afterPath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Stack.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/BadVersionException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/sandbox/org/apache/commons/transaction/resource/ResourceException.java" afterPath="" />
     </list>
-    <ignored path=".idea/workspace.xml" />
     <ignored path="stm.iws" />
+    <ignored path=".idea/workspace.xml" />
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CloverPlugin" class="com.cenqua.clover.idea7.config.IdeaCloverConfig">
@@ -166,17 +291,7 @@
     <option name="currentFolder" value="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="ImmutabilityTest.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/ImmutabilityTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="13" column="10" selection-start="505" selection-end="505" vertical-scroll-proportion="0.2826087">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -193,40 +308,7 @@
     <option name="LAST_EDITED_TAB_NAME" />
   </component>
   <component name="PackagesPane">
-    <subPane>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.codehaus.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.codehaus.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedstm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-    </subPane>
+    <subPane />
   </component>
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="true" id="Add" />
@@ -241,13 +323,200 @@
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
   <component name="ProjectPane">
-    <subPane />
+    <subPane>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="test" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="codehaus" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="test" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="codehaus" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiversionedstm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="codehaus" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="codehaus" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="api" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+    </subPane>
   </component>
   <component name="ProjectReloadState">
     <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="PackagesPane" proportions="0.1" version="1" splitterProportion="0.5">
+    <navigator currentView="ProjectPane" proportions="0.1" version="1" splitterProportion="0.5">
       <flattenPackages />
       <showMembers />
       <showModules PackagesPane="true" />
@@ -303,30 +572,30 @@
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="" />
     </key>
-    <key name="MoveMembersDialog.RECENTS_KEY">
-      <recent name="org.codehaus.multiverse.multiversionedstm.StmObject" />
-      <recent name="org.codehaus.multiverse.TestUtils" />
-      <recent name="org.codehaus.stm.multiversionedstm.impl.CheckUtils" />
-    </key>
     <key name="IntroduceConstantDialog.RECENTS_KEY">
       <recent name="org.codehaus.multiverse.multiversionedstm.tests.AbaProblemIsDetectedTest" />
       <recent name="org.codehaus.multiverse.multiversionedstm.utils.PagPerformanceTest" />
       <recent name="" />
     </key>
+    <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="org.codehaus.multiverse.multiversionedstm.StmObject" />
+      <recent name="org.codehaus.multiverse.TestUtils" />
+      <recent name="org.codehaus.stm.multiversionedstm.impl.CheckUtils" />
+    </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="org.codehaus.multiverse.api.exceptions" />
       <recent name="org.codehaus.multiverse.multiversionedheap.standard" />
       <recent name="org.codehaus.multiverse.multiversionedheap.snapshotchain" />
       <recent name="org.codehaus.multiverse.multiversionedheap.listenersupport" />
       <recent name="org.codehaus.multiverse.multiversionedheap" />
-      <recent name="org.codehaus.multiverse.util" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.org.codehaus.multiverse">
-    <tempConfiguration default="false" name="org.codehaus.multiverse" type="JUnit" factoryName="JUnit" enabled="false" merge="false" sample_coverage="true" runner="emma">
+  <component name="RunManager" selected="JUnit.org.codehaus">
+    <tempConfiguration default="false" name="org.codehaus" type="JUnit" factoryName="JUnit" enabled="false" merge="false" sample_coverage="true" runner="emma">
       <module name="stm" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
-      <option name="PACKAGE_NAME" value="org.codehaus.multiverse" />
+      <option name="PACKAGE_NAME" value="org.codehaus" />
       <option name="MAIN_CLASS_NAME" value="" />
       <option name="METHOD_NAME" value="" />
       <option name="TEST_OBJECT" value="package" />
@@ -340,11 +609,6 @@
         <value defaultName="wholeProject" />
       </option>
       <envs />
-      <RunnerSettings RunnerId="JProfiler">
-        <option name="WINDOW" value="false" />
-        <option name="JVMPI" value="false" />
-        <option name="INTERPRETED" value="false" />
-      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Run" />
       <method>
@@ -440,6 +704,39 @@
         <option name="JVMPI" value="false" />
         <option name="INTERPRETED" value="false" />
       </RunnerSettings>
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </configuration>
+    <configuration default="false" name="DefaultMultiversionedHeap_LockNoWaitTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false" sample_coverage="true" runner="emma">
+      <pattern>
+        <option name="PATTERN" value="org.codehaus.multiverse.multiversionedheap.standard.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+      <module name="stm" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="org.codehaus.multiverse.multiversionedheap.standard" />
+      <option name="MAIN_CLASS_NAME" value="org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap_LockNoWaitTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" value="-server -da" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+      <envs />
+      <RunnerSettings RunnerId="JProfiler">
+        <option name="WINDOW" value="false" />
+        <option name="JVMPI" value="false" />
+        <option name="INTERPRETED" value="false" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
       <method>
         <option name="Make" value="true" />
       </method>
@@ -897,23 +1194,24 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
-    <list size="16">
-      <item index="0" class="java.lang.String" itemvalue="JUnit.QueueTest.testDehydrateEmptyQueue" />
-      <item index="1" class="java.lang.String" itemvalue="JUnit.DefaultMultiversionedHeapTest" />
-      <item index="2" class="java.lang.String" itemvalue="JUnit.AccessingFieldPerformanceDriver" />
-      <item index="3" class="java.lang.String" itemvalue="JUnit.WorkingOnBareHeapStackTest" />
-      <item index="4" class="java.lang.String" itemvalue="JUnit.BagPerformanceTest" />
-      <item index="5" class="java.lang.String" itemvalue="JUnit.WaitOnMultiConditionVariableTest" />
-      <item index="6" class="java.lang.String" itemvalue="JUnit.WaitOnMultiConditionVariableTest.test" />
-      <item index="7" class="java.lang.String" itemvalue="JUnit.DefaultHeapNodeTest.testSingleRotateLeft" />
-      <item index="8" class="java.lang.String" itemvalue="JUnit.Transaction_AbortTest" />
-      <item index="9" class="java.lang.String" itemvalue="JUnit.Transaction_CommitTest.testFreshObject_withWriteOnStandardField" />
-      <item index="10" class="java.lang.String" itemvalue="JUnit.Transaction_CommitTest.testFreshObject_withReadOnStandardFields" />
-      <item index="11" class="java.lang.String" itemvalue="JUnit.Transaction_ReadTransactionizedTest" />
-      <item index="12" class="java.lang.String" itemvalue="JUnit.MultiversionedCellTest.testPrune_pruneVersionIsTheSameAsNewestVersionAndNoHistory" />
-      <item index="13" class="java.lang.String" itemvalue="JUnit.QueueTest" />
-      <item index="14" class="java.lang.String" itemvalue="JUnit.AbaProblemIsNotDetectedTest" />
-      <item index="15" class="java.lang.String" itemvalue="JUnit.org.codehaus.multiverse" />
+    <list size="17">
+      <item index="0" class="java.lang.String" itemvalue="JUnit.DefaultMultiversionedHeap_LockNoWaitTest" />
+      <item index="1" class="java.lang.String" itemvalue="JUnit.QueueTest.testDehydrateEmptyQueue" />
+      <item index="2" class="java.lang.String" itemvalue="JUnit.DefaultMultiversionedHeapTest" />
+      <item index="3" class="java.lang.String" itemvalue="JUnit.AccessingFieldPerformanceDriver" />
+      <item index="4" class="java.lang.String" itemvalue="JUnit.WorkingOnBareHeapStackTest" />
+      <item index="5" class="java.lang.String" itemvalue="JUnit.BagPerformanceTest" />
+      <item index="6" class="java.lang.String" itemvalue="JUnit.WaitOnMultiConditionVariableTest" />
+      <item index="7" class="java.lang.String" itemvalue="JUnit.WaitOnMultiConditionVariableTest.test" />
+      <item index="8" class="java.lang.String" itemvalue="JUnit.DefaultHeapNodeTest.testSingleRotateLeft" />
+      <item index="9" class="java.lang.String" itemvalue="JUnit.Transaction_AbortTest" />
+      <item index="10" class="java.lang.String" itemvalue="JUnit.Transaction_CommitTest.testFreshObject_withWriteOnStandardField" />
+      <item index="11" class="java.lang.String" itemvalue="JUnit.Transaction_CommitTest.testFreshObject_withReadOnStandardFields" />
+      <item index="12" class="java.lang.String" itemvalue="JUnit.Transaction_ReadTransactionizedTest" />
+      <item index="13" class="java.lang.String" itemvalue="JUnit.MultiversionedCellTest.testPrune_pruneVersionIsTheSameAsNewestVersionAndNoHistory" />
+      <item index="14" class="java.lang.String" itemvalue="JUnit.QueueTest" />
+      <item index="15" class="java.lang.String" itemvalue="JUnit.AbaProblemIsNotDetectedTest" />
+      <item index="16" class="java.lang.String" itemvalue="JUnit.org.codehaus" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -1182,7 +1480,6 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24876544" sideWeight="0.5957918" order="1" side_tool="false" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" />
-      <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32155073" sideWeight="0.5" order="13" side_tool="false" />
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32962963" sideWeight="0.5957918" order="0" side_tool="false" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5118913" sideWeight="0.5" order="11" side_tool="false" />
       <window_info id="Web Preview" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" />
@@ -1207,6 +1504,7 @@
       <window_info id="FindBugs" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298397" sideWeight="0.5" order="12" side_tool="false" />
       <window_info id="Web" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" />
       <window_info id="EJB" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" />
+      <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32155073" sideWeight="0.5" order="13" side_tool="false" />
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" />
       <window_info id="Duplicates" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="14" side_tool="false" />
     </layout>
@@ -1220,7 +1518,7 @@
     <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="- simplified the stmobject interface (removed a lot of old junk)&#10;- added some extra tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -1231,7 +1529,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="- added ant script&#10;- moved junit to different directory&#10;- change retryexception to retryerror&#10;- introduced the livenesslocks in the core package&#10;- moved the transactonmethods to the core package&#10;- introduced the heapsnapshotchain" />
     <MESSAGE value="- removed junit.jar (moved to different dir)" />
     <MESSAGE value="- added the unit tests to the ant script&#10;- fixed the emptyiteratortest" />
     <MESSAGE value="- did some renaming&#10;- improving javadoc&#10;- added javadoc task to ant" />
@@ -1256,6 +1553,7 @@
     <MESSAGE value="- added the abaproblemisdetectedtest" />
     <MESSAGE value="- added an additional test for the aba problem" />
     <MESSAGE value="- simplified the stmobject interface (removed a lot of old junk)&#10;- added some extra tests" />
+    <MESSAGE value="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1315,120 +1613,114 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/UnloadedHolder.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/NoSuchObjectException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="70" selection-start="326" selection-end="326" vertical-scroll-proportion="0.0">
+        <state line="10" column="13" selection-start="352" selection-end="352" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/PessimisticLockingFailureException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="112" column="0" selection-start="600" selection-end="3442" vertical-scroll-proportion="0.0">
+        <state line="8" column="13" selection-start="223" selection-end="223" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/RetryError.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="119" column="14" selection-start="4145" selection-end="4145" vertical-scroll-proportion="0.0">
+        <state line="15" column="13" selection-start="791" selection-end="791" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WaitOnMultiConditionVariableTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/StmException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="154" column="0" selection-start="890" selection-end="5036" vertical-scroll-proportion="0.8637993">
+        <state line="8" column="22" selection-start="291" selection-end="291" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/TooManyRetriesException.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="13" selection-start="1223" selection-end="1223" vertical-scroll-proportion="0.0">
+        <state line="7" column="13" selection-start="187" selection-end="187" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/BrokenSerializedTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/WriteConflictError.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="0" selection-start="390" selection-end="2365" vertical-scroll-proportion="0.0">
+        <state line="24" column="0" selection-start="794" selection-end="794" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackStressTest.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/DummyTransaction.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="552" selection-end="552" vertical-scroll-proportion="0.0">
+        <state line="2" column="13" selection-start="51" selection-end="51" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Atomic.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="13" selection-start="1304" selection-end="1304" vertical-scroll-proportion="0.3325527">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionIsDetectedTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="13" selection-start="541" selection-end="541" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="0" selection-start="715" selection-end="715" vertical-scroll-proportion="0.0">
+        <state line="9" column="18" selection-start="283" selection-end="283" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/LockMode.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="39" selection-start="601" selection-end="601" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="8" selection-start="8" selection-end="8" vertical-scroll-proportion="0.0">
+        <state line="2" column="12" selection-start="50" selection-end="50" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSetTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Stm.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="69" column="29" selection-start="1741" selection-end="1741" vertical-scroll-proportion="0.5652174">
+        <state line="12" column="17" selection-start="447" selection-end="447" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSet.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Transaction.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="19" selection-start="884" selection-end="884" vertical-scroll-proportion="0.0">
+        <state line="54" column="17" selection-start="2075" selection-end="2075" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Queue.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionId.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="137" column="18" selection-start="3823" selection-end="3823" vertical-scroll-proportion="0.0">
+        <state line="7" column="13" selection-start="138" selection-end="138" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/ImmutabilityTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionStatus.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="10" selection-start="505" selection-end="505" vertical-scroll-proportion="0.2826087">
+        <state line="7" column="12" selection-start="152" selection-end="152" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionTemplate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="32" column="22" selection-start="1295" selection-end="1295" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionThreadLocal.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="31" selection-start="453" selection-end="453" vertical-scroll-proportion="0.33372366">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_CommitTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="283" column="16" selection-start="10623" selection-end="10623" vertical-scroll-proportion="0.18086347">
           <folding />
         </state>
       </provider>

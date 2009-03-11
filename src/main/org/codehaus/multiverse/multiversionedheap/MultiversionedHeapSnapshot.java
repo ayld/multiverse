@@ -1,5 +1,6 @@
 package org.codehaus.multiverse.multiversionedheap;
 
+import org.codehaus.multiverse.api.LockMode;
 import org.codehaus.multiverse.util.iterators.PLongIterator;
 
 /**
@@ -33,6 +34,15 @@ public interface MultiversionedHeapSnapshot<I extends Deflated> {
      * @see #getVersion()
      */
     long readVersion(long handle);
+
+    /**
+     * Returns the current lock for a specific handle.
+     *
+     * @param handle
+     * @return the lock mode.
+     *         todo: what to do if the handle doesn't exist.
+     */
+    LockMode readLockMode(long handle);
 
     /**
      * Returns the version of the snapshot.

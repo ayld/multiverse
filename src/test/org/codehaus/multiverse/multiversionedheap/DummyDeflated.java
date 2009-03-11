@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedheap;
 
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Transaction;
 
 import static java.lang.String.format;
 

@@ -1,7 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.core.BadTransactionException;
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerConstant;
 import org.codehaus.multiverse.multiversionedstm.examples.Person;
 
@@ -230,23 +229,6 @@ public class Transaction_AttachTest extends AbstractMultiversionedStmTest {
 
     // ===================== transaction conflicts ===================================
 
-    public void _testMutableObjectAlreadyAttachedToDifferentTransaction() {
-        Transaction otherTransaction = stm.startTransaction();
-        Person person = new Person();
-        long personHandle = otherTransaction.attachAsRoot(person);
-
-        createActiveTransaction();
-
-        try {
-            transaction.attachAsRoot(person);
-            fail();
-        } catch (BadTransactionException ex) {
-        }
-
-        assertTransactionIsActive();
-        assertTransactionHasNoWrites();
-        assertHasHandle(person, personHandle);
-    }
 
     public void testImmutableObjectsAttachedToDifferentTransactions() {
         IntegerConstant integerConstant = new IntegerConstant(25);

@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedheap.standard;
 
-import org.codehaus.multiverse.core.NoProgressPossibleException;
-import org.codehaus.multiverse.core.NoSuchObjectException;
+import org.codehaus.multiverse.api.exceptions.NoProgressPossibleException;
+import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 import org.codehaus.multiverse.multiversionedheap.Deflatable;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedheap.DummyDeflatable;

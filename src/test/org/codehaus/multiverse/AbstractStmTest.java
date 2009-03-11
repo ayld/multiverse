@@ -1,10 +1,10 @@
 package org.codehaus.multiverse;
 
 import junit.framework.TestCase;
-import org.codehaus.multiverse.core.NoSuchObjectException;
-import org.codehaus.multiverse.core.Stm;
-import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.core.TransactionStatus;
+import org.codehaus.multiverse.api.Stm;
+import org.codehaus.multiverse.api.Transaction;
+import org.codehaus.multiverse.api.TransactionStatus;
+import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 
 public abstract class AbstractStmTest<S extends Stm, T extends Transaction> extends TestCase {
 

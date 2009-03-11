@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.tests;
 
-import org.codehaus.multiverse.core.RetryError;
+import org.codehaus.multiverse.api.exceptions.RetryError;
 import org.codehaus.multiverse.multiversionedstm.AbstractMultiversionedStmTest;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
 

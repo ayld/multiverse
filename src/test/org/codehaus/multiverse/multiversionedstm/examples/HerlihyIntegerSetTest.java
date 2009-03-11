@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import static org.junit.Assert.*;
 import org.junit.Before;

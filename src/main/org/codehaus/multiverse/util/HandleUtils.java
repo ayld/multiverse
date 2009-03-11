@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.util;
 
-import org.codehaus.multiverse.core.NoSuchObjectException;
+import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 
 import static java.lang.String.format;
 
