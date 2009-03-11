@@ -1,10 +1,10 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.multiversionedstm.MyTransaction;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -180,7 +180,7 @@ public class Stack<E> implements StmObject {
     private final long handle;
     private final DehydratedStack initialStack;
 
-    public Stack(DehydratedStack<E> dehydratedStack, MyTransaction transaction) {
+    public Stack(DehydratedStack<E> dehydratedStack, MultiversionedTransaction transaction) {
         this.head = dehydratedStack.head;
         this.handle = dehydratedStack.___getHandle();
         this.initialStack = dehydratedStack;
@@ -221,7 +221,7 @@ public class Stack<E> implements StmObject {
 
         public Stack<E> ___inflate(Transaction transaction) {
             //todo: remove cast
-            return new Stack<E>(this, (MyTransaction) transaction);
+            return new Stack<E>(this, (MultiversionedTransaction) transaction);
         }
     }
 }

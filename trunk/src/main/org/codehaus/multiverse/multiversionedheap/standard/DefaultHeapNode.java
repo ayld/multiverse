@@ -47,26 +47,6 @@ public final class DefaultHeapNode<B extends Block> implements HeapNode<B> {
         this.balanceFactor = height(right) - height(left);
     }
 
-    /**
-     * Returns the height of this tree. The height is the maximum of the left and right tree increased
-     * with 1.
-     * <p/>
-     * The value is calculated up front, so it has a O(c) complexity instead of an
-     *
-     * @return the height of this tree.
-     */
-    public int height() {
-        return height;
-    }
-
-    /**
-     * The handle of the content. This handle is used to do searches.
-     *
-     * @return the handle of the content.
-     */
-    public long getHandle() {
-        return block.getInflatable().___getHandle();
-    }
 
     /**
      * Returns the actual content of this HeapTreeNode. Value will never be null.
@@ -75,6 +55,89 @@ public final class DefaultHeapNode<B extends Block> implements HeapNode<B> {
      */
     public B getBlock() {
         return block;
+    }
+
+
+    /**
+     * Creates a new HeapTreeNode based on an old one and a change. This algorithm is recursive
+     * and not iterative.
+     * <p/>
+     * http://upload.wikimedia.org/wikipedia/en/c/c4/Tree_Rebalancing.gif
+     *
+     * @param change the content of the new heapTreeNode.
+     * @return the created result.
+     */
+    public DefaultHeapNode<B> write(B change, long expectedVersion) {
+        DefaultHeapNode<B> unbalanced = createUnbalanced(change, expectedVersion);
+        return unbalanced == null ? null : unbalanced.balance();
+    }
+
+    private DefaultHeapNode<B> createUnbalanced(B change, long maximumVersion) {
+        int compare = compare(change.getHandle());
+        switch (compare) {
+            case COMPARE_SPOT_ON: {
+                long foundVersion = this.block.getInflatable().___getVersion();
+                if (maximumVersion < foundVersion)
+                    return null;
+
+                //since the left and right trees are balanced, the new node will be balanced.
+                return new DefaultHeapNode<B>(change, left, right);
+            }
+            case COMPARE_GO_RIGHT: {
+                DefaultHeapNode<B> newRight;
+                if (right == null) {
+                    newRight = new DefaultHeapNode<B>(change, null, null);
+                } else {
+                    newRight = right.write(change, maximumVersion);
+                    if (newRight == null)
+                        return null;
+                }
+
+                return new DefaultHeapNode<B>(block, left, newRight);
+            }
+            case COMPARE_GO_LEFT: {
+                DefaultHeapNode<B> newLeft;
+                if (left == null) {
+                    newLeft = new DefaultHeapNode<B>(change, null, null);
+                } else {
+                    newLeft = left.write(change, maximumVersion);
+                    if (newLeft == null)
+                        return null;
+                }
+
+                return new DefaultHeapNode<B>(block, newLeft, right);
+            }
+            default:
+                throw new RuntimeException("unhandeled compare " + compare);
+        }
+    }
+
+    private DefaultHeapNode<B> balance() {
+        switch (balanceFactor()) {
+            case 0:
+                return this;
+            case 1:
+                return this;
+            case -1:
+                return this;
+            case 2:
+                //het is een right/right of een right/left case
+                //is the right right heavy, or left heavy
+                int rightBalanceFactor = right.balanceFactor();
+                if (rightBalanceFactor == 1)
+                    return this.singleRotateLeft();
+                else
+                    return this.doubleRotateLeft();
+            case -2:
+                //is the left/left  heavy, or left/right heavy
+                int leftBalanceFactor = left.balanceFactor();
+                if (leftBalanceFactor == -1)
+                    return this.singleRotateRight();
+                else
+                    return this.doubleRotateRight();
+            default:
+                throw new RuntimeException("unhandeled balanceFactor: " + balanceFactor());
+        }
     }
 
     /**
@@ -161,87 +224,25 @@ public final class DefaultHeapNode<B extends Block> implements HeapNode<B> {
     }
 
     /**
-     * Creates a new HeapTreeNode based on an old one and a change. This algorithm is recursive
-     * and not iterative.
+     * Returns the height of this tree. The height is the maximum of the left and right tree increased
+     * with 1.
      * <p/>
-     * http://upload.wikimedia.org/wikipedia/en/c/c4/Tree_Rebalancing.gif
+     * The value is calculated up front, so it has a O(c) complexity instead of an
      *
-     * @param change the content of the new heapTreeNode.
-     * @return the created result.
+     * @return the height of this tree.
      */
-    public DefaultHeapNode<B> write(B change, long expectedVersion) {
-        DefaultHeapNode<B> unbalanced = createUnbalanced(change, expectedVersion);
-        return unbalanced == null ? null : unbalanced.balance();
+    public int height() {
+        return height;
     }
 
-    private DefaultHeapNode<B> createUnbalanced(B change, long maximumVersion) {
-        int compare = compare(change.getHandle());
-        switch (compare) {
-            case COMPARE_SPOT_ON: {
-                long foundVersion = this.block.getInflatable().___getVersion();
-                if (maximumVersion < foundVersion)
-                    return null;
-
-                //since the left and right trees are balanced, the new node will be balanced.
-                return new DefaultHeapNode<B>(change, left, right);
-            }
-            case COMPARE_GO_RIGHT: {
-                DefaultHeapNode<B> newRight;
-                if (right == null) {
-                    newRight = new DefaultHeapNode<B>(change, null, null);
-                } else {
-                    newRight = right.write(change, maximumVersion);
-                    if (newRight == null)
-                        return null;
-                }
-
-                return new DefaultHeapNode<B>(block, left, newRight);
-            }
-            case COMPARE_GO_LEFT: {
-                DefaultHeapNode<B> newLeft;
-                if (left == null) {
-                    newLeft = new DefaultHeapNode<B>(change, null, null);
-                } else {
-                    newLeft = left.write(change, maximumVersion);
-                    if (newLeft == null)
-                        return null;
-                }
-
-                return new DefaultHeapNode<B>(block, newLeft, right);
-            }
-            default:
-                throw new RuntimeException("unhandeled compare " + compare);
-        }
+    /**
+     * The handle of the content. This handle is used to do searches.
+     *
+     * @return the handle of the content.
+     */
+    public long getHandle() {
+        return block.getInflatable().___getHandle();
     }
-
-    private DefaultHeapNode<B> balance() {
-        switch (balanceFactor()) {
-            case 0:
-                return this;
-            case 1:
-                return this;
-            case -1:
-                return this;
-            case 2:
-                //het is een right/right of een right/left case
-                //is the right right heavy, or left heavy
-                int rightBalanceFactor = right.balanceFactor();
-                if (rightBalanceFactor == 1)
-                    return this.singleRotateLeft();
-                else
-                    return this.doubleRotateLeft();
-            case -2:
-                //is the left/left  heavy, or left/right heavy
-                int leftBalanceFactor = left.balanceFactor();
-                if (leftBalanceFactor == -1)
-                    return this.singleRotateRight();
-                else
-                    return this.doubleRotateRight();
-            default:
-                throw new RuntimeException("unhandeled balanceFactor: " + balanceFactor());
-        }
-    }
-
 
     /**
      * Returns the size of this HeapTreeNode. The size will always be equal or larger than 0.

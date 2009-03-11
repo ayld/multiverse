@@ -1,8 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm.tests;
 
 import static org.codehaus.multiverse.TestUtils.commit;
-import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.core.WriteConflictError;
+import org.codehaus.multiverse.api.Transaction;
+import org.codehaus.multiverse.api.exceptions.WriteConflictError;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.Reference;

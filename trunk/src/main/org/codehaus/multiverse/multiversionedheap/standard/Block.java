@@ -1,5 +1,7 @@
 package org.codehaus.multiverse.multiversionedheap.standard;
 
+import org.codehaus.multiverse.api.LockMode;
+import org.codehaus.multiverse.api.TransactionId;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 
 /**
@@ -11,6 +13,10 @@ import org.codehaus.multiverse.multiversionedheap.Deflated;
  * @param <I>
  */
 public interface Block<I extends Deflated> {
+
+    LockMode getLockMode();
+
+    TransactionId getOwner();
 
     long getHandle();
 

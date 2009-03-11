@@ -2,8 +2,8 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
-import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.core.TransactionTemplate;
+import org.codehaus.multiverse.api.Transaction;
+import org.codehaus.multiverse.api.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.junit.After;
@@ -44,7 +44,6 @@ public class QueueStressTest {
         System.out.println(heap.getStatistics());
 
         long timeMs = endMs - startMs;
-        System.out.printf("%s chain alivecount\n", heap.getSnapshotChain().getAliveCount());
         System.out.printf("tranfer of %s items took %s ms\n", itemCount, timeMs);
         System.out.printf("%s transactions/second\n", (heap.getStatistics().commitSuccessCount.longValue() / (timeMs / 1000.0)));
     }

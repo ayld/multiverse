@@ -1,10 +1,16 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.core.*;
+import org.codehaus.multiverse.api.LockMode;
+import org.codehaus.multiverse.api.Stm;
+import org.codehaus.multiverse.api.TransactionId;
+import org.codehaus.multiverse.api.TransactionStatus;
+import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
+import org.codehaus.multiverse.api.exceptions.WriteConflictError;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedStm.MultiversionedTransactionImpl;
 import org.codehaus.multiverse.multiversionedstm.utils.StmObjectIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.CheapLatch;
@@ -16,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * {@link Stm} implementation that uses multiversion concurrency control as concurrency control mechanism.
@@ -23,10 +30,11 @@ import java.util.concurrent.TimeoutException;
  *
  * @author Peter Veentjer.
  */
-public final class MultiversionedStm implements Stm<MultiversionedStm.MultiversionedTransaction> {
+public final class MultiversionedStm implements Stm<MultiversionedTransactionImpl> {
 
     private final MultiversionedHeap<Deflated, StmObject> heap;
     private final MultiversionedStmStatistics statistics = new MultiversionedStmStatistics();
+    private final AtomicLong transactionIdGenerator = new AtomicLong();
 
     /**
      * Creates a new MultiversionedStm with a GrowingMultiversionedHeap as heap.
@@ -73,12 +81,12 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return heap.getActiveSnapshot().getVersion();
     }
 
-    public MultiversionedTransaction startTransaction() {
+    public MultiversionedTransactionImpl startTransaction() {
         statistics.transactionsStartedCount.incrementAndGet();
-        return new MultiversionedTransaction();
+        return new MultiversionedTransactionImpl();
     }
 
-    public MultiversionedTransaction startRetriedTransaction(MultiversionedStm.MultiversionedTransaction predecessor) throws InterruptedException {
+    public MultiversionedTransactionImpl startRetriedTransaction(MultiversionedTransactionImpl predecessor) throws InterruptedException {
         ensureValidPredecessor(predecessor);
         Latch latch = new CheapLatch();
 
@@ -88,18 +96,18 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
         return startTransaction();
     }
 
-    private void ensureValidPredecessor(MultiversionedTransaction predecessor) {
+    private void ensureValidPredecessor(MultiversionedTransactionImpl predecessor) {
         if (predecessor == null) throw new NullPointerException();
 
         if (predecessor.stm != this)
             throw new IllegalArgumentException();
     }
 
-    public MultiversionedTransaction tryStartRetriedTransaction(MultiversionedStm.MultiversionedTransaction x, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+    public MultiversionedTransactionImpl tryStartRetriedTransaction(MultiversionedTransactionImpl x, long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
         throw new RuntimeException();
     }
 
-    public class MultiversionedTransaction implements MyTransaction {
+    public class MultiversionedTransactionImpl implements MultiversionedTransaction {
 
         //is volatile so that other threads are also able to read the status.
         private volatile TransactionStatus status = TransactionStatus.active;
@@ -112,10 +120,17 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
 
         private int writeCount = 0;
         private final MultiversionedStm stm;
+        private final TransactionId transactionId;
 
-        public MultiversionedTransaction() {
-            snapshot = heap.getActiveSnapshot();
-            stm = MultiversionedStm.this;
+        public MultiversionedTransactionImpl() {
+            this.snapshot = heap.getActiveSnapshot();
+            this.stm = MultiversionedStm.this;
+            this.transactionId = new TransactionId("Transaction-" + transactionIdGenerator.getAndIncrement());
+        }
+
+        @Override
+        public TransactionId getId() {
+            return transactionId;
         }
 
         /**
@@ -227,6 +242,15 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
             return handle;
         }
 
+        public void lockNoWait(long handle, LockMode lockMode) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public LockMode readLockMode(long handle) {
+            throw new RuntimeException();
+        }
+
         /**
          * Makes sure that the object is an {@link StmObject} instance.
          *
@@ -239,11 +263,6 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 throw new NullPointerException();
             if (!(object instanceof StmObject))
                 throw new IllegalArgumentException();
-        }
-
-        private BadTransactionException createBadTransactionException(StmObject object) {
-            String msg = format("object %s already is attached to another transaction %s", object, this);
-            return new BadTransactionException(msg);
         }
 
         /**
@@ -350,7 +369,7 @@ public final class MultiversionedStm implements Stm<MultiversionedStm.Multiversi
                 if (ref == null) {
                     //dehydrated was found in the heap, lets ___inflate so we get a stmObject instance
                     try {
-                        ref = (StmObject) dehydratedObject.___inflate(MultiversionedTransaction.this);
+                        ref = (StmObject) dehydratedObject.___inflate(MultiversionedTransactionImpl.this);
                     } catch (Exception e) {
                         //todo: improve message, version also can be included
                         String msg = format("Failed to dehydrate %s instance with handle %s", dehydratedObject, dehydratedObject.___getHandle());

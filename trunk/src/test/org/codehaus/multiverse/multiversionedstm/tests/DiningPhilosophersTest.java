@@ -2,8 +2,8 @@ package org.codehaus.multiverse.multiversionedstm.tests;
 
 import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.*;
-import org.codehaus.multiverse.core.Transaction;
-import org.codehaus.multiverse.core.TransactionTemplate;
+import org.codehaus.multiverse.api.Transaction;
+import org.codehaus.multiverse.api.TransactionTemplate;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;

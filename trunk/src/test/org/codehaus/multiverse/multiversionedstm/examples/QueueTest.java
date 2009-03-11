@@ -1,8 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.core.RetryError;
-import org.codehaus.multiverse.core.Stm;
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Stm;
+import org.codehaus.multiverse.api.Transaction;
+import org.codehaus.multiverse.api.exceptions.RetryError;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -165,7 +165,7 @@ public class QueueTest {
         Queue queue = new Queue();
 
         MultiversionedStm stm = new MultiversionedStm();
-        MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
+        MultiversionedStm.MultiversionedTransactionImpl t = stm.startTransaction();
         t.attachAsRoot(queue);
         t.commit();
 

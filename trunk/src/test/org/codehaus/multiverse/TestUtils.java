@@ -1,8 +1,8 @@
 package org.codehaus.multiverse;
 
 import static junit.framework.Assert.assertEquals;
-import org.codehaus.multiverse.core.Stm;
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Stm;
+import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.util.latches.Latch;
 import static org.junit.Assert.fail;
 

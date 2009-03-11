@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.core.NoProgressPossibleException;
+import org.codehaus.multiverse.api.exceptions.NoProgressPossibleException;
 import org.junit.Test;
 
 public class MultiversionedStmTest extends AbstractMultiversionedStmTest {
@@ -16,7 +16,7 @@ public class MultiversionedStmTest extends AbstractMultiversionedStmTest {
 
     @Test
     public void testStartRetriedTransaction_noProgressPossible() throws InterruptedException {
-        MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
+        MultiversionedStm.MultiversionedTransactionImpl t = stm.startTransaction();
 
         try {
             stm.startRetriedTransaction(t);
@@ -27,7 +27,7 @@ public class MultiversionedStmTest extends AbstractMultiversionedStmTest {
 
     @Test
     public void testStartRetriedTransaction_TransactionBelongsToDifferentStm() throws InterruptedException {
-        MultiversionedStm.MultiversionedTransaction t = new MultiversionedStm().startTransaction();
+        MultiversionedStm.MultiversionedTransactionImpl t = new MultiversionedStm().startTransaction();
 
         try {
             stm.startRetriedTransaction(t);

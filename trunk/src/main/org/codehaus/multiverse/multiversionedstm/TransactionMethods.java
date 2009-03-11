@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.core.RetryError;
+import org.codehaus.multiverse.api.exceptions.RetryError;
 
 /**
  * @author Peter Veentjer.

@@ -1,5 +1,7 @@
 package org.codehaus.multiverse.multiversionedheap;
 
+import org.codehaus.multiverse.api.LockMode;
+import org.codehaus.multiverse.api.TransactionId;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.Latch;
 
@@ -33,19 +35,6 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
     MultiversionedHeapSnapshot<I> getActiveSnapshot();
 
     /**
-     * Gets a snapshot of some state of the Heap. If the exact version doesn't exist, an older version
-     * is returned.
-     * <p/>
-     * Method is threadsafe.
-     *
-     * @param version the version of the snapshot to search for.
-     * @return the found HeapSnapshot.
-     * @throws org.codehaus.multiverse.core.BadVersionException
-     *          if no snapshot is found with a  version equal or lower than version.
-     */
-    MultiversionedHeapSnapshot<I> getSnapshot(long version);
-
-    /**
      * Commits changes to the heap. The write atomic to be 'atomic', so it should not be allowed that a partial
      * commit is observed.
      * <p/>
@@ -57,6 +46,8 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      * <p/>
      * The iterator is resetable because it could be that multiple attempts are needed to commit (optimistic
      * locking failures). This is a leaky abstraction, so needs to be looked at probably.
+     * <p/>
+     * todo: when the transaction commits, all locks need to be released.
      *
      * @param startSnapshot the snapshot of heap when the transaction begin. This information is needed
      *                      for detecting writeconflicts.
@@ -64,6 +55,18 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      * @return the CommitResult. This object contains information regarding the commit.
      */
     CommitResult commit(MultiversionedHeapSnapshot<I> startSnapshot, ResetableIterator<D> changes);
+
+    /**
+     * Releases all resources acquired by a transaction. For example the locks.
+     */
+    void abort(TransactionId transactionId);
+
+    /**
+     * @param handle
+     * @param lockMode
+     * @return
+     */
+    LockNoWaitResult lockNoWait(TransactionId transactionId, long handle, LockMode lockMode);
 
     /**
      * Creates a {@link Latch} that is opened when an update is done on one of the handles.
@@ -81,10 +84,22 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      * @param latch         the Latch to register. This latch is openened when the desired update has occurred.
      * @param handles       an array of handles to listen to.
      * @throws NullPointerException if latch or handles is null.
-     * @throws org.codehaus.multiverse.core.NoProgressPossibleException
+     * @throws org.codehaus.multiverse.api.exceptions.NoProgressPossibleException
      *                              if handles is an empty array
      */
     void listen(MultiversionedHeapSnapshot<I> startSnapshot, Latch latch, long[] handles);
+
+    public final class LockNoWaitResult {
+        private final MultiversionedHeapSnapshot snapshot;
+
+        private LockNoWaitResult(MultiversionedHeapSnapshot snapshot) {
+            this.snapshot = snapshot;
+        }
+
+        public MultiversionedHeapSnapshot getSnapshot() {
+            return snapshot;
+        }
+    }
 
     public final class CommitResult {
 

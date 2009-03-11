@@ -1,14 +1,15 @@
 package org.codehaus.multiverse.multiversionedheap.standard;
 
-import org.codehaus.multiverse.core.NoProgressPossibleException;
-import org.codehaus.multiverse.core.NoSuchObjectException;
+import org.codehaus.multiverse.api.LockMode;
+import org.codehaus.multiverse.api.TransactionId;
+import org.codehaus.multiverse.api.exceptions.NoProgressPossibleException;
+import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 import org.codehaus.multiverse.multiversionedheap.Deflatable;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.listenersupport.DefaultListenerSupport;
 import org.codehaus.multiverse.multiversionedheap.listenersupport.ListenerSupport;
-import org.codehaus.multiverse.multiversionedheap.snapshotchain.MultiversionedHeapSnapshotChain;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.PLongArrayIterator;
 import org.codehaus.multiverse.util.iterators.PLongIterator;
@@ -18,6 +19,7 @@ import org.codehaus.multiverse.util.latches.Latch;
 import static java.lang.String.format;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Default {@link org.codehaus.multiverse.multiversionedheap.MultiversionedHeap} implementation.
@@ -27,8 +29,8 @@ import java.util.NoSuchElementException;
 public final class DefaultMultiversionedHeap<I extends Deflated, D extends Deflatable>
         implements MultiversionedHeap<I, D> {
 
-    private final MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl> snapshotChain =
-            new MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
+    private final AtomicReference<MultiversionedHeapSnapshotImpl> snapshotRef =
+            new AtomicReference<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
 
     private final DefaultMultiversionedHeapStatistics statistics = new DefaultMultiversionedHeapStatistics();
 
@@ -37,20 +39,26 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
     public DefaultMultiversionedHeap() {
     }
 
-    public MultiversionedHeapSnapshotChain<MultiversionedHeapSnapshotImpl> getSnapshotChain() {
-        return snapshotChain;
-    }
-
     public DefaultMultiversionedHeapStatistics getStatistics() {
         return statistics;
     }
 
     public MultiversionedHeapSnapshot<I> getActiveSnapshot() {
-        return snapshotChain.getHead();
+        return snapshotRef.get();
     }
 
-    public MultiversionedHeapSnapshot<I> getSnapshot(long version) {
-        return snapshotChain.get(version);
+    @Override
+    public LockNoWaitResult lockNoWait(TransactionId transactionId, long handle, LockMode lockMode) {
+        assert transactionId != null && lockMode != null;
+
+        throw new RuntimeException();
+    }
+
+    @Override
+    public void abort(TransactionId transactionId) {
+        assert transactionId != null;
+
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**
@@ -64,25 +72,23 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
         return commit(startSnapshot, new ArrayIterator<D>(changes));
     }
 
-    public int getSnapshotAliveCount() {
-        return snapshotChain.getAliveCount();
-    }
-
     public CommitResult commit(MultiversionedHeapSnapshot<I> startSnapshot, ResetableIterator<D> changes) {
-        if (changes == null) throw new NullPointerException();
+        assert startSnapshot != null && changes != null;
+
+        //todo: all locks that are required by this transaction, should be removed.
 
         beforeCommit();
 
         if (!changes.hasNext()) {
             //if there are no changes to write to the heap, the transaction was readonly and we are done.
             statistics.commitReadonlyCount.incrementAndGet();
-            return CommitResult.createReadOnly(snapshotChain.getHead());
+            return CommitResult.createReadOnly(snapshotRef.get());
         }
 
         boolean anotherTransactionDidCommit;
         CreateNewSnapshotResult createNewSnapshotResult;
         do {
-            MultiversionedHeapSnapshotImpl activeSnapshot = snapshotChain.getHead();
+            MultiversionedHeapSnapshotImpl activeSnapshot = snapshotRef.get();
             createNewSnapshotResult = activeSnapshot.createNew(changes, startSnapshot);
 
             //if there was a writeconflict, we are done
@@ -92,7 +98,7 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             }
 
             //lets try to activate the created snapshot.
-            anotherTransactionDidCommit = !snapshotChain.compareAndAdd(
+            anotherTransactionDidCommit = !snapshotRef.compareAndSet(
                     activeSnapshot,
                     createNewSnapshotResult.snapshot);
 
@@ -134,7 +140,7 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
         boolean latchIsAdded = false;
         boolean success;
         do {
-            MultiversionedHeapSnapshotImpl snapshot = snapshotChain.getHead();
+            MultiversionedHeapSnapshotImpl snapshot = snapshotRef.get();
             for (long handle : handles) {
                 if (hasUpdate(snapshot, handle, latch, startSnapshot.getVersion()))
                     return;
@@ -151,7 +157,7 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
                 latchIsAdded = true;
             }
 
-            success = snapshot == snapshotChain.getHead();
+            success = snapshot == snapshotRef.get();
             if (!success)
                 statistics.listenNonBlockingStatistics.incFailureCount();
         } while (!success);
@@ -195,14 +201,22 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             this.version = version;
         }
 
+        @Override
         public long getVersion() {
             return version;
         }
 
+        @Override
         public PLongIterator getRoots() {
             throw new RuntimeException();
         }
 
+        @Override
+        public LockMode readLockMode(long handle) {
+            throw new RuntimeException();
+        }
+
+        @Override
         public I read(long handle) {
             statistics.readCount.incrementAndGet();
 
@@ -213,6 +227,7 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             return node == null ? null : (I) node.getBlock().getInflatable();
         }
 
+        @Override
         public long readVersion(long handle) {
             if (root == null || handle == 0)
                 return -1;
@@ -245,7 +260,8 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             for (; changes.hasNext();) {
                 D change = changes.next();
                 I inflatable = (I) change.___deflate(commitVersion);
-                head = new BlockImpl(inflatable, head);
+                //todo:
+                head = new BlockImpl(inflatable, head, null, LockMode.none);
 
                 if (newRoot == null) {
                     newRoot = new DefaultHeapNode(head, null, null);
@@ -306,11 +322,25 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
     static class BlockImpl implements Block {
         private final BlockImpl next;
         private final Deflated deflated;
+        private final LockMode lockMode;
+        private final TransactionId lockOwner;
 
-        public BlockImpl(Deflated deflated, BlockImpl next) {
+        public BlockImpl(Deflated deflated, BlockImpl next, TransactionId lockOwner, LockMode lockMode) {
             assert deflated != null;
             this.deflated = deflated;
             this.next = next;
+            this.lockMode = lockMode;
+            this.lockOwner = lockOwner;
+        }
+
+        @Override
+        public LockMode getLockMode() {
+            return lockMode;
+        }
+
+        @Override
+        public TransactionId getOwner() {
+            return lockOwner;
         }
 
         public long getHandle() {

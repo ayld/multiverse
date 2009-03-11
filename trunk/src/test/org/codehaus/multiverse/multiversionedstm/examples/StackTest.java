@@ -1,8 +1,8 @@
 package org.codehaus.multiverse.multiversionedstm.examples;
 
-import org.codehaus.multiverse.core.RetryError;
-import org.codehaus.multiverse.core.Stm;
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Stm;
+import org.codehaus.multiverse.api.Transaction;
+import org.codehaus.multiverse.api.exceptions.RetryError;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import static org.junit.Assert.*;
 import org.junit.Test;
@@ -170,7 +170,7 @@ public class StackTest {
         List<Integer> items = createItemList(100000);
 
         MultiversionedStm stm = new MultiversionedStm();
-        MultiversionedStm.MultiversionedTransaction t = stm.startTransaction();
+        MultiversionedStm.MultiversionedTransactionImpl t = stm.startTransaction();
         long handle = t.attachAsRoot(new Stack<Integer>(items.iterator()));
         t.commit();
 
@@ -186,7 +186,7 @@ public class StackTest {
         long handle = t.attachAsRoot(new Stack<Integer>(items.iterator()));
         t.commit();
 
-        MultiversionedStm.MultiversionedTransaction t2 = stm.startTransaction();
+        MultiversionedStm.MultiversionedTransactionImpl t2 = stm.startTransaction();
         Stack<Integer> stack = (Stack<Integer>) t2.read(handle);
         List<Integer> found = stack.drain();
 

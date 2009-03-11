@@ -3,13 +3,13 @@ package org.codehaus.multiverse.multiversionedstm.tests;
 import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.joinAll;
 import static org.codehaus.multiverse.TestUtils.startAll;
-import org.codehaus.multiverse.core.RetryError;
-import org.codehaus.multiverse.core.Transaction;
+import org.codehaus.multiverse.api.Transaction;
+import org.codehaus.multiverse.api.exceptions.RetryError;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
-import org.codehaus.multiverse.multiversionedstm.MultiversionedStm.MultiversionedTransaction;
+import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
 import org.codehaus.multiverse.util.iterators.InstanceIterator;
 import org.codehaus.multiverse.util.latches.CheapLatch;
@@ -24,7 +24,7 @@ public class WorkingOnBareHeapStackTest {
     private MultiversionedStm stm;
     private DefaultMultiversionedHeap heap;
 
-    private int itemCount = 1000000 * 1;
+    private int itemCount = 1000000 * 10;
 
     private AtomicInteger producerCountdown = new AtomicInteger();
     private AtomicInteger consumerCountdown = new AtomicInteger();
@@ -45,7 +45,6 @@ public class WorkingOnBareHeapStackTest {
         long timeMs = (System.currentTimeMillis() - startMs) + 1;
 
         System.out.println(heap.getStatistics());
-        System.out.println(String.format("%s chain alivecount", heap.getSnapshotChain().getAliveCount()));
         System.out.println(String.format("%s items took %s ms", itemCount, timeMs));
         System.out.println(String.format("%s transactions/second", heap.getStatistics().commitSuccessCount.longValue() / (timeMs / 1000.0)));
     }

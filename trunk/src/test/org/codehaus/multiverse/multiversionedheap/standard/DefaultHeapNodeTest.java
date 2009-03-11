@@ -1,5 +1,7 @@
 package org.codehaus.multiverse.multiversionedheap.standard;
 
+import org.codehaus.multiverse.api.LockMode;
+import org.codehaus.multiverse.api.TransactionId;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedheap.DummyDeflated;
 import static org.codehaus.multiverse.multiversionedstm.HandleGenerator.createHandle;
@@ -429,6 +431,16 @@ public class DefaultHeapNodeTest {
 
         public Deflated getInflatable() {
             return deflated;
+        }
+
+        @Override
+        public LockMode getLockMode() {
+            return LockMode.none;
+        }
+
+        @Override
+        public TransactionId getOwner() {
+            return null;
         }
     }
 }
