@@ -20,6 +20,8 @@ public final class DefaultMultiversionedHeapStatistics {
 
     public final AtomicLong commitReadonlyCount = new AtomicLong();
 
+    public final AtomicLong pessimisticLocksAcquired = new AtomicLong();
+
     public final NonBlockingStatistics commitNonBlockingStatistics = new NonBlockingStatistics("heap.commit.nonblocking");
 
     public final NonBlockingStatistics listenNonBlockingStatistics = new NonBlockingStatistics("heap.listen.nonblocking");
@@ -42,6 +44,7 @@ public final class DefaultMultiversionedHeapStatistics {
         listenNonBlockingStatistics.renderAsString(sb);
         sb.append(format("heap.reads %s\n", readCount));
         sb.append(format("heap.stores %s\n", committedStoreCount.longValue()));
+        sb.append(format("heap.pessimisticlocks.acquired %s\n", pessimisticLocksAcquired.longValue()));
     }
 
     @Override

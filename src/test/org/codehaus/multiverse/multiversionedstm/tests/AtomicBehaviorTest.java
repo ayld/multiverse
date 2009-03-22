@@ -72,7 +72,7 @@ public class AtomicBehaviorTest {
 
                     value.inc();
 
-                    sleepRandomMs(100);
+                    sleepRandomMs(20);
 
                     if (randomBoolean()) {
                         t.abort();

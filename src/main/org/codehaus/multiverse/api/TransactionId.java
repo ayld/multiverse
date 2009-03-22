@@ -2,30 +2,28 @@ package org.codehaus.multiverse.api;
 
 /**
  * An id that uniquely identifies a transaction.
+ * <p/>
+ * A TransactionId is immutable and threadsafe.
  *
  * @author Peter Veentjer.
  */
 public class TransactionId {
 
-    private final String name;
+    private final String text;
 
-    public TransactionId(String name) {
-        assert name != null;
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
+    public TransactionId(String text) {
+        assert text != null;
+        this.text = text;
     }
 
     @Override
     public String toString() {
-        return name;
+        return text;
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return text.hashCode();
     }
 
     @Override
@@ -37,6 +35,6 @@ public class TransactionId {
             return false;
 
         TransactionId that = (TransactionId) thatObj;
-        return that.name.equals(this.name);
+        return that.text.equals(this.text);
     }
 }

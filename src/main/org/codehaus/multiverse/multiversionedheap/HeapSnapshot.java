@@ -1,7 +1,8 @@
 package org.codehaus.multiverse.multiversionedheap;
 
 import org.codehaus.multiverse.api.LockMode;
-import org.codehaus.multiverse.util.iterators.PLongIterator;
+import org.codehaus.multiverse.api.TransactionId;
+import org.codehaus.multiverse.util.Pair;
 
 /**
  * A snapshot of a {@link MultiversionedHeap}. It provides a read consistent view over the heap. So even
@@ -10,7 +11,7 @@ import org.codehaus.multiverse.util.iterators.PLongIterator;
  *
  * @author Peter Veentjer.
  */
-public interface MultiversionedHeapSnapshot<I extends Deflated> {
+public interface HeapSnapshot<I extends Deflated> {
 
     /**
      * Reads the content at the specified handle. If no content is stored, null is returned. A null also
@@ -42,7 +43,7 @@ public interface MultiversionedHeapSnapshot<I extends Deflated> {
      * @return the lock mode.
      *         todo: what to do if the handle doesn't exist.
      */
-    LockMode readLockMode(long handle);
+    Pair<TransactionId, LockMode> readLockInfo(long handle);
 
     /**
      * Returns the version of the snapshot.
@@ -51,12 +52,4 @@ public interface MultiversionedHeapSnapshot<I extends Deflated> {
      */
     long getVersion();
 
-    /**
-     * Returns an iterator of the handles of root objects for this specific Snapshot. If an object is root
-     * or not is important for garbage collection. If an object is root, or reachable from a root (directly
-     * or indirectly) it can't be garbage collected.
-     *
-     * @return the handles to the root objects.
-     */
-    PLongIterator getRoots();
 }

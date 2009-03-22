@@ -1,17 +1,18 @@
 package org.codehaus.multiverse.multiversionedstm;
 
-import org.codehaus.multiverse.api.LockMode;
-import org.codehaus.multiverse.api.Stm;
-import org.codehaus.multiverse.api.TransactionId;
-import org.codehaus.multiverse.api.TransactionStatus;
+import org.codehaus.multiverse.api.*;
+import org.codehaus.multiverse.api.exceptions.LockOwnedByOtherTransactionException;
+import org.codehaus.multiverse.api.exceptions.NoSuchLockException;
 import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 import org.codehaus.multiverse.api.exceptions.WriteConflictError;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
+import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap;
-import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.LockNoWaitResult;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm.MultiversionedTransactionImpl;
 import org.codehaus.multiverse.multiversionedstm.utils.StmObjectIterator;
+import org.codehaus.multiverse.util.Pair;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.CheapLatch;
 import org.codehaus.multiverse.util.latches.Latch;
@@ -81,11 +82,13 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
         return heap.getActiveSnapshot().getVersion();
     }
 
+    @Override
     public MultiversionedTransactionImpl startTransaction() {
         statistics.transactionsStartedCount.incrementAndGet();
         return new MultiversionedTransactionImpl();
     }
 
+    @Override
     public MultiversionedTransactionImpl startRetriedTransaction(MultiversionedTransactionImpl predecessor) throws InterruptedException {
         ensureValidPredecessor(predecessor);
         Latch latch = new CheapLatch();
@@ -112,7 +115,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
         //is volatile so that other threads are also able to read the status.
         private volatile TransactionStatus status = TransactionStatus.active;
 
-        private final MultiversionedHeapSnapshot snapshot;
+        private final HeapSnapshot snapshot;
 
         private final Map<Long, StmObject> attachedObjects = new TreeMap<Long, StmObject>();
 
@@ -172,6 +175,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             return snapshot.getVersion();
         }
 
+        @Override
         public TransactionStatus getStatus() {
             return status;
         }
@@ -182,7 +186,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
          *
          * @return an array containing all handles that have been read by this Transaction.
          */
-        public long[] getConditionHandles() {
+        private long[] getConditionHandles() {
             long[] result = new long[holderMap.size()];
             int index = 0;
             for (long handle : holderMap.keySet()) {
@@ -192,8 +196,9 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             return result;
         }
 
+        @Override
         public StmObject read(long handle) {
-            assertTransactionActive();
+            assertTransactionIsActive();
 
             if (handle == 0)
                 return null;
@@ -202,8 +207,19 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             return holder.getAndLoadIfNeeded();
         }
 
+        @Override
+        public Object readAndLockOrFail(long handle, LockMode lockMode) {
+            throw new UnsupportedOperationException("not implemented yet");
+        }
+
+        @Override
+        public Object readAndLockOrBlock(long handle, LockMode lockMode) {
+            throw new UnsupportedOperationException("not implemented yet");
+        }
+
+        @Override
         public <S extends StmObject> UnloadedHolderImpl readHolder(long handle) {
-            assertTransactionActive();
+            assertTransactionIsActive();
 
             if (handle == 0)
                 return null;
@@ -214,7 +230,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
                 //a dehydrated version.
                 Deflated dehydratedObject = snapshot.read(handle);
 
-                //if dehydratedObject doesn't exist in the heap, the handle that is used is not valid.
+                //if dehydratedObject doesn't exist in the heap, the object that is used is not valid.
                 if (dehydratedObject == null)
                     throw new NoSuchObjectException(handle, getVersion());
 
@@ -224,9 +240,10 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             return holder;
         }
 
+        @Override
         public long attachAsRoot(Object root) {
             assertStmObjectInstance(root);
-            assertTransactionActive();
+            assertTransactionIsActive();
 
             StmObject stmRoot = (StmObject) root;
             long handle = stmRoot.___getHandle();
@@ -242,13 +259,19 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             return handle;
         }
 
-        public void lockNoWait(long handle, LockMode lockMode) {
-            throw new RuntimeException();
-        }
-
         @Override
-        public LockMode readLockMode(long handle) {
-            throw new RuntimeException();
+        public PessimisticLock getPessimisticLock(Object object) {
+            if (object == null) throw new NullPointerException();
+
+            assertTransactionIsActive();
+            assertStmObjectInstance(object);
+
+            StmObject stmObject = (StmObject) object;
+            long handle = stmObject.___getHandle();
+            if (heap.getActiveSnapshot().read(handle) == null)
+                throw new NoSuchLockException(format("No lock found in stm for object with handle %s ", handle));
+
+            return new PessimisticLockImpl(stmObject);
         }
 
         /**
@@ -268,11 +291,20 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
         /**
          * Makes sure that the current transaction still is active.
          */
-        private void assertTransactionActive() {
-            if (status != TransactionStatus.active)
-                throw new IllegalStateException();
+        private void assertTransactionIsActive() {
+            switch (status) {
+                case active:
+                    break;
+                case aborted:
+                    throw new IllegalStateException("The transaction should be active, but already is aborted.");
+                case committed:
+                    throw new IllegalStateException("The transaction should be active, but already is committed");
+                default:
+                    throw new RuntimeException();
+            }
         }
 
+        @Override
         public void commit() {
             switch (status) {
                 case active:
@@ -337,6 +369,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             }
         }
 
+        @Override
         public void abort() {
             switch (status) {
                 case active:
@@ -353,6 +386,63 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             }
         }
 
+        private class PessimisticLockImpl implements PessimisticLock {
+            private final StmObject object;
+
+            private PessimisticLockImpl(StmObject object) {
+                assert object != null;
+                this.object = object;
+            }
+
+            @Override
+            public Pair<TransactionId, LockMode> getLockInfo() {
+                assertTransactionIsActive();
+
+                return heap.getActiveSnapshot().readLockInfo(object.___getHandle());
+            }
+
+            @Override
+            public boolean isFree() {
+                assertTransactionIsActive();
+
+                throw new UnsupportedOperationException("not implemented yet");
+            }
+
+            @Override
+            public void acquireSharedNoWait() {
+                assertTransactionIsActive();
+
+                LockNoWaitResult result = heap.lockNoWait(transactionId, LockMode.shared, object.___getHandle());
+                if (!result.isSuccess())
+                    throw new LockOwnedByOtherTransactionException();
+            }
+
+            @Override
+            public void acquireExclusiveNoWait() {
+                assertTransactionIsActive();
+
+                LockNoWaitResult result = heap.lockNoWait(transactionId, LockMode.exclusive, object.___getHandle());
+                if (!result.isSuccess())
+                    throw new LockOwnedByOtherTransactionException();
+            }
+
+            @Override
+            public void release() {
+                assertTransactionIsActive();
+
+                LockNoWaitResult result = heap.lockNoWait(transactionId, LockMode.free, object.___getHandle());
+                if (!result.isSuccess()) {
+                    //todo
+                    throw new RuntimeException("error needs to be handled");
+                }
+            }
+
+            @Override
+            public String toString() {
+                return format("PessimisticLock(handle=%s)", object.___getHandle());
+            }
+        }
+
         private class UnloadedHolderImpl implements UnloadedHolder {
             private final Deflated dehydratedObject;
             private StmObject ref;
@@ -361,10 +451,12 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
                 this.dehydratedObject = dehydratedObject;
             }
 
+            @Override
             public long getHandle() {
                 return dehydratedObject.___getHandle();
             }
 
+            @Override
             public StmObject getAndLoadIfNeeded() {
                 if (ref == null) {
                     //dehydrated was found in the heap, lets ___inflate so we get a stmObject instance
@@ -372,7 +464,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
                         ref = (StmObject) dehydratedObject.___inflate(MultiversionedTransactionImpl.this);
                     } catch (Exception e) {
                         //todo: improve message, version also can be included
-                        String msg = format("Failed to dehydrate %s instance with handle %s", dehydratedObject, dehydratedObject.___getHandle());
+                        String msg = format("Failed to dehydrate %s instance with object %s", dehydratedObject, dehydratedObject.___getHandle());
                         throw new RuntimeException(msg, e);
                     }
                 }
@@ -404,14 +496,17 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             this.current = head;
         }
 
+        @Override
         public void reset() {
             current = head;
         }
 
+        @Override
         public boolean hasNext() {
             return current != null;
         }
 
+        @Override
         public StmObject next() {
             if (!hasNext())
                 throw new NoSuchElementException();
@@ -421,6 +516,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             return result;
         }
 
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }

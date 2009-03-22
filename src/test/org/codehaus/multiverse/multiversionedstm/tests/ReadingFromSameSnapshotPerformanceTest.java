@@ -4,8 +4,8 @@ import org.codehaus.multiverse.TestThread;
 import static org.codehaus.multiverse.TestUtils.joinAll;
 import static org.codehaus.multiverse.TestUtils.startAll;
 import org.codehaus.multiverse.multiversionedheap.Deflatable;
-import org.codehaus.multiverse.multiversionedheap.DummyDeflatable;
-import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.StringDeflatable;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.junit.After;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class ReadingFromSameSnapshotPerformanceTest {
     private long readCount = 10000000;
 
     private DefaultMultiversionedHeap heap;
-    private MultiversionedHeapSnapshot snapshot;
+    private HeapSnapshot snapshot;
     private AtomicLong readCountDown = new AtomicLong();
     private long[] handles;
     private long startMs, endMs;
@@ -59,7 +59,7 @@ public class ReadingFromSameSnapshotPerformanceTest {
         System.out.println("Start filling heap");
         handles = new long[heapsize];
         for (int k = 0; k < handles.length; k++) {
-            Deflatable deflatable = new DummyDeflatable("" + k);
+            Deflatable deflatable = new StringDeflatable("" + k);
             handles[k] = deflatable.___getHandle();
             heap.commit(heap.getActiveSnapshot(), deflatable);
         }

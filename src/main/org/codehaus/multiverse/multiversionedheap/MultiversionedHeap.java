@@ -32,7 +32,7 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      *
      * @return the current snapshot of the Heap.
      */
-    MultiversionedHeapSnapshot<I> getActiveSnapshot();
+    HeapSnapshot<I> getActiveSnapshot();
 
     /**
      * Commits changes to the heap. The write atomic to be 'atomic', so it should not be allowed that a partial
@@ -54,7 +54,7 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      * @param changes       a resetable iterator over the all deflatables that need to be written.
      * @return the CommitResult. This object contains information regarding the commit.
      */
-    CommitResult commit(MultiversionedHeapSnapshot<I> startSnapshot, ResetableIterator<D> changes);
+    CommitResult commit(HeapSnapshot<I> startSnapshot, ResetableIterator<D> changes);
 
     /**
      * Releases all resources acquired by a transaction. For example the locks.
@@ -66,7 +66,7 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      * @param lockMode
      * @return
      */
-    LockNoWaitResult lockNoWait(TransactionId transactionId, long handle, LockMode lockMode);
+    LockNoWaitResult lockNoWait(TransactionId transactionId, LockMode lockMode, long handle);
 
     /**
      * Creates a {@link Latch} that is opened when an update is done on one of the handles.
@@ -80,25 +80,38 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
      * <p/>
      * todo: PLongIterator or PLongIteratorFactory should be used.
      *
-     * @param startSnapshot
+     * @param startSnapshot the Snapshot of the heap when the transaction began.
      * @param latch         the Latch to register. This latch is openened when the desired update has occurred.
      * @param handles       an array of handles to listen to.
      * @throws NullPointerException if latch or handles is null.
      * @throws org.codehaus.multiverse.api.exceptions.NoProgressPossibleException
      *                              if handles is an empty array
      */
-    void listen(MultiversionedHeapSnapshot<I> startSnapshot, Latch latch, long[] handles);
+    void listen(HeapSnapshot<I> startSnapshot, Latch latch, long[] handles);
 
     public final class LockNoWaitResult {
-        private final MultiversionedHeapSnapshot snapshot;
+        private final HeapSnapshot resultSnapshot;
 
-        private LockNoWaitResult(MultiversionedHeapSnapshot snapshot) {
-            this.snapshot = snapshot;
+        private LockNoWaitResult(HeapSnapshot resultSnapshot) {
+            this.resultSnapshot = resultSnapshot;
         }
 
-        public MultiversionedHeapSnapshot getSnapshot() {
-            return snapshot;
+        public static LockNoWaitResult createSuccess(HeapSnapshot resultSnapshot) {
+            return new LockNoWaitResult(resultSnapshot);
         }
+
+        public static LockNoWaitResult createFailure() {
+            return new LockNoWaitResult(null);
+        }
+
+        public HeapSnapshot getResultSnapshot() {
+            return resultSnapshot;
+        }
+
+        public boolean isSuccess() {
+            return resultSnapshot != null;
+        }
+
     }
 
     public final class CommitResult {
@@ -107,21 +120,21 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
             return new CommitResult(false, null, 0);
         }
 
-        public static CommitResult createReadOnly(MultiversionedHeapSnapshot snapshot) {
+        public static CommitResult createReadOnly(HeapSnapshot snapshot) {
             assert snapshot != null;
             return new CommitResult(true, snapshot, 0);
         }
 
-        public static CommitResult createSuccess(MultiversionedHeapSnapshot snapshot, int writeCount) {
+        public static CommitResult createSuccess(HeapSnapshot snapshot, int writeCount) {
             assert snapshot != null && writeCount > 0;
             return new CommitResult(true, snapshot, writeCount);
         }
 
         private final boolean success;
-        private final MultiversionedHeapSnapshot snapshot;
+        private final HeapSnapshot snapshot;
         private final int writeCount;
 
-        private CommitResult(boolean success, MultiversionedHeapSnapshot snapshot, int writeCount) {
+        private CommitResult(boolean success, HeapSnapshot snapshot, int writeCount) {
             this.success = success;
             this.snapshot = snapshot;
             this.writeCount = writeCount;
@@ -142,7 +155,7 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
          *
          * @return the resulting MultiversionedHeapSnapshot.
          */
-        public MultiversionedHeapSnapshot getSnapshot() {
+        public HeapSnapshot getSnapshot() {
             return snapshot;
         }
 

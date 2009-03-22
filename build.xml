@@ -9,6 +9,7 @@
     <property name="src.main" value="${src}/main"/>
     <property name="src.test" value="${src}/test"/>
     <property name="src.japex" value="${src}/japex"/>
+
     <property name="lib" value="lib"/>
     <property name="lib.provided" value="${lib}/provided"/>
     <property name="lib.support" value="${lib}/support"/>
@@ -176,7 +177,6 @@
         <zip destfile="${target}/sources.zip">
             <zipfileset dir="${src.main}" prefix="src"/>
         </zip>
-
 
         <zip destfile="${target}/${application.name}-${application.version}.zip">
             <zipfileset dir="${javadoc}" prefix="javadoc"/>

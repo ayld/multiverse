@@ -332,7 +332,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
     }
 
 
-    // ====================== write conflicts ==========================
+    // ====================== createNewForWrite conflicts ==========================
 
     public void testConflictingWriteOnConflictingField() {
         Person original = new Person(33, "peter");
@@ -380,7 +380,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         t.commit();
         long endVersion = stm.getCurrentVersion();
 
-        //lets continue with the transaction and do a write an a different field
+        //lets continue with the transaction and do a createNewForWrite an a different field
         long commitCount = stm.getStatistics().getTransactionsCommitedCount();
         p1.setName("John");
         try {

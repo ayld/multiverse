@@ -69,7 +69,7 @@ public class DefaultMultiversionedHeapStressTest {
         while (set.size() < unitOfWorkSize) {
             long handle = randomHandle();
             if (!set.containsKey(handle))
-                set.put(handle, new DummyDeflatable(handle));
+                set.put(handle, new StringDeflatable(handle));
         }
 
         Deflatable[] result = new Deflatable[unitOfWorkSize];
@@ -112,7 +112,7 @@ public class DefaultMultiversionedHeapStressTest {
 
             MultiversionedHeap.CommitResult result;
             do {
-                MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
+                HeapSnapshot startSnapshot = heap.getActiveSnapshot();
                 result = heap.commit(startSnapshot, changes);
             } while (!result.isSuccess());
 

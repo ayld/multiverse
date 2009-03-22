@@ -6,19 +6,16 @@ import org.codehaus.multiverse.api.exceptions.NoProgressPossibleException;
 import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 import org.codehaus.multiverse.multiversionedheap.Deflatable;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
+import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap;
-import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
-import org.codehaus.multiverse.multiversionedheap.listenersupport.DefaultListenerSupport;
-import org.codehaus.multiverse.multiversionedheap.listenersupport.ListenerSupport;
+import org.codehaus.multiverse.util.Pair;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
-import org.codehaus.multiverse.util.iterators.PLongArrayIterator;
-import org.codehaus.multiverse.util.iterators.PLongIterator;
 import org.codehaus.multiverse.util.iterators.ResetableIterator;
 import org.codehaus.multiverse.util.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -29,12 +26,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class DefaultMultiversionedHeap<I extends Deflated, D extends Deflatable>
         implements MultiversionedHeap<I, D> {
 
-    private final AtomicReference<MultiversionedHeapSnapshotImpl> snapshotRef =
-            new AtomicReference<MultiversionedHeapSnapshotImpl>(new MultiversionedHeapSnapshotImpl());
+    private final AtomicReference<HeapSnapshotImpl> snapshotRef =
+            new AtomicReference<HeapSnapshotImpl>(new HeapSnapshotImpl());
 
     private final DefaultMultiversionedHeapStatistics statistics = new DefaultMultiversionedHeapStatistics();
-
-    private final ListenerSupport listenerSupport = new DefaultListenerSupport();
 
     public DefaultMultiversionedHeap() {
     }
@@ -43,22 +38,43 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
         return statistics;
     }
 
-    public MultiversionedHeapSnapshot<I> getActiveSnapshot() {
+    public HeapSnapshot<I> getActiveSnapshot() {
         return snapshotRef.get();
     }
 
     @Override
-    public LockNoWaitResult lockNoWait(TransactionId transactionId, long handle, LockMode lockMode) {
-        assert transactionId != null && lockMode != null;
+    public LockNoWaitResult lockNoWait(TransactionId owner, LockMode lockMode, long handle) {
+        assert owner != null && lockMode != null;
 
-        throw new RuntimeException();
+        HeapSnapshotImpl newSnapshot;
+        boolean success;
+        do {
+            HeapSnapshotImpl oldSnapshot = snapshotRef.get();
+            newSnapshot = oldSnapshot.createNewForSettingPessimisticLock(
+                    owner, lockMode, handle);
+
+            //if null is returned, a locking failure happened. So we should
+            //not replace the newSnapshot.
+            if (newSnapshot == null)
+                return LockNoWaitResult.createFailure();
+
+            //if there was no locking change, we are done. No need
+            //to repace the snapshot.
+            if (newSnapshot == oldSnapshot)
+                return LockNoWaitResult.createSuccess(oldSnapshot);
+
+            success = snapshotRef.compareAndSet(oldSnapshot, newSnapshot);
+        } while (!success);
+
+        newSnapshot.activate();
+        return LockNoWaitResult.createSuccess(newSnapshot);
     }
 
     @Override
     public void abort(TransactionId transactionId) {
         assert transactionId != null;
 
-        //To change body of implemented methods use File | Settings | File Templates.
+        throw new RuntimeException("Not implemented yet");
     }
 
     /**
@@ -68,19 +84,20 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
      * @param changes
      * @return
      */
-    public CommitResult commit(MultiversionedHeapSnapshot<I> startSnapshot, D... changes) {
+    public CommitResult commit(HeapSnapshot<I> startSnapshot, D... changes) {
         return commit(startSnapshot, new ArrayIterator<D>(changes));
     }
 
-    public CommitResult commit(MultiversionedHeapSnapshot<I> startSnapshot, ResetableIterator<D> changes) {
+    @Override
+    public CommitResult commit(HeapSnapshot<I> startSnapshot, ResetableIterator<D> changes) {
         assert startSnapshot != null && changes != null;
 
-        //todo: all locks that are required by this transaction, should be removed.
+        //todo: all locks that are required by this transaction, should be released.
 
         beforeCommit();
 
         if (!changes.hasNext()) {
-            //if there are no changes to write to the heap, the transaction was readonly and we are done.
+            //if there are no changes to createNewForWrite to the heap, the transaction was readonly and we are done.
             statistics.commitReadonlyCount.incrementAndGet();
             return CommitResult.createReadOnly(snapshotRef.get());
         }
@@ -88,8 +105,9 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
         boolean anotherTransactionDidCommit;
         CreateNewSnapshotResult createNewSnapshotResult;
         do {
-            MultiversionedHeapSnapshotImpl activeSnapshot = snapshotRef.get();
-            createNewSnapshotResult = activeSnapshot.createNew(changes, startSnapshot);
+            HeapSnapshotImpl activeSnapshot = snapshotRef.get();
+
+            createNewSnapshotResult = activeSnapshot.createNewForCommit(changes, startSnapshot);
 
             //if there was a writeconflict, we are done
             if (!createNewSnapshotResult.success) {
@@ -100,7 +118,7 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             //lets try to activate the created snapshot.
             anotherTransactionDidCommit = !snapshotRef.compareAndSet(
                     activeSnapshot,
-                    createNewSnapshotResult.snapshot);
+                    createNewSnapshotResult.createdSnapshot);
 
             if (anotherTransactionDidCommit) {
                 //if another transaction also did a commit while we were creating a new snapshot, we
@@ -109,6 +127,8 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
                 changes.reset();
             }
         } while (anotherTransactionDidCommit);
+
+        createNewSnapshotResult.createdSnapshot.activate();
 
         return afterCommit(createNewSnapshotResult);
     }
@@ -120,50 +140,56 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
 
     private CommitResult afterCommit(CreateNewSnapshotResult createNewSnapshotResult) {
         //yes.. the snapshot was activated, lets update statistics and lets wakeup listeners.
-        listenerSupport.wakeupListeners(
-                createNewSnapshotResult.snapshot.getVersion(),
-                createNewSnapshotResult.getHandles());
         statistics.commitSuccessCount.incrementAndGet();
         statistics.committedStoreCount.addAndGet(createNewSnapshotResult.writeCount);
-        return CommitResult.createSuccess(createNewSnapshotResult.snapshot, createNewSnapshotResult.writeCount);
+        return CommitResult.createSuccess(createNewSnapshotResult.createdSnapshot, createNewSnapshotResult.writeCount);
     }
 
-    public void listen(MultiversionedHeapSnapshot startSnapshot, Latch latch, long[] handles) {
-        if (latch == null) throw new NullPointerException();
+    @Override
+    public void listen(HeapSnapshot startSnapshot, Latch listener, long[] handles) {
+        if (listener == null) throw new NullPointerException();
 
         if (handles.length == 0)
             throw new NoProgressPossibleException();
 
         statistics.listenNonBlockingStatistics.incEnterCount();
 
-        //the latch only needs to be registered once.
-        boolean latchIsAdded = false;
+        HeapSnapshotImpl newActiveSnapshot;
+
+        //the listener only needs to be registered once.
         boolean success;
         do {
-            MultiversionedHeapSnapshotImpl snapshot = snapshotRef.get();
+            HeapSnapshotImpl activeSnapshot = snapshotRef.get();
+
+            //check if the desired update already has taken place.
             for (long handle : handles) {
-                if (hasUpdate(snapshot, handle, latch, startSnapshot.getVersion()))
+                if (hasUpdate(activeSnapshot, handle, listener, startSnapshot.getVersion()))
                     return;
 
-                //if the latch is opened
-                if (latch.isOpen())
+                //if the listener is opened
+                if (listener.isOpen())
                     return;
             }
 
-            if (!latchIsAdded) {
-                listenerSupport.addListener(
-                        startSnapshot.getVersion(),
-                        new PLongArrayIterator(handles), latch);
-                latchIsAdded = true;
-            }
+            //the update has not taken place, so we need to register the listener. This is done by
+            //create a newActiveSnapshot containing the added listener.
+            newActiveSnapshot = activeSnapshot.createNewByAddingListener(listener, handles);
+            if (newActiveSnapshot == null)
+                throw new RuntimeException();//todo
 
-            success = snapshot == snapshotRef.get();
+            //if there is no change, we are done.
+            if (newActiveSnapshot == activeSnapshot)
+                return;
+
+            success = snapshotRef.compareAndSet(activeSnapshot, newActiveSnapshot);
             if (!success)
                 statistics.listenNonBlockingStatistics.incFailureCount();
         } while (!success);
+
+        newActiveSnapshot.activate();
     }
 
-    private boolean hasUpdate(MultiversionedHeapSnapshotImpl currentSnapshot, long handle, Latch latch, long transactionVersion) {
+    private boolean hasUpdate(HeapSnapshotImpl currentSnapshot, long handle, Latch latch, long transactionVersion) {
         long version = currentSnapshot.readVersion(handle);
         if (version == -1) {
             //the object doesn't exist anymore.
@@ -187,33 +213,25 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
      * <p/>
      * Class is completely immutable.
      */
-    private class MultiversionedHeapSnapshotImpl implements MultiversionedHeapSnapshot<I> {
+    private class HeapSnapshotImpl implements HeapSnapshot<I> {
         private final HeapNode root;
         private final long version;
+        private Stack<ListenerNode> listeners;
 
-        MultiversionedHeapSnapshotImpl() {
+        HeapSnapshotImpl() {
             version = 0;
             root = null;
         }
 
-        MultiversionedHeapSnapshotImpl(HeapNode root, long version) {
+        HeapSnapshotImpl(HeapNode root, long version, Stack<ListenerNode> listeners) {
             this.root = root;
             this.version = version;
+            this.listeners = listeners;
         }
 
         @Override
         public long getVersion() {
             return version;
-        }
-
-        @Override
-        public PLongIterator getRoots() {
-            throw new RuntimeException();
-        }
-
-        @Override
-        public LockMode readLockMode(long handle) {
-            throw new RuntimeException();
         }
 
         @Override
@@ -223,8 +241,8 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             if (handle == 0 || root == null)
                 return null;
 
-            HeapNode<BlockImpl> node = root.find(handle);
-            return node == null ? null : (I) node.getBlock().getInflatable();
+            HeapNode node = root.find(handle);
+            return node == null ? null : (I) node.getBlock().getDeflated();
         }
 
         @Override
@@ -232,8 +250,64 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
             if (root == null || handle == 0)
                 return -1;
 
-            HeapNode<BlockImpl> node = root.find(handle);
-            return node == null ? -1 : node.getBlock().getInflatable().___getVersion();
+            HeapNode node = root.find(handle);
+            return node == null ? -1 : node.getBlock().getDeflated().___getVersion();
+        }
+
+
+        @Override
+        public Pair<TransactionId, LockMode> readLockInfo(long handle) {
+            HeapNode node;
+            if (root == null || (node = root.find(handle)) == null)
+                throw new NoSuchObjectException(handle);
+
+            Block block = node.getBlock();
+            return new Pair<TransactionId, LockMode>(block.getLockOwner(), block.getLockMode());
+        }
+
+        /**
+         * @param lockOwner
+         * @param lockMode
+         * @param handle    the handle of the object to lock.
+         * @return the new HeapSnapshotImpl  or null to indicate failure
+         * @throws NoSuchObjectException if the object with the specified handle doesn't exist.
+         */
+        private HeapSnapshotImpl createNewForSettingPessimisticLock(TransactionId lockOwner, LockMode lockMode, long handle) {
+            if (root == null)
+                throw new NoSuchObjectException(handle);
+
+            HeapNode newRoot = root.createNewForUpdatingLockMode(lockOwner, lockMode, handle);
+            if (newRoot == null)
+                return null;
+
+            //if there is no change, we can return the original
+            if (newRoot == root)
+                return this;
+
+            return new HeapSnapshotImpl(newRoot, version + 1, null);
+        }
+
+        /**
+         * Creates a new HeapSnapshot by adding a listener.
+         *
+         * @param listener
+         * @param handles
+         * @return
+         */
+        public HeapSnapshotImpl createNewByAddingListener(Latch listener, long[] handles) {
+            if (root == null)
+                return null;//return null to indicate failure..
+
+            HeapNode newRoot = root;
+            for (long handle : handles) {
+                newRoot = newRoot.createNewForAddingListener(handle, listener);
+
+                //if the newRoot is null, a failure has occurred, so null can be returned.
+                if (newRoot == null)
+                    return null;
+            }
+
+            return new HeapSnapshotImpl(newRoot, version + 1, null);
         }
 
         /**
@@ -242,121 +316,78 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
          * existing one.
          *
          * @param changes       an iterator over all the DehydratedStmObject that need to be written
-         * @param startSnapshot the heapsnapshot when the transaction began. This
+         * @param startSnapshot the heapsnapshot when te transaction began. This
          *                      information is required for write conflict detection.
          * @return the created HeapSnapshot or null of there was a write conflict.
          */
-        public CreateNewSnapshotResult createNew(Iterator<D> changes, MultiversionedHeapSnapshot startSnapshot) {
-            long commitVersion = version + 1;
+        private CreateNewSnapshotResult createNewForCommit(Iterator<D> changes, HeapSnapshot startSnapshot) {
+            long newVersion = version + 1;
 
             HeapNode newRoot = root;
             //the snapshot the transaction sees when it begin. All changes it made on objects, are on objects
             //loaded from this version.
 
-            long expectedVersion = startSnapshot.getVersion();
+            long startOfTransactionVersion = startSnapshot.getVersion();
+
+            //when the created snapshot, all listeners need to be notified that were listening for
+            //an update one of of the written fields.
+            Stack<ListenerNode> listenersNeedingNotification = new Stack<ListenerNode>();
 
             int writeCount = 0;
-            BlockImpl head = null;
             for (; changes.hasNext();) {
                 D change = changes.next();
-                I inflatable = (I) change.___deflate(commitVersion);
-                //todo:
-                head = new BlockImpl(inflatable, head, null, LockMode.none);
+                Deflated deflated = change.___deflate(newVersion);
 
                 if (newRoot == null) {
-                    newRoot = new DefaultHeapNode(head, null, null);
+                    newRoot = new HeapNode(new Block(deflated));
                 } else {
-                    newRoot = newRoot.write(head, expectedVersion);
-                    if (newRoot == null)//write conflict.
+                    newRoot = newRoot.createNewForWrite(
+                            deflated,
+                            startOfTransactionVersion,
+                            listenersNeedingNotification);
+
+                    if (newRoot == null)//createNewForWrite conflict.
                         return new CreateNewSnapshotResult();//ugly constructor..
                 }
 
                 writeCount++;
             }
 
-            MultiversionedHeapSnapshotImpl newSnapshot = new MultiversionedHeapSnapshotImpl(newRoot, commitVersion);
-            return new CreateNewSnapshotResult(writeCount, newSnapshot, head);
+            HeapSnapshotImpl newSnapshot = new HeapSnapshotImpl(newRoot, newVersion, listenersNeedingNotification);
+            return new CreateNewSnapshotResult(writeCount, newSnapshot);
         }
 
+        @Override
         public String toString() {
             return format("Snapshot(version=%s)", version);
+        }
+
+        public void activate() {
+            if (listeners != null) {
+                for (ListenerNode node : listeners) {
+                    do {
+                        node.getListener().open();
+                        node = node.getPrevious();
+                    } while (node != null);
+                }
+                listeners = null;
+            }
         }
     }
 
     private class CreateNewSnapshotResult {
-        MultiversionedHeapSnapshotImpl snapshot;
+        HeapSnapshotImpl createdSnapshot;
         boolean success;
         int writeCount;
-        private BlockImpl head;
 
-        CreateNewSnapshotResult(int writeCount, MultiversionedHeapSnapshotImpl snapshot, BlockImpl head) {
-            this.snapshot = snapshot;
+        CreateNewSnapshotResult(int writeCount, HeapSnapshotImpl createdSnapshot) {
+            this.createdSnapshot = createdSnapshot;
             this.success = true;
             this.writeCount = writeCount;
-            this.head = head;
         }
 
         CreateNewSnapshotResult() {
             this.success = false;
-        }
-
-        PLongIterator getHandles() {
-            return new PLongIterator() {
-                private BlockImpl nextToReturn = head;
-
-                public long next() {
-                    if (!hasNext())
-                        throw new NoSuchElementException();
-                    BlockImpl result = nextToReturn;
-                    nextToReturn = nextToReturn.next;
-                    return result.getHandle();
-                }
-
-                public boolean hasNext() {
-                    return nextToReturn != null;
-                }
-            };
-        }
-    }
-
-    static class BlockImpl implements Block {
-        private final BlockImpl next;
-        private final Deflated deflated;
-        private final LockMode lockMode;
-        private final TransactionId lockOwner;
-
-        public BlockImpl(Deflated deflated, BlockImpl next, TransactionId lockOwner, LockMode lockMode) {
-            assert deflated != null;
-            this.deflated = deflated;
-            this.next = next;
-            this.lockMode = lockMode;
-            this.lockOwner = lockOwner;
-        }
-
-        @Override
-        public LockMode getLockMode() {
-            return lockMode;
-        }
-
-        @Override
-        public TransactionId getOwner() {
-            return lockOwner;
-        }
-
-        public long getHandle() {
-            return deflated.___getHandle();
-        }
-
-        public Deflated getInflatable() {
-            return deflated;
-        }
-
-        public BlockImpl getNext() {
-            return next;
-        }
-
-        public String toString() {
-            return format("Block(%s)", deflated);
         }
     }
 }

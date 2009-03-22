@@ -17,7 +17,7 @@ public class DummyDeflated extends AbstractDeflated {
         this.value = value;
     }
 
-    public DummyDeflated(DummyDeflatable deflatable, long version) {
+    public DummyDeflated(StringDeflatable deflatable, long version) {
         super(deflatable.___getHandle(), version);
         this.value = deflatable.getValue();
     }
@@ -26,7 +26,7 @@ public class DummyDeflated extends AbstractDeflated {
         return value;
     }
 
-    public DummyDeflatable ___inflate(Transaction transaction) {
+    public StringDeflatable ___inflate(Transaction transaction) {
         throw new RuntimeException();
     }
 

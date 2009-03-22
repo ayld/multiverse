@@ -5,8 +5,8 @@ import static org.codehaus.multiverse.TestUtils.joinAll;
 import static org.codehaus.multiverse.TestUtils.startAll;
 import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.api.exceptions.RetryError;
+import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
-import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
@@ -87,7 +87,7 @@ public class WorkingOnBareHeapStackTest {
         public void runTransaction() {
             boolean succes = false;
             do {
-                MultiversionedHeapSnapshot snapshot = heap.getActiveSnapshot();
+                HeapSnapshot snapshot = heap.getActiveSnapshot();
                 try {
                     CommitResult result = runInsideTransaction(snapshot);
                     if (result.isSuccess())
@@ -100,7 +100,7 @@ public class WorkingOnBareHeapStackTest {
             } while (!succes);
         }
 
-        public CommitResult runInsideTransaction(MultiversionedHeapSnapshot snapshot) {
+        public CommitResult runInsideTransaction(HeapSnapshot snapshot) {
             Stack stack = (Stack) snapshot.read(handle).___inflate(dummmyTransaction);
             stack.pop();
             return heap.commit(snapshot, new InstanceIterator(stack));
@@ -142,14 +142,14 @@ public class WorkingOnBareHeapStackTest {
         public void runTransaction() {
             boolean succes = false;
             do {
-                MultiversionedHeapSnapshot snapshot = heap.getActiveSnapshot();
+                HeapSnapshot snapshot = heap.getActiveSnapshot();
                 CommitResult result = runInsideTransaction(snapshot);
                 if (result.isSuccess())
                     succes = true;
             } while (!succes);
         }
 
-        public CommitResult runInsideTransaction(MultiversionedHeapSnapshot snapshot) {
+        public CommitResult runInsideTransaction(HeapSnapshot snapshot) {
             Stack stack = (Stack) snapshot.read(handle).___inflate(dummmyTransaction);
             stack.push(item);
             return heap.commit(snapshot, new InstanceIterator(stack));
