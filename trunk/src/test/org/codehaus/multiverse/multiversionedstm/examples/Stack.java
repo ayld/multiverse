@@ -33,7 +33,7 @@ public class Stack<E> implements StmObject {
 
     public void push(E item) {
         if (item == null) throw new NullPointerException();
-        head = new Node(item, head);
+        head = new Node<E>(item, head);
     }
 
     public E peek() {
@@ -52,7 +52,7 @@ public class Stack<E> implements StmObject {
 
     private E removeTopItem() {
         Node<E> oldHead = head;
-        head = head.parent;
+        head = head.prev;
         return oldHead.value;
     }
 
@@ -80,7 +80,7 @@ public class Stack<E> implements StmObject {
         Node<E> node = head;
         for (int k = 0; k < size(); k++) {
             result.add(node.value);
-            node = node.parent;
+            node = node.prev;
         }
         return result;
     }
@@ -110,15 +110,15 @@ public class Stack<E> implements StmObject {
 
     public static class Node<E> implements StmObject, Deflated {
         final E value;
-        final Node parent;
+        final Node<E> prev;
         final int size;
         final long handle;
 
-        Node(E value, Node prev) {
+        Node(E value, Node<E> prev) {
             this.handle = HandleGenerator.createHandle();
             this.value = value;
-            this.parent = prev;
-            this.size = parent == null ? 1 : prev.size + 1;
+            this.prev = prev;
+            this.size = this.prev == null ? 1 : prev.size + 1;
         }
 
         @Override
@@ -148,10 +148,10 @@ public class Stack<E> implements StmObject {
             if (!this.value.equals(that.value))
                 return false;
 
-            if (this.parent == null)
-                return that.parent == null;
+            if (this.prev == null)
+                return that.prev == null;
 
-            return this.parent.equals(that.parent);
+            return this.prev.equals(that.prev);
         }
 
         public boolean ___isDirtyIgnoringStmMembers() {

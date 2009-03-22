@@ -5,7 +5,7 @@ package org.codehaus.multiverse.api;
  * All operations done on the {@link Stm} are always done through a transaction. The transaction makes sure that
  * all changes are atomic (so all of them enter the stm, or none of them). And the transaction also makes sure that
  * the it is isolated from other transactions. Unlike a database transaction, the changes are not 'durable', so
- * when the power is turned of, all changes are lost. And unlike the database transaction the stm transaction is
+ * when the power is turned off, all changes are lost. And unlike the database transaction the stm transaction is
  * not responsible for consistency; that is part of the Java code itself.
  * <p/>
  * A Transaction can be compared to a Hibernate Session.
@@ -19,17 +19,18 @@ package org.codehaus.multiverse.api;
  * Example with creating an item:
  * <pre>
  *  Transaction t = stm.startTransaction();
- *  stackHandle = t.attachAsRoot(new Stack());
+ *  long stackHandle = t.attachAsRoot(new Stack());
  *  t.commit();
  * </pre>
- * The attachAsRoot provides a handle to access the object later. In most cases you only want to have handles of high
- * level objects. As soon as you have obtained the object the handle points to, you can work with normal object
+ * The attachAsRoot provides a handle to access the object later. In most cases you only want to have handles of
+ * high level objects. As soon as you have obtained the object the handle points to, you can work with normal object
  * references.
  * <p/>
  * And example with only a read:
  * <pre>
  *  Transaction t = stm.startTransaction();
  *  Stack stack = (Stack)t.read(stackHandle);
+ *  int size = stack.size();
  *  t.commit();
  * </pre>
  * <p/>
@@ -48,9 +49,16 @@ package org.codehaus.multiverse.api;
  *  s.push(new Person());
  *  t.commit();
  * </pre>
+ * <p/>
+ * <h3>Don't let transactions dangle around!</h3>.
+ * A Transaction should be committed or aborted so that the resources it has collected (for example
+ * locks) will be released as soon as possible. If this isn't done, resources could be claimed longer
+ * than possible and this could reduce performance. Another reason to end transactions, is that it depends
+ * on the stm implemention to abort transactions that can be garbage collected. So don't rely on it and
+ * end your transactions!
  *
  * @author Peter Veentjer
- * @see org.codehaus.multiverse.api.TransactionTemplate
+ * @see TransactionTemplate
  */
 public interface Transaction {
 
@@ -85,37 +93,9 @@ public interface Transaction {
      */
     Object read(long handle);
 
-    /**
-     * Locks the Object with the specified handle. If the LockMode is stricter than the the current one,
-     * the lock is upgraded. If the LockMode is less strict than the current one, the call is ignored.
-     * <p/>
-     * In the future a overloaded version of this method is going to be added that uses the object
-     * instead of the handle.
-     * <p/>
-     * In the future a readNoWait(long handle, LockMode mode) is going to be added.
-     *
-     * @param handle   the handle of the Objec to lock.
-     * @param lockMode
-     * @throws org.codehaus.multiverse.api.exceptions.NoSuchObjectException
-     *          if the object with the specified handle doesn't exist.
-     * @throws org.codehaus.multiverse.api.exceptions.PessimisticLockingFailureException
-     *          if the lock can't be acquired because another transaction
-     *          already acquired the lock.
-     */
-    void lockNoWait(long handle, LockMode lockMode);
+    Object readAndLockOrFail(long handle, LockMode lockMode);
 
-    /**
-     * Returns the LockMode the Lock for the specified handle is in.
-     * <p/>
-     * In the future a overloaded version of this method is going to be added that used the object
-     * instead of the handle.
-     *
-     * @param handle the handle of the object to return the lockmode for,
-     * @return the found LockMode.
-     * @throws org.codehaus.multiverse.api.exceptions.NoSuchObjectException
-     *          if the object with the specified handle doesn't exist.
-     */
-    LockMode readLockMode(long handle);
+    Object readAndLockOrBlock(long handle, LockMode lockMode);
 
     /**
      * Returns the status of this Transaction
@@ -131,6 +111,11 @@ public interface Transaction {
      * is thrown during commit, the transaction will be aborted automatically.
      * <p/>
      * This method is not threadsafe.
+     * <p/>
+     * An commit can be as cheap as the abort (depends on the implementation)  If you abort a successfull
+     * readonly/nolocks transaction it could give the impression that your system is suffering from a lot of aborted transaction
+     * if the statistics are monitored somehow. So if there is no reason to abort, just commit; don't
+     * try to be clever.
      *
      * @throws IllegalStateException if the transaction is already aborted.
      * @throws org.codehaus.multiverse.api.exceptions.WriteConflictError
@@ -143,6 +128,10 @@ public interface Transaction {
      * they are rolled back as well. Multiple calls on the abort method are ignored.
      * <p/>
      * This method is not threadsafe.
+     * <p/>
+     * An abort can be very cheap (depends on the implementation). If no resources like locks
+     * have been claimed, it would be nothing more than switching a flag. So don't be clever
+     * and always commit or abort your transactions.
      *
      * @throws IllegalStateException if the Transaction already has been committed.
      */
@@ -150,8 +139,28 @@ public interface Transaction {
 
     /**
      * Gets the TransactionId that uniquely identifies this Transaction.
+     * <p/>
+     * This method is threadsafe and can be called no matter the state of the Transaction.
      *
      * @return the TransactionId that uniquely identifies a Transaction
      */
     TransactionId getId();
+
+    /**
+     * Gets the PessimisticLock for some stm object. The Lock it not acquired.
+     * <p/>
+     * No guarantees are made if the same Lock instance is returned for an object, or a different one.
+     * But this should not be any concern of the caller.
+     * <p/>
+     * This method is not threadsafe.
+     *
+     * @param object the Object to get the PessimisticLock for.
+     * @return the PessimisticLock that belongs to the object.
+     * @throws NullPointerException     if object is null.
+     * @throws IllegalArgumentException if object is not an stm object
+     * @throws org.codehaus.multiverse.api.exceptions.NoSuchLockException
+     *
+     * @throws IllegalStateException    if the thread isn't in the started state anymore.
+     */
+    PessimisticLock getPessimisticLock(Object object);
 }

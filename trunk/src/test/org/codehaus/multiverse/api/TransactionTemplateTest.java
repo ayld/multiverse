@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.api;
 
 import org.codehaus.multiverse.api.exceptions.NoProgressPossibleException;
-import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
 import static org.junit.Assert.assertSame;
@@ -47,7 +47,7 @@ public class TransactionTemplateTest {
     @Test
     public void testNoConditionVariablesAndRetryShouldNotResultInInfinitiveLoop() {
         MultiversionedStm stm = new MultiversionedStm();
-        MultiversionedHeapSnapshot oldSnapshot = stm.getHeap().getActiveSnapshot();
+        HeapSnapshot oldSnapshot = stm.getHeap().getActiveSnapshot();
 
         try {
             new TransactionTemplate(stm) {

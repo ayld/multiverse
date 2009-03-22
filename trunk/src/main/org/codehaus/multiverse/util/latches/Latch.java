@@ -14,7 +14,8 @@ import java.util.concurrent.TimeUnit;
 public interface Latch {
 
     /**
-     * Opens the latch. If the latch already is open, the call is ignored.
+     * Opens the latch. If the latch already is open, the call is ignored. This makes the call
+     * idempotent.
      */
     void open();
 
@@ -37,6 +38,8 @@ public interface Latch {
      * already is open, the call continues. If the thread is interrupted while waiting, the
      * interruptexception is dropped and the interrupt status is restored as soon as the method
      * returns.
+     *
+     * @throws UnsupportedOperationException if the implementation doesn't support this functionality.
      */
     void awaitUniterruptibly();
 
@@ -46,7 +49,8 @@ public interface Latch {
      * @param timeout
      * @param unit
      * @throws InterruptedException
-     * @throws NullPointerException if  unit is null
+     * @throws NullPointerException          if  unit is null
+     * @throws UnsupportedOperationException if the implementation doesn't support this functionality.
      */
     void tryAwait(long timeout, TimeUnit unit) throws InterruptedException;
 }

@@ -2,20 +2,20 @@ package org.codehaus.multiverse.multiversionedheap;
 
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 
-public class DummyDeflatable implements Deflatable {
+public class StringDeflatable implements Deflatable {
 
     private final long handle;
     private String value;
 
-    public DummyDeflatable(long handle) {
+    public StringDeflatable(long handle) {
         this(handle, "dummy");
     }
 
-    public DummyDeflatable(String value) {
+    public StringDeflatable(String value) {
         this(HandleGenerator.createHandle(), value);
     }
 
-    public DummyDeflatable(long handle, String value) {
+    public StringDeflatable(long handle, String value) {
         this.handle = handle;
         this.value = value;
     }

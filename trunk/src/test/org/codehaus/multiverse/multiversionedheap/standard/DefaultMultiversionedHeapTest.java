@@ -4,9 +4,9 @@ import org.codehaus.multiverse.api.exceptions.NoProgressPossibleException;
 import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 import org.codehaus.multiverse.multiversionedheap.Deflatable;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
-import org.codehaus.multiverse.multiversionedheap.DummyDeflatable;
+import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
-import org.codehaus.multiverse.multiversionedheap.MultiversionedHeapSnapshot;
+import org.codehaus.multiverse.multiversionedheap.StringDeflatable;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.util.iterators.ArrayIterator;
 import org.codehaus.multiverse.util.iterators.EmptyIterator;
@@ -59,29 +59,29 @@ public class DefaultMultiversionedHeapTest {
         assertSnapshotContains(heap.getActiveSnapshot(), expected);
     }
 
-    public void assertSnapshotContains(MultiversionedHeapSnapshot snapshot, Deflated expected) {
+    public void assertSnapshotContains(HeapSnapshot snapshot, Deflated expected) {
         Deflated found = snapshot.read(expected.___getHandle());
         assertEquals(expected, found);
     }
 
-    public void assertActiveSnapshot(MultiversionedHeapSnapshot expected) {
+    public void assertActiveSnapshot(HeapSnapshot expected) {
         assertSame(expected, heap.getActiveSnapshot());
     }
 
-    public void assertSnapshotContainsNull(MultiversionedHeapSnapshot snapshot, long handle) {
+    public void assertSnapshotContainsNull(HeapSnapshot snapshot, long handle) {
         Deflated found = snapshot.read(handle);
         assertNull(found);
     }
 
-    public CommitResult writeUnconflicted(Deflatable... changes) {
+    public CommitResult writeAndAssertNoConflicts(Deflatable... changes) {
         CommitResult result = heap.commit(heap.getActiveSnapshot(), new ArrayIterator<Deflatable>(changes));
         assertTrue(result.isSuccess());
         assertEquals(changes.length, result.getWriteCount());
         return result;
     }
 
-    public void writeConflicted(MultiversionedHeapSnapshot startSnapshot, Deflatable... changes) {
-        MultiversionedHeapSnapshot startOfCommitSnapshot = heap.getActiveSnapshot();
+    public void writeConflicted(HeapSnapshot startSnapshot, Deflatable... changes) {
+        HeapSnapshot startOfCommitSnapshot = heap.getActiveSnapshot();
         CommitResult result = heap.commit(startSnapshot, changes);
         assertFalse(result.isSuccess());
         assertSame(startOfCommitSnapshot, heap.getActiveSnapshot());
@@ -97,16 +97,16 @@ public class DefaultMultiversionedHeapTest {
 
     @Test
     public void testRead_differentVersion() {
-        MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
         long handle = HandleGenerator.createHandle();
-        Deflatable change1 = new DummyDeflatable(handle, "foo");
-        Deflatable change2 = new DummyDeflatable(handle, "foo");
+        Deflatable change1 = new StringDeflatable(handle, "foo");
+        Deflatable change2 = new StringDeflatable(handle, "foo");
 
-        CommitResult result1 = writeUnconflicted(change1);
-        CommitResult result2 = writeUnconflicted(new DummyDeflatable("bar"));
-        CommitResult result3 = writeUnconflicted(change2);
-        CommitResult result4 = writeUnconflicted(new DummyDeflatable("blabla"));
+        CommitResult result1 = writeAndAssertNoConflicts(change1);
+        CommitResult result2 = writeAndAssertNoConflicts(new StringDeflatable("bar"));
+        CommitResult result3 = writeAndAssertNoConflicts(change2);
+        CommitResult result4 = writeAndAssertNoConflicts(new StringDeflatable("blabla"));
 
         assertSnapshotContainsNull(startSnapshot, handle);
         assertSnapshotContains(result1.getSnapshot(), change1.___deflate(result1.getSnapshot().getVersion()));
@@ -121,7 +121,7 @@ public class DefaultMultiversionedHeapTest {
     public void testWriteWithoutChanges() {
         copyStatistics();
 
-        MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
         CommitResult result = heap.commit(startSnapshot, EmptyIterator.INSTANCE);
 
@@ -139,14 +139,14 @@ public class DefaultMultiversionedHeapTest {
 
     @Test
     public void testSingleWrite() {
-        MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
         copyStatistics();
 
-        Deflatable deflatable = new DummyDeflatable("foo");
-        writeUnconflicted(deflatable);
+        Deflatable deflatable = new StringDeflatable("foo");
+        writeAndAssertNoConflicts(deflatable);
 
-        MultiversionedHeapSnapshot endSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot endSnapshot = heap.getActiveSnapshot();
         assertNotSame(startSnapshot, endSnapshot);
         assertEquals(startSnapshot.getVersion() + 1, endSnapshot.getVersion());
 
@@ -161,17 +161,17 @@ public class DefaultMultiversionedHeapTest {
 
     @Test
     public void testWrite_multipleWritesInSingleTransaction() {
-        MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
         copyStatistics();
 
-        Deflatable change1 = new DummyDeflatable("a");
-        Deflatable change2 = new DummyDeflatable("b");
-        Deflatable change3 = new DummyDeflatable("c");
+        Deflatable change1 = new StringDeflatable("a");
+        Deflatable change2 = new StringDeflatable("b");
+        Deflatable change3 = new StringDeflatable("c");
 
-        writeUnconflicted(change1, change2, change3);
+        writeAndAssertNoConflicts(change1, change2, change3);
 
-        MultiversionedHeapSnapshot endSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot endSnapshot = heap.getActiveSnapshot();
         assertNotSame(startSnapshot, endSnapshot);
         assertEquals(startSnapshot.getVersion() + 1, endSnapshot.getVersion());
 
@@ -185,8 +185,8 @@ public class DefaultMultiversionedHeapTest {
     }
 
     public void testDuplicateWriteLeadsToWriteConflict() {
-        MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
-        Deflatable change = new DummyDeflatable("foo");
+        HeapSnapshot startSnapshot = heap.getActiveSnapshot();
+        Deflatable change = new StringDeflatable("foo");
 
         copyStatistics();
 
@@ -202,21 +202,21 @@ public class DefaultMultiversionedHeapTest {
     public void testWrite_writeConflict() {
         long handle = 1;
 
-        Deflatable initial = new DummyDeflatable(handle, "base");
-        writeUnconflicted(initial);
+        Deflatable initial = new StringDeflatable(handle, "base");
+        writeAndAssertNoConflicts(initial);
 
-        MultiversionedHeapSnapshot afterInitialSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot afterInitialSnapshot = heap.getActiveSnapshot();
 
-        //this is the first write.
-        Deflatable first = new DummyDeflatable(handle, "first");
-        writeUnconflicted(first);
+        //this is the first createNewForWrite.
+        Deflatable first = new StringDeflatable(handle, "first");
+        writeAndAssertNoConflicts(first);
 
-        MultiversionedHeapSnapshot afterFirstSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot afterFirstSnapshot = heap.getActiveSnapshot();
 
         copyStatistics();
 
-        //this write should fail, because another write already has happened
-        Deflatable second = new DummyDeflatable(handle, "second");
+        //this createNewForWrite should fail, because another createNewForWrite already has happened
+        Deflatable second = new StringDeflatable(handle, "second");
         writeConflicted(afterInitialSnapshot, second);
 
         assertCommitSuccessCountIncreasedWith(0);
@@ -230,12 +230,12 @@ public class DefaultMultiversionedHeapTest {
 
     @Test
     public void testWrite_nonConflictingCommitsCanBeExecutedInParallel() {
-        Deflatable change1 = new DummyDeflatable("foo");
-        Deflatable change2 = new DummyDeflatable("bar");
+        Deflatable change1 = new StringDeflatable("foo");
+        Deflatable change2 = new StringDeflatable("bar");
 
         copyStatistics();
 
-        MultiversionedHeapSnapshot startSnapshot = heap.getActiveSnapshot();
+        HeapSnapshot startSnapshot = heap.getActiveSnapshot();
 
         CommitResult result1 = heap.commit(startSnapshot, change1);
         assertTrue(result1.isSuccess());
@@ -258,15 +258,15 @@ public class DefaultMultiversionedHeapTest {
     @Test
     public void testWrite_multipleOverwrites() {
         long handle = 1;
-        Deflatable change1 = new DummyDeflatable(handle, "first");
-        Deflatable change2 = new DummyDeflatable(handle, "second");
-        Deflatable change3 = new DummyDeflatable(handle, "third");
+        Deflatable change1 = new StringDeflatable(handle, "first");
+        Deflatable change2 = new StringDeflatable(handle, "second");
+        Deflatable change3 = new StringDeflatable(handle, "third");
 
         copyStatistics();
 
-        CommitResult result1 = writeUnconflicted(change1);
-        CommitResult result2 = writeUnconflicted(change2);
-        CommitResult result3 = writeUnconflicted(change3);
+        CommitResult result1 = writeAndAssertNoConflicts(change1);
+        CommitResult result2 = writeAndAssertNoConflicts(change2);
+        CommitResult result3 = writeAndAssertNoConflicts(change3);
 
         assertCommitSuccessCountIncreasedWith(3);
         assertCommitReadonlyCountIncreasedWith(0);
@@ -282,7 +282,7 @@ public class DefaultMultiversionedHeapTest {
 
     @Test
     public void testListenToHandleThatDoesntExist() {
-        Deflatable change = new DummyDeflatable("first");
+        Deflatable change = new StringDeflatable("first");
 
         Latch latch = new CheapLatch();
         try {
@@ -297,21 +297,21 @@ public class DefaultMultiversionedHeapTest {
 
     @Test
     public void testListen_handlesThatAreNotPartOfTheCommitAreNotWokenUp() {
-        Deflatable item1 = new DummyDeflatable("item1_v1");
-        Deflatable item2 = new DummyDeflatable("item2_v1");
-        writeUnconflicted(item1, item2);
+        Deflatable item1 = new StringDeflatable("item1_v1");
+        Deflatable item2 = new StringDeflatable("item2_v1");
+        writeAndAssertNoConflicts(item1, item2);
 
         Latch latch = new CheapLatch();
         heap.listen(heap.getActiveSnapshot(), latch, new long[]{item1.___getHandle()});
         assertFalse(latch.isOpen());
 
-        writeUnconflicted(item2);
+        writeAndAssertNoConflicts(item2);
         assertFalse(latch.isOpen());
     }
 
     @Test
     public void testListenWithoutAnyHandles() {
-        MultiversionedHeapSnapshot snapshot = heap.getActiveSnapshot();
+        HeapSnapshot snapshot = heap.getActiveSnapshot();
         Latch latch = new CheapLatch();
 
         try {
@@ -328,8 +328,8 @@ public class DefaultMultiversionedHeapTest {
     @Test
     public void testListenForEventThatAlreadyHasOccurred() {
         long handle = HandleGenerator.createHandle();
-        CommitResult firstWrite = writeUnconflicted(new DummyDeflatable(handle, "first"));
-        CommitResult secondWrite = writeUnconflicted(new DummyDeflatable(handle, "second"));
+        CommitResult firstWrite = writeAndAssertNoConflicts(new StringDeflatable(handle, "first"));
+        CommitResult secondWrite = writeAndAssertNoConflicts(new StringDeflatable(handle, "second"));
 
         Latch latch = new CheapLatch();
         heap.listen(firstWrite.getSnapshot(), latch, new long[]{handle});
@@ -338,8 +338,8 @@ public class DefaultMultiversionedHeapTest {
 
     @Test
     public void testListenerIsTriggeredUpByWrite() {
-        Deflatable change = new DummyDeflatable("first");
-        writeUnconflicted(change);
+        Deflatable change = new StringDeflatable("first");
+        writeAndAssertNoConflicts(change);
 
         Latch latch = new CheapLatch();
         heap.listen(heap.getActiveSnapshot(), latch, new long[]{change.___getHandle()});
@@ -347,7 +347,7 @@ public class DefaultMultiversionedHeapTest {
 
         copyStatistics();
 
-        writeUnconflicted(change);
+        writeAndAssertNoConflicts(change);
 
         assertCommitSuccessCountIncreasedWith(1);
         assertCommitReadonlyCountIncreasedWith(0);
