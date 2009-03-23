@@ -27,7 +27,7 @@ public interface Stm<T extends Transaction> {
      * <p/>
      * This method is threadsafe.
      *
-     * @param predecessor
+     * @param predecessor the transaction that is 'retried'.
      * @return the started Transaction
      * @throws org.codehaus.multiverse.api.exceptions.NoProgressPossibleException
      *
@@ -45,9 +45,9 @@ public interface Stm<T extends Transaction> {
      * <p/>
      * This method is threadsafe.
      *
-     * @param predecessor
-     * @param timeout
-     * @param unit
+     * @param predecessor the transaction that is 'retried'.
+     * @param timeout     the maximum amount of time to wait.
+     * @param unit        the timeunit for timeout.
      * @return the started Transaction
      * @throws InterruptedException if the thread is interrupted.
      * @throws TimeoutException     if a timeout occurred.

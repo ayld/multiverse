@@ -12,10 +12,10 @@ import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.LockNoWaitR
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm.MultiversionedTransactionImpl;
 import org.codehaus.multiverse.multiversionedstm.utils.StmObjectIterator;
-import org.codehaus.multiverse.util.Pair;
-import org.codehaus.multiverse.util.iterators.ResetableIterator;
-import org.codehaus.multiverse.util.latches.CheapLatch;
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.Pair;
+import org.codehaus.multiverse.utils.iterators.ResetableIterator;
+import org.codehaus.multiverse.utils.latches.CheapLatch;
+import org.codehaus.multiverse.utils.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.Map;
@@ -228,7 +228,7 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
             if (holder == null) {
                 //so the object doesn't exist in the current transaction, lets look in the heap if there is
                 //a dehydrated version.
-                Deflated dehydratedObject = snapshot.read(handle);
+                DehydratedStmObject dehydratedObject = (DehydratedStmObject) snapshot.read(handle);
 
                 //if dehydratedObject doesn't exist in the heap, the object that is used is not valid.
                 if (dehydratedObject == null)
@@ -444,10 +444,10 @@ public final class MultiversionedStm implements Stm<MultiversionedTransactionImp
         }
 
         private class UnloadedHolderImpl implements UnloadedHolder {
-            private final Deflated dehydratedObject;
+            private final DehydratedStmObject dehydratedObject;
             private StmObject ref;
 
-            private UnloadedHolderImpl(Deflated dehydratedObject) {
+            private UnloadedHolderImpl(DehydratedStmObject dehydratedObject) {
                 this.dehydratedObject = dehydratedObject;
             }
 

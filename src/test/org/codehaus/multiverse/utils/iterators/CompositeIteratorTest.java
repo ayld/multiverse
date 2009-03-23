@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util.iterators;
+package org.codehaus.multiverse.utils.iterators;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
@@ -11,6 +11,7 @@ public class CompositeIteratorTest {
 
     private CompositeIterator iterator;
 
+    @SuppressWarnings({"EmptyCatchBlock"})
     private void assertHasNoNext() {
         assertFalse(iterator.hasNext());
 

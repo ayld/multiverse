@@ -1,22 +1,22 @@
 package org.codehaus.multiverse.multiversionedheap.standard;
 
 import org.codehaus.multiverse.multiversionedheap.DummyDeflated;
-import org.codehaus.multiverse.util.latches.Latch;
-import org.codehaus.multiverse.util.latches.StandardLatch;
+import org.codehaus.multiverse.utils.latches.Latch;
+import org.codehaus.multiverse.utils.latches.StandardLatch;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class HeapNodeTest_createNewForAddingListenerTest {
 
-    public Block createBlock(long handle) {
+    Block createBlock(long handle) {
         return new Block(new DummyDeflated(handle));
     }
 
-    public HeapNode createLeaf(Block block) {
+    HeapNode createLeaf(Block block) {
         return new HeapNode(block);
     }
 
-    public HeapNode createLeaf(int handle) {
+    HeapNode createLeaf(int handle) {
         return createLeaf(createBlock(handle));
     }
 

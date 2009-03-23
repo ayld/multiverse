@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Peter Veentjer.
  */
+@SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
 public class ClassicStackTest {
     private BlockingDeque stack;
 

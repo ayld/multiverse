@@ -2,9 +2,10 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
+import org.codehaus.multiverse.utils.iterators.EmptyIterator;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -68,7 +69,7 @@ public class IntegerConstant implements StmObject {
         return dehydrated == null;
     }
 
-    public static class DehydratedIntegerConstant extends AbstractDeflated {
+    public static class DehydratedIntegerConstant extends AbstractDeflated implements DehydratedStmObject {
         private final IntegerConstant instance;
 
         DehydratedIntegerConstant(IntegerConstant instance, long commitVersion) {

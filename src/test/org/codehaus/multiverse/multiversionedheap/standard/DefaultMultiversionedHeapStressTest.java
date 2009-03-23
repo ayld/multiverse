@@ -77,14 +77,14 @@ public class DefaultMultiversionedHeapStressTest {
         return result;
     }
 
-    public StressThread[] createStressThreads(int count) {
+    StressThread[] createStressThreads(int count) {
         StressThread[] threads = new StressThread[count];
         for (int k = 0; k < count; k++)
             threads[k] = new StressThread();
         return threads;
     }
 
-    AtomicInteger threadCounter = new AtomicInteger();
+    private AtomicInteger threadCounter = new AtomicInteger();
 
     class StressThread extends TestThread {
 

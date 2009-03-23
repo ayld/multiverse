@@ -8,10 +8,10 @@ import org.codehaus.multiverse.multiversionedheap.Deflatable;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
 import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap;
-import org.codehaus.multiverse.util.Pair;
-import org.codehaus.multiverse.util.iterators.ArrayIterator;
-import org.codehaus.multiverse.util.iterators.ResetableIterator;
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.Pair;
+import org.codehaus.multiverse.utils.iterators.ArrayIterator;
+import org.codehaus.multiverse.utils.iterators.ResetableIterator;
+import org.codehaus.multiverse.utils.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -376,9 +376,9 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
     }
 
     private class CreateNewSnapshotResult {
-        HeapSnapshotImpl createdSnapshot;
-        boolean success;
-        int writeCount;
+        final HeapSnapshotImpl createdSnapshot;
+        final boolean success;
+        final int writeCount;
 
         CreateNewSnapshotResult(int writeCount, HeapSnapshotImpl createdSnapshot) {
             this.createdSnapshot = createdSnapshot;
@@ -388,6 +388,8 @@ public final class DefaultMultiversionedHeap<I extends Deflated, D extends Defla
 
         CreateNewSnapshotResult() {
             this.success = false;
+            this.writeCount = 0;
+            this.createdSnapshot = null;
         }
     }
 }

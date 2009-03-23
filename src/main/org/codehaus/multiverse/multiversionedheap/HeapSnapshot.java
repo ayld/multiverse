@@ -2,7 +2,7 @@ package org.codehaus.multiverse.multiversionedheap;
 
 import org.codehaus.multiverse.api.LockMode;
 import org.codehaus.multiverse.api.TransactionId;
-import org.codehaus.multiverse.util.Pair;
+import org.codehaus.multiverse.utils.Pair;
 
 /**
  * A snapshot of a {@link MultiversionedHeap}. It provides a read consistent view over the heap. So even

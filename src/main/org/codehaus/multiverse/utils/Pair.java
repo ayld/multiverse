@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.utils;
 
 import static java.lang.String.format;
 
@@ -30,7 +30,7 @@ public final class Pair<A, B> {
     }
 
     private int hashCode(Object o) {
-        return o == null ? null : o.hashCode();
+        return o == null ? 0 : o.hashCode();
     }
 
     @Override

@@ -76,7 +76,7 @@ public class StackTest {
         assertFalse(hydratedStack.___isDirtyIgnoringStmMembers());
 
         //do readonly operation
-        int size = stack.size();
+        stack.size();
         //make sure that it isn't dirty.
         assertFalse(hydratedStack.___isDirtyIgnoringStmMembers());
     }
@@ -171,7 +171,7 @@ public class StackTest {
 
         MultiversionedStm stm = new MultiversionedStm();
         MultiversionedStm.MultiversionedTransactionImpl t = stm.startTransaction();
-        long handle = t.attachAsRoot(new Stack<Integer>(items.iterator()));
+        t.attachAsRoot(new Stack<Integer>(items.iterator()));
         t.commit();
 
         assertEquals(1, t.getWriteCount());
@@ -188,7 +188,7 @@ public class StackTest {
 
         MultiversionedStm.MultiversionedTransactionImpl t2 = stm.startTransaction();
         Stack<Integer> stack = (Stack<Integer>) t2.read(handle);
-        List<Integer> found = stack.drain();
+        stack.drain();
 
         assertEquals(1, t2.getHydratedObjectCount());
     }

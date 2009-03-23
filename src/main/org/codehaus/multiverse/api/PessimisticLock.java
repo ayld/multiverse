@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.api;
 
-import org.codehaus.multiverse.util.Pair;
+import org.codehaus.multiverse.utils.Pair;
 
 /**
  * A PessimisticLock provides control on the pessimistic locking behavior of an object in the Stm. A

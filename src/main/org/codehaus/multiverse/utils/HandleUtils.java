@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.utils;
 
 import org.codehaus.multiverse.api.exceptions.NoSuchObjectException;
 

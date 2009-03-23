@@ -8,12 +8,13 @@ import org.codehaus.multiverse.api.exceptions.RetryError;
 import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
-import org.codehaus.multiverse.util.iterators.InstanceIterator;
-import org.codehaus.multiverse.util.latches.CheapLatch;
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.iterators.InstanceIterator;
+import org.codehaus.multiverse.utils.latches.CheapLatch;
+import org.codehaus.multiverse.utils.latches.Latch;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -101,7 +102,7 @@ public class WorkingOnBareHeapStackTest {
         }
 
         public CommitResult runInsideTransaction(HeapSnapshot snapshot) {
-            Stack stack = (Stack) snapshot.read(handle).___inflate(dummmyTransaction);
+            Stack stack = (Stack) ((DehydratedStmObject) snapshot.read(handle)).___inflate(dummmyTransaction);
             stack.pop();
             return heap.commit(snapshot, new InstanceIterator(stack));
         }
@@ -150,7 +151,7 @@ public class WorkingOnBareHeapStackTest {
         }
 
         public CommitResult runInsideTransaction(HeapSnapshot snapshot) {
-            Stack stack = (Stack) snapshot.read(handle).___inflate(dummmyTransaction);
+            Stack stack = (Stack) ((DehydratedStmObject) snapshot.read(handle)).___inflate(dummmyTransaction);
             stack.push(item);
             return heap.commit(snapshot, new InstanceIterator(stack));
         }

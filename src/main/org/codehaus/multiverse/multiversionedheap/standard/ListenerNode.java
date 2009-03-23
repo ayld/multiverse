@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedheap.standard;
 
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.latches.Latch;
 
 /**
  * @author Peter Veentjer.
@@ -10,7 +10,6 @@ public class ListenerNode {
     private final ListenerNode previous;
 
     public ListenerNode(Latch listener, ListenerNode previous) {
-        if (listener == null) throw new NullPointerException();
         assert listener != null;
         this.latch = listener;
         this.previous = previous;

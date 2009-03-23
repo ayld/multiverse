@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util.iterators;
+package org.codehaus.multiverse.utils.iterators;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

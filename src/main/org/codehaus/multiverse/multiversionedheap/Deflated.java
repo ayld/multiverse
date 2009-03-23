@@ -1,7 +1,6 @@
 package org.codehaus.multiverse.multiversionedheap;
 
-import org.codehaus.multiverse.api.Transaction;
-import org.codehaus.multiverse.util.iterators.PLongIterator;
+import org.codehaus.multiverse.utils.iterators.PLongIterator;
 
 /**
  * A Deflated is the immutable result of a deflation of a Deflatable. A Deflated should not be mutable because
@@ -12,8 +11,6 @@ import org.codehaus.multiverse.util.iterators.PLongIterator;
  * needs a instance, the DeflatedPerson is read, a new instance is created based on this DeflatedPerson (so an inflation)
  * and this instance can be used by the transaction. It is possible that the same DeflatedPerson is read by concurrent
  * transactions, that is why a DeflatedPerson should be immutable.
- * <p/>
- * By using polymorfism, ( {@link #___inflate(Transaction)} different classes can be instantiated.
  *
  * @author Peter Veentjer.
  * @see org.codehaus.multiverse.multiversionedstm.StmObject
@@ -44,16 +41,4 @@ public interface Deflated {
      * @return an iterator over all handles to Deflated members.
      */
     PLongIterator ___memberHandles();
-
-    //boolean hasWriteConflict(Deflated older);
-
-    /**
-     * Inflates a Deflated to a Deflatable.
-     *
-     * @param transaction the transaction the created Deflatable is part of.
-     * @return the created StmObject.
-     * @see org.codehaus.multiverse.multiversionedstm.StmObject#___deflate ()
-     * @see org.codehaus.multiverse.multiversionedstm.StmObject#___isImmutableObjectGraph()
-     */
-    Deflatable ___inflate(Transaction transaction);
 }

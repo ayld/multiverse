@@ -4,8 +4,8 @@ import org.codehaus.multiverse.TestUtils;
 import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
 import org.codehaus.multiverse.multiversionedstm.*;
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
-import org.codehaus.multiverse.util.iterators.InstanceIterator;
+import org.codehaus.multiverse.utils.iterators.EmptyIterator;
+import org.codehaus.multiverse.utils.iterators.InstanceIterator;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -99,7 +99,7 @@ public class Person implements StmObject {
         if (initialDehydratedPerson.age != age)
             return true;
 
-        if (initialDehydratedPerson.name != name)
+        if (!StmObjectUtils.equals(initialDehydratedPerson.name, name))
             return true;
 
         if (parendHolder == null)
