@@ -3,8 +3,8 @@ package org.codehaus.multiverse.multiversionedheap.standard;
 import org.codehaus.multiverse.api.LockMode;
 import org.codehaus.multiverse.api.TransactionId;
 import org.codehaus.multiverse.multiversionedheap.DummyDeflated;
-import org.codehaus.multiverse.util.latches.Latch;
-import org.codehaus.multiverse.util.latches.StandardLatch;
+import org.codehaus.multiverse.utils.latches.Latch;
+import org.codehaus.multiverse.utils.latches.StandardLatch;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -75,5 +75,4 @@ public class Block_createNewForAddListenerTest {
         assertSame(lockMode, newBlock.getLockMode());
         assertIsClosed(listener);
     }
-
 }

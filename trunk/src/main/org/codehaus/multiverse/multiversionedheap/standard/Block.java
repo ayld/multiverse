@@ -3,14 +3,14 @@ package org.codehaus.multiverse.multiversionedheap.standard;
 import org.codehaus.multiverse.api.LockMode;
 import org.codehaus.multiverse.api.TransactionId;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.Stack;
 
 /**
- * A BLock is the stuff that is stored in the heap. A Block contains the inflatable, but can also contain
- * implementation specific stuff like locking information. It would be possible to store the Inflatable directly
+ * A BLock is the stuff that is stored in the heap. A Block contains the Deflated, but also contains
+ * stuff like locking information and listener information. It would be possible to store the Deflated directly
  * in the heap, and this was the original design. But because the Inflatable implementation is the responsibility
  * of StmObject, it is hard (almost impossible) to add extra fields.
  * <p/>
@@ -58,14 +58,15 @@ public class Block {
     }
 
     /**
-     * @param newDeflated
+     * @param newDeflated               the deflated that needs to be written
      * @param startOfTransactionVersion uses for writeconflict detection. If another transaction has committed
      *                                  after the current transaction has started, there is a write conflict. So
      *                                  if the version if equal or smaller than there is no write conflict.
+     * @param listenersToOpen           a Stack where the listeners that need to be opened are stored.
      * @return the newly created Block or null if there was a writeconflict.
      */
     public Block createNewForUpdate(Deflated newDeflated, long startOfTransactionVersion, Stack<ListenerNode> listenersToOpen) {
-        assert newDeflated != null;
+        assert newDeflated != null && listenersToOpen != null;
         assert newDeflated.___getHandle() == deflated.___getHandle();
 
         if (deflated.___getVersion() > startOfTransactionVersion)
@@ -75,6 +76,7 @@ public class Block {
         //an the latches will be opened , so no need to transfer them along.
         if (listenerRoot != null)
             listenersToOpen.add(listenerRoot);
+
         return new Block(newDeflated, null, LockMode.free, null);
     }
 
@@ -110,11 +112,10 @@ public class Block {
     }
 
     private Block createNewForFreeLock(TransactionId newLockOwner, LockMode newLockMode) {
-        if (newLockMode == LockMode.free) {
+        if (newLockMode == LockMode.free)
             return this;
-        } else {
-            return new Block(deflated, newLockOwner, newLockMode, listenerRoot);
-        }
+
+        return new Block(deflated, newLockOwner, newLockMode, listenerRoot);
     }
 
     @Override

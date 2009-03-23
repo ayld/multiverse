@@ -3,13 +3,13 @@ package org.codehaus.multiverse.multiversionedheap.standard;
 import org.codehaus.multiverse.api.LockMode;
 import org.codehaus.multiverse.api.TransactionId;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.latches.Latch;
 
 import static java.lang.Math.max;
 import java.util.Stack;
 
 /**
- * A binary node that can be placed in the GrowingMultiversionedHeap.
+ * A Node that stores the information of the Heap; the Block.
  * <p/>
  * Searches have a complexity of O(log n)
  * <p/>
@@ -154,36 +154,34 @@ public final class HeapNode {
                     return this;
 
                 //since the left and right trees are balanced, the new node will be balanced.
-                //todo: ugly cast
                 return new HeapNode(newBlock, left, right);
             }
             case COMPARE_GO_RIGHT: {
-                HeapNode newRight;
-                /*
-                if (right == null) {
-                    //todo: error
-                    newRight = new HeapNode (change, null, null);
-                } else {
-                    newRight = right.createNewForWrite(change, maximumVersion);
-                    //if (newRight == null)
-                    //    return null;
-                }
+                if (right == null)
+                    return null;
 
-                return new HeapNode (block, left, newRight);*/
+                HeapNode newRight = right.createNewForUpdatingLockMode(owner, lockMode, handle);
+                if (newRight == null)
+                    return null;
+
+                //if there is no change, we can return the original node.
+                if (newRight == right)
+                    return this;
+
+                return new HeapNode(block, left, newRight);
             }
             case COMPARE_GO_LEFT: {
-                HeapNode newLeft;
-                /*
-                if (left == null) {
-                    //todo: error
-                    newLeft = new HeapNode (change, null, null);
-                } else {
-                    newLeft = left.createNewForWrite(change, maximumVersion);
-                    //if (newLeft == null)
-                    //    return null;
-                }
+                if (left == null)
+                    return null;
 
-                return new HeapNode (block, newLeft, right);*/
+                HeapNode newLeft = left.createNewForUpdatingLockMode(owner, lockMode, handle);
+                if (newLeft == null)
+                    return null;
+
+                if (newLeft == left)
+                    return this;
+
+                return new HeapNode(block, newLeft, right);
             }
             default:
                 throw new RuntimeException("unhandeled compare " + compare);
@@ -319,7 +317,7 @@ public final class HeapNode {
      *
      * @return the result of the double right rotation on this HeapTreeNode.
      */
-    public HeapNode doubleRotateRight() {
+    HeapNode doubleRotateRight() {
         HeapNode newLeft = left.singleRotateLeft();
         return new HeapNode(block, newLeft, right).singleRotateRight();
     }

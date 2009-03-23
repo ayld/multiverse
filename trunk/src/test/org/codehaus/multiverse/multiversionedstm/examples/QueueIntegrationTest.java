@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"ClassExplicitlyExtendsThread"})
 public class QueueIntegrationTest {
 
     private List<String> producedList = new LinkedList<String>();
@@ -84,7 +85,7 @@ public class QueueIntegrationTest {
         new Thread() {
             public void run() {
                 try {
-                    String result = atomicPop();
+                    atomicPop();
                     //System.out.println(Thread.currentThread() + " consumed: " + result);
                 } catch (RuntimeException ex) {
                     ex.printStackTrace();

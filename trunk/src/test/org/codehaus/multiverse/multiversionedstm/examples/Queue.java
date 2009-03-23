@@ -6,7 +6,7 @@ import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
-import org.codehaus.multiverse.util.iterators.ArrayIterator;
+import org.codehaus.multiverse.utils.iterators.ArrayIterator;
 
 import static java.util.Collections.reverse;
 import java.util.Iterator;

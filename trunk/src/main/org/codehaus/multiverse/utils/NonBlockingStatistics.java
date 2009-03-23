@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.utils;
 
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;

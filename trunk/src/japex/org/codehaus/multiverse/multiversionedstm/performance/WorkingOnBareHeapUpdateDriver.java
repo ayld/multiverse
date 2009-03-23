@@ -7,9 +7,10 @@ import static org.codehaus.multiverse.TestUtils.commit;
 import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
 import org.codehaus.multiverse.multiversionedheap.standard.DefaultMultiversionedHeap;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedStm;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;
-import org.codehaus.multiverse.util.iterators.InstanceIterator;
+import org.codehaus.multiverse.utils.iterators.InstanceIterator;
 import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
@@ -44,7 +45,7 @@ public class WorkingOnBareHeapUpdateDriver extends JapexDriverBase {
 
         for (long k = 0; k < transactionCount; k++) {
             HeapSnapshot active = heap.getActiveSnapshot();
-            IntegerValue value = (IntegerValue) active.read(handle).___inflate(null);
+            IntegerValue value = (IntegerValue) ((DehydratedStmObject) active.read(handle)).___inflate(null);
             value.inc();
             CommitResult result = heap.commit(active, new InstanceIterator(value));
             if (!result.isSuccess())

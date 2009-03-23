@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings({"ClassExplicitlyExtendsThread"})
 public class StackIntegrationTest {
     private long stackHandle;
     private Set<String> producedSet = new HashSet<String>();

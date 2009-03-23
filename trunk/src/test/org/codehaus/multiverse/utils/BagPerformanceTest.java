@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util;
+package org.codehaus.multiverse.utils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A performance test for {@link org.codehaus.multiverse.util.Bag} to make sure that it performs better than the structure
+ * A performance test for {@link org.codehaus.multiverse.utils.Bag} to make sure that it performs better than the structure
  * it replaced: java.util.LinkedList.
  *
  * @author Peter Veentjer.

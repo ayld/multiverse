@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util.iterators;
+package org.codehaus.multiverse.utils.iterators;
 
 import static org.codehaus.multiverse.TestUtils.assertAsListContent;
 import static org.junit.Assert.fail;

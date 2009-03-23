@@ -2,9 +2,10 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 
 import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
+import org.codehaus.multiverse.multiversionedstm.DehydratedStmObject;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
+import org.codehaus.multiverse.utils.iterators.EmptyIterator;
 
 import static java.lang.String.format;
 import java.util.Iterator;
@@ -94,7 +95,7 @@ public class Reference<E> implements StmObject {
         return false;
     }
 
-    static class DehydratedReference<E> extends AbstractDeflated {
+    static class DehydratedReference<E> extends AbstractDeflated implements DehydratedStmObject {
         private final E ref;
 
         DehydratedReference(Reference<E> reference, long version) {

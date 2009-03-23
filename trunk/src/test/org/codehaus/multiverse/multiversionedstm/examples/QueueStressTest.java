@@ -36,7 +36,7 @@ public class QueueStressTest {
     public void setUp() throws Exception {
         heap = new DefaultMultiversionedHeap();
         stm = new MultiversionedStm(heap);
-        queueHandle = commit(stm, new Queue());
+        queueHandle = commit(stm, new Queue(100000));
     }
 
     @After
@@ -58,9 +58,9 @@ public class QueueStressTest {
         testProducerConsumer(1000000);
     }
 
-    //@Test
+    @Test
     public void testProducerConsumer_5000000() {
-        testProducerConsumer(50000000);
+        testProducerConsumer(500000000);
     }
 
     public void testProducerConsumer(int itemCount) {

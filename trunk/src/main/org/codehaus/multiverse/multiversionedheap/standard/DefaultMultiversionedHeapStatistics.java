@@ -1,6 +1,6 @@
 package org.codehaus.multiverse.multiversionedheap.standard;
 
-import org.codehaus.multiverse.util.NonBlockingStatistics;
+import org.codehaus.multiverse.utils.NonBlockingStatistics;
 
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;

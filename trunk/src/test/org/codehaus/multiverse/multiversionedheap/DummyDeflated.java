@@ -22,10 +22,11 @@ public class DummyDeflated extends AbstractDeflated {
         this.value = deflatable.getValue();
     }
 
-    public String getValue() {
+    String getValue() {
         return value;
     }
 
+    @SuppressWarnings({"UnusedParameters"})
     public StringDeflatable ___inflate(Transaction transaction) {
         throw new RuntimeException();
     }

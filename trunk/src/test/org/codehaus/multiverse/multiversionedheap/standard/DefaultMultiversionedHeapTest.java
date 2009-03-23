@@ -8,10 +8,10 @@ import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.CommitResult;
 import org.codehaus.multiverse.multiversionedheap.StringDeflatable;
 import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.util.iterators.ArrayIterator;
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
-import org.codehaus.multiverse.util.latches.CheapLatch;
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.iterators.ArrayIterator;
+import org.codehaus.multiverse.utils.iterators.EmptyIterator;
+import org.codehaus.multiverse.utils.latches.CheapLatch;
+import org.codehaus.multiverse.utils.latches.Latch;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,55 +32,55 @@ public class DefaultMultiversionedHeapTest {
         statistics = heap.getStatistics();
     }
 
-    public void copyStatistics() {
+    void copyStatistics() {
         startCommitCount = statistics.commitSuccessCount.longValue();
         startCommittedStoreCount = statistics.committedStoreCount.longValue();
         startWriteConflictCount = statistics.commitWriteConflictCount.longValue();
         startCommitReadonlyCount = statistics.commitReadonlyCount.longValue();
     }
 
-    public void assertCommitReadonlyCountIncreasedWith(int delta) {
+    void assertCommitReadonlyCountIncreasedWith(int delta) {
         assertEquals(startCommitReadonlyCount + delta, statistics.commitReadonlyCount.longValue());
     }
 
-    public void assertWriteConflictCountIncreasedWith(int delta) {
+    void assertWriteConflictCountIncreasedWith(int delta) {
         assertEquals(startWriteConflictCount + delta, statistics.commitWriteConflictCount.longValue());
     }
 
-    public void assertCommitSuccessCountIncreasedWith(int delta) {
+    void assertCommitSuccessCountIncreasedWith(int delta) {
         assertEquals(startCommitCount + delta, statistics.commitSuccessCount.longValue());
     }
 
-    public void assertCommittedStoreCountIncreasedWith(int delta) {
+    void assertCommittedStoreCountIncreasedWith(int delta) {
         assertEquals(startCommittedStoreCount + delta, statistics.committedStoreCount.longValue());
     }
 
-    public void assertActiveSnapshotContains(Deflated expected) {
+    void assertActiveSnapshotContains(Deflated expected) {
         assertSnapshotContains(heap.getActiveSnapshot(), expected);
     }
 
-    public void assertSnapshotContains(HeapSnapshot snapshot, Deflated expected) {
+    void assertSnapshotContains(HeapSnapshot snapshot, Deflated expected) {
         Deflated found = snapshot.read(expected.___getHandle());
         assertEquals(expected, found);
     }
 
-    public void assertActiveSnapshot(HeapSnapshot expected) {
+    void assertActiveSnapshot(HeapSnapshot expected) {
         assertSame(expected, heap.getActiveSnapshot());
     }
 
-    public void assertSnapshotContainsNull(HeapSnapshot snapshot, long handle) {
+    void assertSnapshotContainsNull(HeapSnapshot snapshot, long handle) {
         Deflated found = snapshot.read(handle);
         assertNull(found);
     }
 
-    public CommitResult writeAndAssertNoConflicts(Deflatable... changes) {
+    CommitResult writeAndAssertNoConflicts(Deflatable... changes) {
         CommitResult result = heap.commit(heap.getActiveSnapshot(), new ArrayIterator<Deflatable>(changes));
         assertTrue(result.isSuccess());
         assertEquals(changes.length, result.getWriteCount());
         return result;
     }
 
-    public void writeConflicted(HeapSnapshot startSnapshot, Deflatable... changes) {
+    void writeConflicted(HeapSnapshot startSnapshot, Deflatable... changes) {
         HeapSnapshot startOfCommitSnapshot = heap.getActiveSnapshot();
         CommitResult result = heap.commit(startSnapshot, changes);
         assertFalse(result.isSuccess());

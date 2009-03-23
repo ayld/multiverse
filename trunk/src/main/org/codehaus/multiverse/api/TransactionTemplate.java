@@ -82,7 +82,7 @@ public abstract class TransactionTemplate<E> {
      * @throws AbortedTransactionException if the transaction is aborted.
      * @throws org.codehaus.multiverse.api.exceptions.TooManyRetriesException
      *                                     if the transaction needs to be retried too many times.
-     * @throws RuntimeException
+     * @throws RuntimeException            all
      */
     public final E execute() {
         try {

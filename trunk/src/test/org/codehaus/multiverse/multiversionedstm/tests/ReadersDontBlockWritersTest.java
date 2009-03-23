@@ -22,7 +22,7 @@ public class ReadersDontBlockWritersTest {
     public void test() {
         Transaction readTransaction = stm.startTransaction();
         IntegerValue readValue = (IntegerValue) readTransaction.read(handle);
-        int value = readValue.get();
+        readValue.get();
 
         Transaction writeTransaction = stm.startTransaction();
         IntegerValue writtenValue = (IntegerValue) writeTransaction.read(handle);

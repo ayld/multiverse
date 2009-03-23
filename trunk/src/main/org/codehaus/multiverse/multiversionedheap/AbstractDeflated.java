@@ -1,7 +1,7 @@
 package org.codehaus.multiverse.multiversionedheap;
 
-import org.codehaus.multiverse.util.iterators.PLongArrayIterator;
-import org.codehaus.multiverse.util.iterators.PLongIterator;
+import org.codehaus.multiverse.utils.iterators.PLongArrayIterator;
+import org.codehaus.multiverse.utils.iterators.PLongIterator;
 
 /**
  * Convenience implementation of the {@link Deflated}.

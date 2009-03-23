@@ -236,7 +236,7 @@ public class Transaction_CommitTest extends AbstractMultiversionedStmTest {
         long initialVersion = stm.getCurrentVersion();
 
         createActiveTransaction();
-        IntegerValue loaded = (IntegerValue) transaction.read(handle);
+        transaction.read(handle);
         transaction.commit();
 
         assertTransactionIsCommitted();

@@ -7,7 +7,7 @@ package org.codehaus.multiverse.api;
  */
 public final class TransactionThreadLocal {
 
-    private static ThreadLocal<Transaction> transactionThreadLocal = new ThreadLocal<Transaction>();
+    private static final ThreadLocal<Transaction> transactionThreadLocal = new ThreadLocal<Transaction>();
 
     /**
      * Gets the current transaction. If no transaction is set, null is returned.

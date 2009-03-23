@@ -56,7 +56,7 @@ public abstract class AbstractStmTest<S extends Stm, T extends Transaction> exte
     public void assertNoObjectInStm(long ptr) {
         Transaction t = stm.startTransaction();
         try {
-            Object x = t.read(ptr);
+            t.read(ptr);
             fail();
         } catch (NoSuchObjectException ex) {
         } finally {

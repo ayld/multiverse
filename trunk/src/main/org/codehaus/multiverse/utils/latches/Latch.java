@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util.latches;
+package org.codehaus.multiverse.utils.latches;
 
 import java.util.concurrent.TimeUnit;
 
@@ -46,9 +46,10 @@ public interface Latch {
     /**
      * Waits for this Latch to open or till a timeout occurs.
      *
-     * @param timeout
-     * @param unit
-     * @throws InterruptedException
+     * @param timeout the maximum time to wait.
+     * @param unit    the TimeUnit the timeout is expressed in
+     * @throws InterruptedException          if the wait is interrupted. It depends on the implementation of this
+     *                                       method really is responsive to interrupts.
      * @throws NullPointerException          if  unit is null
      * @throws UnsupportedOperationException if the implementation doesn't support this functionality.
      */

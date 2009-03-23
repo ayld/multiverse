@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util.latches;
+package org.codehaus.multiverse.utils.latches;
 
 import static java.lang.String.format;
 import java.util.concurrent.TimeUnit;
@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Peter Veentjer.
  */
+@SuppressWarnings({"SynchronizeOnThis", "WaitOrAwaitWithoutTimeout"})
 public final class CheapLatch implements Latch {
 
     public final static CheapLatch OPEN_LATCH = new CheapLatch(true);

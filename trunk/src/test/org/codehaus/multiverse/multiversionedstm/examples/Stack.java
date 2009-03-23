@@ -7,8 +7,8 @@ import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
 import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
 import org.codehaus.multiverse.multiversionedstm.StmObject;
 import static org.codehaus.multiverse.multiversionedstm.TransactionMethods.retry;
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
-import org.codehaus.multiverse.util.iterators.PLongIterator;
+import org.codehaus.multiverse.utils.iterators.EmptyIterator;
+import org.codehaus.multiverse.utils.iterators.PLongIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;

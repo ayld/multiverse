@@ -6,7 +6,7 @@ import org.codehaus.multiverse.api.PessimisticLock;
 import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.api.TransactionId;
 import org.codehaus.multiverse.multiversionedstm.examples.Stack;
-import org.codehaus.multiverse.util.Pair;
+import org.codehaus.multiverse.utils.Pair;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Before;

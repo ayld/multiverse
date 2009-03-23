@@ -16,19 +16,19 @@ public class HeapNodeTest {
     private static final int CREATE_TREE_SANITY_CHECK = 1000;
 
 
-    public void assertSize(int expected) {
+    void assertSize(int expected) {
         assertEquals(expected, node.size());
     }
 
-    public void assertHeight(int depth) {
+    void assertHeight(int depth) {
         assertEquals(depth, node.height());
     }
 
-    public void assertHandle(HeapNode node, long handle) {
+    void assertHandle(HeapNode node, long handle) {
         assertEquals(handle, node.getHandle());
     }
 
-    public void assertIsLeaf(HeapNode node) {
+    void assertIsLeaf(HeapNode node) {
         assertNull(node.getLeft());
         assertNull(node.getRight());
     }
@@ -37,7 +37,7 @@ public class HeapNodeTest {
         assertNull(node.getLeft());
     }
 
-    public void assertLeft(HeapNode node, long value) {
+    void assertLeft(HeapNode node, long value) {
         assertNotNull(node.getLeft());
         assertEquals(value, node.getLeft().getHandle());
     }
@@ -46,17 +46,17 @@ public class HeapNodeTest {
         assertNull(node.getRight());
     }
 
-    public void assertRight(HeapNode node, long value) {
+    void assertRight(HeapNode node, long value) {
         assertNotNull(node.getRight());
         assertEquals(value, node.getRight().getHandle());
     }
 
-    public void assertIsBalanced() {
+    void assertIsBalanced() {
         int balanceFactor = node.balanceFactor();
         assertTrue("tree is not balanced, balanceFactor = " + balanceFactor, balanceFactor == 0 || balanceFactor == -1 || balanceFactor == 1);
     }
 
-    public HeapNode createLeaf(long handle) {
+    HeapNode createLeaf(long handle) {
         return new HeapNode(new Block(new DummyDeflated(handle)), null, null);
     }
 
@@ -65,19 +65,19 @@ public class HeapNodeTest {
     }
 
 
-    public HeapNode createBranch(long handle, long leftHandle, long rightHandle) {
+    HeapNode createBranch(long handle, long leftHandle, long rightHandle) {
         return new HeapNode(new Block(new DummyDeflated(handle)), createLeaf(leftHandle), createLeaf(rightHandle));
     }
 
-    public HeapNode createBranch(long handle, HeapNode left, HeapNode right) {
+    HeapNode createBranch(long handle, HeapNode left, HeapNode right) {
         return new HeapNode(new Block(new DummyDeflated(handle)), left, right);
     }
 
-    public HeapNode createLeftBranch(long handle, long leftHandle) {
+    HeapNode createLeftBranch(long handle, long leftHandle) {
         return new HeapNode(new Block(new DummyDeflated(handle)), createLeaf(leftHandle), null);
     }
 
-    public HeapNode createRightBranch(long handle, long rightHandle) {
+    HeapNode createRightBranch(long handle, long rightHandle) {
         return new HeapNode(new Block(new DummyDeflated(handle)), null, createLeaf(rightHandle));
     }
 
@@ -304,13 +304,13 @@ public class HeapNodeTest {
 
     private Set<Long> handles = new HashSet<Long>();
 
-    public long createRandomHandle() {
+    long createRandomHandle() {
         long handle = Math.round(Math.random() * HANDLE_RANGE);
         handles.add(handle);
         return handle;
     }
 
-    public void createTree(int count) {
+    void createTree(int count) {
         handles.clear();
 
         int checkMod = max(count / CREATE_TREE_SANITY_CHECK, 1);

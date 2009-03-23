@@ -2,8 +2,8 @@ package org.codehaus.multiverse.multiversionedheap;
 
 import org.codehaus.multiverse.api.LockMode;
 import org.codehaus.multiverse.api.TransactionId;
-import org.codehaus.multiverse.util.iterators.ResetableIterator;
-import org.codehaus.multiverse.util.latches.Latch;
+import org.codehaus.multiverse.utils.iterators.ResetableIterator;
+import org.codehaus.multiverse.utils.latches.Latch;
 
 /**
  * A multiversioned Heap that can be used to contain the content stores in an stm.
@@ -57,13 +57,17 @@ public interface MultiversionedHeap<I extends Deflated, D extends Deflatable> {
     CommitResult commit(HeapSnapshot<I> startSnapshot, ResetableIterator<D> changes);
 
     /**
-     * Releases all resources acquired by a transaction. For example the locks.
+     * Releases all resources acquired by a transaction. For example the locks. If there is nothing to do,
+     * the call is ignored.
+     *
+     * @param transactionId the id of the transaction to abort.
+     * @throws NullPointerException if transactionId is null.
      */
     void abort(TransactionId transactionId);
 
     /**
-     * @param handle
-     * @param lockMode
+     * @param transactionId the id of the Transaction to get the lock for.
+     * @param lockMode      the mode of the Lock
      * @return
      */
     LockNoWaitResult lockNoWait(TransactionId transactionId, LockMode lockMode, long handle);

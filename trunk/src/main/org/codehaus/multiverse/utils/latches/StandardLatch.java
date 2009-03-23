@@ -1,4 +1,4 @@
-package org.codehaus.multiverse.util.latches;
+package org.codehaus.multiverse.utils.latches;
 
 import static java.lang.String.format;
 import java.util.concurrent.TimeUnit;

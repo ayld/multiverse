@@ -7,7 +7,7 @@ import org.codehaus.multiverse.multiversionedheap.Deflatable;
 import org.codehaus.multiverse.multiversionedheap.HeapSnapshot;
 import org.codehaus.multiverse.multiversionedheap.MultiversionedHeap.LockNoWaitResult;
 import org.codehaus.multiverse.multiversionedstm.examples.IntegerValue;
-import org.codehaus.multiverse.util.Pair;
+import org.codehaus.multiverse.utils.Pair;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;

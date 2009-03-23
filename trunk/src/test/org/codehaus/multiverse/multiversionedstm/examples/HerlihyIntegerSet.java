@@ -3,14 +3,10 @@ package org.codehaus.multiverse.multiversionedstm.examples;
 import org.codehaus.multiverse.TestUtils;
 import org.codehaus.multiverse.api.Transaction;
 import org.codehaus.multiverse.multiversionedheap.AbstractDeflated;
-import org.codehaus.multiverse.multiversionedheap.Deflatable;
 import org.codehaus.multiverse.multiversionedheap.Deflated;
-import org.codehaus.multiverse.multiversionedstm.HandleGenerator;
-import org.codehaus.multiverse.multiversionedstm.MultiversionedTransaction;
-import org.codehaus.multiverse.multiversionedstm.StmObject;
-import org.codehaus.multiverse.multiversionedstm.StmObjectUtils;
-import org.codehaus.multiverse.util.iterators.EmptyIterator;
-import org.codehaus.multiverse.util.iterators.InstanceIterator;
+import org.codehaus.multiverse.multiversionedstm.*;
+import org.codehaus.multiverse.utils.iterators.EmptyIterator;
+import org.codehaus.multiverse.utils.iterators.InstanceIterator;
 
 import java.util.Iterator;
 
@@ -230,7 +226,7 @@ public final class HerlihyIntegerSet implements StmObject {
         return dehydrated = new DehydratedIntegerSet(this, version);
     }
 
-    private static class DehydratedIntegerSet extends AbstractDeflated {
+    private static class DehydratedIntegerSet extends AbstractDeflated implements DehydratedStmObject {
         final long headHandle;
 
         public DehydratedIntegerSet(HerlihyIntegerSet integerSet, long version) {
@@ -239,12 +235,12 @@ public final class HerlihyIntegerSet implements StmObject {
         }
 
         @Override
-        public Deflatable ___inflate(Transaction transaction) {
+        public HerlihyIntegerSet ___inflate(Transaction transaction) {
             return new HerlihyIntegerSet(this, (MultiversionedTransaction) transaction);
         }
     }
 
-    private static class DehydratedNode extends AbstractDeflated {
+    private static class DehydratedNode extends AbstractDeflated implements DehydratedStmObject {
         final long nextHandle;
         final int value;
 
@@ -255,7 +251,7 @@ public final class HerlihyIntegerSet implements StmObject {
         }
 
         @Override
-        public Deflatable ___inflate(Transaction transaction) {
+        public Node ___inflate(Transaction transaction) {
             return new Node(this, (MultiversionedTransaction) transaction);
         }
     }
