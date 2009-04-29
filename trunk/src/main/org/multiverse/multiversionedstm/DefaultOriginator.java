@@ -11,6 +11,12 @@ import org.multiverse.util.latches.Latch;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Default {@link Originator} implementation.
+ *
+ * @author Peter Veentjer.
+ * @param <T>
+ */
 public final class DefaultOriginator<T> implements Originator<T> {
 
     private final AtomicReference<State> stateRef = new AtomicReference<State>();

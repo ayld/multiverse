@@ -3,6 +3,11 @@ package org.multiverse.multiversionedstm;
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * An object responsible for storing statistics of the {@link MultiversionedStm}.
+ *
+ * @author Peter Veentjer.
+ */
 public final class MultiversionedStmStatistics {
 
     private final AtomicLong materializedCount = new AtomicLong();

@@ -1,5 +1,7 @@
 package org.multiverse;
 
+import org.multiverse.api.*;
+
 public class DummyTransaction implements Transaction {
     @Override
     public void commit() {
