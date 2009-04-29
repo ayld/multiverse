@@ -6,7 +6,6 @@ import java.security.ProtectionDomain;
 
 
 /**
- *
  * @author Peter Veentjer.
  */
 public final class MultiverseJavaAgent {

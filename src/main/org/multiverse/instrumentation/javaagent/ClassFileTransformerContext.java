@@ -13,7 +13,6 @@ import java.lang.instrument.IllegalClassFormatException;
 public interface ClassFileTransformerContext {
 
     /**
-     *
      * @return
      * @throws IllegalClassFormatException
      */

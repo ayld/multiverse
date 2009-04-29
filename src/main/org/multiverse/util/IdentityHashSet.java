@@ -1,6 +1,8 @@
 package org.multiverse.util;
 
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
 
 public final class IdentityHashSet<E> extends AbstractSet<E> {
 

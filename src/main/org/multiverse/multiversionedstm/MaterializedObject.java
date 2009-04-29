@@ -14,6 +14,6 @@ public interface MaterializedObject {
 
 
     MaterializedObject getNextInChain();
-    
+
     void setNextInChain(MaterializedObject next);
 }

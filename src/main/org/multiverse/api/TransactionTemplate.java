@@ -3,12 +3,10 @@ package org.multiverse.api;
 import org.multiverse.api.exceptions.*;
 
 /**
- *
- *
  * idea: Could also be created by a factory method of the stm.
  *
- *  @param <E>
  * @author Peter Veentjer.
+ * @param <E>
  */
 public abstract class TransactionTemplate<E> {
 
@@ -86,7 +84,7 @@ public abstract class TransactionTemplate<E> {
                     //the handles that have been read for the multiversionedstm-version of condition variables. The transacties
                     //can be retried.
                     retryCount++;
-                }catch (SnapshotTooOldException ex) {
+                } catch (SnapshotTooOldException ex) {
                     //with a writeconflict, you don't need a predecessor because you are not interested in
                     //the handles that have been read for the multiversionedstm-version of condition variables. The transacties
                     //can be retried.

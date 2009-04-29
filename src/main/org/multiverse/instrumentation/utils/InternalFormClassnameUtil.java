@@ -8,8 +8,8 @@ package org.multiverse.instrumentation.utils;
  */
 public final class InternalFormClassnameUtil {
 
-    public static String toInternalForm(Class clazz){
-        return clazz.getName().replace(".","/");
+    public static String toInternalForm(Class clazz) {
+        return clazz.getName().replace(".", "/");
     }
 
     /**

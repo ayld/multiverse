@@ -1,6 +1,5 @@
 package org.multiverse.instrumentation.javaagent;
 
-import org.multiverse.instrumentation.javaagent.ClassFileTransformerContext;
 import org.multiverse.instrumentation.javaagent.analysis.AsmFieldAnalyzer;
 import org.multiverse.instrumentation.javaagent.analysis.FieldDescription;
 import static org.multiverse.instrumentation.javaagent.utils.AsmUtils.loadAsClassNode;

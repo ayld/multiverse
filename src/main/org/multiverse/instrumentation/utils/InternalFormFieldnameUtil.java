@@ -6,19 +6,20 @@ import static java.lang.String.format;
  * A utility class for fieldpaths. A fully qualified fieldpath is a String containing the complete
  * package & classname & fieldname where the packages are seperated by /
  * java/lang/String.size
- *       /
+ * /
+ *
  * @author Peter Veentjer.
  */
 public final class InternalFormFieldnameUtil {
 
-    public static String toInternalForm(Class clazz, String fieldname){
-        if(fieldname == null)throw new NullPointerException();
-        return toInternalForm(InternalFormClassnameUtil.toInternalForm(clazz),fieldname);
+    public static String toInternalForm(Class clazz, String fieldname) {
+        if (fieldname == null) throw new NullPointerException();
+        return toInternalForm(InternalFormClassnameUtil.toInternalForm(clazz), fieldname);
     }
 
-    public static String toInternalForm(String classname, String fieldname){
-        if(classname == null || fieldname == null)throw new NullPointerException();        
-        return classname+"."+fieldname;
+    public static String toInternalForm(String classname, String fieldname) {
+        if (classname == null || fieldname == null) throw new NullPointerException();
+        return classname + "." + fieldname;
     }
 
     /**

@@ -2,10 +2,10 @@ package org.multiverse.api;
 
 /**
  * A lazy loaded reference.
- *
+ * <p/>
  * LazyReferences are very useful for dealing with object cycles (something that can occur in
  * arbitrary object graphs).
- *
+ * <p/>
  * The LazyReference is not threadsafe to use.
  *
  * @param <T>
