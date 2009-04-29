@@ -1,6 +1,8 @@
 package org.multiverse.api;
 
 /**
+ * Unit of work.
+ * <p/>
  * All changes made on objects reachable from this Transaction (attached, read, or reachable from those
  * 2) will be committed when the Transaction commits. Watch out for {@link #readUnmanaged(Originator)} btw.
  * <p/>

@@ -3,6 +3,7 @@ package org.multiverse.examples;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
+import org.multiverse.multiversionedstm.*;
 
 public final class Pair<L, R> implements MaterializedObject {
 

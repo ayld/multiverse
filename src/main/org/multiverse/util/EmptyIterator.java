@@ -20,12 +20,9 @@ public final class EmptyIterator<E> implements Iterator<E> {
      *
      * @return false.
      */
+    @Override
     public boolean hasNext() {
         return false;
-    }
-
-    public void reset() {
-        //ignore.
     }
 
     /**
@@ -33,6 +30,7 @@ public final class EmptyIterator<E> implements Iterator<E> {
      *
      * @return can't return anything.
      */
+    @Override
     public E next() {
         throw new NoSuchElementException();
     }
@@ -41,6 +39,7 @@ public final class EmptyIterator<E> implements Iterator<E> {
      * Always throwns an UnsupportedOperationException exceptions since this EmptyIterator doesn't contain
      * elements to remove.
      */
+    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }

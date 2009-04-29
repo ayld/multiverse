@@ -1,5 +1,8 @@
 package org.multiverse.api.exceptions;
 
+/**
+ * @author Peter Veentjer.
+ */
 public abstract class StmException extends RuntimeException {
 
     public StmException() {

@@ -4,6 +4,16 @@ import org.multiverse.multiversionedstm.DematerializedObject;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
 
+/**
+ * An Originator has 2 purposes:
+ * <ol>
+ * <li>identifying objects</li>
+ * <li>storing the state of objects</li>
+ * </ol>
+ *
+ * @author Peter Veentjer.
+ * @param <T>
+ */
 public interface Originator<T> {
 
     /**

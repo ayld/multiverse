@@ -19,7 +19,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmStatistics.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmStatistics.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Transaction.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Transaction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/RetryError.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/RetryError.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/PrintMultiversionedStmStatisticsThread.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/PrintMultiversionedStmStatisticsThread.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/StmException.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/StmException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/WriteConflictException.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/WriteConflictException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Materializable.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Materializable.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/util/EmptyIterator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/util/EmptyIterator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/SnapshotTooOldException.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/SnapshotTooOldException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/Pair.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/Pair.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/util/RetryCounter.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/util/RetryCounter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/Stack.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/Stack.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/AbortedTransactionException.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/AbortedTransactionException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Originator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Originator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/BTree.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/BTree.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Stm.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Stm.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/Traversals.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/DummyTransaction.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/DummyTransaction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultOriginator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultOriginator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iml" afterPath="$PROJECT_DIR$/stm.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/NoProgressPossibleException.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/NoProgressPossibleException.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DematerializedObject.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DematerializedObject.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackNode.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackNode.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/util/InstanceIterator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/util/InstanceIterator.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/util/ArrayIterator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/util/ArrayIterator.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
@@ -202,24 +233,6 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="Libraries" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.LibraryGroupNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="provided" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
           <option name="myItemId" value="multiverse" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
@@ -239,6 +252,10 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="test" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -272,6 +289,184 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="util" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="util" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="latches" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiversionedstm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="api" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="main" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="api" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="exceptions" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
     </subPane>
   </component>
   <component name="ProjectReloadState">
@@ -293,7 +488,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth1" value="182" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="JDKs" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth0" value="134" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth3" value="36" />
     <property name="project.structure.proportion" value="0.15" />
@@ -352,7 +547,36 @@
       <recent name="org.codehaus.multiverse.multiversionedheap" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Driver">
+  <component name="RunManager" selected="JUnit.org.multiverse.multiversionedstm">
+    <tempConfiguration default="false" name="org.multiverse.multiversionedstm" type="JUnit" factoryName="JUnit" enabled="false" merge="false" sample_coverage="true" runner="emma">
+      <module name="stm" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="PACKAGE_NAME" value="org.multiverse.multiversionedstm" />
+      <option name="MAIN_CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <option name="VM_PARAMETERS" value="-server -da" />
+      <option name="PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
+      <envs />
+      <RunnerSettings RunnerId="JProfiler">
+        <option name="WINDOW" value="false" />
+        <option name="JVMPI" value="false" />
+        <option name="INTERPRETED" value="false" />
+      </RunnerSettings>
+      <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Run" />
+      <method>
+        <option name="Make" value="true" />
+      </method>
+    </tempConfiguration>
     <configuration default="true" type="Remote" factoryName="Remote">
       <option name="USE_SOCKET_TRANSPORT" value="true" />
       <option name="SERVER_MODE" value="false" />
@@ -1012,7 +1236,7 @@
         <option name="Make" value="true" />
       </method>
     </configuration>
-    <list size="19">
+    <list size="20">
       <item index="0" class="java.lang.String" itemvalue="Application.Driver" />
       <item index="1" class="java.lang.String" itemvalue="JUnit.Block_createNewForUpdateTest.updateWithInterferedTransaction" />
       <item index="2" class="java.lang.String" itemvalue="JUnit.HeapNodeTest.testSingleRotateLeft" />
@@ -1032,6 +1256,7 @@
       <item index="16" class="java.lang.String" itemvalue="JUnit.MultiversionedCellTest.testPrune_pruneVersionIsTheSameAsNewestVersionAndNoHistory" />
       <item index="17" class="java.lang.String" itemvalue="JUnit.QueueTest" />
       <item index="18" class="java.lang.String" itemvalue="JUnit.AbaProblemIsNotDetectedTest" />
+      <item index="19" class="java.lang.String" itemvalue="JUnit.org.multiverse.multiversionedstm" />
     </list>
     <configuration name="&lt;template&gt;" type="WebApp" default="true" selected="false">
       <Host>localhost</Host>
@@ -1289,7 +1514,7 @@
       <window_info id="Changes" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="8" side_tool="false" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2495379" sideWeight="0.5" order="1" side_tool="false" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31893688" sideWeight="0.5" order="1" side_tool="false" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31813" sideWeight="0.5" order="1" side_tool="false" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39338654" sideWeight="0.5" order="3" side_tool="false" />
       <window_info id="Dataflow to this" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295325" sideWeight="0.5" order="12" side_tool="false" />
@@ -1302,7 +1527,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3211517" sideWeight="0.5" order="13" side_tool="false" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2845679" sideWeight="0.700114" order="0" side_tool="false" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2845679" sideWeight="0.67388827" order="0" side_tool="false" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5118913" sideWeight="0.5" order="11" side_tool="false" />
       <window_info id="Web Preview" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39794755" sideWeight="0.5" order="6" side_tool="false" />
@@ -1339,7 +1564,7 @@
     <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="- removed javalution&#10;- renamed the src/java to src/main" />
+    <option name="LAST_COMMIT_MESSAGE" value="- javadoc improvements" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -1350,7 +1575,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="- improved javadoc&#10;- created distribute task" />
     <MESSAGE value="- heap is balanced&#10;- improved unittests&#10;- improved javadoc" />
     <MESSAGE value="- fixed bug with balancing&#10;- improved the unit test for balancing.. more real world test" />
     <MESSAGE value="- fixed 2 issues in the growing heap:&#10;   - bad type of reference was used (weak in the old, soft in the fix)&#10;   - the read and readversion of the growingheap snapshotimpl were not complete." />
@@ -1375,6 +1599,7 @@
     <MESSAGE value="- prepare for checkin for complete redesign" />
     <MESSAGE value="- checkin of the complete redesign" />
     <MESSAGE value="- removed javalution&#10;- renamed the src/java to src/main" />
+    <MESSAGE value="- javadoc improvements" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1432,6 +1657,122 @@
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/util/latches/Latch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/util/latches/CheapLatch.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="19" selection-start="424" selection-end="424" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/TransactionId.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="19" selection-start="132" selection-end="132" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/TransactionState.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="12" selection-start="144" selection-end="144" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/TransactionTemplate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="10" column="22" selection-start="207" selection-end="207" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/TransactionThreadLocal.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="19" selection-start="149" selection-end="149" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DematerializedObject.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="12" column="17" selection-start="403" selection-end="403" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultOriginator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="19" column="19" selection-start="629" selection-end="629" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/AbortedTransactionException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="44" selection-start="88" selection-end="88" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/RetryError.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="26" selection-start="74" selection-end="74" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/StmException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="26" selection-start="74" selection-end="74" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/WriteConflictException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="76" selection-start="120" selection-end="120" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/SnapshotTooOldException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="18" selection-start="160" selection-end="160" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/NoProgressPossibleException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/exceptions/NoCommittedDataFoundException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
   </component>
   <component name="masterDetails">
     <option name="states">

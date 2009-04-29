@@ -8,6 +8,7 @@ package org.multiverse.api;
  * <p/>
  * The LazyReference is not threadsafe to use.
  *
+ * @author Peter Veentjer.
  * @param <T>
  */
 public interface LazyReference<T> {
@@ -30,6 +31,7 @@ public interface LazyReference<T> {
      * Gets the reference. If the reference is not loaded, it will be loaded.
      *
      * @return the reference.
+     *         todo: exceptions
      */
     T get();
 }
