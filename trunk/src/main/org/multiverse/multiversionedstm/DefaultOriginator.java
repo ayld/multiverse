@@ -6,6 +6,7 @@ import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.api.exceptions.WriteConflictException;
+import org.multiverse.util.Bag;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
 
@@ -61,7 +62,8 @@ public final class DefaultOriginator<T> implements Originator<T> {
     }
 
     @Override
-    public void writeAndReleaseLock(TransactionId lockOwner, DematerializedObject dematerialized, long dematerializedVersion) {
+    public void writeAndReleaseLock(TransactionId lockOwner, DematerializedObject dematerialized,
+                                    long dematerializedVersion, Bag<ListenerNode> listenerNodeBag) {
         assert lockOwner != null;
 
         boolean success;
@@ -69,12 +71,9 @@ public final class DefaultOriginator<T> implements Originator<T> {
             State currentState = stateRef.get();
             State tobeState = currentState.writeAndReleaseLock(dematerialized, dematerializedVersion);
             success = stateRef.compareAndSet(currentState, tobeState);
-            if (success) {
-                ListenerNode listenerNode = currentState.listenerHead;
-                while (listenerNode != null) {
-                    listenerNode.latch.open();
-                    listenerNode = listenerNode.next;
-                }
+
+            if (success && currentState.listenerHead != null) {
+                listenerNodeBag.add(currentState.listenerHead);
             }
         } while (!success);
     }
@@ -205,7 +204,7 @@ public final class DefaultOriginator<T> implements Originator<T> {
         }
 
         State writeAndReleaseLock(DematerializedObject dematerialized, long version) {
-            return new State(this.listenerHead, dematerialized, version, null);
+            return new State(null, dematerialized, version, null);
         }
 
         State releaseLockForWriting(TransactionId expectedLockOwner) {
@@ -223,13 +222,5 @@ public final class DefaultOriginator<T> implements Originator<T> {
         }
     }
 
-    static class ListenerNode {
-        final Latch latch;
-        final ListenerNode next;
 
-        ListenerNode(Latch listener, ListenerNode next) {
-            this.latch = listener;
-            this.next = next;
-        }
-    }
 }

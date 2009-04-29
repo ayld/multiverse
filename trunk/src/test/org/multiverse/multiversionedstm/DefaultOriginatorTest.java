@@ -10,6 +10,7 @@ import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.examples.IntegerValue;
 import org.multiverse.examples.Stack;
 import org.multiverse.multiversionedstm.DefaultOriginator.State;
+import org.multiverse.util.Bag;
 import org.multiverse.util.RetryCounter;
 
 public class DefaultOriginatorTest {
@@ -23,7 +24,9 @@ public class DefaultOriginatorTest {
         TransactionId id = new TransactionId();
         if (!object.tryAcquireLockForWriting(id, 0, new RetryCounter(1)))
             fail();
-        object.writeAndReleaseLock(id, materializedObject.dematerialize(), version);
+
+        //todo: bag
+        object.writeAndReleaseLock(id, materializedObject.dematerialize(), version, new Bag());
         return object;
     }
 
@@ -168,7 +171,7 @@ public class DefaultOriginatorTest {
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
         originator.tryAcquireLockForWriting(transactionId, 0, new RetryCounter(1));
-        originator.writeAndReleaseLock(transactionId, dematerialized, materializeVersion);
+        originator.writeAndReleaseLock(transactionId, dematerialized, materializeVersion, new Bag());
 
         DematerializedObject found = originator.tryGetDehydrated(searchVersion, new RetryCounter(1));
         assertSame(dematerialized, found);
@@ -186,7 +189,7 @@ public class DefaultOriginatorTest {
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
         originator.tryAcquireLockForWriting(owner, 0, new RetryCounter(1));
-        originator.writeAndReleaseLock(owner, dematerialized, dematerializeVersion);
+        originator.writeAndReleaseLock(owner, dematerialized, dematerializeVersion, new Bag());
 
         try {
             originator.tryGetDehydrated(searchVersion, new RetryCounter(1));
@@ -206,7 +209,7 @@ public class DefaultOriginatorTest {
         TransactionId id = new TransactionId();
         originator.tryAcquireLockForWriting(id, 0, new RetryCounter(1));
         DematerializedObject dematerializedObject = object.dematerialize();
-        originator.writeAndReleaseLock(id, dematerializedObject, 100);
+        originator.writeAndReleaseLock(id, dematerializedObject, 100, new Bag());
 
         RetryCounter retryCounter = new RetryCounter(1);
         DematerializedObject found = originator.tryGetLastCommitted(retryCounter);

@@ -120,7 +120,7 @@ public final class Stack<E> implements MaterializedObject {
 
     private Stack(DematerializedStack<E> dematerializedStack, Transaction t) {
         this.lastDematerialized = dematerializedStack;
-        this.headRef = t.readLazy(dematerializedStack.headOriginator);
+        this.headRef = t.readLazyAndUnmanaged(dematerializedStack.headOriginator);
         this.originator = dematerializedStack.getOriginator();
     }
 

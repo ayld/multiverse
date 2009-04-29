@@ -44,7 +44,7 @@ public final class StackNode<E> implements MaterializedObject {
         this.originator = dematerializedNode.getOriginator();
         this.value = dematerializedNode.value instanceof Originator ? (E) t.read((Originator) dematerializedNode.value) : (E) dematerializedNode.value;
         this.length = dematerializedNode.length;
-        this.nextRef = t.readLazy(dematerializedNode.nextOriginator);
+        this.nextRef = t.readLazyAndUnmanaged(dematerializedNode.nextOriginator);
     }
 
     @Override
