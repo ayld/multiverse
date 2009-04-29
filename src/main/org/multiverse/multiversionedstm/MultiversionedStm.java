@@ -5,6 +5,7 @@ import org.multiverse.api.exceptions.NoProgressPossibleException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.WriteConflictException;
 import static org.multiverse.multiversionedstm.MultiversionedStmUtils.initializeNextChain;
+import org.multiverse.util.Bag;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.CheapLatch;
 import org.multiverse.util.latches.Latch;
@@ -297,7 +298,7 @@ public final class MultiversionedStm implements Stm {
         private boolean tryToAcquireLocksForWritingAndDetectForConflicts(MaterializedObject[] writeSet) {
             try {
                 //todo: externalize
-                RetryCounter retryCounter = new RetryCounter(10);
+                RetryCounter retryCounter = new RetryCounter(0);
                 for (MaterializedObject obj : writeSet) {
                     Originator originator = obj.getOriginator();
 
@@ -319,11 +320,23 @@ public final class MultiversionedStm implements Stm {
         private void writeAndReleaseLocksForWriting(DematerializedObject[] writeSet) {
             long writeVersion = globalVersionClock.incrementAndGet();
 
-            for (DematerializedObject dirtyObject : writeSet) {
-                Originator originator = dirtyObject.getOriginator();
-                originator.writeAndReleaseLock(transactionId, dirtyObject, writeVersion);
-                statistics.incWriteCount();
+            Bag<ListenerNode> listeners = new Bag<ListenerNode>();
+
+            for (int k = 0; k < writeSet.length; k++) {
+                DematerializedObject dirtyObject = writeSet[k];
+                dirtyObject.getOriginator().writeAndReleaseLock(transactionId, dirtyObject, writeVersion, listeners);
             }
+
+            while (!listeners.isEmpty()) {
+                ListenerNode listenerNode = listeners.takeAny();
+                while (listenerNode != null) {
+                    listenerNode.latch.open();
+                    listenerNode = listenerNode.next;
+                }
+            }
+
+
+            statistics.incWriteCount(writeSet.length);
         }
 
         private void releaseLocksForWriting(MaterializedObject[] writeSet) {
@@ -364,7 +377,7 @@ public final class MultiversionedStm implements Stm {
                     //todo: try counter
                     DematerializedObject dematerialized;
                     try {
-                        dematerialized = originator.tryGetDehydrated(readVersion, new RetryCounter(1000000000));
+                        dematerialized = originator.tryGetDehydrated(readVersion, new RetryCounter(100000000));
                     } catch (SnapshotTooOldException ex) {
                         statistics.incTransactionSnapshotTooOldCount();
                         throw ex;

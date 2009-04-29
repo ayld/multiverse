@@ -11,9 +11,11 @@ public interface MaterializedObject {
 
     Originator getOriginator();
 
+
     boolean isDirty();
 
     DematerializedObject dematerialize();
+
 
     void memberTrace(MemberTracer memberTracer);
 

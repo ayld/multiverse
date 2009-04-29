@@ -27,6 +27,12 @@ public final class MultiversionedStmStatistics {
         writeCount.incrementAndGet();
     }
 
+    public void incWriteCount(int amount) {
+        if (amount < 0)
+            throw new IllegalArgumentException();
+        writeCount.incrementAndGet();
+    }
+
     public long getWriteCount() {
         return writeCount.get();
     }

@@ -1,6 +1,8 @@
 package org.multiverse.api;
 
 import org.multiverse.multiversionedstm.DematerializedObject;
+import org.multiverse.multiversionedstm.ListenerNode;
+import org.multiverse.util.Bag;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
 
@@ -40,7 +42,8 @@ public interface Originator<T> {
      * @param committingTransactionId the TransactionId of the Transaction  that wants to commit.
      * @param dematerialized          the stuff to write.
      */
-    void writeAndReleaseLock(TransactionId committingTransactionId, DematerializedObject dematerialized, long dematerializedVersion);
+    void writeAndReleaseLock(TransactionId committingTransactionId, DematerializedObject dematerialized,
+                             long dematerializedVersion, Bag<ListenerNode> listeners);
 
     /**
      * Releases the lock for writing. If a transaction can't acquire all locks it needs for writing,
