@@ -20,10 +20,10 @@ public final class MultiversionedStmUtils {
         for (; it.hasNext();) {
             LazyReference lazyReference = it.next();
             count++;
-        //    System.out.println("first loop: " + count);
+            //    System.out.println("first loop: " + count);
             if (lazyReference.isLoaded()) {
                 MaterializedObject obj = (MaterializedObject) lazyReference.get();
-        //        System.out.println("obj: " + obj);
+                //        System.out.println("obj: " + obj);
 
                 if (first.value == null) {
                     first.value = obj;
@@ -39,14 +39,14 @@ public final class MultiversionedStmUtils {
         count = 0;
         while (!traverseBag.isEmpty()) {
             MaterializedObject materializedObject = traverseBag.takeAny();
-       //     System.out.println("second loop: " + count);
+            //     System.out.println("second loop: " + count);
             count++;
             MemberTracer tracer = new MemberTracer() {
                 @Override
                 public void onMember(MaterializedObject member) {
-         //           System.out.println("on member: " + member);
+                    //           System.out.println("on member: " + member);
                     if (member.getNextInChain() == null && member != first.value) {
-           //             System.out.println("member: " + member);
+                        //             System.out.println("member: " + member);
                         member.setNextInChain(lastInChain.value);
                         lastInChain.value = member;
                         traverseBag.add(member);

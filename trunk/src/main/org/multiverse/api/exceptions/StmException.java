@@ -1,6 +1,6 @@
 package org.multiverse.api.exceptions;
 
-public abstract class StmException extends RuntimeException{
+public abstract class StmException extends RuntimeException {
 
     public StmException() {
         super();

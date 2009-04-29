@@ -151,7 +151,7 @@ public final class DefaultOriginator<T> implements Originator<T> {
             }
 
             if (!state.isLockedForWriting()) {
-                if(state.dematerialized == null){
+                if (state.dematerialized == null) {
                     throw new RuntimeException();//todo: what to do here
                 }
 

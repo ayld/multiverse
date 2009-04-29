@@ -30,13 +30,13 @@ public final class FieldDescription {
         this.signature = signature;
     }
 
-    public boolean needsInstrumentation(){
+    public boolean needsInstrumentation() {
         //todo
         return true;
     }
 
-    public String getFullyQualifiedPackagename(){
-        return packagename.replace("/",".");
+    public String getFullyQualifiedPackagename() {
+        return packagename.replace("/", ".");
     }
 
     public String getPackageName() {
@@ -51,12 +51,12 @@ public final class FieldDescription {
         return classname;
     }
 
-    public String getFullyQualifiedClassname(){
-        return getFullyQualifiedPackagename()+"."+classname;
+    public String getFullyQualifiedClassname() {
+        return getFullyQualifiedPackagename() + "." + classname;
     }
 
-    public String getFullyQualifiedFieldname(){
-        return getFullyQualifiedClassname()+"."+fieldname;
+    public String getFullyQualifiedFieldname() {
+        return getFullyQualifiedClassname() + "." + fieldname;
     }
 
     public String getFieldName() {

@@ -18,7 +18,7 @@ public final class ByteCodeWriter {
     }
 
     public static void writeToFile(File file, byte[] bytecode) throws IOException {
-        if(file == null || bytecode == null)throw new NullPointerException();
+        if (file == null || bytecode == null) throw new NullPointerException();
         OutputStream writer = new FileOutputStream(file);
         try {
             writer.write(bytecode);
@@ -28,5 +28,6 @@ public final class ByteCodeWriter {
     }
 
     //we don't want instances
-    private ByteCodeWriter(){}
+    private ByteCodeWriter() {
+    }
 }

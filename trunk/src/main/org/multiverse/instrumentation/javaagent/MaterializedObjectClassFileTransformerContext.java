@@ -104,7 +104,7 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
         MethodNode methodNode = new MethodNode(
                 Opcodes.ACC_PUBLIC,
                 "dematerialize",
-                "()"+InternalFormClassnameUtil.toInternalForm(DematerializedObject.class),//
+                "()" + InternalFormClassnameUtil.toInternalForm(DematerializedObject.class),//
                 null,//desc
                 null//signature
         );
