@@ -19,176 +19,129 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/NoSuchObjectException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/utils/StmObjectIteratorTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/DummyDeflated.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/ListenerNode.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/NoSuchLockException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex/org/codehaus/multiverse/multiversionedstm/performance/WorkingOnBareHeapUpdateDriver.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/StmException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/latches/Latch.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/transactiongc/TransactionGc.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/utils" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSetTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/AbstractMultiversionedStmTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/HeapNodeTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/todo.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/Bag.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/Deflatable.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/ImmutabilityTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/LockMode.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Person.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/Block_createNewForUpdatingLockTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/HeapNode.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackIntegrationTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/DetachedTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/CollectionIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/RetryTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/HandleUtils.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/transactiongc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ClassicStackTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestThread.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeap.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex/org/codehaus/multiverse/multiversionedstm/performance" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/MultiversionedStm_Lock_AcquireSharedNoWaitTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WorkingOnBareHeapStackTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/AbstractDeflated.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/NoProgressPossibleException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/CompositeIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/PLongIteratorFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_ReadTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex/org" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionTemplateTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/AbortedTransactionException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/PLongIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/utils" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/utils/StmObjectIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/LockOwnedByOtherTransactionException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeapStressTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/UnloadedHolder.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Transaction.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex/org/codehaus/multiverse/multiversionedstm/performance/AccessingFieldPerformanceDriver.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/DehydratedStmObject.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/EmptyIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/Deflated.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/LivenessException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils/iterators/EmptyIteratorTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex/org/codehaus/multiverse/multiversionedstm" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils/iterators/ArrayIteratorTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/StmObjectUtils.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/MultiversionedStmTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeap_LockNoWaitTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/latches/StandardLatch.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/MultiversionedHeap.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/LivelockException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/Stm.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/LargeTransactionsTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/AbstractStmTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/Block_createNewForAddListenerTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionTemplate.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/PrimitiveLongSet.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex/org/codehaus/multiverse" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_ReadHolderTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/DummyTransaction.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils/PerformanceTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_AbortTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/Pair.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/analysis/FieldDescription.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/utils/InternalFormClassnameUtil.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/todo.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/analysis" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/latches/Latch.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/NoCommittedDataFoundException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/utils/AsmUtils.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/ClassicStackProducerConsumerTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/TransactionState.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/IdentityHashSet.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/Queue.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/utils/FieldInsnNodeVisitor.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/WritersDontBlockReadersTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/BTree.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/utils" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/util/ArrayIteratorTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/MaterializedObject.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/ArrayIterator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/CycleHandlingTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/IntegerValue.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackIntegrationTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/TransactionId.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/TransactionTemplate.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/BTreeTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/MultiverseJavaAgent.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/MemberTracer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/Stm.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/latches/CheapLatch.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/utils/ByteCodeWriter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/TestThread.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/Transaction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/BrokenSerializedTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/DefaultOriginator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/QueueStressTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/util" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/api/TransactionThreadLocalTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/Traversals.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/DummyTransaction.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultOriginatorTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/ClassFileTransformerContext.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/DeepMemberChainTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/DematerializedClassGeneratorClassFileTransformer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/utils/InternalFormFieldnameUtil.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/IntegerValueTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/NoProgressPossibleException.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/WriteConflictError.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/Block_createNewForUpdateTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionStatus.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Reference.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/BadVersionException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/Block.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionThreadLocal.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/PessimisticLockingFailureException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ReadingFromSameSnapshotPerformanceTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedTransaction.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueStressTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils/BagPerformanceTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils/iterators/CompositeIteratorTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeapTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/TransactionMethods.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/PessimisticLock.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritePerformanceTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/TooManyRetriesException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Queue.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/ResetableIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils/BagTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/NonBlockingStatistics.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_CommitTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex/org/codehaus" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValueTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_AttachTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/standard/DefaultMultiversionedHeapStatistics.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/Stack.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/HeapNodeTest_createNewForAddingListenerTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/TestUtils.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/utils/iterators" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/latches/CheapLatch.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/StackStressTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/DeadlockException.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionIsDetectedTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/MultiversionedStm_Lock_AcquireExclusiveNoWaitTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/latches" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/InstanceIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/PLongArrayIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerConstant.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/StringDeflatable.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/IteratorFactory.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/utils/iterators/ArrayIterator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/HeapSnapshot.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/japex" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/MultiversionedStmStatistics.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/exceptions/RetryError.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/HerlihyIntegerSet.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/NonConflcitingWritesCanBeExecutedInParallelTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/HandleGenerator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedstm/StmObject.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/examples/IntegerValue.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/api/TransactionId.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/api/TransactionThreadLocalTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/Transaction_GetLockTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/WaitOnMultiConditionVariableTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/PipelineTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/codehaus/multiverse/multiversionedheap/transactiongc/DefaultTransationGc.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedheap/standard/HeapNodeTest_createNewForWriteTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/codehaus/multiverse/multiversionedstm/tests/ReadersAreIsolatedFromChangeTest.java" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/Stack.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/Originator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/provided" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/WriteConflictException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/QueueIntegrationTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/PipelineTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/MultiversionedStmStatistics.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackStressTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/PairTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/RetryError.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/provided/javolution.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/latches" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemIsNotDetectedTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/DematerializedObject.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/EmptyIterator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/StmException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/MultiversionedStm.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/Main.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/multiversionedstm/PrintMultiversionedStmStatisticsThread.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadUnsafeTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/LazyReference.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/MaterializedObjectClassFileTransformerContext.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/AbortedTransactionException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/Materializable.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/ReadersDontBlockWritersTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/analysis/FieldAnalyzer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/SnapshotTooOldException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/RetryTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/analysis/AsmFieldAnalyzer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackNode.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberOfWaitersTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberMemberChainTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/ConflictingWritesDontBreakSystemTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/utils/BytecodeWriteUtil.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/TransactionThreadLocal.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/IsolatedBehaviorTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/ContextClassFileTransformer.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/RetryCounter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/provided/asm-all-3.1.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/InstanceIterator.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/examples/Pair.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/api" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/AtomicBehaviorTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/DiningPhilosophersTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/util/Bag.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/TestUtils.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/api/exceptions/TooManyRetriesException.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/utils" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/util/EmptyIteratorTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/java/org/multiverse/instrumentation/javaagent/AccessObjectClassFileTransformerContext.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
@@ -331,80 +284,7 @@
     <option name="LAST_EDITED_TAB_NAME" />
   </component>
   <component name="PackagesPane">
-    <subPane>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.codehaus.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.codehaus.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedstm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.codehaus.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedstm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="tests" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.codehaus.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedheap" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-    </subPane>
+    <subPane />
   </component>
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="true" id="Add" />
@@ -429,6 +309,28 @@
           <option name="myItemId" value="stm" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
         </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="Libraries" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.LibraryGroupNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="Libraries" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.LibraryGroupNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="provided" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
+        </PATH_ELEMENT>
       </PATH>
       <PATH>
         <PATH_ELEMENT>
@@ -461,8 +363,26 @@
           <option name="myItemId" value="src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
+      </PATH>
+      <PATH>
         <PATH_ELEMENT>
-          <option name="myItemId" value="test" />
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="java" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
@@ -470,67 +390,7 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="codehaus" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
           <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="codehaus" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedstm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -1699,7 +1559,7 @@
     <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="- removed the listener support, lock placement, commit and listener adding all is done in the same manner (by creating a new heapsnapshot that contains the new information). So no more worries caused by the memory leak in the listenersupport (old handles are not removed)" />
+    <option name="LAST_COMMIT_MESSAGE" value="- checkin of the complete redesign" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -1710,8 +1570,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="- added the unit tests to the ant script&#10;- fixed the emptyiteratortest" />
-    <MESSAGE value="- did some renaming&#10;- improving javadoc&#10;- added javadoc task to ant" />
     <MESSAGE value="- deleted the classes directory (how did it came in???)" />
     <MESSAGE value="- improved javadoc&#10;- created distribute task" />
     <MESSAGE value="- heap is balanced&#10;- improved unittests&#10;- improved javadoc" />
@@ -1735,6 +1593,8 @@
     <MESSAGE value="- simplified the stmobject interface (removed a lot of old junk)&#10;- added some extra tests" />
     <MESSAGE value="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <MESSAGE value="- removed the listener support, lock placement, commit and listener adding all is done in the same manner (by creating a new heapsnapshot that contains the new information). So no more worries caused by the memory leak in the listenersupport (old handles are not removed)" />
+    <MESSAGE value="- prepare for checkin for complete redesign" />
+    <MESSAGE value="- checkin of the complete redesign" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />

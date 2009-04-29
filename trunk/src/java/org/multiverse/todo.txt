@@ -1,0 +1,163 @@
+TODO
+
+- the number of writes a transaction has done when it commit should be stored somewhere
+
+- the number of reads a transaction has done when it commit should be stored somewhere
+
+- independant state, scalability test.
+
+- atm worden te pas en te onpas de retrycounters gezet
+
+- percentage fout bij locks.
+
+- uitvoering transaction.abortAndRetry testen
+
+- de originator moet een betere naam, maar wat.. In principe is het een id..
+
+    - originator in de api moet dom zijn
+
+    - originator in de stm package moet slim zijn.
+
+- cycle handling test
+
+- possible optimization; instead of caching the lazy ref, on some occassions no caching...
+let the component be repsonsible for only getting a reference once (so if by analysis can be decided
+that a pointer to the object will not be needed again).
+     - change needed: instead of listening to the set of read reference, the object graph needs to
+       be traversed.
+
+- lenghty execution of the stackstresstest, shows performance degradation
+
+IMPROVEMENTS
+
+- tree toevoegen
+
+    - volledig test van persist
+
+    - balancing
+
+    - removal
+
+    - equals
+
+    - hash
+
+    - toString
+
+    - asList
+
+    - iterator
+
+- set toevoegen
+
+- list toevoegen
+
+- dequeue toevoegen
+
+- duidelijk gedrag objecten die aan 'verkeerde' transactie gekoppeld zijn.
+
+- bijhouden oudere versies (multiversion)
+    - lezen oudere versies
+    - gc of oudere versies
+
+- meenemen readset in conflict detectie.
+
+- logging
+
+- pessimistic locking toevoegen: non blocking
+
+- pessimistic locking toevoegen: met blocking
+    - deadlock detectie.
+
+- orelse toevoegen
+
+- support voor echte readonly transacties toevoegen.
+
+- transactie propagatie
+
+- @atomic support
+
+- pojo instrumentatie
+
+- omgaan met subclasses.
+
+DONE
+
+- toegevoegd: statistics voor pending transactions ivm retry
+
+- als een transactie bij het committen failed, dan staat die nu automatisch in de aborted state.
+
+- notification
+
+- snapshot too old error of exception?
+
+- write conflict error of exception
+
+- toomanyretrieserror of exception?
+
+- special exception/error needs to be thrown if a value is read but no commits have taken place
+
+- readonly transacties moeten apart geregistreerd worden in de statistics.. + je hoeft al die logica niet door.
+
+- de originator heeft een mem leak omdat de originator tevens het orginele object is.. dus de velden van de originator
+blijven bestaan. Dit issue is gefixed doordat de originator != het object (doordat de originator is losgetrokken).
+
+- de originator moet losgetrokken worden van het object.
+
+- queue toegevoegd
+
+- dirtyness objecten (nu is alles dirty)
+
+- fix the concurrency problem with the commit and the cas...
+ (is there a problem? The lock forces an orderering)
+
+- unit tests for integervalue
+
+- attached items moeten ook via transaction.read opgehaald kunnen worden
+    -can the materializedmap and the attached map be replaced with a single map?
+
+- transactie moet weer op de threadlocal beschikbaar zijn.
+
+- isDirty wordt meerdere keren aangeroepen voor enkele commit, dit klopt niet.
+
+- er gaat nog iets fout bij het rematerializen, je kunt meerdere instanties van hetzelfde 'object'
+    binnen 1 transactie krijgen.
+    : bleek fout in de unit test.
+
+- unit tests van defaultoriginator weer aan zetten
+
+- stack en references: toevoegen integratietest.
+
+- dirty checking
+
+- de write set moet niet iedere keer opnieuw opgebouwd worden, maar een keer en dan meegegeven worden
+
+- als een set met locks voor de commit niet obtained kan worden, moeten de locks gereleased worden (gebeurt al)
+en ipv de hele transactie opnieuw te proberen, kan je weer opnieuw beginnen met het ophalen van de locks.
+
+- uitvoerig transaction.attach testen
+
+- stack node moet reference ook meenemen
+
+    - member iterator moet cleaner
+
+    - andere member non materialized/materialized logic moet opschoont worden.
+
+- uitvoerig transaction.commit testen
+
+- deep member chain test
+
+- cycle preventie stm commit.
+
+- uitvoerig transaction.readlazy testen
+
+- uitvoerig transaction.read testen
+
+- bij ConflictingWritesDontBreakSystemTest is er een groot aantal aborts die niet te verklaren vallen
+door writeconflicten:
+   het zit in de snapshot too old kant.
+
+- broken unit tests weer aan de praat krijgen
+
+- optimization: move all the dematerialization before entering the cas loop... this should lower the
+chance of a failure.
