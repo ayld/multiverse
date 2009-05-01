@@ -224,7 +224,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
 
         // ================== generated ==================
 
-        private final Handle<Node<K, V>> handle;
+        private final MultiversionedHandle<Node<K, V>> handle;
         private DematerializedNode<K, V> lastDematerialized;
 
         public Node(DematerializedNode<K, V> dematerializedNode, Transaction t) {
@@ -247,7 +247,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
         }
 
         @Override
-        public Handle<Node<K, V>> getHandle() {
+        public MultiversionedHandle<Node<K, V>> getHandle() {
             return handle;
         }
 
@@ -300,7 +300,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
 
     //================ generated ================================
 
-    private final Handle<BTree<K, V>> handle;
+    private final MultiversionedHandle<BTree<K, V>> handle;
     private DematerializedBTree<K, V> lastDematerialized;
 
     private BTree(DematerializedBTree<K, V> dematerializedBTree, Transaction t) {
@@ -310,7 +310,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
     }
 
     @Override
-    public Handle<BTree<K, V>> getHandle() {
+    public MultiversionedHandle<BTree<K, V>> getHandle() {
         return handle;
     }
 
@@ -349,8 +349,8 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
 
 
     public static class DematerializedBTree<K extends Comparable, V> implements DematerializedObject {
-        final Handle<BTree<K, V>> handle;
-        final Handle<Node<K, V>> root;
+        final MultiversionedHandle<BTree<K, V>> handle;
+        final MultiversionedHandle<Node<K, V>> root;
 
         public DematerializedBTree(BTree<K, V> bTree) {
             this.handle = bTree.handle;
@@ -358,7 +358,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
         }
 
         @Override
-        public Handle<BTree<K, V>> getHandle() {
+        public MultiversionedHandle<BTree<K, V>> getHandle() {
             return handle;
         }
 
@@ -369,9 +369,9 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
     }
 
     public static class DematerializedNode<K extends Comparable, V> implements DematerializedObject {
-        private final Handle<Node<K, V>> handle;
-        private final Handle<Node<K, V>> left;
-        private final Handle<Node<K, V>> right;
+        private final MultiversionedHandle<Node<K, V>> handle;
+        private final MultiversionedHandle<Node<K, V>> left;
+        private final MultiversionedHandle<Node<K, V>> right;
         private final Object key;
         private final Object value;
 
@@ -384,7 +384,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
         }
 
         @Override
-        public Handle<Node<K, V>> getHandle() {
+        public MultiversionedHandle<Node<K, V>> getHandle() {
             return handle;
         }
 

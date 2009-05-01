@@ -1,6 +1,5 @@
 package org.multiverse.multiversionedstm.examples;
 
-import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
@@ -135,7 +134,7 @@ public final class Queue<E> implements MaterializedObject {
     //================== generated =================
 
     private DematerializedQueue<E> lastDematerialized;
-    private final Handle<Queue<E>> handle;
+    private final MultiversionedHandle<Queue<E>> handle;
     private LazyReference<Stack<E>> pushedStackRef;
     private LazyReference<Stack<E>> readyToPopStackRef;
 
@@ -180,7 +179,7 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     @Override
-    public Handle<Queue<E>> getHandle() {
+    public MultiversionedHandle<Queue<E>> getHandle() {
         return handle;
     }
 
@@ -197,9 +196,9 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public static class DematerializedQueue<E> implements DematerializedObject {
-        private final Handle<Stack<E>> readyToPopStackHandle;
-        private final Handle<Stack<E>> pushedStackHandle;
-        private final Handle<Queue<E>> handle;
+        private final MultiversionedHandle<Stack<E>> readyToPopStackHandle;
+        private final MultiversionedHandle<Stack<E>> pushedStackHandle;
+        private final MultiversionedHandle<Queue<E>> handle;
         private final int maxCapacity;
 
         DematerializedQueue(Queue<E> queue) {
@@ -210,7 +209,7 @@ public final class Queue<E> implements MaterializedObject {
         }
 
         @Override
-        public Handle<Queue<E>> getHandle() {
+        public MultiversionedHandle<Queue<E>> getHandle() {
             return handle;
         }
 

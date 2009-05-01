@@ -1,6 +1,5 @@
 package org.multiverse.multiversionedstm;
 
-import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.util.Bag;
@@ -56,7 +55,7 @@ public final class MultiversionedStmUtils {
         throw new RetryError();
     }
 
-    public static <T> Handle<T> getHandle(T value) {
+    public static <T> MultiversionedHandle<T> getHandle(T value) {
         return value == null ? null : ((MaterializedObject) value).getHandle();
     }
 
@@ -73,9 +72,9 @@ public final class MultiversionedStmUtils {
     }
 
 
-    public static <T> Handle<T> getHandle(LazyReference<T> ref, T value) {
+    public static <T> MultiversionedHandle<T> getHandle(LazyReference<T> ref, T value) {
         if (ref != null)
-            return ref.getHandle();
+            return (MultiversionedHandle) ref.getHandle();
 
         return value != null ? ((MaterializedObject) value).getHandle() : null;
     }

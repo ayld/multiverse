@@ -2,7 +2,6 @@ package org.multiverse.multiversionedstm;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.multiverse.api.Handle;
 import org.multiverse.api.TransactionId;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
@@ -167,7 +166,7 @@ public class DefaultHandleTest {
 
     public void getDehydrated(long materializeVersion, long searchVersion) {
         MaterializedObject object = new IntegerValue();
-        Handle handle = object.getHandle();
+        MultiversionedHandle handle = object.getHandle();
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
         handle.tryAcquireLockForWriting(transactionId, 0, new RetryCounter(1));
@@ -185,7 +184,7 @@ public class DefaultHandleTest {
 
         TransactionId owner = new TransactionId();
         MaterializedObject materializedObject = new IntegerValue();
-        Handle handle = materializedObject.getHandle();
+        MultiversionedHandle handle = materializedObject.getHandle();
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
         handle.tryAcquireLockForWriting(owner, 0, new RetryCounter(1));
@@ -205,7 +204,7 @@ public class DefaultHandleTest {
 
     public void getLastCommited() {
         MaterializedObject object = new IntegerValue(45);
-        Handle handle = object.getHandle();
+        MultiversionedHandle handle = object.getHandle();
         TransactionId id = new TransactionId();
         handle.tryAcquireLockForWriting(id, 0, new RetryCounter(1));
         DematerializedObject dematerializedObject = object.dematerialize();

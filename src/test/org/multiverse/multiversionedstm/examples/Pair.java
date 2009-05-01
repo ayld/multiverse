@@ -88,7 +88,7 @@ public final class Pair<L, R> implements MaterializedObject {
     private DematerializedPair<L, R> lastDematerialized;
     private LazyReference<L> lazyLeft;
     private LazyReference<R> lazyRight;
-    private final Handle<Pair<L, R>> handle;
+    private final MultiversionedHandle<Pair<L, R>> handle;
 
     private Pair(DematerializedPair<L, R> dematerializedPair, Transaction t) {
         this.handle = dematerializedPair.handle;
@@ -108,7 +108,7 @@ public final class Pair<L, R> implements MaterializedObject {
     }
 
     @Override
-    public Handle<Pair<L, R>> getHandle() {
+    public MultiversionedHandle<Pair<L, R>> getHandle() {
         return handle;
     }
 
@@ -150,7 +150,7 @@ public final class Pair<L, R> implements MaterializedObject {
     }
 
     public static class DematerializedPair<L, R> implements DematerializedObject {
-        private final Handle<Pair<L, R>> handle;
+        private final MultiversionedHandle<Pair<L, R>> handle;
         private final Object left;
         private final Object right;
 
@@ -161,7 +161,7 @@ public final class Pair<L, R> implements MaterializedObject {
         }
 
         @Override
-        public Handle<Pair<L, R>> getHandle() {
+        public MultiversionedHandle<Pair<L, R>> getHandle() {
             return handle;
         }
 
