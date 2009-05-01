@@ -3,8 +3,8 @@ package org.multiverse.multiversionedstm;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import org.junit.Test;
+import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.Originator;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
 import org.multiverse.multiversionedstm.examples.Pair;
 import org.multiverse.util.ArrayIterator;
@@ -70,8 +70,8 @@ public class MultiversionedStmUtilsTest {
         }
 
         @Override
-        public Originator getOriginator() {
-            return value.getOriginator();
+        public Handle getHandle() {
+            return value.getHandle();
         }
 
         @Override

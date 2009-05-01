@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LargeNumberOfWaitersTest {
 
     private MultiversionedStm stm;
-    private Originator<IntegerValue> waiterLatchOriginator;
-    private Originator<IntegerValue> notifyLatchOriginator;
+    private Handle<IntegerValue> waiterLatchHandle;
+    private Handle<IntegerValue> notifyLatchHandle;
 
     private int totalWakeupCount = 1000000;
     private int wakeupCount = 1000;
@@ -55,8 +55,8 @@ public class LargeNumberOfWaitersTest {
     public void test() {
         wakeupCountDown.set(totalWakeupCount);
         notifyCountDown.set(totalWakeupCount);
-        waiterLatchOriginator = commit(stm, new IntegerValue(0));
-        notifyLatchOriginator = commit(stm, new IntegerValue(1));
+        waiterLatchHandle = commit(stm, new IntegerValue(0));
+        notifyLatchHandle = commit(stm, new IntegerValue(1));
 
         System.out.println(stm.getStatistics());
 
@@ -70,9 +70,9 @@ public class LargeNumberOfWaitersTest {
         joinAll(notifyThread);
 
         Transaction t = stm.startTransaction();
-        IntegerValue waiterLatch = t.read(waiterLatchOriginator);
+        IntegerValue waiterLatch = t.read(waiterLatchHandle);
         assertEquals(0, waiterLatch.get());
-        IntegerValue notifyLatch = t.read(notifyLatchOriginator);
+        IntegerValue notifyLatch = t.read(notifyLatchHandle);
         assertEquals(1, notifyLatch.get());
         t.commit();
     }
@@ -118,12 +118,12 @@ public class LargeNumberOfWaitersTest {
         public void wakeup(final int count) {
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
-                    IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchOriginator);
+                    IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
                     if (notifyLatch.get() == 0)
                         retry();
                     notifyLatch.set(0);
 
-                    IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchOriginator);
+                    IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
                     waiterLatch.set(count);
                     return null;
                 }
@@ -148,13 +148,13 @@ public class LargeNumberOfWaitersTest {
             //System.out.println("wait");
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
-                    IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchOriginator);
+                    IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
                     if (waiterLatch.get() <= 0)
                         retry();
                     waiterLatch.dec();
 
                     if (waiterLatch.get() == 0) {
-                        IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchOriginator);
+                        IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
                         notifyLatch.set(1);
                     }
                     return null;

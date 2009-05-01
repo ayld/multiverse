@@ -1,7 +1,7 @@
 package org.multiverse.instrumentation.javaagent;
 
 import org.multiverse.api.Dematerializable;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.instrumentation.javaagent.analysis.AsmFieldAnalyzer;
 import static org.multiverse.instrumentation.javaagent.utils.AsmUtils.loadAsClassNode;
 import static org.multiverse.instrumentation.javaagent.utils.AsmUtils.toBytecode;
@@ -87,7 +87,7 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
 
         addIsDirtyMethod(classNode);
 
-        addGetOriginatorMethod(classNode);
+        addGetHandleMethod(classNode);
 
         addDematerializeMethod(classNode);
 
@@ -146,11 +146,11 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
         classNode.methods.add(methodNode);
     }
 
-    private void addGetOriginatorMethod(ClassNode classNode) {
+    private void addGetHandleMethod(ClassNode classNode) {
         MethodNode methodNode = new MethodNode(
                 Opcodes.ACC_PUBLIC,
-                "getOriginator",
-                "()" + Type.getDescriptor(Originator.class),//
+                "getHandle",
+                "()" + Type.getDescriptor(Handle.class),//
                 null,//desc
                 null//signature
         );
@@ -199,7 +199,7 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
                 FieldNode lazyReferenceFieldNode = new FieldNode(
                         Opcodes.ACC_PROTECTED,//access,
                         fieldNode.name + "LazyRef",//name
-                        InternalFormClassnameUtil.toInternalForm(Originator.class),//desc
+                        InternalFormClassnameUtil.toInternalForm(Handle.class),//desc
                         null,//signature
                         null//value
                 );
@@ -212,7 +212,7 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
         //FieldNode originatorFieldNode = new FieldNode(
         //        Opcodes.ACC_PROTECTED & Opcodes.ACC_FINAL,//access,
         //        "originator",//name
-        //        InternalFormClassnameUtil.toInternalForm(Originator.class),//desc
+        //        InternalFormClassnameUtil.toInternalForm(Handle.class),//desc
         //        null,//signature
         //        null//value
         //);

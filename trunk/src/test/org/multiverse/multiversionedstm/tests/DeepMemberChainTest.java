@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
@@ -73,21 +73,21 @@ public class DeepMemberChainTest {
 
     public void test(int length) {
         Pair pair = createValueChain(length);
-        Originator<Pair> originator = commit(stm, pair);
+        Handle<Pair> handle = commit(stm, pair);
 
         int updateCount = 10;
         for (int k = 0; k < updateCount; k++) {
-            increaseAllValuesInChain(originator);
+            increaseAllValuesInChain(handle);
         }
 
-        int total = totalValuesInChain(originator);
+        int total = totalValuesInChain(handle);
         assertEquals(updateCount * (length + 1), total);
     }
 
-    public void increaseAllValuesInChain(Originator<Pair> originator) {
+    public void increaseAllValuesInChain(Handle<Pair> handle) {
         Transaction t = stm.startTransaction();
 
-        Pair pair = t.read(originator);
+        Pair pair = t.read(handle);
         do {
             ((IntegerValue) pair.getLeft()).inc();
 
@@ -103,12 +103,12 @@ public class DeepMemberChainTest {
         t.commit();
     }
 
-    public int totalValuesInChain(Originator<Pair> originator) {
+    public int totalValuesInChain(Handle<Pair> handle) {
         Transaction t = stm.startTransaction();
 
         int total = 0;
 
-        Pair pair = t.read(originator);
+        Pair pair = t.read(handle);
         do {
             total += ((IntegerValue) pair.getLeft()).get();
 

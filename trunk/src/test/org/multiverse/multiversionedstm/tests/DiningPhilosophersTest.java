@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -34,7 +34,7 @@ public class DiningPhilosophersTest {
     private final AtomicLong countDown = new AtomicLong();
 
     private MultiversionedStm stm;
-    private Originator<IntegerValue>[] forkOriginators;
+    private Handle<IntegerValue>[] forkHandles;
 
     @Before
     public void setUp() {
@@ -58,8 +58,8 @@ public class DiningPhilosophersTest {
 
     public void assertAllForksHaveReturned() {
         Transaction t = stm.startTransaction();
-        for (Originator originator : forkOriginators) {
-            IntegerValue fork = (IntegerValue) t.read(originator);
+        for (Handle handle : forkHandles) {
+            IntegerValue fork = (IntegerValue) t.read(handle);
             assertEquals(1, fork.get());
         }
         t.commit();
@@ -68,18 +68,18 @@ public class DiningPhilosophersTest {
     public PhilosoperThread[] createPhilosoperThreads() {
         PhilosoperThread[] threads = new PhilosoperThread[forkCount];
         for (int k = 0; k < forkCount; k++) {
-            Originator leftForkHandle = forkOriginators[k];
-            Originator rightForkHandle = k == forkCount - 1 ? forkOriginators[0] : forkOriginators[k + 1];
+            Handle leftForkHandle = forkHandles[k];
+            Handle rightForkHandle = k == forkCount - 1 ? forkHandles[0] : forkHandles[k + 1];
             threads[k] = new PhilosoperThread(leftForkHandle, rightForkHandle);
         }
         return threads;
     }
 
     public void createForks() {
-        forkOriginators = new Originator[forkCount];
+        forkHandles = new Handle[forkCount];
         Transaction t = stm.startTransaction();
-        for (int k = 0; k < forkOriginators.length; k++) {
-            forkOriginators[k] = t.attach(new IntegerValue(1));
+        for (int k = 0; k < forkHandles.length; k++) {
+            forkHandles[k] = t.attach(new IntegerValue(1));
         }
 
         t.commit();
@@ -88,14 +88,14 @@ public class DiningPhilosophersTest {
     static AtomicInteger philosoperThreadIdGenerator = new AtomicInteger();
 
     class PhilosoperThread extends TestThread {
-        private final Originator leftForkOriginator;
-        private final Originator rightForkOriginator;
+        private final Handle leftForkHandle;
+        private final Handle rightForkHandle;
         private volatile long successCount = 0;
 
-        PhilosoperThread(Originator leftForkOriginator, Originator rightForkOriginator) {
+        PhilosoperThread(Handle leftForkHandle, Handle rightForkHandle) {
             super("PhilosoperThread-" + philosoperThreadIdGenerator.incrementAndGet());
-            this.leftForkOriginator = leftForkOriginator;
-            this.rightForkOriginator = rightForkOriginator;
+            this.leftForkHandle = leftForkHandle;
+            this.rightForkHandle = rightForkHandle;
         }
 
         @Override
@@ -118,8 +118,8 @@ public class DiningPhilosophersTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Boolean execute(Transaction t) throws Exception {
-                    returnFork(t, leftForkOriginator);
-                    returnFork(t, rightForkOriginator);
+                    returnFork(t, leftForkHandle);
+                    returnFork(t, rightForkHandle);
                     return null;
                 }
             }.execute();
@@ -129,20 +129,20 @@ public class DiningPhilosophersTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Boolean execute(Transaction t) throws Exception {
-                    obtainFork(t, leftForkOriginator);
-                    obtainFork(t, rightForkOriginator);
+                    obtainFork(t, leftForkHandle);
+                    obtainFork(t, rightForkHandle);
                     return null;
                 }
             }.execute();
         }
 
-        private void returnFork(Transaction t, Originator forkOriginator) {
-            IntegerValue fork = (IntegerValue) t.read(forkOriginator);
+        private void returnFork(Transaction t, Handle forkHandle) {
+            IntegerValue fork = (IntegerValue) t.read(forkHandle);
             fork.set(1);
         }
 
-        private void obtainFork(Transaction t, Originator forkOriginator) {
-            IntegerValue fork = (IntegerValue) t.read(forkOriginator);
+        private void obtainFork(Transaction t, Handle forkHandle) {
+            IntegerValue fork = (IntegerValue) t.read(forkHandle);
             if (fork.get() == 0)
                 retry();
             fork.set(0);

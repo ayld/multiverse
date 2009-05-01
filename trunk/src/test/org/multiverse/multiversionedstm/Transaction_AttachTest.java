@@ -5,7 +5,7 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
 import org.multiverse.multiversionedstm.examples.Stack;
@@ -33,22 +33,22 @@ public class Transaction_AttachTest {
 
     @Test
     public void attachOfReadObject() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue());
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();
-        IntegerValue foundValue = t.read(originator);
-        Originator<IntegerValue> foundOriginator = t.attach(foundValue);
-        assertSame(originator, foundOriginator);
+        IntegerValue foundValue = t.read(handle);
+        Handle<IntegerValue> foundHandle = t.attach(foundValue);
+        assertSame(handle, foundHandle);
     }
 
     @Test
-    public void attachAlreadyAttachedObjectReturnsTheSameOriginator() {
+    public void attachAlreadyAttachedObjectReturnsTheSameHandle() {
         IntegerValue value = new IntegerValue(1);
 
         Transaction t = stm.startTransaction();
-        Originator<IntegerValue> originator1 = t.attach(value);
-        Originator<IntegerValue> originator2 = t.attach(value);
-        assertSame(originator1, originator2);
+        Handle<IntegerValue> handle1 = t.attach(value);
+        Handle<IntegerValue> handle2 = t.attach(value);
+        assertSame(handle1, handle2);
     }
 
     @Test

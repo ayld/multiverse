@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -24,12 +24,12 @@ public class StackIntegrationTest {
     private final static AtomicInteger produceCountDown = new AtomicInteger();
 
     private MultiversionedStm stm;
-    private Originator<Stack<String>> stackOriginator;
+    private Handle<Stack<String>> stackHandle;
 
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        stackOriginator = commit(stm, new Stack<String>());
+        stackHandle = commit(stm, new Stack<String>());
         //    new PrintMultiversionedStmStatisticsThread(stm).start();
     }
 
@@ -43,7 +43,7 @@ public class StackIntegrationTest {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
                 t.setDescription("Push transaction");
-                Stack<String> stack = t.read(stackOriginator);
+                Stack<String> stack = t.read(stackHandle);
                 stack.push(item);
                 return null;
             }
@@ -54,7 +54,7 @@ public class StackIntegrationTest {
         return new TransactionTemplate<String>(stm) {
             protected String execute(Transaction t) throws Exception {
                 t.setDescription("Pop transaction");
-                Stack<String> stack = t.read(stackOriginator);
+                Stack<String> stack = t.read(stackHandle);
                 return stack.pop();
             }
         }.execute();
@@ -146,10 +146,10 @@ public class StackIntegrationTest {
         Stack<IntegerValue> stack = new Stack<IntegerValue>();
         stack.push(new IntegerValue(10));
 
-        Originator<Stack<IntegerValue>> originator = commit(stm, stack);
+        Handle<Stack<IntegerValue>> handle = commit(stm, stack);
 
         Transaction t = stm.startTransaction();
-        Stack<IntegerValue> foundStack = t.read(originator);
+        Stack<IntegerValue> foundStack = t.read(handle);
         assertStackSize(foundStack, 1);
         IntegerValue foundValue = foundStack.peek();
         assertValue(foundValue, 10);
@@ -159,7 +159,7 @@ public class StackIntegrationTest {
         System.out.println("testReferencesWithinStackArePersisted.commitCompleted");
 
         t = stm.startTransaction();
-        foundStack = t.read(originator);
+        foundStack = t.read(handle);
         assertStackSize(foundStack, 1);
         foundValue = foundStack.peek();
         assertValue(foundValue, 11);
@@ -178,7 +178,7 @@ public class StackIntegrationTest {
 
     private void assertStackIsEmpty() {
         Transaction t = stm.startTransaction();
-        Stack stack = t.read(stackOriginator);
+        Stack stack = t.read(stackHandle);
         assertTrue(stack.isEmpty());
         t.commit();
     }

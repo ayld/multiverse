@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.Pair;
@@ -26,20 +26,20 @@ public class LargeNumberMemberChainTest {
     @Test
     public void testTree_5() {
         Pair pair = createTree(5);
-        Originator<Pair> originator = commit(stm, pair);
+        Handle<Pair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(originator);
+        Pair found = t.read(handle);
         assertEquals(pair, found);
     }
 
     @Test
     public void testTree_10() {
         Pair pair = createTree(10);
-        Originator<Pair> originator = commit(stm, pair);
+        Handle<Pair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(originator);
+        Pair found = t.read(handle);
         assertEquals(pair, found);
     }
 
@@ -47,20 +47,20 @@ public class LargeNumberMemberChainTest {
     @Test
     public void testTree_15() {
         Pair pair = createTree(15);
-        Originator<Pair> originator = commit(stm, pair);
+        Handle<Pair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(originator);
+        Pair found = t.read(handle);
         assertEquals(pair, found);
     }
 
     @Test
     public void testTree_20() {
         Pair pair = createTree(15);
-        Originator<Pair> originator = commit(stm, pair);
+        Handle<Pair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(originator);
+        Pair found = t.read(handle);
         assertEquals(pair, found);
     }
 

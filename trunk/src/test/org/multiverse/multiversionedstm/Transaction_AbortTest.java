@@ -4,7 +4,7 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
 
@@ -32,27 +32,27 @@ public class Transaction_AbortTest {
 
         Transaction t = stm.startTransaction();
         IntegerValue integerValue = new IntegerValue();
-        Originator<IntegerValue> originator = t.attach(integerValue);
+        Handle<IntegerValue> handle = t.attach(integerValue);
         t.abort();
 
         assertIsAborted(t);
-        assertNoCommits(stm, originator);
+        assertNoCommits(stm, handle);
         assertGlobalVersion(stm, globalVersion);
     }
 
     @Test
     public void abortDoesNotCommitChangesOnRematerializedObject() {
         int oldValue = 0;
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue(oldValue));
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue(oldValue));
 
         long globalVersion = stm.getGlobalVersion();
         Transaction t = stm.startTransaction();
-        IntegerValue integerValue = t.read(originator);
+        IntegerValue integerValue = t.read(handle);
         integerValue.inc();
         t.abort();
 
         assertIsAborted(t);
-        assertIntegerValue(stm, originator, oldValue);
+        assertIntegerValue(stm, handle, oldValue);
         assertGlobalVersion(stm, globalVersion);
     }
 

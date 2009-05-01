@@ -1,7 +1,7 @@
 package org.multiverse.multiversionedstm.examples;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
 
@@ -11,7 +11,7 @@ public final class StackNode<E> implements MaterializedObject {
     private final int length;
 
     public StackNode(StackNode<E> next, E value) {
-        this.originator = new DefaultOriginator<StackNode<E>>();
+        this.handle = new DefaultHandle<StackNode<E>>();
         this.next = next;
         this.value = value;
         this.length = next == null ? 1 : next.length + 1;
@@ -37,19 +37,19 @@ public final class StackNode<E> implements MaterializedObject {
 
     private DematerializedNode<E> lastDematerialized;
     private LazyReference<StackNode<E>> nextRef;
-    private Originator<StackNode<E>> originator;
+    private Handle<StackNode<E>> handle;
 
     private StackNode(DematerializedNode<E> dematerializedNode, Transaction t) {
         this.lastDematerialized = dematerializedNode;
-        this.originator = dematerializedNode.getOriginator();
-        this.value = dematerializedNode.value instanceof Originator ? (E) t.read((Originator) dematerializedNode.value) : (E) dematerializedNode.value;
+        this.handle = dematerializedNode.getHandle();
+        this.value = dematerializedNode.value instanceof Handle ? (E) t.read((Handle) dematerializedNode.value) : (E) dematerializedNode.value;
         this.length = dematerializedNode.length;
-        this.nextRef = t.readLazyAndUnmanaged(dematerializedNode.nextOriginator);
+        this.nextRef = t.readLazyAndUnmanaged(dematerializedNode.nextHandle);
     }
 
     @Override
-    public Originator<StackNode<E>> getOriginator() {
-        return originator;
+    public Handle<StackNode<E>> getHandle() {
+        return handle;
     }
 
     @Override
@@ -78,22 +78,22 @@ public final class StackNode<E> implements MaterializedObject {
     }
 
     @Override
-    public void memberTrace(MemberTracer memberTracer) {
-        if (value instanceof MaterializedObject) memberTracer.onMember((MaterializedObject) value);
-        if (next != null) memberTracer.onMember(next);
+    public void walkMaterializedMembers(MemberWalker memberWalker) {
+        if (value instanceof MaterializedObject) memberWalker.onMember((MaterializedObject) value);
+        if (next != null) memberWalker.onMember(next);
     }
 
     public static class DematerializedNode<E> implements DematerializedObject {
-        private final Originator<StackNode<E>> originator;
+        private final Handle<StackNode<E>> handle;
         private final Object value;
         private final int length;
-        private final Originator<StackNode<E>> nextOriginator;
+        private final Handle<StackNode<E>> nextHandle;
 
         public DematerializedNode(StackNode<E> node) {
-            this.originator = node.getOriginator();
-            this.value = node.value instanceof MaterializedObject ? ((MaterializedObject) node.value).getOriginator() : node.value;
+            this.handle = node.getHandle();
+            this.value = node.value instanceof MaterializedObject ? ((MaterializedObject) node.value).getHandle() : node.value;
             this.length = node.length;
-            this.nextOriginator = MultiversionedStmUtils.getOriginator(node.nextRef, node.next);
+            this.nextHandle = MultiversionedStmUtils.getHandle(node.nextRef, node.next);
         }
 
         @Override
@@ -102,8 +102,8 @@ public final class StackNode<E> implements MaterializedObject {
         }
 
         @Override
-        public Originator<StackNode<E>> getOriginator() {
-            return originator;
+        public Handle<StackNode<E>> getHandle() {
+            return handle;
         }
     }
 }

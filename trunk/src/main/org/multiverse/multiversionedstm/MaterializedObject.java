@@ -1,6 +1,6 @@
 package org.multiverse.multiversionedstm;
 
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 
 /**
  * Represents an Object that can be stores inside the {@link MultiversionedStm}.
@@ -9,15 +9,23 @@ import org.multiverse.api.Originator;
  */
 public interface MaterializedObject {
 
-    Originator getOriginator();
+    Handle getHandle();
 
 
+    /**
+     * Checks if this MaterializedObject object is dirty (so needs to be persisted).
+     *
+     * @return
+     */
     boolean isDirty();
 
     DematerializedObject dematerialize();
 
 
-    void memberTrace(MemberTracer memberTracer);
+    /**
+     * @param memberWalker
+     */
+    void walkMaterializedMembers(MemberWalker memberWalker);
 
 
     MaterializedObject getNextInChain();

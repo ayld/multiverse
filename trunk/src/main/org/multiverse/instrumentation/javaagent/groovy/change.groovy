@@ -15,7 +15,7 @@ MaterializedObject {
     'ATHROW'
   }
 
-  getOriginator {
+  getHandle {
     'NEW' 'java/lang/IllegalArgumentException'
     'DUP'
     'INVOKESPECIAL' 'java/lang/IllegalArgumentException', '<init>', '()V'
@@ -53,7 +53,7 @@ DematerializedObject {
     'ATHROW'
   }
 
-  getOriginator {
+  getHandle {
     'NEW' 'java/lang/IllegalArgumentException'
     'DUP'
     'INVOKESPECIAL' 'java/lang/IllegalArgumentException', '<init>', '()V'

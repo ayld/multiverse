@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
@@ -28,10 +28,10 @@ public class PairTest {
         Integer left = 10;
         Integer right = 20;
         Pair<Integer, Integer> pair = new Pair<Integer, Integer>(left, right);
-        Originator<Pair<Integer, Integer>> originator = commit(stm, pair);
+        Handle<Pair<Integer, Integer>> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair<Integer, Integer> found = t.read(originator);
+        Pair<Integer, Integer> found = t.read(handle);
         assertNotNull(found);
         assertEquals(left, found.getLeft());
         assertEquals(right, found.getRight());
@@ -42,10 +42,10 @@ public class PairTest {
         IntegerValue left = new IntegerValue(10);
         IntegerValue right = new IntegerValue(20);
         Pair<IntegerValue, IntegerValue> pair = new Pair<IntegerValue, IntegerValue>(left, right);
-        Originator<Pair<IntegerValue, IntegerValue>> originator = commit(stm, pair);
+        Handle<Pair<IntegerValue, IntegerValue>> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair<IntegerValue, IntegerValue> found = t.read(originator);
+        Pair<IntegerValue, IntegerValue> found = t.read(handle);
         assertNotNull(found);
         assertEquals(left, found.getLeft());
         assertEquals(right, found.getRight());

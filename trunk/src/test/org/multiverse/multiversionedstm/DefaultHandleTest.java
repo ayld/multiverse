@@ -2,25 +2,25 @@ package org.multiverse.multiversionedstm;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.TransactionId;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.api.exceptions.WriteConflictException;
-import org.multiverse.multiversionedstm.DefaultOriginator.State;
+import org.multiverse.multiversionedstm.DefaultHandle.State;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
 import org.multiverse.multiversionedstm.examples.Stack;
 import org.multiverse.util.Bag;
 import org.multiverse.util.RetryCounter;
 
-public class DefaultOriginatorTest {
+public class DefaultHandleTest {
 
-    private DefaultOriginator createCommitted(long version) {
+    private DefaultHandle createCommitted(long version) {
         return createCommitted(new Stack(), version);
     }
 
-    private DefaultOriginator createCommitted(MaterializedObject materializedObject, long version) {
-        DefaultOriginator object = new DefaultOriginator();
+    private DefaultHandle createCommitted(MaterializedObject materializedObject, long version) {
+        DefaultHandle object = new DefaultHandle();
         TransactionId id = new TransactionId();
         if (!object.tryAcquireLockForWriting(id, 0, new RetryCounter(1)))
             fail();
@@ -36,7 +36,7 @@ public class DefaultOriginatorTest {
     @Test
     public void tryToAcquireLockForWritingSucceedsIfLockIsFreeAndThereIsNoCommittedState() {
         long version = 10;
-        DefaultOriginator stmObject = new DefaultOriginator();
+        DefaultHandle stmObject = new DefaultHandle();
         TransactionId lockOwner = new TransactionId();
 
         boolean success = stmObject.tryAcquireLockForWriting(lockOwner, version, new RetryCounter(1));
@@ -52,7 +52,7 @@ public class DefaultOriginatorTest {
     @Test
     public void tryToAcquireLockForWritingSucceedsIfLockIsFreeAndThereIsCommittedState() {
         long version = 10;
-        DefaultOriginator stmObject = createCommitted(version);
+        DefaultHandle stmObject = createCommitted(version);
         TransactionId lockOwner = new TransactionId();
         State oldState = stmObject.getState();
 
@@ -69,57 +69,57 @@ public class DefaultOriginatorTest {
     @Test
     public void tryToAcquireLockForWritingFailsIsLockIsNotFreeAndThereIsCommittedState() {
         long version = 10;
-        DefaultOriginator originator = createCommitted(version);
+        DefaultHandle handle = createCommitted(version);
 
         TransactionId transactionId1 = new TransactionId();
-        originator.tryAcquireLockForWriting(transactionId1, version, new RetryCounter(1));
-        State oldState = originator.getState();
+        handle.tryAcquireLockForWriting(transactionId1, version, new RetryCounter(1));
+        State oldState = handle.getState();
 
         TransactionId transactionId2 = new TransactionId();
-        boolean success = originator.tryAcquireLockForWriting(transactionId2, version, new RetryCounter(1));
+        boolean success = handle.tryAcquireLockForWriting(transactionId2, version, new RetryCounter(1));
 
         assertFalse(success);
-        assertSame(oldState, originator.getState());
+        assertSame(oldState, handle.getState());
     }
 
     @Test
     public void tryToAcquireLockForWritingFailsIsLockIsNotFreeAndThereIsNoCommittedState() {
-        DefaultOriginator originator = new DefaultOriginator();
+        DefaultHandle handle = new DefaultHandle();
 
         TransactionId transactionId1 = new TransactionId();
-        originator.tryAcquireLockForWriting(transactionId1, 0, new RetryCounter(1));
+        handle.tryAcquireLockForWriting(transactionId1, 0, new RetryCounter(1));
 
-        State oldState = originator.getState();
+        State oldState = handle.getState();
 
         TransactionId transactionId2 = new TransactionId();
-        boolean success = originator.tryAcquireLockForWriting(transactionId2, 0, new RetryCounter(1));
+        boolean success = handle.tryAcquireLockForWriting(transactionId2, 0, new RetryCounter(1));
 
         assertFalse(success);
-        assertSame(oldState, originator.getState());
+        assertSame(oldState, handle.getState());
     }
 
     @Test
     public void tryToAcquireLockForWritingFailsIfWriteConflictIsDetected() {
         long version = 10;
-        DefaultOriginator originator = createCommitted(version);
+        DefaultHandle handle = createCommitted(version);
 
-        State oldState = originator.getState();
+        State oldState = handle.getState();
 
         TransactionId transactionId2 = new TransactionId();
         try {
-            originator.tryAcquireLockForWriting(transactionId2, version - 1, new RetryCounter(1));
+            handle.tryAcquireLockForWriting(transactionId2, version - 1, new RetryCounter(1));
             fail();
         } catch (WriteConflictException er) {
         }
 
-        assertSame(oldState, originator.getState());
+        assertSame(oldState, handle.getState());
     }
 
     // ============== writeAndReleaseLock ==================
     @Test
     public void releaseLockForWritingSucceeds() {
         long version = 10;
-        DefaultOriginator stmObject = createCommitted(version);
+        DefaultHandle stmObject = createCommitted(version);
         TransactionId lockOwner = new TransactionId();
 
         stmObject.tryAcquireLockForWriting(lockOwner, version, new RetryCounter(1));
@@ -133,7 +133,7 @@ public class DefaultOriginatorTest {
     @Test
     public void releaseLockForWritingIsIgnoredIfTheTransactionIdDoesntMatch() {
         long version = 10;
-        DefaultOriginator stmObject = createCommitted(version);
+        DefaultHandle stmObject = createCommitted(version);
         TransactionId lockOwner = new TransactionId();
 
         stmObject.tryAcquireLockForWriting(lockOwner, version, new RetryCounter(1));
@@ -167,13 +167,13 @@ public class DefaultOriginatorTest {
 
     public void getDehydrated(long materializeVersion, long searchVersion) {
         MaterializedObject object = new IntegerValue();
-        Originator originator = object.getOriginator();
+        Handle handle = object.getHandle();
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
-        originator.tryAcquireLockForWriting(transactionId, 0, new RetryCounter(1));
-        originator.writeAndReleaseLock(transactionId, dematerialized, materializeVersion, new Bag());
+        handle.tryAcquireLockForWriting(transactionId, 0, new RetryCounter(1));
+        handle.writeAndReleaseLock(transactionId, dematerialized, materializeVersion, new Bag());
 
-        DematerializedObject found = originator.tryRead(searchVersion, new RetryCounter(1));
+        DematerializedObject found = handle.tryRead(searchVersion, new RetryCounter(1));
         assertSame(dematerialized, found);
     }
 
@@ -185,14 +185,14 @@ public class DefaultOriginatorTest {
 
         TransactionId owner = new TransactionId();
         MaterializedObject materializedObject = new IntegerValue();
-        Originator originator = materializedObject.getOriginator();
+        Handle handle = materializedObject.getHandle();
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
-        originator.tryAcquireLockForWriting(owner, 0, new RetryCounter(1));
-        originator.writeAndReleaseLock(owner, dematerialized, dematerializeVersion, new Bag());
+        handle.tryAcquireLockForWriting(owner, 0, new RetryCounter(1));
+        handle.writeAndReleaseLock(owner, dematerialized, dematerializeVersion, new Bag());
 
         try {
-            originator.tryRead(searchVersion, new RetryCounter(1));
+            handle.tryRead(searchVersion, new RetryCounter(1));
             fail();
         } catch (SnapshotTooOldException e) {
 
@@ -205,38 +205,38 @@ public class DefaultOriginatorTest {
 
     public void getLastCommited() {
         MaterializedObject object = new IntegerValue(45);
-        Originator originator = object.getOriginator();
+        Handle handle = object.getHandle();
         TransactionId id = new TransactionId();
-        originator.tryAcquireLockForWriting(id, 0, new RetryCounter(1));
+        handle.tryAcquireLockForWriting(id, 0, new RetryCounter(1));
         DematerializedObject dematerializedObject = object.dematerialize();
-        originator.writeAndReleaseLock(id, dematerializedObject, 100, new Bag());
+        handle.writeAndReleaseLock(id, dematerializedObject, 100, new Bag());
 
         RetryCounter retryCounter = new RetryCounter(1);
-        DematerializedObject found = originator.tryGetLastCommitted(retryCounter);
+        DematerializedObject found = handle.tryGetLastCommitted(retryCounter);
         assertSame(dematerializedObject, found);
     }
 
     @Test
     public void getLastCommitedOfNonCommittedObsionject() {
-        DefaultOriginator originator = new DefaultOriginator();
+        DefaultHandle handle = new DefaultHandle();
 
         RetryCounter retryCounter = new RetryCounter(1);
-        DematerializedObject found = originator.tryGetLastCommitted(retryCounter);
+        DematerializedObject found = handle.tryGetLastCommitted(retryCounter);
         assertNull(found);
     }
 
     @Test
     public void tryToGetLastCommitedFailsWhenLockedForWriting() {
         long version = 10;
-        DefaultOriginator originator = createCommitted(version);
+        DefaultHandle handle = createCommitted(version);
 
         TransactionId transactionId = new TransactionId();
-        if (!originator.tryAcquireLockForWriting(transactionId, version, new RetryCounter(1)))
+        if (!handle.tryAcquireLockForWriting(transactionId, version, new RetryCounter(1)))
             fail();
 
         RetryCounter retryCounter = new RetryCounter(50);
         try {
-            originator.tryGetLastCommitted(retryCounter);
+            handle.tryGetLastCommitted(retryCounter);
             fail();
         } catch (TooManyRetriesException error) {
         }

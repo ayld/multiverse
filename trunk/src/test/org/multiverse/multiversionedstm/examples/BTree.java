@@ -1,7 +1,7 @@
 package org.multiverse.multiversionedstm.examples;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
 
@@ -12,7 +12,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
     private Node<K, V> root;
 
     public BTree() {
-        this.originator = new DefaultOriginator<BTree<K, V>>();
+        this.handle = new DefaultHandle<BTree<K, V>>();
     }
 
     public V put(K key, V value) {
@@ -105,7 +105,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
         Node(K key, V value) {
             this.key = key;
             this.value = value;
-            this.originator = new DefaultOriginator<Node<K, V>>();
+            this.handle = new DefaultHandle<Node<K, V>>();
         }
 
         private Node<K, V> readRight() {
@@ -224,31 +224,31 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
 
         // ================== generated ==================
 
-        private final Originator<Node<K, V>> originator;
+        private final Handle<Node<K, V>> handle;
         private DematerializedNode<K, V> lastDematerialized;
 
         public Node(DematerializedNode<K, V> dematerializedNode, Transaction t) {
             this.lastDematerialized = dematerializedNode;
-            this.originator = dematerializedNode.originator;
+            this.handle = dematerializedNode.handle;
             this.leftRef = t.readLazy(dematerializedNode.left);
             this.rightRef = t.readLazy(dematerializedNode.right);
 
-            if (dematerializedNode.key instanceof Originator) {
-                key = t.read((Originator<K>) dematerializedNode.key);
+            if (dematerializedNode.key instanceof Handle) {
+                key = t.read((Handle<K>) dematerializedNode.key);
             } else {
                 key = (K) dematerializedNode.key;
             }
 
-            if (dematerializedNode.value instanceof Originator) {
-                valueRef = t.readLazy((Originator<V>) dematerializedNode.value);
+            if (dematerializedNode.value instanceof Handle) {
+                valueRef = t.readLazy((Handle<V>) dematerializedNode.value);
             } else {
                 value = (V) dematerializedNode.value;
             }
         }
 
         @Override
-        public Originator<Node<K, V>> getOriginator() {
-            return originator;
+        public Handle<Node<K, V>> getHandle() {
+            return handle;
         }
 
         @Override
@@ -256,17 +256,17 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
             if (lastDematerialized == null)
                 return true;
 
-            if (lastDematerialized.left != MultiversionedStmUtils.getValueOrOriginator(leftRef, left))
+            if (lastDematerialized.left != MultiversionedStmUtils.getValueOrHandle(leftRef, left))
                 return true;
 
-            if (lastDematerialized.right != MultiversionedStmUtils.getValueOrOriginator(rightRef, right))
+            if (lastDematerialized.right != MultiversionedStmUtils.getValueOrHandle(rightRef, right))
                 return true;
 
-            if (lastDematerialized.value != MultiversionedStmUtils.getOriginator(valueRef, value))
+            if (lastDematerialized.value != MultiversionedStmUtils.getHandle(valueRef, value))
                 return true;
 
 
-            if (lastDematerialized.key != MultiversionedStmUtils.getOriginator(key))
+            if (lastDematerialized.key != MultiversionedStmUtils.getHandle(key))
                 return true;
 
             return false;
@@ -290,28 +290,28 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
         }
 
         @Override
-        public void memberTrace(MemberTracer memberTracer) {
-            if (left != null) memberTracer.onMember(left);
-            if (right != null) memberTracer.onMember(right);
-            if (key instanceof MaterializedObject) memberTracer.onMember((MaterializedObject) key);
-            if (value instanceof MaterializedObject) memberTracer.onMember((MaterializedObject) value);
+        public void walkMaterializedMembers(MemberWalker memberWalker) {
+            if (left != null) memberWalker.onMember(left);
+            if (right != null) memberWalker.onMember(right);
+            if (key instanceof MaterializedObject) memberWalker.onMember((MaterializedObject) key);
+            if (value instanceof MaterializedObject) memberWalker.onMember((MaterializedObject) value);
         }
     }
 
     //================ generated ================================
 
-    private final Originator<BTree<K, V>> originator;
+    private final Handle<BTree<K, V>> handle;
     private DematerializedBTree<K, V> lastDematerialized;
 
     private BTree(DematerializedBTree<K, V> dematerializedBTree, Transaction t) {
-        originator = dematerializedBTree.originator;
+        handle = dematerializedBTree.handle;
         lastDematerialized = dematerializedBTree;
         root = t.read(dematerializedBTree.root);
     }
 
     @Override
-    public Originator<BTree<K, V>> getOriginator() {
-        return originator;
+    public Handle<BTree<K, V>> getHandle() {
+        return handle;
     }
 
     @Override
@@ -319,7 +319,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
         if (lastDematerialized == null)
             return true;
 
-        if (lastDematerialized.root != MultiversionedStmUtils.getOriginator(root))
+        if (lastDematerialized.root != MultiversionedStmUtils.getHandle(root))
             return true;
 
         return false;
@@ -331,8 +331,8 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
     }
 
     @Override
-    public void memberTrace(MemberTracer memberTracer) {
-        if (root != null) memberTracer.onMember(root);
+    public void walkMaterializedMembers(MemberWalker memberWalker) {
+        if (root != null) memberWalker.onMember(root);
     }
 
     private MaterializedObject nextInChain;
@@ -349,17 +349,17 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
 
 
     public static class DematerializedBTree<K extends Comparable, V> implements DematerializedObject {
-        final Originator<BTree<K, V>> originator;
-        final Originator<Node<K, V>> root;
+        final Handle<BTree<K, V>> handle;
+        final Handle<Node<K, V>> root;
 
         public DematerializedBTree(BTree<K, V> bTree) {
-            this.originator = bTree.originator;
-            this.root = bTree.root == null ? null : bTree.root.getOriginator();
+            this.handle = bTree.handle;
+            this.root = bTree.root == null ? null : bTree.root.getHandle();
         }
 
         @Override
-        public Originator<BTree<K, V>> getOriginator() {
-            return originator;
+        public Handle<BTree<K, V>> getHandle() {
+            return handle;
         }
 
         @Override
@@ -369,23 +369,23 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
     }
 
     public static class DematerializedNode<K extends Comparable, V> implements DematerializedObject {
-        private final Originator<Node<K, V>> originator;
-        private final Originator<Node<K, V>> left;
-        private final Originator<Node<K, V>> right;
+        private final Handle<Node<K, V>> handle;
+        private final Handle<Node<K, V>> left;
+        private final Handle<Node<K, V>> right;
         private final Object key;
         private final Object value;
 
         public DematerializedNode(Node<K, V> node) {
-            this.originator = node.getOriginator();
-            this.left = MultiversionedStmUtils.getOriginator(node.leftRef, node.left);
-            this.right = MultiversionedStmUtils.getOriginator(node.rightRef, node.right);
-            this.key = MultiversionedStmUtils.getValueOrOriginator(null, node.key);
-            this.value = MultiversionedStmUtils.getValueOrOriginator(node.valueRef, node.value);
+            this.handle = node.getHandle();
+            this.left = MultiversionedStmUtils.getHandle(node.leftRef, node.left);
+            this.right = MultiversionedStmUtils.getHandle(node.rightRef, node.right);
+            this.key = MultiversionedStmUtils.getValueOrHandle(null, node.key);
+            this.value = MultiversionedStmUtils.getValueOrHandle(node.valueRef, node.value);
         }
 
         @Override
-        public Originator<Node<K, V>> getOriginator() {
-            return originator;
+        public Handle<Node<K, V>> getHandle() {
+            return handle;
         }
 
         @Override

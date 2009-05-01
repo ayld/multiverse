@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -21,7 +21,7 @@ public class StackStressTest {
     private final AtomicInteger produceCountDown = new AtomicInteger();
 
     private MultiversionedStm stm;
-    private Originator<Stack<String>> stackOriginator;
+    private Handle<Stack<String>> stackHandle;
     private long startMs;
     private long endMs;
     private int itemCount;
@@ -32,7 +32,7 @@ public class StackStressTest {
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        stackOriginator = commit(stm, new Stack<String>());
+        stackHandle = commit(stm, new Stack<String>());
     }
 
     @After
@@ -110,7 +110,7 @@ public class StackStressTest {
 
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        Stack<String> stack = t.read(stackOriginator);
+                        Stack<String> stack = t.read(stackHandle);
                         stack.push(item);
                         return null;
                     }
@@ -134,7 +134,7 @@ public class StackStressTest {
             while (consumeCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate<String>(stm) {
                     protected String execute(Transaction t) throws Exception {
-                        Stack<String> stack = t.read(stackOriginator);
+                        Stack<String> stack = t.read(stackHandle);
                         return stack.pop();
                     }
                 }.execute();

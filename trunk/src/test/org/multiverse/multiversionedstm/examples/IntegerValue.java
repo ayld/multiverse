@@ -1,11 +1,11 @@
 package org.multiverse.multiversionedstm.examples;
 
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.DefaultOriginator;
+import org.multiverse.multiversionedstm.DefaultHandle;
 import org.multiverse.multiversionedstm.DematerializedObject;
 import org.multiverse.multiversionedstm.MaterializedObject;
-import org.multiverse.multiversionedstm.MemberTracer;
+import org.multiverse.multiversionedstm.MemberWalker;
 
 import static java.lang.String.format;
 
@@ -18,7 +18,7 @@ public final class IntegerValue implements MaterializedObject {
     }
 
     public IntegerValue(int value) {
-        this.originator = new DefaultOriginator<IntegerValue>();
+        this.handle = new DefaultHandle<IntegerValue>();
         this.value = value;
     }
 
@@ -63,11 +63,11 @@ public final class IntegerValue implements MaterializedObject {
     // ========================= generated ======================================
 
     private DematerializedIntegerValue lastDematerialized;
-    private final Originator originator;
+    private final Handle handle;
 
     private IntegerValue(DematerializedIntegerValue dematerializedIntegerValue) {
         this.lastDematerialized = dematerializedIntegerValue;
-        this.originator = dematerializedIntegerValue.originator;
+        this.handle = dematerializedIntegerValue.handle;
         this.value = dematerializedIntegerValue.value;
     }
 
@@ -89,12 +89,12 @@ public final class IntegerValue implements MaterializedObject {
     }
 
     @Override
-    public void memberTrace(MemberTracer memberTracer) {
+    public void walkMaterializedMembers(MemberWalker memberWalker) {
     }
 
     @Override
-    public Originator<IntegerValue> getOriginator() {
-        return originator;
+    public Handle<IntegerValue> getHandle() {
+        return handle;
     }
 
     @Override
@@ -109,11 +109,11 @@ public final class IntegerValue implements MaterializedObject {
     }
 
     public static class DematerializedIntegerValue implements DematerializedObject {
-        private final Originator originator;
+        private final Handle handle;
         private final int value;
 
         private DematerializedIntegerValue(IntegerValue source) {
-            this.originator = source.getOriginator();
+            this.handle = source.getHandle();
             this.value = source.value;
         }
 
@@ -123,8 +123,8 @@ public final class IntegerValue implements MaterializedObject {
         }
 
         @Override
-        public Originator getOriginator() {
-            return originator;
+        public Handle getHandle() {
+            return handle;
         }
     }
 }

@@ -2,7 +2,7 @@ import org.multiverse.multiversionedstm.MaterializedObject
 
 /**
  * Phase c is responsible for making object that are annotated with @Dematerializable annotations,
- * are transformed so that the implement the  {@link org.multiverse.multiversionedstm.MaterializedObject}
+ * are transformed so that the implement the   {@link org.multiverse.multiversionedstm.MaterializedObject}
  * interface.
  */
 TransformClass {
@@ -16,7 +16,7 @@ TransformClass {
   //  addField()
   //}
 
-  //addField 'originator' Originator.class 
+  //addField 'handle' Handle.class
 
   addPublicField 'lastDematerialized', MaterializedObject.class
 
@@ -25,7 +25,7 @@ TransformClass {
   //addInterfaceMethod MaterializedObject.class.&isDirty{
   //}
 
-  //addInterfaceMethod 'getOriginator' {
+  //addInterfaceMethod 'getHandle' {
   //}
 
   //addInterfaceMethod('dematerialize'){
