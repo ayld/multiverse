@@ -19,98 +19,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/QueueIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/RetryTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/IntegerValueTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValueTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/DeepMemberChainTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackIntegrationTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/change.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" afterPath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Materializable.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Dematerializable.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/PairTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/PairTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValueTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValueTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadUnsafeTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadUnmanagedTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/Stack.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/dsl/CreateCodeDelegate.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/junk.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phased.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/BytecodeWriteUtil.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/BytecodeWriteUtil.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/dsl" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/QueueStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/utils/AsmUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/utils/AsmUtils.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyAndUnmanagedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackIntegrationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iml" afterPath="$PROJECT_DIR$/stm.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phasec.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ClassicStackProducerConsumerTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/ClassicStackProducerConsumerTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultOriginatorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultOriginatorTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/dsl/TransformClassDsl.groovy" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmStatistics.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmStatistics.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/BTree.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/main.groovy" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/dsl/CreateClassDsl.groovy" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/Pair.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Transaction.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Transaction.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Atomic.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberMemberChainTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/Queue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemIsNotDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberOfWaitersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/CycleHandlingTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/CycleHandlingTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/PairTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/PairTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/ReadersDontBlockWritersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/AccessObjectClassFileTransformerContext.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/AccessObjectClassFileTransformerContext.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/ConflictingWritesDontBreakSystemTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/BrokenSerializedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/ListenerNode.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/ListenerNode.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/todo.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Originator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Originator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/WritersDontBlockReadersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/IsolatedBehaviorTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/PipelineTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/DiningPhilosophersTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/addtracing.groovy" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/dsl/TransformCodeDelegate.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phaseb.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultOriginator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultOriginator.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/StackNode.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/MaterializedObjectClassFileTransformerContext.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/MaterializedObjectClassFileTransformerContext.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/IntegerValue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/tests/AtomicBehaviorTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/examples/BTreeTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phasea.groovy" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/dsl/phase2dsl.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/TestUtils.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/TestUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.ipr" afterPath="$PROJECT_DIR$/stm.ipr" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ClassicStackProducerConsumerTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/CycleHandlingTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
@@ -253,40 +199,7 @@
     <option name="LAST_EDITED_TAB_NAME" />
   </component>
   <component name="PackagesPane">
-    <subPane>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org.multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedstm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-        </PATH_ELEMENT>
-      </PATH>
-    </subPane>
+    <subPane />
   </component>
   <component name="ProjectLevelVcsManager">
     <OptionsSetting value="true" id="Add" />
@@ -603,6 +516,40 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="test" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiversionedstm" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -1814,7 +1761,7 @@
     <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="- moved the listener.open after all the writes have completed.. this was a big performance improvement&#10;- the writecount is set after all writes are done, not for every write&#10;- the stack reads the node unmanaged&#10;- the node reads the next unmanaged" />
+    <option name="LAST_COMMIT_MESSAGE" value="- moved the tests package to org.multiverse.multiversionedstm" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -1825,8 +1772,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="- fixed bug with balancing&#10;- improved the unit test for balancing.. more real world test" />
-    <MESSAGE value="- fixed 2 issues in the growing heap:&#10;   - bad type of reference was used (weak in the old, soft in the fix)&#10;   - the read and readversion of the growingheap snapshotimpl were not complete." />
     <MESSAGE value="- stm objects are now constructed during hydration with a constructor&#10;- added the retry count to the transaction template" />
     <MESSAGE value="- most test have been upgrade to use the annotation instead of subclass approach &#10;- the version has been moved to dehydratedstmobject&#10;- started with introducing japex (micro performance benchmarks)" />
     <MESSAGE value="- check for no progress (no condition variables) is now added&#10;- optimization for immutable stm objects (cheap hydration/dehydration)&#10;- reduced overhead on condition variables (immutable parts are not seen as condition variables)&#10;- added some extra tests for queues and stacks to make sure that they don't contain stupid mistakes&#10;- added some extra high level integration tests that test certain aspects like multi condition variables, atomicity &#10;- added the integerconstant as an example of an immutable stm object&#10;- improved the unit tests so that errors on multithreaded tests are detected and lead to a failure of the test" />
@@ -1850,6 +1795,8 @@
     <MESSAGE value="- removed javalution&#10;- renamed the src/java to src/main" />
     <MESSAGE value="- javadoc improvements" />
     <MESSAGE value="- moved the listener.open after all the writes have completed.. this was a big performance improvement&#10;- the writecount is set after all writes are done, not for every write&#10;- the stack reads the node unmanaged&#10;- the node reads the next unmanaged" />
+    <MESSAGE value="- added initial stuff for instrumentation&#10;- moved the org.multiverse.examples org.multiverse.multiversionedstm.examples" />
+    <MESSAGE value="- moved the tests package to org.multiverse.multiversionedstm" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1919,9 +1866,7 @@
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/Atomic.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="18" selection-start="454" selection-end="454" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>

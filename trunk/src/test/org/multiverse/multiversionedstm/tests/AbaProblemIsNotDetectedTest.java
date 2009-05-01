@@ -1,4 +1,4 @@
-package org.multiverse.tests;
+package org.multiverse.multiversionedstm.tests;
 
 import org.junit.Before;
 import org.junit.Test;
