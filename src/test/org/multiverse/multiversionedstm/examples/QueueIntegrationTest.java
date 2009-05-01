@@ -1,4 +1,4 @@
-package org.multiverse.examples;
+package org.multiverse.multiversionedstm.examples;
 
 import org.junit.After;
 import static org.junit.Assert.assertEquals;

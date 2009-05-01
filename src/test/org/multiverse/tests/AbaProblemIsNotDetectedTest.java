@@ -5,8 +5,8 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
-import org.multiverse.examples.IntegerValue;
 import org.multiverse.multiversionedstm.MultiversionedStm;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
 
 /**
  * A test that shows that the ABA problem is not detected.

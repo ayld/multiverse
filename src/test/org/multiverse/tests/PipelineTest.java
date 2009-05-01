@@ -10,8 +10,8 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
-import org.multiverse.examples.Queue;
 import org.multiverse.multiversionedstm.MultiversionedStm;
+import org.multiverse.multiversionedstm.examples.Queue;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

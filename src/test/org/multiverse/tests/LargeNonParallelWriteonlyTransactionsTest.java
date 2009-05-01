@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.Transaction;
-import org.multiverse.examples.IntegerValue;
 import org.multiverse.multiversionedstm.MultiversionedStm;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
 
 public class LargeNonParallelWriteonlyTransactionsTest {
     private MultiversionedStm stm;

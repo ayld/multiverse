@@ -30,7 +30,7 @@ public final class MultiversionedStmStatistics {
     public void incWriteCount(int amount) {
         if (amount < 0)
             throw new IllegalArgumentException();
-        writeCount.incrementAndGet();
+        writeCount.addAndGet(amount);
     }
 
     public long getWriteCount() {
@@ -57,8 +57,10 @@ public final class MultiversionedStmStatistics {
         transactionLockAcquireFailureCount.incrementAndGet();
     }
 
-    public void incLockAcquiredCount() {
-        lockAcquiredCount.incrementAndGet();
+    public void incLockAcquiredCount(int count) {
+        if (count < 0)
+            throw new IllegalArgumentException();
+        lockAcquiredCount.addAndGet(count);
     }
 
     public long getLockAcquiredCount() {

@@ -1,4 +1,4 @@
-package org.multiverse.examples;
+package org.multiverse.multiversionedstm.examples;
 
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
@@ -65,7 +65,7 @@ public class QueueStressTest {
 
     @Test
     public void testProducerConsumer_5000000() {
-        testProducerConsumer(500000000);
+        testProducerConsumer(50000000);
     }
 
     public void testProducerConsumer(int itemCount) {
@@ -129,7 +129,7 @@ public class QueueStressTest {
                 }.execute();
 
                 runCount++;
-                if (runCount % 100000 == 0)
+                if (runCount % 500000 == 0)
                     System.out.println(getName() + " at transactioncount: " + runCount);
             }
         }
@@ -153,7 +153,7 @@ public class QueueStressTest {
                 }.execute();
 
                 runCount++;
-                if (runCount % 100000 == 0)
+                if (runCount % 500000 == 0)
                     System.out.println(getName() + " at transactioncount: " + runCount);
             }
         }

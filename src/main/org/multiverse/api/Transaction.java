@@ -67,14 +67,36 @@ public interface Transaction {
      * Changes made on objects that are not reachable from other objects that are reachable
      * from the transaction, could be ignored.
      *
-     * @param originator
-     * @param <T>
+     * @param originator the Originator of the instance to read
+     * @param <T>        the type of the instance to read.
      * @return the instance or null if originator is nu.
+     * @throws IllegalStateException if the transaction is not active anymore.
      */
     <T> T readUnmanaged(Originator<T> originator);
 
+    /**
+     * Reads a lazy reference to a managed instance.
+     * <p/>
+     * All changes made on read objects will be persisted when the transaction commits.
+     *
+     * @param originator the Originator of the instance to read
+     * @param <T>        the type of the instance to read
+     * @return the lazy reference to the instance, or null if originator is null.
+     * @throws IllegalStateException if the transaction is not active anymore.
+     */
     <T> LazyReference<T> readLazy(Originator<T> originator);
 
+    /**
+     * Reads an lazy reference to an unmanaged instance.
+     * <p/>
+     * Changes made on objects that are not reachable from other objects that are reachable
+     * from the transaction, could be ignored.
+     *
+     * @param originator the Originator of the instance to read.
+     * @param <T>        the type of the instance to read
+     * @return the lazy reference, or null if originator is null.
+     * @throws IllegalStateException if the transaction is not active anymore.
+     */
     <T> LazyReference<T> readLazyAndUnmanaged(Originator<T> originator);
 
     /**

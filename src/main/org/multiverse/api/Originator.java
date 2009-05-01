@@ -59,7 +59,7 @@ public interface Originator<T> {
 
     boolean tryAddLatch(Latch listener, long minimalVersion, RetryCounter retryCounter);
 
-    DematerializedObject tryGetDehydrated(long maximumVersion, RetryCounter retryCounter);
+    DematerializedObject tryRead(long maximumVersion, RetryCounter retryCounter);
 
     DematerializedObject tryGetLastCommitted(RetryCounter retryCounter);
 }

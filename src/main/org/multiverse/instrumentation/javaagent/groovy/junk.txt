@@ -1,0 +1,151 @@
+package org.multiverse.instrumentation.javaagent.groovy.dsl
+
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.InsnList
+import org.objectweb.asm.tree.MethodNode
+
+Phase2Dsl.run(new File("change.groovy").text);
+
+/**
+ * Phase 1 is transforming all materializable objects so that the have the extra methods and fields.
+ */
+class TransformDsl {
+
+  static void run(String txt) {
+    Script dslScript = new GroovyShell().parse(txt)
+
+    dslScript.metaClass = createEMC(dslScript.class, {
+      ExpandoMetaClass emc ->
+
+      emc.CreateClass = {
+        Closure cl ->
+
+        cl.delegate = new MaterializedObjectDelegate()
+        cl.resolveStrategy = Closure.DELEGATE_FIRST
+
+        cl()
+      }
+
+      emc.DematerializedObject = {
+        Closure cl ->
+
+        cl.delegate = new DematerializedObjectDelegate()
+        cl.resolveStrategy = Closure.DELEGATE_FIRST
+
+        cl()
+      }
+    })
+    dslScript.run()
+  }
+
+  static ExpandoMetaClass createEMC(Class clazz, Closure cl) {
+    ExpandoMetaClass emc = new ExpandoMetaClass(clazz, false)
+
+    cl(emc)
+
+    emc.initialize()
+    return emc
+  }
+
+}
+
+class DematerializedObjectDelegate {
+
+  private MethodNode getOriginatorMethod;
+  private MethodNode rematerializeMethod;
+  private MethodNode constructorMethod;
+
+  void constructor(Closure cl) {
+    println 'Constructor is called'
+    doit(cl)
+  }
+
+  void getOriginator(Closure cl) {
+    println 'getOriginator is called'
+    doit(cl)
+  }
+
+  void rematerialize(Closure cl) {
+    println 'rematerialize is called'
+    doit(cl)
+  }
+
+  void doit(Closure cl) {
+    cl.delegate = new CodeDelegate()
+    cl.resolveStrategy = Closure.DELEGATE_FIRST
+    cl()
+  }
+
+  ClassNode createClassNode() {
+    ClassNode classNode = new ClassNode();
+    classNode.methods.add(constructorMethod);
+    classNode.methods.add(getOriginatorMethod)
+    classNode.methods.add(rematerializeMethod)
+    return classNode;
+  }
+}
+
+class MaterializedObjectDelegate {
+
+  private MethodNode isDirtyMethod;
+  private MethodNode getOriginatorMethod;
+  private MethodNode dematerializeMethod;
+  private MethodNode getNextInChainMethod;
+  private MethodNode setNextInChainMethod;
+
+  void doit(Closure cl) {
+    cl.delegate = new CodeDelegate()
+    cl.resolveStrategy = Closure.DELEGATE_FIRST
+    cl()
+  }
+
+  void isDirty(Closure cl) {
+    println 'isDirty is called'
+    doit(cl)
+  }
+
+  void getOriginator(Closure cl) {
+    println 'getOriginator is called'
+    doit(cl)
+  }
+
+  void dematerialize(Closure cl) {
+    println 'dematerialize is called'
+    doit(cl)
+  }
+
+  void getNextInChain(Closure cl) {
+    println 'getNextInChain is called'
+    doit(cl)
+  }
+
+  void setNextInChain(Closure cl) {
+    println 'setNextInChain is called'
+    doit(cl)
+  }
+
+  void materializedConstructor(Closure cl) {
+    println 'setNextInChain is called'
+    doit(cl)
+  }
+}
+
+class CodeDelegate {
+  InsnList insnList = new InsnList();
+
+  void NEW(String classname) {
+    //insnList.add(new TypeInsnNode(Opcodes.NEW, classname))
+  }
+
+  void INVOKESPECIAL(String classname, String methodname, String desc) {
+    //insnList.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, classname, methodname, desc));
+  }
+
+  void DUP() {
+    //insnList.add(new InsnNode(Opcodes.DUP));
+  }
+
+  void ATHROW() {
+    //insnList.add(new InsnNode(Opcodes.ATHROW));
+  }
+}

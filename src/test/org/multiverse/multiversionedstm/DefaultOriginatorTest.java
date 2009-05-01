@@ -7,9 +7,9 @@ import org.multiverse.api.TransactionId;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.api.exceptions.WriteConflictException;
-import org.multiverse.examples.IntegerValue;
-import org.multiverse.examples.Stack;
 import org.multiverse.multiversionedstm.DefaultOriginator.State;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.Stack;
 import org.multiverse.util.Bag;
 import org.multiverse.util.RetryCounter;
 
@@ -173,7 +173,7 @@ public class DefaultOriginatorTest {
         originator.tryAcquireLockForWriting(transactionId, 0, new RetryCounter(1));
         originator.writeAndReleaseLock(transactionId, dematerialized, materializeVersion, new Bag());
 
-        DematerializedObject found = originator.tryGetDehydrated(searchVersion, new RetryCounter(1));
+        DematerializedObject found = originator.tryRead(searchVersion, new RetryCounter(1));
         assertSame(dematerialized, found);
     }
 
@@ -192,7 +192,7 @@ public class DefaultOriginatorTest {
         originator.writeAndReleaseLock(owner, dematerialized, dematerializeVersion, new Bag());
 
         try {
-            originator.tryGetDehydrated(searchVersion, new RetryCounter(1));
+            originator.tryRead(searchVersion, new RetryCounter(1));
             fail();
         } catch (SnapshotTooOldException e) {
 

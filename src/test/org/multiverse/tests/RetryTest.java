@@ -8,8 +8,8 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import org.multiverse.examples.Stack;
 import org.multiverse.multiversionedstm.MultiversionedStm;
+import org.multiverse.multiversionedstm.examples.Stack;
 
 public class RetryTest {
     private MultiversionedStm stm;

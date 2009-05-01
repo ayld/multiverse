@@ -1,4 +1,4 @@
-package org.multiverse.examples;
+package org.multiverse.multiversionedstm.examples;
 
 import org.junit.After;
 import org.junit.Before;
@@ -37,11 +37,12 @@ public class StackStressTest {
 
     @After
     public void tearDown() throws Exception {
-        System.out.println(stm.getStatistics());
+        if (stm.getStatistics() != null)
+            System.out.println(stm.getStatistics());
 
         long timeMs = (endMs - startMs) + 1;
         System.out.println(String.format("%s items took %s ms", itemCount, timeMs));
-        double performance = stm.getStatistics().getTransactionCommittedCount() / (timeMs / 1000.0);
+        double performance = itemCount * 2 / (timeMs / 1000.0);
         System.out.println(String.format("%s transactions/second", performance));
     }
 
@@ -60,10 +61,10 @@ public class StackStressTest {
         testProducerConsumer(10000000);
     }
 
-    //@Test
-    //public void testProduceConsumer_100000000() {
-    //    testProducerConsumer(100000000);
-    //}
+    @Test
+    public void testProduceConsumer_100000000() {
+        testProducerConsumer(100000000);
+    }
 
     public void testProducerConsumer(int produceCount) {
         this.itemCount = produceCount;

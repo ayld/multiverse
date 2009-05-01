@@ -7,9 +7,9 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
-import org.multiverse.examples.IntegerValue;
-import org.multiverse.examples.Pair;
 import org.multiverse.multiversionedstm.MultiversionedStm;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.Pair;
 
 /**
  * Checks if the system is able to deal with long chains of objects. If for example recursion uses

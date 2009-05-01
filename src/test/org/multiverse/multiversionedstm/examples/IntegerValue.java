@@ -1,4 +1,4 @@
-package org.multiverse.examples;
+package org.multiverse.multiversionedstm.examples;
 
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
