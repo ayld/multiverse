@@ -128,7 +128,6 @@ public final class DefaultOriginator<T> implements Originator<T> {
         return false;
     }
 
-
     @Override
     public DematerializedObject tryGetLastCommitted(RetryCounter retryCounter) {
         do {
@@ -147,12 +146,12 @@ public final class DefaultOriginator<T> implements Originator<T> {
     }
 
     @Override
-    public DematerializedObject tryGetDehydrated(long maximumVersion, RetryCounter retryCounter) {
+    public DematerializedObject tryRead(long maximumVersion, RetryCounter retryCounter) {
         do {
             State state = stateRef.get();
 
             if (state == null) {
-                throw new NoCommittedDataFoundException("No commits have executed, so nothing to find");
+                throw new NoCommittedDataFoundException("No commits have executed, so nothing to get");
             }
 
             if (!state.isLockedForWriting()) {
@@ -172,7 +171,7 @@ public final class DefaultOriginator<T> implements Originator<T> {
     }
 
 
-    public static class State {
+    public final static class State {
         final ListenerNode listenerHead;
         final DematerializedObject dematerialized;
         final long dematerializedVersion;
@@ -221,6 +220,4 @@ public final class DefaultOriginator<T> implements Originator<T> {
             return lockOwner != null;
         }
     }
-
-
 }

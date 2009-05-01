@@ -9,10 +9,10 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
-import org.multiverse.examples.IntegerValue;
-import org.multiverse.examples.Pair;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.Pair;
 
-public class Transaction_ReadUnsafeTest {
+public class Transaction_ReadUnmanagedTest {
     private MultiversionedStm stm;
 
     @Before
@@ -26,7 +26,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void readUnsafeNull() {
+    public void readUnmanagedNull() {
         Transaction t = stm.startTransaction();
         Object result = t.readUnmanaged(null);
         assertNull(result);
@@ -34,7 +34,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void readUnsafeDoesNotReturnSameValue() {
+    public void readUnmanagedDoesNotReturnSameValue() {
         Originator<IntegerValue> originator = commit(stm, new IntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
@@ -52,7 +52,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void readUnsafeIgnoresReadObject() {
+    public void readUnmanagedIgnoresReadObject() {
         Originator<IntegerValue> originator = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();
@@ -66,9 +66,8 @@ public class Transaction_ReadUnsafeTest {
         assertEquals(v1.getOriginator(), v2.getOriginator());
     }
 
-
     @Test
-    public void readUnsafeIgnoresAttachedObject() {
+    public void readUnmanagedIgnoresAttachedObject() {
         Originator<IntegerValue> originator = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();
@@ -84,7 +83,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void changeOnReadUnsafeWontBeCommittedIfThereIsNoReferenceToIt() {
+    public void changeOnReadUnmanagedWontBeCommittedIfThereIsNoReferenceToIt() {
         IntegerValue original = new IntegerValue(29);
         Originator<IntegerValue> originator = commit(stm, original);
 
@@ -100,7 +99,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void changeOnreadUnsafeWillBeCommittedIfThereIsSomeReferenceToIt() {
+    public void changeOnreadUnmanagedWillBeCommittedIfThereIsSomeReferenceToIt() {
         IntegerValue original = new IntegerValue(29);
 
         Originator<IntegerValue> originator = commit(stm, original);
@@ -118,7 +117,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void readUnsafeIsNotUsedInListeningIfThereIsNoOtherReferenceToIt() throws InterruptedException {
+    public void readUnmanagedNotUsedInListeningIfThereIsNoOtherReferenceToIt() throws InterruptedException {
         Originator<IntegerValue> originator = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();
@@ -132,7 +131,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void readUnsafeFailsIfTransactionAborted() {
+    public void readUnmanagedFailsIfTransactionAborted() {
         Originator<IntegerValue> originator = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();
@@ -148,7 +147,7 @@ public class Transaction_ReadUnsafeTest {
     }
 
     @Test
-    public void readUnsafeFailsIfTransactionCommitted() {
+    public void readUnmanagedFailsIfTransactionCommitted() {
         Originator<IntegerValue> originator = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();

@@ -1,17 +1,19 @@
 package org.multiverse.instrumentation.javaagent;
 
-import org.multiverse.api.Materializable;
+import org.multiverse.api.Dematerializable;
 import org.multiverse.api.Originator;
 import org.multiverse.instrumentation.javaagent.analysis.AsmFieldAnalyzer;
 import static org.multiverse.instrumentation.javaagent.utils.AsmUtils.loadAsClassNode;
 import static org.multiverse.instrumentation.javaagent.utils.AsmUtils.toBytecode;
 import org.multiverse.instrumentation.utils.InternalFormClassnameUtil;
+import static org.multiverse.instrumentation.utils.InternalFormClassnameUtil.toInternalForm;
 import org.multiverse.multiversionedstm.DematerializedObject;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import static java.lang.String.format;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +26,7 @@ import java.util.List;
  */
 public final class MaterializedObjectClassFileTransformerContext implements ClassFileTransformerContext {
 
-    private final static String name = Type.getType(Materializable.class).getDescriptor();
+    private final static String name = Type.getType(Dematerializable.class).getDescriptor();
 
     private final byte[] originalBytecode;
     private final String classname;
@@ -89,11 +91,42 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
 
         addDematerializeMethod(classNode);
 
+        addGetNextInChainMethod(classNode);
+
+        addSetNextInChainMethod(classNode);
+
         addGetMaterializedMemberIterator(classNode);
     }
 
+
+    private void addSetNextInChainMethod(ClassNode classNode) {
+        MethodNode methodNode = new MethodNode(
+                Opcodes.ACC_PUBLIC,
+                "setNextInChain",
+                format("(%s)V", Type.getDescriptor(MaterializedObject.class)),//
+                null,//desc
+                null//signature
+        );
+
+        methodNode.instructions.add(throwException());
+        classNode.methods.add(methodNode);
+    }
+
+    private void addGetNextInChainMethod(ClassNode classNode) {
+        MethodNode methodNode = new MethodNode(
+                Opcodes.ACC_PUBLIC,
+                "getNextInChain",
+                "()I",//
+                null,//desc
+                null//signature
+        );
+
+        methodNode.instructions.add(throwException());
+        classNode.methods.add(methodNode);
+    }
+
     private void addInterface(ClassNode classNode) {
-        classNode.interfaces.add(InternalFormClassnameUtil.toInternalForm(MaterializedObject.class));
+        classNode.interfaces.add(toInternalForm(MaterializedObject.class));
     }
 
     private void addGetMaterializedMemberIterator(ClassNode classNode) {
@@ -104,13 +137,12 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
         MethodNode methodNode = new MethodNode(
                 Opcodes.ACC_PUBLIC,
                 "dematerialize",
-                "()" + InternalFormClassnameUtil.toInternalForm(DematerializedObject.class),//
+                "()" + Type.getDescriptor(DematerializedObject.class),//
                 null,//desc
                 null//signature
         );
 
-        //methodNode.instructions.add();
-
+        methodNode.instructions.add(throwException());
         classNode.methods.add(methodNode);
     }
 
@@ -118,14 +150,24 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
         MethodNode methodNode = new MethodNode(
                 Opcodes.ACC_PUBLIC,
                 "getOriginator",
-                "()" + InternalFormClassnameUtil.toInternalForm(Originator.class),//
+                "()" + Type.getDescriptor(Originator.class),//
                 null,//desc
                 null//signature
         );
 
-        //methodNode.instructions.add();
+        methodNode.instructions.add(throwException());
 
         classNode.methods.add(methodNode);
+    }
+
+
+    private InsnList throwException() {
+        InsnList result = new InsnList();
+        result.add(new TypeInsnNode(Opcodes.NEW, "java/lang/RuntimeException"));
+        result.add(new InsnNode(Opcodes.DUP));
+        result.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/RuntimeException", "<init>", "()V"));
+        result.add(new InsnNode(Opcodes.ATHROW));
+        return result;
     }
 
     private void addIsDirtyMethod(ClassNode classNode) {
@@ -137,9 +179,7 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
                 null//signature
         );
 
-        methodNode.instructions.add(new IntInsnNode(Opcodes.ALOAD, 0));
-        //methodNode.instructions.add(new FieldInsnNode(Opcodes.GETFIELD, 0));
-        //methodNode.instructions.add();
+        methodNode.instructions.add(throwException());
         classNode.methods.add(methodNode);
     }
 
@@ -163,20 +203,20 @@ public final class MaterializedObjectClassFileTransformerContext implements Clas
                         null,//signature
                         null//value
                 );
-                extra.add(lazyReferenceFieldNode);
+                //extra.add(lazyReferenceFieldNode);
             }
         }
 
         classNode.fields.addAll(extra);
 
-        FieldNode originatorFieldNode = new FieldNode(
-                Opcodes.ACC_PROTECTED & Opcodes.ACC_FINAL,//access,
-                "originator",//name
-                InternalFormClassnameUtil.toInternalForm(Originator.class),//desc
-                null,//signature
-                null//value
-        );
-        classNode.fields.add(originatorFieldNode);
+        //FieldNode originatorFieldNode = new FieldNode(
+        //        Opcodes.ACC_PROTECTED & Opcodes.ACC_FINAL,//access,
+        //        "originator",//name
+        //        InternalFormClassnameUtil.toInternalForm(Originator.class),//desc
+        //        null,//signature
+        //        null//value
+        //);
+        //classNode.fields.add(originatorFieldNode);
 
         FieldNode lastDematerializedFieldNode = new FieldNode(
                 Opcodes.ACC_PROTECTED,//access,

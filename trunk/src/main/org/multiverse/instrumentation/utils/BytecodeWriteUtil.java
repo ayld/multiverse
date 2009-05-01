@@ -16,9 +16,10 @@ public final class BytecodeWriteUtil {
         return System.getProperty("java.io.tmpdir");
     }
 
-    public static void writeToFileInTmpDirectory(String filename, byte[] bytecode) throws IOException {
+    public static File writeToFileInTmpDirectory(String filename, byte[] bytecode) throws IOException {
         File file = new File(getTmpDir(), filename);
         writeToFile(file, bytecode);
+        return file;
     }
 
     public static void writeToTmpFile(byte[] bytecode) throws IOException {

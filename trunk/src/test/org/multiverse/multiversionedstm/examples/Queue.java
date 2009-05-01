@@ -1,11 +1,9 @@
-package org.multiverse.examples;
+package org.multiverse.multiversionedstm.examples;
 
+import org.multiverse.api.LazyReference;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.DefaultOriginator;
-import org.multiverse.multiversionedstm.DematerializedObject;
-import org.multiverse.multiversionedstm.MaterializedObject;
-import org.multiverse.multiversionedstm.MemberTracer;
+import org.multiverse.multiversionedstm.*;
 import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
 
 import static java.lang.String.format;
@@ -14,8 +12,8 @@ import java.util.List;
 
 public final class Queue<E> implements MaterializedObject {
 
-    private final Stack<E> readyToPopStack;
-    private final Stack<E> pushedStack;
+    private Stack<E> readyToPopStack;
+    private Stack<E> pushedStack;
     private final int maxCapacity;
 
     public Queue() {
@@ -38,6 +36,8 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public E tryPop() {
+        ensureReadyToPopStackLoaded();
+
         E result = readyToPopStack.tryPop();
         if (result != null)
             return result;
@@ -47,6 +47,8 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public E pop() {
+        ensureReadyToPopStackLoaded();
+
         if (!readyToPopStack.isEmpty()) {
             return readyToPopStack.pop();
         }
@@ -56,6 +58,9 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     private void flip() {
+        ensureReadyToPopStackLoaded();
+        ensurePushedStackLoaded();
+
         while (!pushedStack.isEmpty()) {
             E item = pushedStack.pop();
             readyToPopStack.push(item);
@@ -63,6 +68,8 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public void push(E value) {
+        ensurePushedStackLoaded();
+
         if (size() == maxCapacity)
             retry();
 
@@ -74,11 +81,16 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public int size() {
+        ensureReadyToPopStackLoaded();
+        ensurePushedStackLoaded();
         return readyToPopStack.size() + pushedStack.size();
     }
 
 
     public List<E> asList() {
+        ensureReadyToPopStackLoaded();
+        ensurePushedStackLoaded();
+
         List<E> result = pushedStack.asList();
         List<E> popped = readyToPopStack.asList();
         reverse(popped);
@@ -87,6 +99,9 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public String toDebugString() {
+        ensurePushedStackLoaded();
+        ensureReadyToPopStackLoaded();
+
         return format("ReadyToPopStack=%s and PushedStack=%s", readyToPopStack, pushedStack);
     }
 
@@ -121,13 +136,29 @@ public final class Queue<E> implements MaterializedObject {
 
     private DematerializedQueue<E> lastDematerialized;
     private final Originator<Queue<E>> originator;
+    private LazyReference<Stack<E>> pushedStackRef;
+    private LazyReference<Stack<E>> readyToPopStackRef;
 
     public Queue(DematerializedQueue<E> dematerializedQueue, Transaction transaction) {
         this.lastDematerialized = dematerializedQueue;
         this.originator = dematerializedQueue.originator;
-        this.readyToPopStack = transaction.readUnmanaged(dematerializedQueue.readyToPopStackOriginator);
-        this.pushedStack = transaction.readUnmanaged(dematerializedQueue.pushedStackOriginator);
+        this.readyToPopStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.readyToPopStackOriginator);
+        this.pushedStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.pushedStackOriginator);
         this.maxCapacity = dematerializedQueue.maxCapacity;
+    }
+
+    private void ensurePushedStackLoaded() {
+        if (pushedStackRef != null) {
+            pushedStack = pushedStackRef.get();
+            pushedStackRef = null;
+        }
+    }
+
+    private void ensureReadyToPopStackLoaded() {
+        if (readyToPopStackRef != null) {
+            readyToPopStack = readyToPopStackRef.get();
+            readyToPopStackRef = null;
+        }
     }
 
     private MaterializedObject nextInChain;
@@ -144,8 +175,8 @@ public final class Queue<E> implements MaterializedObject {
 
     @Override
     public void memberTrace(MemberTracer memberTracer) {
-        memberTracer.onMember(readyToPopStack);
-        memberTracer.onMember(pushedStack);
+        if (readyToPopStack != null) memberTracer.onMember(readyToPopStack);
+        if (pushedStack != null) memberTracer.onMember(pushedStack);
     }
 
     @Override
@@ -173,8 +204,8 @@ public final class Queue<E> implements MaterializedObject {
 
         DematerializedQueue(Queue<E> queue) {
             this.originator = queue.originator;
-            this.readyToPopStackOriginator = queue.readyToPopStack.getOriginator();
-            this.pushedStackOriginator = queue.pushedStack.getOriginator();
+            this.readyToPopStackOriginator = MultiversionedStmUtils.getOriginator(queue.readyToPopStackRef, queue.readyToPopStack);
+            this.pushedStackOriginator = MultiversionedStmUtils.getOriginator(queue.pushedStackRef, queue.pushedStack);
             this.maxCapacity = queue.maxCapacity;
         }
 

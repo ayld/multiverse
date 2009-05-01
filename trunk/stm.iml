@@ -3,6 +3,11 @@
   <component name="DBNavigator.Module.ConnectionManager">
     <connections />
   </component>
+  <component name="FacetManager">
+    <facet type="Groovy" name="Groovy">
+      <configuration />
+    </facet>
+  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/target/classes.main" />
     <output-test url="file://$MODULE_DIR$/target/classes.test" />
@@ -11,10 +16,11 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
     </content>
+    <orderEntry type="library" name="groovy-1.6.2" level="project" />
     <orderEntry type="jdk" jdkName="1.6" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="provided" level="project" />
     <orderEntry type="library" name="support" level="project" />
+    <orderEntry type="library" name="provided" level="project" />
   </component>
 </module>
 

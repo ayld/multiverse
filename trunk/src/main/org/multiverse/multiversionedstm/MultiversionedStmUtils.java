@@ -29,18 +29,19 @@ public final class MultiversionedStmUtils {
             }
         }
 
+        MemberTracer tracer = new MemberTracer() {
+            @Override
+            public void onMember(MaterializedObject member) {
+                if (member.getNextInChain() == null && member != first.value) {
+                    member.setNextInChain(lastInChain.value);
+                    lastInChain.value = member;
+                    traverseBag.add(member);
+                }
+            }
+        };
+
         while (!traverseBag.isEmpty()) {
             MaterializedObject materializedObject = traverseBag.takeAny();
-            MemberTracer tracer = new MemberTracer() {
-                @Override
-                public void onMember(MaterializedObject member) {
-                    if (member.getNextInChain() == null && member != first.value) {
-                        member.setNextInChain(lastInChain.value);
-                        lastInChain.value = member;
-                        traverseBag.add(member);
-                    }
-                }
-            };
 
             materializedObject.memberTrace(tracer);
         }

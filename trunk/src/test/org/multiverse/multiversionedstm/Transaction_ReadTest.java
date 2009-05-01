@@ -7,7 +7,7 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
-import org.multiverse.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
 
 public class Transaction_ReadTest {
     private MultiversionedStm stm;

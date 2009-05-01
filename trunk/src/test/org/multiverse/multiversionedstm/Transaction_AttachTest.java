@@ -7,8 +7,8 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
-import org.multiverse.examples.IntegerValue;
-import org.multiverse.examples.Stack;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.Stack;
 
 public class Transaction_AttachTest {
     private MultiversionedStm stm;

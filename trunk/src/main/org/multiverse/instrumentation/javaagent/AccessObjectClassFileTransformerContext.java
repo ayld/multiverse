@@ -55,14 +55,14 @@ public final class AccessObjectClassFileTransformerContext implements ClassFileT
     }
 
     private void instrument(MethodNode method) {
-        InsnList instructions = method.instructions;
-        LabelNode beginScopeNode = new LabelNode();
-        LabelNode endScopeNode = new LabelNode();
+        //InsnList instructions = method.instructions;
+        //LabelNode beginScopeNode = new LabelNode();
+        //LabelNode endScopeNode = new LabelNode();
 
-        //places the beginScopeNode before all other instructions
-        instructions.insertBefore(instructions.getFirst(), beginScopeNode);
+        ////places the beginScopeNode before all other instructions
+        //instructions.insertBefore(instructions.getFirst(), beginScopeNode);
         //places the endScopeNode after all other instructions
-        instructions.add(endScopeNode);
+        //instructions.add(endScopeNode);
 
         //instrument all fields
         //applyAndInsertBeforeEachField(method.instructions, new MethodTransformer(recordingsVar));

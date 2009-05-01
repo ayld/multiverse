@@ -20,14 +20,6 @@ TODO
 
 - cycle handling test
 
-- possible optimization; instead of caching the lazy ref, on some occassions no caching...
-let the component be repsonsible for only getting a reference once (so if by analysis can be decided
-that a pointer to the object will not be needed again).
-     - change needed: instead of listening to the set of read reference, the object graph needs to
-       be traversed.
-
-- lenghty execution of the stackstresstest, shows performance degradation
-
 IMPROVEMENTS
 
 - tree toevoegen
@@ -161,3 +153,12 @@ door writeconflicten:
 
 - optimization: move all the dematerialization before entering the cas loop... this should lower the
 chance of a failure.
+
+- possible optimization; instead of caching the lazy ref, on some occassions no caching...
+let the component be repsonsible for only getting a reference once (so if by analysis can be decided
+that a pointer to the object will not be needed again).
+     - change needed: instead of listening to the set of read reference, the object graph needs to
+       be traversed.
+
+- lenghty execution of the stackstresstest, shows performance degradation
+

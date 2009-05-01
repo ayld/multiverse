@@ -8,9 +8,9 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
-import org.multiverse.examples.IntegerValue;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
+import org.multiverse.multiversionedstm.examples.IntegerValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;

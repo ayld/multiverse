@@ -23,10 +23,19 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class MultiversionedStm implements Stm {
 
     private final AtomicLong globalVersionClock = new AtomicLong();
-    private final MultiversionedStmStatistics statistics = new MultiversionedStmStatistics();
+    private final MultiversionedStmStatistics statistics;
+
+    public MultiversionedStm() {
+        this(new MultiversionedStmStatistics());
+    }
+
+    public MultiversionedStm(MultiversionedStmStatistics statistics) {
+        this.statistics = statistics;
+    }
 
     public MultiversionedTransaction startTransaction() {
-        statistics.incTransactionStartedCount();
+        if (statistics != null)
+            statistics.incTransactionStartedCount();
         return new MultiversionedTransaction();
     }
 
@@ -40,7 +49,8 @@ public final class MultiversionedStm implements Stm {
 
     private class MultiversionedTransaction implements Transaction {
         private final HashMap<Originator, LazyReferenceImpl> referenceMap =
-                new HashMap<Originator, LazyReferenceImpl>();
+                new HashMap<Originator, LazyReferenceImpl>(2);
+
         private final TransactionId transactionId = new TransactionId();
         private final long readVersion = globalVersionClock.get();
         private volatile TransactionState state = TransactionState.active;
@@ -72,7 +82,8 @@ public final class MultiversionedStm implements Stm {
             switch (state) {
                 case active:
                     state = TransactionState.aborted;
-                    statistics.incTransactionAbortedCount();
+                    if (statistics != null)
+                        statistics.incTransactionAbortedCount();
                     break;
                 case aborted:
                     //ignore
@@ -94,16 +105,19 @@ public final class MultiversionedStm implements Stm {
 
             Latch listener = registerListener();
             awaitListenerToOpen(listener);
-            statistics.incTransactionRetriedCount();
+            if (statistics != null)
+                statistics.incTransactionRetriedCount();
             return startTransaction();
         }
 
         private void awaitListenerToOpen(Latch listener) throws InterruptedException {
-            statistics.incTransactionPendingRetryCount();
+            if (statistics != null)
+                statistics.incTransactionPendingRetryCount();
             try {
                 listener.await();
             } finally {
-                statistics.decTransactionPendingRetryCount();
+                if (statistics != null)
+                    statistics.decTransactionPendingRetryCount();
             }
         }
 
@@ -114,18 +128,11 @@ public final class MultiversionedStm implements Stm {
             MaterializedObject m = first;
 
             while (m != null) {
-                if (!m.getOriginator().tryAddLatch(listener, readVersion + 1, new RetryCounter(100000)))
+                if (!m.getOriginator().tryAddLatch(listener, readVersion + 1, new RetryCounter(1000000)))
                     throw new RuntimeException();
                 m = m.getNextInChain();
             }
 
-            //for (LazyReferenceImpl ref : referenceMap.values()) {
-            //     if (ref.isLoaded()) {
-            //         //todo: tryCounter & error
-            //         if (!ref.get().getOriginator().tryAddLatch(listener, readVersion + 1, new RetryCounter(100000)))
-            //             throw new RuntimeException();
-            //      }
-            //  }
             return listener;
         }
 
@@ -171,13 +178,10 @@ public final class MultiversionedStm implements Stm {
                 return null;
             }
 
-            //todo: statistics, check the reference so that same logic is used
-            DematerializedObject dematerialized = originator.tryGetDehydrated(
-                    readVersion,
-                    new RetryCounter(1000000000));
-
-            T result = (T) dematerialized.rematerialize(this);
-            statistics.incMaterializedCount();
+            DematerializedObject dematerializedObject = getDematerialized(originator);
+            T result = (T) dematerializedObject.rematerialize(this);
+            if (statistics != null)
+                statistics.incMaterializedCount();
             return result;
         }
 
@@ -251,11 +255,11 @@ public final class MultiversionedStm implements Stm {
                 MaterializedObject[] writeSet = createWriteSet();
                 if (writeSet.length == 0) {
                     //it is a readonly transaction
-                    statistics.incTransactionReadonlyCount();
+                    if (statistics != null)
+                        statistics.incTransactionReadonlyCount();
                 } else {
-                    DematerializedObject[] dematerializedWriteSet = dematerialize(writeSet);
-
                     //it is a transaction with writes.
+                    DematerializedObject[] dematerializedWriteSet = dematerialize(writeSet);
                     boolean success = false;
                     do {
                         try {
@@ -266,14 +270,14 @@ public final class MultiversionedStm implements Stm {
                         } finally {
                             if (!success) {
                                 releaseLocksForWriting(writeSet);
-                                //Thread.yield();
                             }
                         }
                     } while (!success);
                 }
 
                 state = TransactionState.committed;
-                statistics.incTransactionCommittedCount();
+                if (statistics != null)
+                    statistics.incTransactionCommittedCount();
             } catch (RuntimeException e) {
                 abort();
                 throw e;
@@ -296,23 +300,31 @@ public final class MultiversionedStm implements Stm {
          * @throws WriteConflictException if a writeconflict was encountered.
          */
         private boolean tryToAcquireLocksForWritingAndDetectForConflicts(MaterializedObject[] writeSet) {
+            int count = 0;
             try {
                 //todo: externalize
                 RetryCounter retryCounter = new RetryCounter(0);
-                for (MaterializedObject obj : writeSet) {
+
+                for (int k = 0; k < writeSet.length; k++) {
+                    MaterializedObject obj = writeSet[k];
                     Originator originator = obj.getOriginator();
 
                     if (!originator.tryAcquireLockForWriting(transactionId, readVersion, retryCounter)) {
-                        statistics.incTransactionLockAcquireFailureCount();
+                        if (statistics != null)
+                            statistics.incTransactionLockAcquireFailureCount();
                         return false;
                     }
 
-                    statistics.incLockAcquiredCount();
+                    count++;
                 }
 
                 return true;
             } catch (WriteConflictException e) {
-                statistics.incTransactionWriteConflictCount();
+                if (statistics != null) {
+                    statistics.incTransactionWriteConflictCount();
+                    statistics.incLockAcquiredCount(count);
+                }
+
                 throw e;
             }
         }
@@ -329,14 +341,11 @@ public final class MultiversionedStm implements Stm {
 
             while (!listeners.isEmpty()) {
                 ListenerNode listenerNode = listeners.takeAny();
-                while (listenerNode != null) {
-                    listenerNode.latch.open();
-                    listenerNode = listenerNode.next;
-                }
+                listenerNode.openAll();
             }
 
-
-            statistics.incWriteCount(writeSet.length);
+            if (statistics != null)
+                statistics.incWriteCount(writeSet.length);
         }
 
         private void releaseLocksForWriting(MaterializedObject[] writeSet) {
@@ -346,7 +355,20 @@ public final class MultiversionedStm implements Stm {
             }
         }
 
-        private class LazyReferenceImpl<S extends MaterializedObject> implements LazyReference<S> {
+        private DematerializedObject getDematerialized(Originator originator) {
+            DematerializedObject dematerialized;
+            try {
+                dematerialized = originator.tryRead(readVersion, new RetryCounter(100000000));
+            } catch (SnapshotTooOldException ex) {
+                if (statistics != null)
+                    statistics.incTransactionSnapshotTooOldCount();
+
+                throw ex;
+            }
+            return dematerialized;
+        }
+
+        private final class LazyReferenceImpl<S extends MaterializedObject> implements LazyReference<S> {
             private final Originator originator;
             private S ref;
 
@@ -375,20 +397,17 @@ public final class MultiversionedStm implements Stm {
                 if (!isLoaded()) {
                     assertActive();
                     //todo: try counter
-                    DematerializedObject dematerialized;
-                    try {
-                        dematerialized = originator.tryGetDehydrated(readVersion, new RetryCounter(100000000));
-                    } catch (SnapshotTooOldException ex) {
-                        statistics.incTransactionSnapshotTooOldCount();
-                        throw ex;
-                    }
+                    DematerializedObject dematerialized = getDematerialized(originator);
 
                     ref = (S) dematerialized.rematerialize(MultiversionedTransaction.this);
-                    statistics.incMaterializedCount();
+                    if (statistics != null)
+                        statistics.incMaterializedCount();
                 }
 
                 return ref;
             }
+
+
         }
     }
 }

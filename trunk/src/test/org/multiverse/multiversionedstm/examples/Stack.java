@@ -1,4 +1,4 @@
-package org.multiverse.examples;
+package org.multiverse.multiversionedstm.examples;
 
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Originator;
