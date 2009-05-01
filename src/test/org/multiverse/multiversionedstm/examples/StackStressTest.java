@@ -61,7 +61,7 @@ public class StackStressTest {
         testProducerConsumer(10000000);
     }
 
-    @Test
+    //@Test
     public void testProduceConsumer_100000000() {
         testProducerConsumer(100000000);
     }

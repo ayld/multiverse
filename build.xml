@@ -8,7 +8,6 @@
     <property name="src" value="src"/>
     <property name="src.main" value="${src}/main"/>
     <property name="src.test" value="${src}/test"/>
-    <property name="src.japex" value="${src}/japex"/>
 
     <property name="lib" value="lib"/>
     <property name="lib.provided" value="${lib}/provided"/>
@@ -90,34 +89,9 @@
         </copy>
     </target>
 
-    <target name="compile.japex"
-            description="Compiles the Japex sources"
-            depends="compile.main, compile.test">
-
-        <mkdir dir="${classes.japex}"/>
-
-        <javac debug="on"
-               srcdir="${src.japex}"
-               destdir="${classes.japex}"
-               source="1.5">
-            <classpath>
-                <path refid="classpath.provided"/>
-                <path refid="classpath.support"/>
-                <path path="${classes.main}"/>
-                <path path="${classes.test}"/>
-            </classpath>
-        </javac>
-
-        <copy todir="${classes.japex}">
-            <fileset dir="${src.test}">
-                <exclude name="**/*.java"/>
-            </fileset>
-        </copy>
-    </target>
-
     <target name="compile.all"
             description="Compiles all the sources"
-            depends="compile.main, compile.test, compile.japex"/>
+            depends="compile.main, compile.test"/>
 
     <target name="javadoc"
             description="Generates the Javadoc"
@@ -125,7 +99,7 @@
 
         <mkdir dir="${javadoc}"/>
 
-        <javadoc packagenames="org.codehaus.multiverse.*"
+        <javadoc packagenames="org.multiverse.*"
                  sourcepath="${src.main}"
                  defaultexcludes="yes"
                  destdir="${javadoc}"
