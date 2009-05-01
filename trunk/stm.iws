@@ -19,63 +19,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadUnmanagedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadUnmanagedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValueTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValueTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Originator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Handle.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phasec.groovy" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phasec.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackIntegrationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phaseb.groovy" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phaseb.groovy" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyAndUnmanagedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyAndUnmanagedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/change.groovy" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/change.groovy" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Handle.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Handle.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedHandle.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Transaction.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/Transaction.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MemberTracer.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MemberWalker.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/PairTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/PairTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultOriginatorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultHandleTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultOriginator.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultHandle.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" afterPath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/DummyTransaction.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/DummyTransaction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultHandleTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultHandleTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DematerializedObject.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DematerializedObject.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/util/IdentityHashSet.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/MaterializedObjectClassFileTransformerContext.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/MaterializedObjectClassFileTransformerContext.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/TestUtils.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/TestUtils.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultHandle.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultHandle.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
@@ -202,92 +161,94 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DefaultHandleTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultHandleTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="230" column="28" selection-start="8288" selection-end="8288" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DematerializedObject.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DematerializedObject.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="14" selection-start="436" selection-end="436" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MaterializedObject.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="11" column="14" selection-start="250" selection-end="250" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MultiversionedStm.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="131" column="26" selection-start="4224" selection-end="4224" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="MultiversionedStmUtils.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="75" column="35" selection-start="2415" selection-end="2415" vertical-scroll-proportion="0.0">
+            <state line="76" column="41" selection-start="2515" selection-end="2515" vertical-scroll-proportion="0.0">
+              <folding>
+                <marker date="1241205021000" expanded="false" signature="50:192" placeholder="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DefaultHandleTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultHandleTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="206" column="28" selection-start="7378" selection-end="7378" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="todo.txt" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/todo.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="0" column="8" selection-start="4" selection-end="4" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Transaction_AttachTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java">
+      <file leaf-file-name="StackNode.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="49" column="36" selection-start="1423" selection-end="1423" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="92" column="38" selection-start="2845" selection-end="2845" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="method#getHandle#0;class#StackNode#0" expanded="true" />
+                <element signature="method#getHandle#0;class#DematerializedNode#0;class#StackNode#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Transaction_CommitTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java">
+      <file leaf-file-name="Stack.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="105" column="36" selection-start="3640" selection-end="3640" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="127" column="35" selection-start="3043" selection-end="3043" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#getHandle#0;class#DematerializedStack#0;class#Stack#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Transaction_ReadLazyAndUnmanagedTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyAndUnmanagedTest.java">
+      <file leaf-file-name="Queue.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="50" column="34" selection-start="1553" selection-end="1553" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="211" column="35" selection-start="5958" selection-end="5958" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#getHandle#0;class#Queue#0" expanded="true" />
+                <element signature="method#getHandle#0;class#DematerializedQueue#0;class#Queue#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BrokenSerializedTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java">
+      <file leaf-file-name="Pair.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="28" column="31" selection-start="1261" selection-end="1261" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="152" column="42" selection-start="3915" selection-end="3915" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="method#getHandle#0;class#Pair#0" expanded="true" />
+                <element signature="method#getHandle#0;class#DematerializedPair#0;class#Pair#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="junk.txt" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/junk.txt">
+      <file leaf-file-name="BTree.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="53" column="24" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.21534653">
-              <folding />
+            <state line="0" column="42" selection-start="42" selection-end="42" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="method#getHandle#0;class#Node#0;class#BTree#0" expanded="true" />
+                <element signature="method#getHandle#0;class#BTree#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -771,6 +732,44 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
+          <option name="myItemId" value="test" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiversionedstm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="examples" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="src" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
           <option name="myItemId" value="main" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
@@ -848,86 +847,6 @@
         </PATH_ELEMENT>
         <PATH_ELEMENT>
           <option name="myItemId" value="instrumentation" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="main" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="instrumentation" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="javaagent" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="main" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="instrumentation" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="javaagent" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="groovy" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -2036,7 +1955,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24876544" sideWeight="0.70874864" order="1" side_tool="false" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3204105" sideWeight="0.5" order="13" side_tool="false" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2845679" sideWeight="0.67388827" order="0" side_tool="false" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2845679" sideWeight="0.700114" order="0" side_tool="false" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5118913" sideWeight="0.5" order="11" side_tool="false" />
       <window_info id="Web Preview" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39794755" sideWeight="0.5" order="6" side_tool="false" />
@@ -2074,7 +1993,7 @@
     <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="- updated the ant script&#10;- all tests are running" />
+    <option name="LAST_COMMIT_MESSAGE" value="- renamed originator to handle" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -2085,7 +2004,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="- most test have been upgrade to use the annotation instead of subclass approach &#10;- the version has been moved to dehydratedstmobject&#10;- started with introducing japex (micro performance benchmarks)" />
     <MESSAGE value="- check for no progress (no condition variables) is now added&#10;- optimization for immutable stm objects (cheap hydration/dehydration)&#10;- reduced overhead on condition variables (immutable parts are not seen as condition variables)&#10;- added some extra tests for queues and stacks to make sure that they don't contain stupid mistakes&#10;- added some extra high level integration tests that test certain aspects like multi condition variables, atomicity &#10;- added the integerconstant as an example of an immutable stm object&#10;- improved the unit tests so that errors on multithreaded tests are detected and lead to a failure of the test" />
     <MESSAGE value="- added a bunch of extra integration tests&#10;- added the integervalue stm object" />
     <MESSAGE value="- made the queue optionally bound" />
@@ -2110,6 +2028,7 @@
     <MESSAGE value="- added initial stuff for instrumentation&#10;- moved the org.multiverse.examples org.multiverse.multiversionedstm.examples" />
     <MESSAGE value="- moved the tests package to org.multiverse.multiversionedstm" />
     <MESSAGE value="- updated the ant script&#10;- all tests are running" />
+    <MESSAGE value="- renamed originator to handle" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -2169,52 +2088,42 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/junk.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="25" column="25" selection-start="554" selection-end="554" vertical-scroll-proportion="0.0">
+        <state line="53" column="24" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.21534653">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/Transaction.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/Handle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="96" column="52" selection-start="3871" selection-end="3871" vertical-scroll-proportion="0.0">
+        <state line="10" column="4" selection-start="222" selection-end="222" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/MaterializedObjectClassFileTransformerContext.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="211" column="30" selection-start="6937" selection-end="6947" vertical-scroll-proportion="0.0">
+        <state line="9" column="24" selection-start="225" selection-end="225" vertical-scroll-proportion="0.0">
+          <folding>
+            <marker date="1241204533000" expanded="true" signature="436:474" placeholder="/**...*/" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultHandle.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="63" selection-start="716" selection-end="716" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/change.groovy">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedHandle.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="5" selection-start="366" selection-end="366" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phaseb.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="53" selection-start="1086" selection-end="1086" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/phasec.groovy">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="27" selection-start="688" selection-end="688" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultHandleTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="230" column="28" selection-start="8288" selection-end="8288" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="53" column="72" selection-start="2610" selection-end="2610" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2225,58 +2134,95 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MaterializedObject.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="14" selection-start="250" selection-end="250" vertical-scroll-proportion="0.0">
+        <state line="197" column="66" selection-start="6260" selection-end="6260" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValue.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="131" column="26" selection-start="4224" selection-end="4224" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getHandle#0;class#IntegerValue#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="92" column="38" selection-start="2845" selection-end="2845" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="method#getHandle#0;class#StackNode#0" expanded="true" />
+            <element signature="method#getHandle#0;class#DematerializedNode#0;class#StackNode#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="127" column="35" selection-start="3043" selection-end="3043" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getHandle#0;class#DematerializedStack#0;class#Stack#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="211" column="35" selection-start="5958" selection-end="5958" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#getHandle#0;class#Queue#0" expanded="true" />
+            <element signature="method#getHandle#0;class#DematerializedQueue#0;class#Queue#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="152" column="42" selection-start="3915" selection-end="3915" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="method#getHandle#0;class#Pair#0" expanded="true" />
+            <element signature="method#getHandle#0;class#DematerializedPair#0;class#Pair#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="42" selection-start="42" selection-end="42" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="method#getHandle#0;class#Node#0;class#BTree#0" expanded="true" />
+            <element signature="method#getHandle#0;class#BTree#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="35" selection-start="2415" selection-end="2415" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="76" column="41" selection-start="2515" selection-end="2515" vertical-scroll-proportion="0.0">
+          <folding>
+            <marker date="1241205021000" expanded="false" signature="50:192" placeholder="..." />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultHandleTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="49" column="36" selection-start="1423" selection-end="1423" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="206" column="28" selection-start="7378" selection-end="7378" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/todo.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="105" column="36" selection-start="3640" selection-end="3640" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyAndUnmanagedTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="34" selection-start="1553" selection-end="1553" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="28" column="31" selection-start="1261" selection-end="1261" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/groovy/junk.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="53" column="24" selection-start="1177" selection-end="1177" vertical-scroll-proportion="0.21534653">
+        <state line="0" column="8" selection-start="4" selection-end="4" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>

@@ -178,7 +178,7 @@ public final class MultiversionedStm implements Stm {
                 return null;
             }
 
-            DematerializedObject dematerializedObject = getDematerialized(handle);
+            DematerializedObject dematerializedObject = getDematerialized((MultiversionedHandle) handle);
             T result = (T) dematerializedObject.rematerialize(this);
             if (statistics != null)
                 statistics.incMaterializedCount();
@@ -195,7 +195,7 @@ public final class MultiversionedStm implements Stm {
 
             LazyReferenceImpl ref = referenceMap.get(handle);
             if (ref == null) {
-                ref = new LazyReferenceImpl(handle);
+                ref = new LazyReferenceImpl((MultiversionedHandle) handle);
                 referenceMap.put(handle, ref);
             }
 
@@ -210,7 +210,7 @@ public final class MultiversionedStm implements Stm {
                 return null;
             }
 
-            return new LazyReferenceImpl(handle);
+            return new LazyReferenceImpl((MultiversionedHandle) handle);
         }
 
         private MaterializedObject[] createWriteSet() {
@@ -307,7 +307,7 @@ public final class MultiversionedStm implements Stm {
 
                 for (int k = 0; k < writeSet.length; k++) {
                     MaterializedObject obj = writeSet[k];
-                    Handle handle = obj.getHandle();
+                    MultiversionedHandle handle = obj.getHandle();
 
                     if (!handle.tryAcquireLockForWriting(transactionId, readVersion, retryCounter)) {
                         if (statistics != null)
@@ -350,12 +350,12 @@ public final class MultiversionedStm implements Stm {
 
         private void releaseLocksForWriting(MaterializedObject[] writeSet) {
             for (MaterializedObject dirtyObject : writeSet) {
-                Handle handle = dirtyObject.getHandle();
+                MultiversionedHandle handle = dirtyObject.getHandle();
                 handle.releaseLockForWriting(transactionId);
             }
         }
 
-        private DematerializedObject getDematerialized(Handle handle) {
+        private DematerializedObject getDematerialized(MultiversionedHandle handle) {
             DematerializedObject dematerialized;
             try {
                 dematerialized = handle.tryRead(readVersion, new RetryCounter(100000000));
@@ -369,10 +369,10 @@ public final class MultiversionedStm implements Stm {
         }
 
         private final class LazyReferenceImpl<S extends MaterializedObject> implements LazyReference<S> {
-            private final Handle handle;
+            private final MultiversionedHandle handle;
             private S ref;
 
-            LazyReferenceImpl(Handle handle) {
+            LazyReferenceImpl(MultiversionedHandle handle) {
                 assert handle != null;
                 this.handle = handle;
             }
@@ -383,7 +383,7 @@ public final class MultiversionedStm implements Stm {
             }
 
             @Override
-            public Handle getHandle() {
+            public MultiversionedHandle getHandle() {
                 return handle;
             }
 

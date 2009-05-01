@@ -1,7 +1,5 @@
 package org.multiverse.multiversionedstm;
 
-import org.multiverse.api.Handle;
-
 /**
  * Represents an Object that can be stores inside the {@link MultiversionedStm}.
  *
@@ -9,7 +7,7 @@ import org.multiverse.api.Handle;
  */
 public interface MaterializedObject {
 
-    Handle getHandle();
+    MultiversionedHandle getHandle();
 
 
     /**

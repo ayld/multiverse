@@ -1,11 +1,7 @@
 package org.multiverse.multiversionedstm.examples;
 
-import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.DefaultHandle;
-import org.multiverse.multiversionedstm.DematerializedObject;
-import org.multiverse.multiversionedstm.MaterializedObject;
-import org.multiverse.multiversionedstm.MemberWalker;
+import org.multiverse.multiversionedstm.*;
 
 import static java.lang.String.format;
 
@@ -63,7 +59,7 @@ public final class IntegerValue implements MaterializedObject {
     // ========================= generated ======================================
 
     private DematerializedIntegerValue lastDematerialized;
-    private final Handle handle;
+    private final MultiversionedHandle handle;
 
     private IntegerValue(DematerializedIntegerValue dematerializedIntegerValue) {
         this.lastDematerialized = dematerializedIntegerValue;
@@ -93,7 +89,7 @@ public final class IntegerValue implements MaterializedObject {
     }
 
     @Override
-    public Handle<IntegerValue> getHandle() {
+    public MultiversionedHandle<IntegerValue> getHandle() {
         return handle;
     }
 
@@ -109,7 +105,7 @@ public final class IntegerValue implements MaterializedObject {
     }
 
     public static class DematerializedIntegerValue implements DematerializedObject {
-        private final Handle handle;
+        private final MultiversionedHandle<IntegerValue> handle;
         private final int value;
 
         private DematerializedIntegerValue(IntegerValue source) {
@@ -123,7 +119,7 @@ public final class IntegerValue implements MaterializedObject {
         }
 
         @Override
-        public Handle getHandle() {
+        public MultiversionedHandle<IntegerValue> getHandle() {
             return handle;
         }
     }

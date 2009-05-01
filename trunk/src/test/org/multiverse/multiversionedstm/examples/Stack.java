@@ -1,6 +1,5 @@
 package org.multiverse.multiversionedstm.examples;
 
-import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
@@ -116,7 +115,7 @@ public final class Stack<E> implements MaterializedObject {
 
     private DematerializedStack<E> lastDematerialized;
     private LazyReference<StackNode<E>> headRef;
-    private final Handle<Stack<E>> handle;
+    private final MultiversionedHandle<Stack<E>> handle;
 
     private Stack(DematerializedStack<E> dematerializedStack, Transaction t) {
         this.lastDematerialized = dematerializedStack;
@@ -125,7 +124,7 @@ public final class Stack<E> implements MaterializedObject {
     }
 
     @Override
-    public Handle<Stack<E>> getHandle() {
+    public MultiversionedHandle<Stack<E>> getHandle() {
         return handle;
     }
 
@@ -163,8 +162,8 @@ public final class Stack<E> implements MaterializedObject {
     }
 
     private static class DematerializedStack<E> implements DematerializedObject {
-        private final Handle<Stack<E>> handle;
-        private final Handle<StackNode<E>> headHandle;
+        private final MultiversionedHandle<Stack<E>> handle;
+        private final MultiversionedHandle<StackNode<E>> headHandle;
 
         private DematerializedStack(Stack<E> stack) {
             this.handle = stack.getHandle();
@@ -177,7 +176,7 @@ public final class Stack<E> implements MaterializedObject {
         }
 
         @Override
-        public Handle<Stack<E>> getHandle() {
+        public MultiversionedHandle<Stack<E>> getHandle() {
             return handle;
         }
     }

@@ -37,7 +37,7 @@ public final class StackNode<E> implements MaterializedObject {
 
     private DematerializedNode<E> lastDematerialized;
     private LazyReference<StackNode<E>> nextRef;
-    private Handle<StackNode<E>> handle;
+    private MultiversionedHandle<StackNode<E>> handle;
 
     private StackNode(DematerializedNode<E> dematerializedNode, Transaction t) {
         this.lastDematerialized = dematerializedNode;
@@ -48,7 +48,7 @@ public final class StackNode<E> implements MaterializedObject {
     }
 
     @Override
-    public Handle<StackNode<E>> getHandle() {
+    public MultiversionedHandle<StackNode<E>> getHandle() {
         return handle;
     }
 
@@ -84,13 +84,13 @@ public final class StackNode<E> implements MaterializedObject {
     }
 
     public static class DematerializedNode<E> implements DematerializedObject {
-        private final Handle<StackNode<E>> handle;
+        private final MultiversionedHandle<StackNode<E>> handle;
         private final Object value;
         private final int length;
-        private final Handle<StackNode<E>> nextHandle;
+        private final MultiversionedHandle<StackNode<E>> nextHandle;
 
         public DematerializedNode(StackNode<E> node) {
-            this.handle = node.getHandle();
+            this.handle = node.handle;
             this.value = node.value instanceof MaterializedObject ? ((MaterializedObject) node.value).getHandle() : node.value;
             this.length = node.length;
             this.nextHandle = MultiversionedStmUtils.getHandle(node.nextRef, node.next);
@@ -102,7 +102,7 @@ public final class StackNode<E> implements MaterializedObject {
         }
 
         @Override
-        public Handle<StackNode<E>> getHandle() {
+        public MultiversionedHandle<StackNode<E>> getHandle() {
             return handle;
         }
     }

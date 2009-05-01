@@ -12,12 +12,6 @@ TODO
 
 - uitvoering transaction.abortAndRetry testen
 
-- de originator moet een betere naam, maar wat.. In principe is het een id..
-
-    - originator in de api moet dom zijn
-
-    - originator in de stm package moet slim zijn.
-
 - cycle handling test
 
 IMPROVEMENTS
@@ -161,4 +155,10 @@ that a pointer to the object will not be needed again).
        be traversed.
 
 - lenghty execution of the stackstresstest, shows performance degradation
+
+- de originator moet een betere naam, maar wat.. In principe is het een id..
+
+    - originator in de api moet dom zijn
+
+    - originator in de stm package moet slim zijn.
 

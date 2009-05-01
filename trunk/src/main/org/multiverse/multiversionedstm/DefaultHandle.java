@@ -1,6 +1,5 @@
 package org.multiverse.multiversionedstm;
 
-import org.multiverse.api.Handle;
 import org.multiverse.api.TransactionId;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
@@ -18,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Peter Veentjer.
  * @param <T>
  */
-public final class DefaultHandle<T> implements Handle<T> {
+public final class DefaultHandle<T> implements MultiversionedHandle<T> {
 
     private final AtomicReference<State> stateRef = new AtomicReference<State>();
 
