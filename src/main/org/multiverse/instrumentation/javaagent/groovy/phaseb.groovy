@@ -1,4 +1,4 @@
-import org.multiverse.api.Originator
+import org.multiverse.api.Handle
 import org.multiverse.multiversionedstm.DematerializedObject
 import org.objectweb.asm.Opcodes
 
@@ -24,7 +24,7 @@ CreateClass {
    *}*/
   //}
 
-  addField name = 'originator', type = Originator.class, Opcodes.ACC_PUBLIC
+  addField name = 'handle', type = Handle.class, Opcodes.ACC_PUBLIC
 
   addConstructor {
     //addArgument materialized, materializedClass.class
@@ -33,7 +33,7 @@ CreateClass {
 
     //}
 
-    //assignment to the originator
+    //assignment to the handle
   }
 
   addInterfaceMethod {//DematerializedObject.class.&rematerialize {
@@ -43,7 +43,7 @@ CreateClass {
     'ATHROW'()
   }
 
-  addInterfaceMethod {//DematerializedObject.class.&getOriginator {
+  addInterfaceMethod {//DematerializedObject.class.&getHandle {
     'NEW' IllegalArgumentException.class
     'DUP'()
     'INVOKESPECIAL' IllegalArgumentException.class, '<init>', '()V'

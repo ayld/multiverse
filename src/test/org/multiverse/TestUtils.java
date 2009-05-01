@@ -3,7 +3,7 @@ package org.multiverse;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionState;
@@ -67,17 +67,17 @@ public class TestUtils {
         assertEquals(expectedMaterializedCount, stm.getStatistics().getMaterializedCount());
     }
 
-    public static void assertIntegerValue(MultiversionedStm stm, Originator<IntegerValue> originator, int value) {
+    public static void assertIntegerValue(MultiversionedStm stm, Handle<IntegerValue> handle, int value) {
         Transaction t = stm.startTransaction();
-        IntegerValue i = t.read(originator);
+        IntegerValue i = t.read(handle);
         assertEquals(value, i.get());
         t.commit();
     }
 
-    public static void assertNoCommits(MultiversionedStm stm, Originator originator) {
+    public static void assertNoCommits(MultiversionedStm stm, Handle handle) {
         Transaction t = stm.startTransaction();
         try {
-            t.read(originator);
+            t.read(handle);
             fail();
         } catch (NoCommittedDataFoundException ex) {
             assertTrue(true);
@@ -86,11 +86,11 @@ public class TestUtils {
         }
     }
 
-    public static <T> Originator<T> commit(Stm stm, T item) {
+    public static <T> Handle<T> commit(Stm stm, T item) {
         Transaction t = stm.startTransaction();
-        Originator<T> originator = t.attach(item);
+        Handle<T> handle = t.attach(item);
         t.commit();
-        return originator;
+        return handle;
     }
 
     public static boolean randomBoolean() {

@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -15,7 +15,7 @@ import org.multiverse.multiversionedstm.examples.IntegerValue;
 
 public class UnsharedDataDoesNotCauseWriteConflictsTest {
     private MultiversionedStm stm;
-    private Originator<IntegerValue>[] originators;
+    private Handle<IntegerValue>[] handles;
     private int threadCount = 10 * Runtime.getRuntime().availableProcessors();
     private int updateCountPerThread = 100000;
 
@@ -43,9 +43,9 @@ public class UnsharedDataDoesNotCauseWriteConflictsTest {
 
     private void createValues() {
         Transaction t = stm.startTransaction();
-        originators = new Originator[threadCount];
+        handles = new Handle[threadCount];
         for (int k = 0; k < threadCount; k++) {
-            originators[k] = t.attach(new IntegerValue());
+            handles[k] = t.attach(new IntegerValue());
         }
         t.commit();
     }
@@ -71,7 +71,7 @@ public class UnsharedDataDoesNotCauseWriteConflictsTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        IntegerValue value = t.read(originators[id]);
+                        IntegerValue value = t.read(handles[id]);
                         value.inc();
                         return null;
                     }

@@ -1,7 +1,7 @@
 package org.multiverse.multiversionedstm.examples;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
 import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
@@ -14,7 +14,7 @@ public final class Stack<E> implements MaterializedObject {
     private StackNode<E> head;
 
     public Stack() {
-        this.originator = new DefaultOriginator<Stack<E>>();
+        this.handle = new DefaultHandle<Stack<E>>();
     }
 
     public E peek() {
@@ -116,17 +116,17 @@ public final class Stack<E> implements MaterializedObject {
 
     private DematerializedStack<E> lastDematerialized;
     private LazyReference<StackNode<E>> headRef;
-    private final Originator<Stack<E>> originator;
+    private final Handle<Stack<E>> handle;
 
     private Stack(DematerializedStack<E> dematerializedStack, Transaction t) {
         this.lastDematerialized = dematerializedStack;
-        this.headRef = t.readLazyAndUnmanaged(dematerializedStack.headOriginator);
-        this.originator = dematerializedStack.getOriginator();
+        this.headRef = t.readLazyAndUnmanaged(dematerializedStack.headHandle);
+        this.handle = dematerializedStack.getHandle();
     }
 
     @Override
-    public Originator<Stack<E>> getOriginator() {
-        return originator;
+    public Handle<Stack<E>> getHandle() {
+        return handle;
     }
 
     private MaterializedObject nextInChain;
@@ -142,8 +142,8 @@ public final class Stack<E> implements MaterializedObject {
     }
 
     @Override
-    public void memberTrace(MemberTracer memberTracer) {
-        if (head != null) memberTracer.onMember(head);
+    public void walkMaterializedMembers(MemberWalker memberWalker) {
+        if (head != null) memberWalker.onMember(head);
     }
 
     @Override
@@ -151,7 +151,7 @@ public final class Stack<E> implements MaterializedObject {
         if (lastDematerialized == null)
             return true;
 
-        if (MultiversionedStmUtils.getOriginator(headRef, head) != lastDematerialized.headOriginator)
+        if (MultiversionedStmUtils.getHandle(headRef, head) != lastDematerialized.headHandle)
             return true;
 
         return false;
@@ -163,12 +163,12 @@ public final class Stack<E> implements MaterializedObject {
     }
 
     private static class DematerializedStack<E> implements DematerializedObject {
-        private final Originator<Stack<E>> originator;
-        private final Originator<StackNode<E>> headOriginator;
+        private final Handle<Stack<E>> handle;
+        private final Handle<StackNode<E>> headHandle;
 
         private DematerializedStack(Stack<E> stack) {
-            this.originator = stack.getOriginator();
-            this.headOriginator = MultiversionedStmUtils.getOriginator(stack.headRef, stack.head);
+            this.handle = stack.getHandle();
+            this.headHandle = MultiversionedStmUtils.getHandle(stack.headRef, stack.head);
         }
 
         @Override
@@ -177,8 +177,8 @@ public final class Stack<E> implements MaterializedObject {
         }
 
         @Override
-        public Originator<Stack<E>> getOriginator() {
-            return originator;
+        public Handle<Stack<E>> getHandle() {
+            return handle;
         }
     }
 }

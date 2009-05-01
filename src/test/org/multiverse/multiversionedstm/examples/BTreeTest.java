@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
@@ -208,10 +208,10 @@ public class BTreeTest {
     @Test
     public void persistEmptyTree() {
         BTree<String, String> tree = new BTree<String, String>();
-        Originator<BTree<String, String>> originator = commit(stm, tree);
+        Handle<BTree<String, String>> handle = commit(stm, tree);
 
         Transaction t = stm.startTransaction();
-        BTree<String, String> foundTree = t.read(originator);
+        BTree<String, String> foundTree = t.read(handle);
         assertEquals(tree, foundTree);
     }
 
@@ -222,10 +222,10 @@ public class BTreeTest {
         tree.put("0", "value0");
         tree.put("2", "value2");
 
-        Originator<BTree<String, String>> originator = commit(stm, tree);
+        Handle<BTree<String, String>> handle = commit(stm, tree);
 
         Transaction t = stm.startTransaction();
-        BTree<String, String> foundTree = t.read(originator);
+        BTree<String, String> foundTree = t.read(handle);
         assertEquals(tree, foundTree);
     }
 }

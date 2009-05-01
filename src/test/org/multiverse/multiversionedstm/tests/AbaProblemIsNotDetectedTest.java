@@ -3,7 +3,7 @@ package org.multiverse.multiversionedstm.tests;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
@@ -35,21 +35,21 @@ public class AbaProblemIsNotDetectedTest {
     private static final int C = 3;
 
     private MultiversionedStm stm;
-    private Originator<IntegerValue> originator;
+    private Handle<IntegerValue> handle;
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        originator = commit(stm, new IntegerValue(A));
+        handle = commit(stm, new IntegerValue(A));
     }
 
     @Test
     public void test() {
         Transaction t1 = stm.startTransaction();
-        IntegerValue r1 = t1.read(originator);
+        IntegerValue r1 = t1.read(handle);
 
         Transaction t2 = stm.startTransaction();
-        IntegerValue r2 = t2.read(originator);
+        IntegerValue r2 = t2.read(handle);
         r2.set(B);
         r2.set(A);
         t2.commit();

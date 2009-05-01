@@ -1,6 +1,6 @@
 package org.multiverse.multiversionedstm;
 
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.TransactionId;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
@@ -13,16 +13,16 @@ import org.multiverse.util.latches.Latch;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Default {@link Originator} implementation.
+ * Default {@link org.multiverse.api.Handle} implementation.
  *
  * @author Peter Veentjer.
  * @param <T>
  */
-public final class DefaultOriginator<T> implements Originator<T> {
+public final class DefaultHandle<T> implements Handle<T> {
 
     private final AtomicReference<State> stateRef = new AtomicReference<State>();
 
-    public DefaultOriginator() {
+    public DefaultHandle() {
     }
 
     public State getState() {

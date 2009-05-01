@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
@@ -31,12 +31,12 @@ public class Transaction_ReadTest {
 
     @Test
     public void read() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue());
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue v = t.read(originator);
+        IntegerValue v = t.read(handle);
 
         assertNotNull(v);
         assertEquals(0, v.get());
@@ -48,10 +48,10 @@ public class Transaction_ReadTest {
     public void readAttached() {
         Transaction t = stm.startTransaction();
         IntegerValue original = new IntegerValue();
-        Originator<IntegerValue> originator = t.attach(original);
+        Handle<IntegerValue> handle = t.attach(original);
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
-        IntegerValue found = t.read(originator);
+        IntegerValue found = t.read(handle);
 
         assertSame(original, found);
         assertMaterializedCount(stm, materializedCount);
@@ -60,13 +60,13 @@ public class Transaction_ReadTest {
 
     @Test
     public void rereadDoesntLeadToAnotherMaterialize() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue());
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue v1 = t.read(originator);
-        IntegerValue v2 = t.read(originator);
+        IntegerValue v1 = t.read(handle);
+        IntegerValue v2 = t.read(handle);
 
         assertNotNull(v1);
         assertEquals(0, v1.get());
@@ -78,13 +78,13 @@ public class Transaction_ReadTest {
     @Test
     public void readFailsIThereIsNoCommittedData() {
         Transaction t1 = stm.startTransaction();
-        Originator<IntegerValue> originator = t1.attach(new IntegerValue());
+        Handle<IntegerValue> handle = t1.attach(new IntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t2 = stm.startTransaction();
         try {
-            t2.read(originator);
+            t2.read(handle);
             fail();
         } catch (NoCommittedDataFoundException ex) {
         }
@@ -96,7 +96,7 @@ public class Transaction_ReadTest {
 
     @Test
     public void readFailsIfTransactionAlreadyIsAborted() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue());
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();
         t.abort();
@@ -104,7 +104,7 @@ public class Transaction_ReadTest {
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         try {
-            t.read(originator);
+            t.read(handle);
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -114,7 +114,7 @@ public class Transaction_ReadTest {
     }
 
     public void readFailsIfTransactionAlreadyIsCommitted() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue());
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
 
         Transaction t = stm.startTransaction();
         t.abort();
@@ -122,7 +122,7 @@ public class Transaction_ReadTest {
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         try {
-            t.read(originator);
+            t.read(handle);
             fail();
         } catch (IllegalStateException ex) {
         }

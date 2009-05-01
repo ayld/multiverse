@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
@@ -35,19 +35,19 @@ public class IntegerValueTest {
 
     @Test
     public void testLoadedObjectIsNotDirty() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue(10));
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue(10));
 
         Transaction t = stm.startTransaction();
-        IntegerValue value = t.read(originator);
+        IntegerValue value = t.read(handle);
         assertFalse(value.isDirty());
     }
 
     @Test
     public void testLoadedObjectThatIsUpdatedIsDirty() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue(10));
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue(10));
 
         Transaction t = stm.startTransaction();
-        IntegerValue value = t.read(originator);
+        IntegerValue value = t.read(handle);
         value.inc();
         assertTrue(value.isDirty());
     }

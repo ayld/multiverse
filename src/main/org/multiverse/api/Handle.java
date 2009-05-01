@@ -7,7 +7,7 @@ import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
 
 /**
- * An Originator has 2 purposes:
+ * An Handle has 2 purposes:
  * <ol>
  * <li>identifying objects</li>
  * <li>storing the state of objects</li>
@@ -16,7 +16,7 @@ import org.multiverse.util.latches.Latch;
  * @author Peter Veentjer.
  * @param <T>
  */
-public interface Originator<T> {
+public interface Handle<T> {
 
     /**
      * Tries to acquire the lock for writing.

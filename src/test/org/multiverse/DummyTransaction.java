@@ -19,27 +19,27 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
-    public <T> T read(Originator<T> originator) {
+    public <T> T read(Handle<T> handle) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <T> LazyReference<T> readLazy(Originator<T> originator) {
+    public <T> LazyReference<T> readLazy(Handle<T> handle) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <T> LazyReference<T> readLazyAndUnmanaged(Originator<T> originator) {
+    public <T> LazyReference<T> readLazyAndUnmanaged(Handle<T> handle) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <T> T readUnmanaged(Originator<T> originator) {
+    public <T> T readUnmanaged(Handle<T> handle) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public <T> Originator<T> attach(T obj) {
+    public <T> Handle<T> attach(T obj) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConflictingWritesDontBreakSystemTest {
     private MultiversionedStm stm;
     private AtomicInteger transactionCountDown = new AtomicInteger();
-    private Originator<IntegerValue>[] originators;
+    private Handle<IntegerValue>[] handles;
 
     private int structureCount = 100;
     private int writerThreadCount = 10;
@@ -50,8 +50,8 @@ public class ConflictingWritesDontBreakSystemTest {
 
     private void assertValues(int value) {
         Transaction t = stm.startTransaction();
-        for (Originator<IntegerValue> originator : originators) {
-            IntegerValue integerValue = t.read(originator);
+        for (Handle<IntegerValue> handle : handles) {
+            IntegerValue integerValue = t.read(handle);
             assertEquals(value, integerValue.get());
         }
         t.commit();
@@ -59,9 +59,9 @@ public class ConflictingWritesDontBreakSystemTest {
 
     private void setUpStructures() {
         Transaction t = stm.startTransaction();
-        originators = new Originator[structureCount];
-        for (int k = 0; k < originators.length; k++) {
-            originators[k] = t.attach(new IntegerValue());
+        handles = new Handle[structureCount];
+        for (int k = 0; k < handles.length; k++) {
+            handles[k] = t.attach(new IntegerValue());
         }
         t.commit();
     }
@@ -89,8 +89,8 @@ public class ConflictingWritesDontBreakSystemTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Object execute(Transaction t) {
-                    for (int k = 0; k < originators.length; k++) {
-                        IntegerValue value = (IntegerValue) t.read(originators[k]);
+                    for (int k = 0; k < handles.length; k++) {
+                        IntegerValue value = (IntegerValue) t.read(handles[k]);
                         sleepRandomMs(5);
                         value.inc();
                     }

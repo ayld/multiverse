@@ -1,6 +1,6 @@
 package org.multiverse.multiversionedstm;
 
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 
 /**
@@ -12,7 +12,7 @@ import org.multiverse.api.Transaction;
  */
 public interface DematerializedObject {
 
-    Originator getOriginator();
+    Handle getHandle();
 
     MaterializedObject rematerialize(Transaction t);
 }

@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.api.exceptions.AbortedTransactionException;
@@ -28,14 +28,14 @@ public class AtomicBehaviorTest {
 
     private MultiversionedStm stm;
 
-    private Originator<IntegerValue> originator;
+    private Handle<IntegerValue> handle;
     private int modifyCount = 500;
     private AtomicInteger modifyCountDown = new AtomicInteger();
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        originator = commit(stm, new IntegerValue());
+        handle = commit(stm, new IntegerValue());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class AtomicBehaviorTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Object execute(Transaction t) throws Exception {
-                    IntegerValue value = (IntegerValue) t.read(originator);
+                    IntegerValue value = (IntegerValue) t.read(handle);
                     if (value.get() % 2 != 0)
                         fail();
 
@@ -98,7 +98,7 @@ public class AtomicBehaviorTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        IntegerValue value = (IntegerValue) t.read(originator);
+                        IntegerValue value = (IntegerValue) t.read(handle);
                         if (value.get() % 2 != 0)
                             fail();
 

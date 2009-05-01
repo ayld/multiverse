@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.Pair;
@@ -32,9 +32,9 @@ public class CycleHandlingTest {
         Pair pair = new Pair();
         pair.setLeft(pair);
 
-        Originator<Pair> originator = commit(stm, pair);
+        Handle<Pair> handle = commit(stm, pair);
         Transaction t = stm.startTransaction();
-        Pair found = t.read(originator);
+        Pair found = t.read(handle);
         //todo
     }
 

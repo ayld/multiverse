@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -21,7 +21,7 @@ public class QueueStressTest {
     private int consumerCount = 1;
     private int itemCount;
 
-    private Originator queueOriginator;
+    private Handle queueHandle;
 
     private long startMs;
     private long endMs;
@@ -34,7 +34,7 @@ public class QueueStressTest {
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        this.queueOriginator = commit(stm, new Queue(100000));
+        this.queueHandle = commit(stm, new Queue(100000));
 
         //    new PrintMultiversionedStmStatisticsThread(stm).start();
     }
@@ -91,7 +91,7 @@ public class QueueStressTest {
 
     public void assertQueueIsEmpty() {
         Transaction t = stm.startTransaction();
-        Queue queue = (Queue) t.read(queueOriginator);
+        Queue queue = (Queue) t.read(queueHandle);
         assertTrue(queue.isEmpty());
         t.commit();
     }
@@ -122,7 +122,7 @@ public class QueueStressTest {
             while (produceCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        Queue queue = (Queue) t.read(queueOriginator);
+                        Queue queue = (Queue) t.read(queueHandle);
                         queue.push(item);
                         return null;
                     }
@@ -147,7 +147,7 @@ public class QueueStressTest {
             while (consumeCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        Queue queue = (Queue) t.read(queueOriginator);
+                        Queue queue = (Queue) t.read(queueHandle);
                         return queue.pop();
                     }
                 }.execute();

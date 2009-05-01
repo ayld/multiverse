@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.Stack;
@@ -25,14 +25,14 @@ import org.multiverse.multiversionedstm.examples.Stack;
  */
 public class BrokenSerializedTest {
     private MultiversionedStm stm;
-    private Originator<Stack> stackOriginator1;
-    private Originator<Stack> stackOriginator2;
+    private Handle<Stack> stackHandle1;
+    private Handle<Stack> stackHandle2;
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        stackOriginator1 = commit(stm, new Stack());
-        stackOriginator2 = commit(stm, new Stack());
+        stackHandle1 = commit(stm, new Stack());
+        stackHandle2 = commit(stm, new Stack());
     }
 
     @Test
@@ -40,24 +40,24 @@ public class BrokenSerializedTest {
         Transaction t1 = stm.startTransaction();
         Transaction t2 = stm.startTransaction();
 
-        Stack t1Stack1 = t1.read(stackOriginator1);
-        Stack t1Stack2 = t1.read(stackOriginator2);
+        Stack t1Stack1 = t1.read(stackHandle1);
+        Stack t1Stack2 = t1.read(stackHandle2);
         t1Stack1.push(t1Stack2.size());
 
-        Stack t2Stack1 = t2.read(stackOriginator1);
-        Stack t2Stack2 = t2.read(stackOriginator2);
+        Stack t2Stack1 = t2.read(stackHandle1);
+        Stack t2Stack2 = t2.read(stackHandle2);
         t2Stack2.push(t2Stack1.size());
 
         t1.commit();
         t2.commit();
 
-        assertStackContainZero(stackOriginator1);
-        assertStackContainZero(stackOriginator2);
+        assertStackContainZero(stackHandle1);
+        assertStackContainZero(stackHandle2);
     }
 
-    public void assertStackContainZero(Originator<Stack> stackOriginator) {
+    public void assertStackContainZero(Handle<Stack> stackHandle) {
         Transaction t = stm.startTransaction();
-        Stack stack = (Stack) t.read(stackOriginator);
+        Stack stack = (Stack) t.read(stackHandle);
         //only one element on the list
         assertEquals(1, stack.size());
         //the top element is zero

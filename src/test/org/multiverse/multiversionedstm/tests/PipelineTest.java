@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -27,7 +27,7 @@ import java.util.List;
 public class PipelineTest {
 
     private MultiversionedStm stm;
-    private Originator<Queue<Integer>>[] queueOriginators;
+    private Handle<Queue<Integer>>[] queueHandles;
     private int queueCount = 10;
     private int produceCount = 5000;
     private int delayMs = 5;
@@ -44,7 +44,7 @@ public class PipelineTest {
 
     @Test
     public void test() {
-        queueOriginators = createQueues();
+        queueHandles = createQueues();
 
         ProducerThread producerThread = new ProducerThread();
         ConsumerThread consumerThread = new ConsumerThread();
@@ -64,15 +64,15 @@ public class PipelineTest {
     public HandoverThread[] createHandoverThreads() {
         HandoverThread[] threads = new HandoverThread[queueCount - 1];
         for (int k = 0; k < threads.length; k++) {
-            threads[k] = new HandoverThread(queueOriginators[k], queueOriginators[k + 1]);
+            threads[k] = new HandoverThread(queueHandles[k], queueHandles[k + 1]);
         }
         return threads;
     }
 
     public void assertQueuesAreEmpty() {
         Transaction t = stm.startTransaction();
-        for (Originator<Queue<Integer>> originator : queueOriginators) {
-            Queue<Integer> queue = t.read(originator);
+        for (Handle<Queue<Integer>> handle : queueHandles) {
+            Queue<Integer> queue = t.read(handle);
             if (!queue.isEmpty())
                 fail();
         }
@@ -80,9 +80,9 @@ public class PipelineTest {
         t.commit();
     }
 
-    private Originator[] createQueues() {
+    private Handle[] createQueues() {
         Transaction t = stm.startTransaction();
-        Originator<Queue>[] result = new Originator[queueCount];
+        Handle<Queue>[] result = new Handle[queueCount];
         for (int k = 0; k < queueCount; k++) {
             result[k] = t.attach(new Queue());
         }
@@ -101,7 +101,7 @@ public class PipelineTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Object execute(Transaction t) throws Exception {
-                    Queue<Integer> queue = t.read(queueOriginators[0]);
+                    Queue<Integer> queue = t.read(queueHandles[0]);
                     queue.push(item);
                     return null;
                 }
@@ -128,7 +128,7 @@ public class PipelineTest {
             return new TransactionTemplate<Integer>(stm) {
                 @Override
                 protected Integer execute(Transaction t) throws Exception {
-                    Queue<Integer> queue = t.read(queueOriginators[queueOriginators.length - 1]);
+                    Queue<Integer> queue = t.read(queueHandles[queueHandles.length - 1]);
                     return queue.pop();
                 }
             }.execute();
@@ -144,21 +144,21 @@ public class PipelineTest {
     }
 
     private class HandoverThread extends TestThread {
-        private final Originator<Queue<Integer>> fromOriginator;
-        private final Originator<Queue<Integer>> toOriginator;
+        private final Handle<Queue<Integer>> fromHandle;
+        private final Handle<Queue<Integer>> toHandle;
 
-        public HandoverThread(Originator<Queue<Integer>> fromQueueOriginator, Originator<Queue<Integer>> toQueueOriginator) {
+        public HandoverThread(Handle<Queue<Integer>> fromQueueHandle, Handle<Queue<Integer>> toQueueHandle) {
             setName("HandoverThread");
-            this.fromOriginator = fromQueueOriginator;
-            this.toOriginator = toQueueOriginator;
+            this.fromHandle = fromQueueHandle;
+            this.toHandle = toQueueHandle;
         }
 
         public void moveOneItem() {
             new TransactionTemplate<Integer>(stm) {
                 @Override
                 protected Integer execute(Transaction t) throws Exception {
-                    Queue<Integer> fromQueue = t.read(fromOriginator);
-                    Queue<Integer> toQueue = t.read(toOriginator);
+                    Queue<Integer> fromQueue = t.read(fromHandle);
+                    Queue<Integer> toQueue = t.read(toHandle);
                     toQueue.push(fromQueue.pop());
                     return null;
                 }

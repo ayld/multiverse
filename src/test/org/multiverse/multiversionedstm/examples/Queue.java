@@ -1,7 +1,7 @@
 package org.multiverse.multiversionedstm.examples;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
 import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
@@ -28,7 +28,7 @@ public final class Queue<E> implements MaterializedObject {
         //moved into the constructor.
         this.readyToPopStack = new Stack<E>();
         this.pushedStack = new Stack<E>();
-        this.originator = new DefaultOriginator<Queue<E>>();
+        this.handle = new DefaultHandle<Queue<E>>();
     }
 
     public int getMaxCapacity() {
@@ -135,15 +135,15 @@ public final class Queue<E> implements MaterializedObject {
     //================== generated =================
 
     private DematerializedQueue<E> lastDematerialized;
-    private final Originator<Queue<E>> originator;
+    private final Handle<Queue<E>> handle;
     private LazyReference<Stack<E>> pushedStackRef;
     private LazyReference<Stack<E>> readyToPopStackRef;
 
     public Queue(DematerializedQueue<E> dematerializedQueue, Transaction transaction) {
         this.lastDematerialized = dematerializedQueue;
-        this.originator = dematerializedQueue.originator;
-        this.readyToPopStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.readyToPopStackOriginator);
-        this.pushedStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.pushedStackOriginator);
+        this.handle = dematerializedQueue.handle;
+        this.readyToPopStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.readyToPopStackHandle);
+        this.pushedStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.pushedStackHandle);
         this.maxCapacity = dematerializedQueue.maxCapacity;
     }
 
@@ -174,14 +174,14 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     @Override
-    public void memberTrace(MemberTracer memberTracer) {
-        if (readyToPopStack != null) memberTracer.onMember(readyToPopStack);
-        if (pushedStack != null) memberTracer.onMember(pushedStack);
+    public void walkMaterializedMembers(MemberWalker memberWalker) {
+        if (readyToPopStack != null) memberWalker.onMember(readyToPopStack);
+        if (pushedStack != null) memberWalker.onMember(pushedStack);
     }
 
     @Override
-    public Originator<Queue<E>> getOriginator() {
-        return originator;
+    public Handle<Queue<E>> getHandle() {
+        return handle;
     }
 
     @Override
@@ -197,21 +197,21 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public static class DematerializedQueue<E> implements DematerializedObject {
-        private final Originator<Stack<E>> readyToPopStackOriginator;
-        private final Originator<Stack<E>> pushedStackOriginator;
-        private final Originator<Queue<E>> originator;
+        private final Handle<Stack<E>> readyToPopStackHandle;
+        private final Handle<Stack<E>> pushedStackHandle;
+        private final Handle<Queue<E>> handle;
         private final int maxCapacity;
 
         DematerializedQueue(Queue<E> queue) {
-            this.originator = queue.originator;
-            this.readyToPopStackOriginator = MultiversionedStmUtils.getOriginator(queue.readyToPopStackRef, queue.readyToPopStack);
-            this.pushedStackOriginator = MultiversionedStmUtils.getOriginator(queue.pushedStackRef, queue.pushedStack);
+            this.handle = queue.handle;
+            this.readyToPopStackHandle = MultiversionedStmUtils.getHandle(queue.readyToPopStackRef, queue.readyToPopStack);
+            this.pushedStackHandle = MultiversionedStmUtils.getHandle(queue.pushedStackRef, queue.pushedStack);
             this.maxCapacity = queue.maxCapacity;
         }
 
         @Override
-        public Originator<Queue<E>> getOriginator() {
-            return originator;
+        public Handle<Queue<E>> getHandle() {
+            return handle;
         }
 
         @Override

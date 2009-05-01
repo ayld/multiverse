@@ -48,8 +48,8 @@ public final class MultiversionedStm implements Stm {
     }
 
     private class MultiversionedTransaction implements Transaction {
-        private final HashMap<Originator, LazyReferenceImpl> referenceMap =
-                new HashMap<Originator, LazyReferenceImpl>(2);
+        private final HashMap<Handle, LazyReferenceImpl> referenceMap =
+                new HashMap<Handle, LazyReferenceImpl>(2);
 
         private final TransactionId transactionId = new TransactionId();
         private final long readVersion = globalVersionClock.get();
@@ -128,7 +128,7 @@ public final class MultiversionedStm implements Stm {
             MaterializedObject m = first;
 
             while (m != null) {
-                if (!m.getOriginator().tryAddLatch(listener, readVersion + 1, new RetryCounter(1000000)))
+                if (!m.getHandle().tryAddLatch(listener, readVersion + 1, new RetryCounter(1000000)))
                     throw new RuntimeException();
                 m = m.getNextInChain();
             }
@@ -147,7 +147,7 @@ public final class MultiversionedStm implements Stm {
         }
 
         @Override
-        public <T> Originator<T> attach(T objectToAttach) {
+        public <T> Handle<T> attach(T objectToAttach) {
             assertActive();
 
             if (objectToAttach == null) {
@@ -159,26 +159,26 @@ public final class MultiversionedStm implements Stm {
             }
 
             MaterializedObject materializedObjectToAttach = (MaterializedObject) objectToAttach;
-            Originator<T> originator = materializedObjectToAttach.getOriginator();
-            referenceMap.put(originator, new LazyReferenceImpl(materializedObjectToAttach));
-            return originator;
+            Handle<T> handle = materializedObjectToAttach.getHandle();
+            referenceMap.put(handle, new LazyReferenceImpl(materializedObjectToAttach));
+            return handle;
         }
 
         @Override
-        public <T> T read(Originator<T> originator) {
-            LazyReference<T> ref = readLazy(originator);
+        public <T> T read(Handle<T> handle) {
+            LazyReference<T> ref = readLazy(handle);
             return ref == null ? null : ref.get();
         }
 
         @Override
-        public <T> T readUnmanaged(Originator<T> originator) {
+        public <T> T readUnmanaged(Handle<T> handle) {
             assertActive();
 
-            if (originator == null) {
+            if (handle == null) {
                 return null;
             }
 
-            DematerializedObject dematerializedObject = getDematerialized(originator);
+            DematerializedObject dematerializedObject = getDematerialized(handle);
             T result = (T) dematerializedObject.rematerialize(this);
             if (statistics != null)
                 statistics.incMaterializedCount();
@@ -186,31 +186,31 @@ public final class MultiversionedStm implements Stm {
         }
 
         @Override
-        public <T> LazyReference<T> readLazy(Originator<T> originator) {
+        public <T> LazyReference<T> readLazy(Handle<T> handle) {
             assertActive();
 
-            if (originator == null) {
+            if (handle == null) {
                 return null;
             }
 
-            LazyReferenceImpl ref = referenceMap.get(originator);
+            LazyReferenceImpl ref = referenceMap.get(handle);
             if (ref == null) {
-                ref = new LazyReferenceImpl(originator);
-                referenceMap.put(originator, ref);
+                ref = new LazyReferenceImpl(handle);
+                referenceMap.put(handle, ref);
             }
 
             return ref;
         }
 
         @Override
-        public <T> LazyReference<T> readLazyAndUnmanaged(Originator<T> originator) {
+        public <T> LazyReference<T> readLazyAndUnmanaged(Handle<T> handle) {
             assertActive();
 
-            if (originator == null) {
+            if (handle == null) {
                 return null;
             }
 
-            return new LazyReferenceImpl(originator);
+            return new LazyReferenceImpl(handle);
         }
 
         private MaterializedObject[] createWriteSet() {
@@ -307,9 +307,9 @@ public final class MultiversionedStm implements Stm {
 
                 for (int k = 0; k < writeSet.length; k++) {
                     MaterializedObject obj = writeSet[k];
-                    Originator originator = obj.getOriginator();
+                    Handle handle = obj.getHandle();
 
-                    if (!originator.tryAcquireLockForWriting(transactionId, readVersion, retryCounter)) {
+                    if (!handle.tryAcquireLockForWriting(transactionId, readVersion, retryCounter)) {
                         if (statistics != null)
                             statistics.incTransactionLockAcquireFailureCount();
                         return false;
@@ -336,7 +336,7 @@ public final class MultiversionedStm implements Stm {
 
             for (int k = 0; k < writeSet.length; k++) {
                 DematerializedObject dirtyObject = writeSet[k];
-                dirtyObject.getOriginator().writeAndReleaseLock(transactionId, dirtyObject, writeVersion, listeners);
+                dirtyObject.getHandle().writeAndReleaseLock(transactionId, dirtyObject, writeVersion, listeners);
             }
 
             while (!listeners.isEmpty()) {
@@ -350,15 +350,15 @@ public final class MultiversionedStm implements Stm {
 
         private void releaseLocksForWriting(MaterializedObject[] writeSet) {
             for (MaterializedObject dirtyObject : writeSet) {
-                Originator originator = dirtyObject.getOriginator();
-                originator.releaseLockForWriting(transactionId);
+                Handle handle = dirtyObject.getHandle();
+                handle.releaseLockForWriting(transactionId);
             }
         }
 
-        private DematerializedObject getDematerialized(Originator originator) {
+        private DematerializedObject getDematerialized(Handle handle) {
             DematerializedObject dematerialized;
             try {
-                dematerialized = originator.tryRead(readVersion, new RetryCounter(100000000));
+                dematerialized = handle.tryRead(readVersion, new RetryCounter(100000000));
             } catch (SnapshotTooOldException ex) {
                 if (statistics != null)
                     statistics.incTransactionSnapshotTooOldCount();
@@ -369,22 +369,22 @@ public final class MultiversionedStm implements Stm {
         }
 
         private final class LazyReferenceImpl<S extends MaterializedObject> implements LazyReference<S> {
-            private final Originator originator;
+            private final Handle handle;
             private S ref;
 
-            LazyReferenceImpl(Originator originator) {
-                assert originator != null;
-                this.originator = originator;
+            LazyReferenceImpl(Handle handle) {
+                assert handle != null;
+                this.handle = handle;
             }
 
             LazyReferenceImpl(S materializedObject) {
                 this.ref = materializedObject;
-                this.originator = materializedObject.getOriginator();
+                this.handle = materializedObject.getHandle();
             }
 
             @Override
-            public Originator getOriginator() {
-                return originator;
+            public Handle getHandle() {
+                return handle;
             }
 
             @Override
@@ -397,7 +397,7 @@ public final class MultiversionedStm implements Stm {
                 if (!isLoaded()) {
                     assertActive();
                     //todo: try counter
-                    DematerializedObject dematerialized = getDematerialized(originator);
+                    DematerializedObject dematerialized = getDematerialized(handle);
 
                     ref = (S) dematerialized.rematerialize(MultiversionedTransaction.this);
                     if (statistics != null)

@@ -1,7 +1,7 @@
 package org.multiverse.multiversionedstm;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.Originator;
 import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.util.Bag;
 
@@ -29,7 +29,7 @@ public final class MultiversionedStmUtils {
             }
         }
 
-        MemberTracer tracer = new MemberTracer() {
+        MemberWalker walker = new MemberWalker() {
             @Override
             public void onMember(MaterializedObject member) {
                 if (member.getNextInChain() == null && member != first.value) {
@@ -42,8 +42,7 @@ public final class MultiversionedStmUtils {
 
         while (!traverseBag.isEmpty()) {
             MaterializedObject materializedObject = traverseBag.takeAny();
-
-            materializedObject.memberTrace(tracer);
+            materializedObject.walkMaterializedMembers(walker);
         }
 
         return lastInChain.value;
@@ -57,16 +56,16 @@ public final class MultiversionedStmUtils {
         throw new RetryError();
     }
 
-    public static <T> Originator<T> getOriginator(T value) {
-        return value == null ? null : ((MaterializedObject) value).getOriginator();
+    public static <T> Handle<T> getHandle(T value) {
+        return value == null ? null : ((MaterializedObject) value).getHandle();
     }
 
-    public static <T> Object getValueOrOriginator(LazyReference<T> ref, T value) {
+    public static <T> Object getValueOrHandle(LazyReference<T> ref, T value) {
         if (value == null) {
-            return ref == null ? null : ref.getOriginator();
+            return ref == null ? null : ref.getHandle();
         } else {
             if (value instanceof MaterializedObject) {
-                return ((MaterializedObject) value).getOriginator();
+                return ((MaterializedObject) value).getHandle();
             } else {
                 return value;
             }
@@ -74,11 +73,11 @@ public final class MultiversionedStmUtils {
     }
 
 
-    public static <T> Originator<T> getOriginator(LazyReference<T> ref, T value) {
+    public static <T> Handle<T> getHandle(LazyReference<T> ref, T value) {
         if (ref != null)
-            return ref.getOriginator();
+            return ref.getHandle();
 
-        return value != null ? ((MaterializedObject) value).getOriginator() : null;
+        return value != null ? ((MaterializedObject) value).getHandle() : null;
     }
 
     private MultiversionedStmUtils() {

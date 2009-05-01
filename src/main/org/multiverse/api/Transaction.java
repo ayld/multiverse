@@ -4,7 +4,7 @@ package org.multiverse.api;
  * Unit of work.
  * <p/>
  * All changes made on objects reachable from this Transaction (attached, read, or reachable from those
- * 2) will be committed when the Transaction commits. Watch out for {@link #readUnmanaged(Originator)} btw.
+ * 2) will be committed when the Transaction commits. Watch out for {@link #readUnmanaged(Handle)} btw.
  * <p/>
  * A Transaction is not threadsafe to use (although it can be handed over from thread to thread).
  *
@@ -45,46 +45,46 @@ public interface Transaction {
     Transaction abortAndRetry() throws InterruptedException;
 
     /**
-     * Returns an instance. If originator is null, null is returned. A Transaction will return
-     * the same instance every time of a read is done for some originator.
+     * Returns an instance. If handle is null, null is returned. A Transaction will return
+     * the same instance every time of a read is done for some handle.
      * <p/>
      * All changes made on read objects will be persisted when the transaction commits.
      *
-     * @param originator the originator of this instance to look for.
-     * @param <T>        the type of the instance to return.
-     * @return the instance, or null if originator is null.
+     * @param handle the handle of this instance to look for.
+     * @param <T>    the type of the instance to return.
+     * @return the instance, or null if handle is null.
      *         todo: exceptions; what happens when value is not found.
      */
-    <T> T read(Originator<T> originator);
+    <T> T read(Handle<T> handle);
 
     /**
      * Returns an instance
      * <p/>
      * This method should only be called if an object itself is responsible for some kind of
-     * dependency. A reread of the same originator doesn't have to lead to the same instance
+     * dependency. A reread of the same handle doesn't have to lead to the same instance
      * being returned. This helps to prevent a lot of administration on the readset.
      * <p/>
      * Changes made on objects that are not reachable from other objects that are reachable
      * from the transaction, could be ignored.
      *
-     * @param originator the Originator of the instance to read
-     * @param <T>        the type of the instance to read.
-     * @return the instance or null if originator is nu.
+     * @param handle the Handle of the instance to read
+     * @param <T>    the type of the instance to read.
+     * @return the instance or null if handle is nu.
      * @throws IllegalStateException if the transaction is not active anymore.
      */
-    <T> T readUnmanaged(Originator<T> originator);
+    <T> T readUnmanaged(Handle<T> handle);
 
     /**
      * Reads a lazy reference to a managed instance.
      * <p/>
      * All changes made on read objects will be persisted when the transaction commits.
      *
-     * @param originator the Originator of the instance to read
-     * @param <T>        the type of the instance to read
-     * @return the lazy reference to the instance, or null if originator is null.
+     * @param handle the Handle of the instance to read
+     * @param <T>    the type of the instance to read
+     * @return the lazy reference to the instance, or null if handle is null.
      * @throws IllegalStateException if the transaction is not active anymore.
      */
-    <T> LazyReference<T> readLazy(Originator<T> originator);
+    <T> LazyReference<T> readLazy(Handle<T> handle);
 
     /**
      * Reads an lazy reference to an unmanaged instance.
@@ -92,12 +92,12 @@ public interface Transaction {
      * Changes made on objects that are not reachable from other objects that are reachable
      * from the transaction, could be ignored.
      *
-     * @param originator the Originator of the instance to read.
-     * @param <T>        the type of the instance to read
-     * @return the lazy reference, or null if originator is null.
+     * @param handle the Handle of the instance to read.
+     * @param <T>    the type of the instance to read
+     * @return the lazy reference, or null if handle is null.
      * @throws IllegalStateException if the transaction is not active anymore.
      */
-    <T> LazyReference<T> readLazyAndUnmanaged(Originator<T> originator);
+    <T> LazyReference<T> readLazyAndUnmanaged(Handle<T> handle);
 
     /**
      * Attaches the object to this session. Objects that are reachable from the Transaction (attached, read
@@ -115,7 +115,7 @@ public interface Transaction {
      * @throws NullPointerException     if obj is null.
      * @throws IllegalStateException    if the transaction is not active anymore.
      */
-    <T> Originator<T> attach(T obj);
+    <T> Handle<T> attach(T obj);
 
     /**
      * Gets the id of this Transaction. This method should be threadsafe to use.

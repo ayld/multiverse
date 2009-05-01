@@ -4,7 +4,7 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Originator;
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
@@ -22,14 +22,14 @@ public class Transaction_CommitTest {
         IntegerValue integerValue = new IntegerValue(10);
 
         Transaction t1 = stm.startTransaction();
-        Originator<IntegerValue> originator = t1.attach(integerValue);
+        Handle<IntegerValue> handle = t1.attach(integerValue);
         t1.commit();
 
         Transaction t2 = stm.startTransaction();
-        IntegerValue v2 = t2.readLazy(originator).get();
+        IntegerValue v2 = t2.readLazy(handle).get();
 
         Transaction t3 = stm.startTransaction();
-        IntegerValue v3 = t3.readLazy(originator).get();
+        IntegerValue v3 = t3.readLazy(handle).get();
         v3.inc();
         t3.commit();
 
@@ -59,14 +59,14 @@ public class Transaction_CommitTest {
         long readonlyCount = stm.getStatistics().getTransactionReadonlyCount();
 
         Transaction t = stm.startTransaction();
-        Originator<IntegerValue> originator = t.attach(integerValue);
+        Handle<IntegerValue> handle = t.attach(integerValue);
         t.commit();
 
         assertIsCommitted(t);
         assertGlobalVersion(stm, globalVersion + 1);
         assertTransactionCommittedCount(stm, commitCount + 1);
         assertTransactionReadonlyCount(stm, readonlyCount);
-        assertIntegerValue(stm, originator, 10);
+        assertIntegerValue(stm, handle, 10);
     }
 
     @Test
@@ -80,18 +80,18 @@ public class Transaction_CommitTest {
         long readonlyCount = stm.getStatistics().getTransactionReadonlyCount();
 
         Transaction t = stm.startTransaction();
-        Originator<IntegerValue> originator1 = t.attach(item1);
-        Originator<IntegerValue> originator2 = t.attach(item2);
-        Originator<IntegerValue> originator3 = t.attach(item3);
+        Handle<IntegerValue> handle1 = t.attach(item1);
+        Handle<IntegerValue> handle2 = t.attach(item2);
+        Handle<IntegerValue> handle3 = t.attach(item3);
         t.commit();
 
         assertIsCommitted(t);
         assertTransactionCommittedCount(stm, commitCount + 1);
         assertTransactionReadonlyCount(stm, readonlyCount);
         assertGlobalVersion(stm, globalVersion + 1);
-        assertIntegerValue(stm, originator1, 1);
-        assertIntegerValue(stm, originator2, 2);
-        assertIntegerValue(stm, originator3, 3);
+        assertIntegerValue(stm, handle1, 1);
+        assertIntegerValue(stm, handle2, 2);
+        assertIntegerValue(stm, handle3, 3);
     }
 
     @Test
@@ -101,37 +101,37 @@ public class Transaction_CommitTest {
         IntegerValue item3 = new IntegerValue(1);
 
         Transaction t = stm.startTransaction();
-        Originator<IntegerValue> originator1 = t.attach(item1);
-        Originator<IntegerValue> originator2 = t.attach(item2);
-        Originator<IntegerValue> originator3 = t.attach(item3);
+        Handle<IntegerValue> handle1 = t.attach(item1);
+        Handle<IntegerValue> handle2 = t.attach(item2);
+        Handle<IntegerValue> handle3 = t.attach(item3);
         t.commit();
 
         long globalVersion = stm.getGlobalVersion();
         long commitCount = stm.getStatistics().getTransactionCommittedCount();
 
         Transaction t2 = stm.startTransaction();
-        t2.read(originator1).inc();
-        t2.read(originator2).inc();
-        t2.read(originator3).inc();
+        t2.read(handle1).inc();
+        t2.read(handle2).inc();
+        t2.read(handle3).inc();
         t2.commit();
 
         assertGlobalVersion(stm, globalVersion + 1);
         assertTransactionCommittedCount(stm, commitCount + 1);
-        assertIntegerValue(stm, originator1, 2);
-        assertIntegerValue(stm, originator2, 2);
-        assertIntegerValue(stm, originator3, 2);
+        assertIntegerValue(stm, handle1, 2);
+        assertIntegerValue(stm, handle2, 2);
+        assertIntegerValue(stm, handle3, 2);
     }
 
     @Test
     public void commitOfReadonlyTransactionDoesntLeadToChanges() {
-        Originator<IntegerValue> originator = commit(stm, new IntegerValue());
+        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
 
         long globalVersion = stm.getGlobalVersion();
         long commitCount = stm.getStatistics().getTransactionCommittedCount();
         long readonlyCount = stm.getStatistics().getTransactionReadonlyCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue integerValue = t.read(originator);
+        IntegerValue integerValue = t.read(handle);
         t.commit();
 
         assertGlobalVersion(stm, globalVersion);

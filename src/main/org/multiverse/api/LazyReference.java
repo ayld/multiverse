@@ -21,11 +21,11 @@ public interface LazyReference<T> {
     boolean isLoaded();
 
     /**
-     * Returns the Originator.
+     * Returns the Handle.
      *
-     * @return the originator.
+     * @return the handle.
      */
-    Originator<T> getOriginator();
+    Handle<T> getHandle();
 
     /**
      * Gets the reference. If the reference is not loaded, it will be loaded.

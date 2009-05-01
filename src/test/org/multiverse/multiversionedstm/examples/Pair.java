@@ -1,7 +1,7 @@
 package org.multiverse.multiversionedstm.examples;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.Originator;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
 
@@ -13,11 +13,11 @@ public final class Pair<L, R> implements MaterializedObject {
     public Pair(L left, R right) {
         this.left = left;
         this.right = right;
-        this.originator = new DefaultOriginator<Pair<L, R>>();
+        this.handle = new DefaultHandle<Pair<L, R>>();
     }
 
     public Pair() {
-        this.originator = new DefaultOriginator<Pair<L, R>>();
+        this.handle = new DefaultHandle<Pair<L, R>>();
     }
 
     public L getLeft() {
@@ -88,28 +88,28 @@ public final class Pair<L, R> implements MaterializedObject {
     private DematerializedPair<L, R> lastDematerialized;
     private LazyReference<L> lazyLeft;
     private LazyReference<R> lazyRight;
-    private final Originator<Pair<L, R>> originator;
+    private final Handle<Pair<L, R>> handle;
 
     private Pair(DematerializedPair<L, R> dematerializedPair, Transaction t) {
-        this.originator = dematerializedPair.originator;
+        this.handle = dematerializedPair.handle;
         this.lastDematerialized = dematerializedPair;
 
-        if (dematerializedPair.left instanceof Originator) {
-            lazyLeft = t.readLazy((Originator) dematerializedPair.left);
+        if (dematerializedPair.left instanceof Handle) {
+            lazyLeft = t.readLazy((Handle) dematerializedPair.left);
         } else {
             left = (L) dematerializedPair.left;
         }
 
-        if (dematerializedPair.right instanceof Originator) {
-            lazyRight = t.readLazy((Originator) dematerializedPair.right);
+        if (dematerializedPair.right instanceof Handle) {
+            lazyRight = t.readLazy((Handle) dematerializedPair.right);
         } else {
             right = (R) dematerializedPair.right;
         }
     }
 
     @Override
-    public Originator<Pair<L, R>> getOriginator() {
-        return originator;
+    public Handle<Pair<L, R>> getHandle() {
+        return handle;
     }
 
     @Override
@@ -117,10 +117,10 @@ public final class Pair<L, R> implements MaterializedObject {
         if (lastDematerialized == null)
             return true;
 
-        if (lastDematerialized.left != MultiversionedStmUtils.getValueOrOriginator(lazyLeft, left))
+        if (lastDematerialized.left != MultiversionedStmUtils.getValueOrHandle(lazyLeft, left))
             return true;
 
-        if (lastDematerialized.right != MultiversionedStmUtils.getValueOrOriginator(lazyRight, right))
+        if (lastDematerialized.right != MultiversionedStmUtils.getValueOrHandle(lazyRight, right))
             return true;
 
         return false;
@@ -144,25 +144,25 @@ public final class Pair<L, R> implements MaterializedObject {
     }
 
     @Override
-    public void memberTrace(MemberTracer memberTracer) {
-        if (left instanceof MaterializedObject) memberTracer.onMember((MaterializedObject) left);
-        if (right instanceof MaterializedObject) memberTracer.onMember((MaterializedObject) right);
+    public void walkMaterializedMembers(MemberWalker memberWalker) {
+        if (left instanceof MaterializedObject) memberWalker.onMember((MaterializedObject) left);
+        if (right instanceof MaterializedObject) memberWalker.onMember((MaterializedObject) right);
     }
 
     public static class DematerializedPair<L, R> implements DematerializedObject {
-        private final Originator<Pair<L, R>> originator;
+        private final Handle<Pair<L, R>> handle;
         private final Object left;
         private final Object right;
 
         public DematerializedPair(Pair<L, R> pair) {
-            this.originator = pair.originator;
-            this.left = MultiversionedStmUtils.getValueOrOriginator(pair.lazyLeft, pair.left);
-            this.right = MultiversionedStmUtils.getValueOrOriginator(pair.lazyRight, pair.right);
+            this.handle = pair.handle;
+            this.left = MultiversionedStmUtils.getValueOrHandle(pair.lazyLeft, pair.left);
+            this.right = MultiversionedStmUtils.getValueOrHandle(pair.lazyRight, pair.right);
         }
 
         @Override
-        public Originator<Pair<L, R>> getOriginator() {
-            return originator;
+        public Handle<Pair<L, R>> getHandle() {
+            return handle;
         }
 
         @Override
