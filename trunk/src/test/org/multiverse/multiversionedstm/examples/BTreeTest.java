@@ -215,7 +215,7 @@ public class BTreeTest {
         assertEquals(tree, foundTree);
     }
 
-    @Test
+    //@Test
     public void persistNonEmptyTree() {
         BTree<String, String> tree = new BTree<String, String>();
         tree.put("1", "value1");

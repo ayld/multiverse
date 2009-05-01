@@ -19,44 +19,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ClassicStackProducerConsumerTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/CycleHandlingTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
@@ -182,7 +150,44 @@
     <option name="currentFolder" value="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="Transaction_AbortAndRetryTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="57" column="10" selection-start="1708" selection-end="1708" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BTreeTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="217" column="6" selection-start="5996" selection-end="5996" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="QueueStressTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="65" column="6" selection-start="1799" selection-end="1799" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StackStressTest.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="63" column="6" selection-start="1880" selection-end="1880" vertical-scroll-proportion="0.1273585">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -503,151 +508,7 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
         <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="test" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedstm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="main" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="main" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiversionedstm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-      </PATH>
-      <PATH>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="stm" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="src" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="main" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="org" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="multiverse" />
-          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-        </PATH_ELEMENT>
-        <PATH_ELEMENT>
-          <option name="myItemId" value="api" />
+          <option name="myItemId" value="target" />
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
         </PATH_ELEMENT>
       </PATH>
@@ -731,19 +592,19 @@
       <recent name="org.codehaus.multiverse.multiversionedheap.listenersupport" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.QueueStressTest.testProducerConsumer_5000000">
-    <tempConfiguration default="false" name="QueueStressTest.testProducerConsumer_5000000" type="JUnit" factoryName="JUnit" enabled="false" merge="false" sample_coverage="true" runner="emma">
+  <component name="RunManager" selected="JUnit.BTreeTest">
+    <tempConfiguration default="false" name="BTreeTest" type="JUnit" factoryName="JUnit" enabled="false" merge="false" sample_coverage="true" runner="emma">
       <pattern>
-        <option name="PATTERN" value="org.multiverse.examples.*" />
+        <option name="PATTERN" value="org.multiverse.multiversionedstm.examples.*" />
         <option name="ENABLED" value="true" />
       </pattern>
       <module name="stm" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
       <option name="PACKAGE_NAME" value="org.multiverse.multiversionedstm.examples" />
-      <option name="MAIN_CLASS_NAME" value="org.multiverse.multiversionedstm.examples.QueueStressTest" />
-      <option name="METHOD_NAME" value="testProducerConsumer_5000000" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="MAIN_CLASS_NAME" value="org.multiverse.multiversionedstm.examples.BTreeTest" />
+      <option name="METHOD_NAME" value="" />
+      <option name="TEST_OBJECT" value="class" />
       <option name="VM_PARAMETERS" value="-server -da" />
       <option name="PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
@@ -760,7 +621,6 @@
         <option name="INTERPRETED" value="false" />
       </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
-      <ConfigurationWrapper RunnerId="JProfiler" />
       <ConfigurationWrapper RunnerId="Run" />
       <method>
         <option name="Make" value="true" />
@@ -1424,7 +1284,7 @@
       <item index="16" class="java.lang.String" itemvalue="JUnit.MultiversionedCellTest.testPrune_pruneVersionIsTheSameAsNewestVersionAndNoHistory" />
       <item index="17" class="java.lang.String" itemvalue="JUnit.QueueTest" />
       <item index="18" class="java.lang.String" itemvalue="JUnit.AbaProblemIsNotDetectedTest" />
-      <item index="19" class="java.lang.String" itemvalue="JUnit.QueueStressTest.testProducerConsumer_5000000" />
+      <item index="19" class="java.lang.String" itemvalue="JUnit.BTreeTest" />
     </list>
     <configuration default="true" type="TestNG" factoryName="TestNG" enabled="false" merge="false" runner="emma">
       <module name="" />
@@ -1856,27 +1716,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/Dematerializable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="18" selection-start="451" selection-end="451" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/Atomic.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="16" column="18" selection-start="454" selection-end="454" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="17" selection-start="312" selection-end="312" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/Stm.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="9" column="17" selection-start="198" selection-end="198" vertical-scroll-proportion="0.0">
@@ -1940,13 +1779,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="22" selection-start="1807" selection-end="1807" vertical-scroll-proportion="0.6630901">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="86" selection-start="41" selection-end="41" vertical-scroll-proportion="0.0">
@@ -1964,6 +1796,34 @@
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/DefaultOriginator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="205" column="12" selection-start="6973" selection-end="6973" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="57" column="10" selection-start="1708" selection-end="1708" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="217" column="6" selection-start="5996" selection-end="5996" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="65" column="6" selection-start="1799" selection-end="1799" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="63" column="6" selection-start="1880" selection-end="1880" vertical-scroll-proportion="0.1273585">
           <folding />
         </state>
       </provider>
