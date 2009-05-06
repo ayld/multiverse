@@ -11,7 +11,7 @@ public final class StackNode<E> implements MaterializedObject {
     private final int length;
 
     public StackNode(StackNode<E> next, E value) {
-        this.handle = new DefaultHandle<StackNode<E>>();
+        this.handle = new DefaultMultiversionedHandle<StackNode<E>>();
         this.next = next;
         this.value = value;
         this.length = next == null ? 1 : next.length + 1;

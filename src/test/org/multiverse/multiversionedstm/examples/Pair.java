@@ -13,11 +13,11 @@ public final class Pair<L, R> implements MaterializedObject {
     public Pair(L left, R right) {
         this.left = left;
         this.right = right;
-        this.handle = new DefaultHandle<Pair<L, R>>();
+        this.handle = new DefaultMultiversionedHandle<Pair<L, R>>();
     }
 
     public Pair() {
-        this.handle = new DefaultHandle<Pair<L, R>>();
+        this.handle = new DefaultMultiversionedHandle<Pair<L, R>>();
     }
 
     public L getLeft() {

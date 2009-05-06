@@ -1,6 +1,8 @@
 package org.multiverse.api.exceptions;
 
 /**
+ * An superclass for all RuntimeExceptions specific to the {@link Stm}.
+ *
  * @author Peter Veentjer.
  */
 public abstract class StmException extends RuntimeException {

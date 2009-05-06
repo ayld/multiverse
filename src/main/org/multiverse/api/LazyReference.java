@@ -21,7 +21,7 @@ public interface LazyReference<T> {
     boolean isLoaded();
 
     /**
-     * Returns the Handle.
+     * Returns the Handle to the reference.
      *
      * @return the handle.
      */
@@ -31,7 +31,9 @@ public interface LazyReference<T> {
      * Gets the reference. If the reference is not loaded, it will be loaded.
      *
      * @return the reference.
-     *         todo: exceptions
+     * @throws org.multiverse.api.exceptions.StmException
+     *
+     * @throws IllegalStateException
      */
     T get();
 }

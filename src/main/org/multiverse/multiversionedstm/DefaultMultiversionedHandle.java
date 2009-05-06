@@ -3,9 +3,10 @@ package org.multiverse.multiversionedstm;
 import org.multiverse.api.TransactionId;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
-import org.multiverse.api.exceptions.TooManyRetriesException;
+import org.multiverse.api.exceptions.StarvationException;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.util.Bag;
+import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
 
@@ -17,11 +18,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Peter Veentjer.
  * @param <T>
  */
-public final class DefaultHandle<T> implements MultiversionedHandle<T> {
+public final class DefaultMultiversionedHandle<T> implements MultiversionedHandle<T> {
 
     private final AtomicReference<State> stateRef = new AtomicReference<State>();
 
-    public DefaultHandle() {
+    public DefaultMultiversionedHandle() {
     }
 
     public State getState() {
@@ -29,7 +30,7 @@ public final class DefaultHandle<T> implements MultiversionedHandle<T> {
     }
 
     @Override
-    public boolean tryAcquireLockForWriting(TransactionId lockOwner, long expectedVersion, RetryCounter retryCounter) {
+    public void tryToAcquireLocksForWritingAndDetectForConflicts(TransactionId lockOwner, long expectedVersion, RetryCounter retryCounter) {
         assert lockOwner != null && retryCounter != null;
 
         do {
@@ -38,26 +39,22 @@ public final class DefaultHandle<T> implements MultiversionedHandle<T> {
             if (currentState == null) {
                 tobeState = new State(lockOwner);
             } else {
-                tobeState = currentState.acquireLock(lockOwner);
-
-                if (tobeState != null) {
-                    //todo: condition can be simplfied, remove dematerialized != null, -1 shoud indicate no commit
-                    if (currentState.dematerialized != null && currentState.dematerializedVersion > expectedVersion) {
-                        //a writeconflict is encountered.
-                        throw new WriteConflictException();
-                    }
+                if (currentState.dematerializedVersion > expectedVersion) {
+                    throw WriteConflictException.INSTANCE;
                 }
+
+                tobeState = currentState.acquireLock(lockOwner);
             }
 
             if (tobeState != null) {
                 boolean success = stateRef.compareAndSet(currentState, tobeState);
                 if (success) {
-                    return true;
+                    return;
                 }
             }
         } while (retryCounter.decrease());
 
-        return false;
+        throw StarvationException.INSTANCE;
     }
 
     @Override
@@ -103,7 +100,7 @@ public final class DefaultHandle<T> implements MultiversionedHandle<T> {
         do {
             State currentState = stateRef.get();
 
-            if (currentState == null || currentState.dematerialized == null) {
+            if (currentState == null || currentState.dematerializedObject == null) {
                 //throw new IllegalStateException("Can't add a Latch on uncommitted state");
                 return true;//ignore
             }
@@ -137,11 +134,11 @@ public final class DefaultHandle<T> implements MultiversionedHandle<T> {
             }
 
             if (!state.isLockedForWriting()) {
-                return state.dematerialized;
+                return state.dematerializedObject;
             }
         } while (retryCounter.decrease());
 
-        throw new TooManyRetriesException();
+        throw StarvationException.INSTANCE;
     }
 
     @Override
@@ -154,7 +151,7 @@ public final class DefaultHandle<T> implements MultiversionedHandle<T> {
             }
 
             if (!state.isLockedForWriting()) {
-                if (state.dematerialized == null) {
+                if (state.dematerializedObject == null) {
                     throw new RuntimeException();//todo: what to do here
                 }
 
@@ -162,43 +159,52 @@ public final class DefaultHandle<T> implements MultiversionedHandle<T> {
                     throw new SnapshotTooOldException();
                 }
 
-                return state.dematerialized;
+                return state.dematerializedObject;
             }
         } while (retryCounter.decrease());
 
-        throw new TooManyRetriesException();
+        throw StarvationException.INSTANCE;
     }
 
 
     public final static class State {
         final ListenerNode listenerHead;
-        final DematerializedObject dematerialized;
+        final DematerializedObject dematerializedObject;
         final long dematerializedVersion;
         final TransactionId lockOwner;
 
         State(TransactionId lockOwner) {
             this.listenerHead = null;
-            this.dematerialized = null;
+            this.dematerializedObject = null;
             this.dematerializedVersion = -1;
             this.lockOwner = lockOwner;
         }
 
-        State(ListenerNode listenerHead, DematerializedObject dematerialized, long dematerializedVersion, TransactionId lockOwner) {
+        State(ListenerNode listenerHead, DematerializedObject dematerializedObject, long dematerializedVersion,
+              TransactionId lockOwner) {
             this.listenerHead = listenerHead;
-            this.dematerialized = dematerialized;
+            this.dematerializedObject = dematerializedObject;
             this.dematerializedVersion = dematerializedVersion;
             this.lockOwner = lockOwner;
         }
 
         State addListener(Latch latch) {
-            return new State(new ListenerNode(latch, listenerHead), dematerialized, dematerializedVersion, lockOwner);
+            return new State(
+                    new ListenerNode(latch, listenerHead),
+                    dematerializedObject,
+                    dematerializedVersion,
+                    lockOwner);
         }
 
         State acquireLock(TransactionId lockOwner) {
             if (isLockedForWriting())
                 return null;
 
-            return new State(this.listenerHead, this.dematerialized, this.dematerializedVersion, lockOwner);
+            return new State(
+                    this.listenerHead,
+                    this.dematerializedObject,
+                    this.dematerializedVersion,
+                    lockOwner);
         }
 
         State writeAndReleaseLock(DematerializedObject dematerialized, long version) {
@@ -212,7 +218,7 @@ public final class DefaultHandle<T> implements MultiversionedHandle<T> {
             if (expectedLockOwner != lockOwner)
                 return this;
 
-            return new State(listenerHead, dematerialized, dematerializedVersion, null);
+            return new State(listenerHead, dematerializedObject, dematerializedVersion, null);
         }
 
         public boolean isLockedForWriting() {

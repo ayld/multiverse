@@ -1,9 +1,9 @@
 package org.multiverse.multiversionedstm.examples;
 
 import org.multiverse.api.LazyReference;
+import org.multiverse.api.StmUtils;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
-import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public final class Stack<E> implements MaterializedObject {
     private StackNode<E> head;
 
     public Stack() {
-        this.handle = new DefaultHandle<Stack<E>>();
+        this.handle = new DefaultMultiversionedHandle<Stack<E>>();
     }
 
     public E peek() {
@@ -36,7 +36,7 @@ public final class Stack<E> implements MaterializedObject {
         ensureHeadLoaded();
 
         if (head == null)
-            retry();
+            StmUtils.retry();
 
         return removeTopItem();
     }

@@ -11,6 +11,11 @@ import org.multiverse.api.Transaction;
  */
 public interface DematerializedObject {
 
+    /**
+     * Returns the MultiversionedHandle that uniquely identfies this DematerializedObject.
+     *
+     * @return the MultiversionedHandle
+     */
     MultiversionedHandle getHandle();
 
     MaterializedObject rematerialize(Transaction t);

@@ -1,5 +1,11 @@
 TODO
 
+- track number of starvation problems: transaction
+
+- track number of starvation problems: read
+
+- track number of starvation problems: listen
+
 - the number of writes a transaction has done when it commit should be stored somewhere
 
 - the number of reads a transaction has done when it commit should be stored somewhere
@@ -13,6 +19,8 @@ TODO
 - uitvoering transaction.abortAndRetry testen
 
 - cycle handling test
+
+- http://jee-bpel-soa.blogspot.com/2009/05/parameterising-junit-tests.html
 
 IMPROVEMENTS
 

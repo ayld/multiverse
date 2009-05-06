@@ -19,6 +19,8 @@ public interface Transaction {
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *
      * @throws IllegalStateException if the Transaction is not active anymore.
+     * @throws org.multiverse.api.exceptions.WriteConflictException
+     *                               if a write conflict was found.
      *                               todo: exceptions
      */
     void commit();
@@ -28,19 +30,19 @@ public interface Transaction {
      * this transaction). If this Transaction already is aborted, this call is ignored.
      *
      * @throws IllegalStateException if this Transaction already is committed.
-     *                               todo: exceptions
      */
     void abort();
 
     /**
-     * Abort and retries this Transaction. Abort and retry is useful for the retry
-     * functionality. This method probably is not going to be called by users, but
-     * by the TransactionTemplate.
+     * Abort and retries this Transaction. Abort and retry is useful for the retry functionality. This method
+     * probably is not going to be called by users, but by the TransactionTemplate.
      *
-     * @return
+     * @return the new created Transaction
      * @throws InterruptedException
      * @throws org.multiverse.api.exceptions.NoProgressPossibleException
-     *                              todo: exception.
+     *
+     * @throws IllegalStateException if the transaction is not active anymore.
+     *                               todo: exception.
      */
     Transaction abortAndRetry() throws InterruptedException;
 
@@ -109,7 +111,7 @@ public interface Transaction {
      *
      * @param obj the object to attach.
      * @param <T> the type of the Object to attach.
-     * @return
+     * @return the Handle to the object.
      * @throws IllegalArgumentException if object is not something that can be attached to this
      *                                  Transaction.
      * @throws NullPointerException     if obj is null.

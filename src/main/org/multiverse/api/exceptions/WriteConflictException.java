@@ -7,6 +7,8 @@ package org.multiverse.api.exceptions;
  */
 public class WriteConflictException extends StmException {
 
+    public final static WriteConflictException INSTANCE = new WriteConflictException();
+
     public WriteConflictException() {
     }
 

@@ -3,9 +3,11 @@ package org.multiverse.multiversionedstm;
 import org.multiverse.api.*;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
+import org.multiverse.api.exceptions.StarvationException;
 import org.multiverse.api.exceptions.WriteConflictException;
 import static org.multiverse.multiversionedstm.MultiversionedStmUtils.initializeNextChain;
 import org.multiverse.util.Bag;
+import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.CheapLatch;
 import org.multiverse.util.latches.Latch;
@@ -99,15 +101,24 @@ public final class MultiversionedStm implements Stm {
         public Transaction abortAndRetry() throws InterruptedException {
             assertActive();
             abort();
-
-            if (isNoProgressPossible())
-                throw new NoProgressPossibleException();
+            assertProgressPossible();
 
             Latch listener = registerListener();
             awaitListenerToOpen(listener);
             if (statistics != null)
                 statistics.incTransactionRetriedCount();
-            return startTransaction();
+            Transaction t = startTransaction();
+            t.setDescription(description);
+            return t;
+        }
+
+        private void assertProgressPossible() {
+            if (isNoProgressPossible())
+                throw new NoProgressPossibleException();
+        }
+
+        private boolean isNoProgressPossible() {
+            return referenceMap.isEmpty();
         }
 
         private void awaitListenerToOpen(Latch listener) throws InterruptedException {
@@ -128,16 +139,14 @@ public final class MultiversionedStm implements Stm {
             MaterializedObject m = first;
 
             while (m != null) {
-                if (!m.getHandle().tryAddLatch(listener, readVersion + 1, new RetryCounter(1000000)))
-                    throw new RuntimeException();
+                if (!m.getHandle().tryAddLatch(listener, readVersion + 1, new RetryCounter(100))) {
+                    //todo: in the statistics
+                    throw StarvationException.INSTANCE;
+                }
                 m = m.getNextInChain();
             }
 
             return listener;
-        }
-
-        private boolean isNoProgressPossible() {
-            return referenceMap.isEmpty();
         }
 
         private void assertActive() {
@@ -233,7 +242,12 @@ public final class MultiversionedStm implements Stm {
         public void commit() {
             switch (state) {
                 case active:
-                    doCommit();
+                    try {
+                        doCommit();
+                    } catch (RuntimeException e) {
+                        abort();
+                        throw e;
+                    }
                     break;
                 case committed:
                     //ignore
@@ -250,37 +264,40 @@ public final class MultiversionedStm implements Stm {
         }
 
         private void doCommit() {
-            try {
-                initFirst();
-                MaterializedObject[] writeSet = createWriteSet();
-                if (writeSet.length == 0) {
-                    //it is a readonly transaction
-                    if (statistics != null)
-                        statistics.incTransactionReadonlyCount();
-                } else {
-                    //it is a transaction with writes.
-                    DematerializedObject[] dematerializedWriteSet = dematerialize(writeSet);
-                    boolean success = false;
-                    do {
-                        try {
-                            if (tryToAcquireLocksForWritingAndDetectForConflicts(writeSet)) {
-                                writeAndReleaseLocksForWriting(dematerializedWriteSet);
-                                success = true;
-                            }
-                        } finally {
-                            if (!success) {
-                                releaseLocksForWriting(writeSet);
-                            }
-                        }
-                    } while (!success);
-                }
+            initFirst();
+            MaterializedObject[] writeSet = createWriteSet();
+            if (writeSet.length == 0) {
+                //it is a readonly transaction
 
-                state = TransactionState.committed;
-                if (statistics != null)
-                    statistics.incTransactionCommittedCount();
-            } catch (RuntimeException e) {
-                abort();
-                throw e;
+                if (statistics != null) {
+                    statistics.incTransactionReadonlyCount();
+                }
+            } else {
+                //it is a transaction with writes.
+                DematerializedObject[] dematerializedWriteSet = dematerialize(writeSet);
+                boolean success = false;
+                do {
+                    try {
+                        tryAcquireLocksForWritingAndDetectWriteForConflicts(writeSet);
+                        writeAndReleaseLocksForWriting(dematerializedWriteSet);
+                        success = true;
+                    } catch (StarvationException e) {
+                        //in case of a starvation exception, we try again.
+                        //in the future this needs to be externalized using some kind of starvation policy.
+                        if (statistics != null)
+                            statistics.incTransactionLockAcquireFailureCount();
+                    } finally {
+                        if (!success) {
+                            releaseLocksForWriting(writeSet);
+                        }
+                    }
+                } while (!success);
+            }
+
+            state = TransactionState.committed;
+
+            if (statistics != null) {
+                statistics.incTransactionCommittedCount();
             }
         }
 
@@ -296,29 +313,22 @@ public final class MultiversionedStm implements Stm {
          * Tries to acquire the locks and do conflict detection.
          *
          * @param writeSet the MaterializedObjects to lock
-         * @return true if the lock was a success, false it could not be completed
          * @throws WriteConflictException if a writeconflict was encountered.
+         * @throws StarvationException    if the locks could not be acquired because the transaction was starved.
          */
-        private boolean tryToAcquireLocksForWritingAndDetectForConflicts(MaterializedObject[] writeSet) {
+        private void tryAcquireLocksForWritingAndDetectWriteForConflicts(MaterializedObject[] writeSet) {
             int count = 0;
-            try {
-                //todo: externalize
-                RetryCounter retryCounter = new RetryCounter(0);
+            //todo: externalize
+            RetryCounter retryCounter = new RetryCounter(0);
 
+            try {
                 for (int k = 0; k < writeSet.length; k++) {
                     MaterializedObject obj = writeSet[k];
                     MultiversionedHandle handle = obj.getHandle();
 
-                    if (!handle.tryAcquireLockForWriting(transactionId, readVersion, retryCounter)) {
-                        if (statistics != null)
-                            statistics.incTransactionLockAcquireFailureCount();
-                        return false;
-                    }
-
+                    handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId, readVersion, retryCounter);
                     count++;
                 }
-
-                return true;
             } catch (WriteConflictException e) {
                 if (statistics != null) {
                     statistics.incTransactionWriteConflictCount();
@@ -358,7 +368,8 @@ public final class MultiversionedStm implements Stm {
         private DematerializedObject getDematerialized(MultiversionedHandle handle) {
             DematerializedObject dematerialized;
             try {
-                dematerialized = handle.tryRead(readVersion, new RetryCounter(100000000));
+                //todo:
+                dematerialized = handle.tryRead(readVersion, new RetryCounter(1));
             } catch (SnapshotTooOldException ex) {
                 if (statistics != null)
                     statistics.incTransactionSnapshotTooOldCount();
@@ -396,7 +407,6 @@ public final class MultiversionedStm implements Stm {
             public S get() {
                 if (!isLoaded()) {
                     assertActive();
-                    //todo: try counter
                     DematerializedObject dematerialized = getDematerialized(handle);
 
                     ref = (S) dematerialized.rematerialize(MultiversionedTransaction.this);

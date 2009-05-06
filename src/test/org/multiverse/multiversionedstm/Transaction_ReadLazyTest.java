@@ -121,7 +121,7 @@ public class Transaction_ReadLazyTest {
 
     @Test
     public void readLazyNonExitsting() {
-        Handle handle = new DefaultHandle();
+        Handle handle = new DefaultMultiversionedHandle();
         Transaction t = stm.startTransaction();
 
         LazyReference lazyReference = t.readLazy(handle);
@@ -200,7 +200,7 @@ public class Transaction_ReadLazyTest {
         t.abort();
 
         try {
-            t.readLazy(new DefaultHandle());
+            t.readLazy(new DefaultMultiversionedHandle());
             fail();
         } catch (IllegalStateException ex) {
         }

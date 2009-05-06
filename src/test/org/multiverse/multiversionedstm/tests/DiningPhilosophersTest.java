@@ -6,10 +6,10 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
+import org.multiverse.api.StmUtils;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,8 +58,8 @@ public class DiningPhilosophersTest {
 
     public void assertAllForksHaveReturned() {
         Transaction t = stm.startTransaction();
-        for (Handle handle : forkHandles) {
-            IntegerValue fork = (IntegerValue) t.read(handle);
+        for (Handle<IntegerValue> handle : forkHandles) {
+            IntegerValue fork = t.read(handle);
             assertEquals(1, fork.get());
         }
         t.commit();
@@ -68,8 +68,8 @@ public class DiningPhilosophersTest {
     public PhilosoperThread[] createPhilosoperThreads() {
         PhilosoperThread[] threads = new PhilosoperThread[forkCount];
         for (int k = 0; k < forkCount; k++) {
-            Handle leftForkHandle = forkHandles[k];
-            Handle rightForkHandle = k == forkCount - 1 ? forkHandles[0] : forkHandles[k + 1];
+            Handle<IntegerValue> leftForkHandle = forkHandles[k];
+            Handle<IntegerValue> rightForkHandle = k == forkCount - 1 ? forkHandles[0] : forkHandles[k + 1];
             threads[k] = new PhilosoperThread(leftForkHandle, rightForkHandle);
         }
         return threads;
@@ -88,11 +88,11 @@ public class DiningPhilosophersTest {
     static AtomicInteger philosoperThreadIdGenerator = new AtomicInteger();
 
     class PhilosoperThread extends TestThread {
-        private final Handle leftForkHandle;
-        private final Handle rightForkHandle;
+        private final Handle<IntegerValue> leftForkHandle;
+        private final Handle<IntegerValue> rightForkHandle;
         private volatile long successCount = 0;
 
-        PhilosoperThread(Handle leftForkHandle, Handle rightForkHandle) {
+        PhilosoperThread(Handle<IntegerValue> leftForkHandle, Handle<IntegerValue> rightForkHandle) {
             super("PhilosoperThread-" + philosoperThreadIdGenerator.incrementAndGet());
             this.leftForkHandle = leftForkHandle;
             this.rightForkHandle = rightForkHandle;
@@ -136,15 +136,15 @@ public class DiningPhilosophersTest {
             }.execute();
         }
 
-        private void returnFork(Transaction t, Handle forkHandle) {
-            IntegerValue fork = (IntegerValue) t.read(forkHandle);
+        private void returnFork(Transaction t, Handle<IntegerValue> forkHandle) {
+            IntegerValue fork = t.read(forkHandle);
             fork.set(1);
         }
 
-        private void obtainFork(Transaction t, Handle forkHandle) {
-            IntegerValue fork = (IntegerValue) t.read(forkHandle);
+        private void obtainFork(Transaction t, Handle<IntegerValue> forkHandle) {
+            IntegerValue fork = t.read(forkHandle);
             if (fork.get() == 0)
-                retry();
+                StmUtils.retry();
             fork.set(0);
         }
     }

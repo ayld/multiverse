@@ -3,31 +3,34 @@ package org.multiverse.multiversionedstm;
 import org.multiverse.api.Handle;
 import org.multiverse.api.TransactionId;
 import org.multiverse.util.Bag;
+import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
 
 public interface MultiversionedHandle<T> extends Handle<T> {
 
     /**
-     * Tries to acquire the lock for writing.
+     * Tries to acquire the lock for writing and also does the detection for write conflicts.
      * <p/>
-     * todo: is there any reason to exit with a error and return value?
      *
      * @param committingTransactionId the TransactionId of the Transaction that wants to commit.
      * @param maximumVersion          the maximum version of the committed dehydrated. If the version of the current
      *                                committed state, is newer than maximum version, another transaction has committed and this
      *                                transaction should be retried.
      * @param retryCounter
-     * @return true if was a success, false if it was a failure.
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *          if another transaction committed after the current
      *          transaction began and before the current transaction committed.
+     * @throws org.multiverse.api.exceptions.StarvationException
+     *          if the transaction was starved for acquiring the lock.
      */
-    boolean tryAcquireLockForWriting(TransactionId committingTransactionId, long maximumVersion, RetryCounter retryCounter);
+    void tryToAcquireLocksForWritingAndDetectForConflicts(TransactionId committingTransactionId, long maximumVersion, RetryCounter retryCounter);
 
     /**
      * Writes the stuff and releases the lock. A write only should be done when the lock for writing has
      * been acquired.
+     * <p/>
+     * todo: instead of tranfering the bag, just return the listeners.
      *
      * @param committingTransactionId the TransactionId of the Transaction  that wants to commit.
      * @param dematerialized          the stuff to write.

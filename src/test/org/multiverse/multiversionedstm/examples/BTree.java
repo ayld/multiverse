@@ -12,7 +12,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
     private Node<K, V> root;
 
     public BTree() {
-        this.handle = new DefaultHandle<BTree<K, V>>();
+        this.handle = new DefaultMultiversionedHandle<BTree<K, V>>();
     }
 
     public V put(K key, V value) {
@@ -105,7 +105,7 @@ public final class BTree<K extends Comparable, V> implements MaterializedObject 
         Node(K key, V value) {
             this.key = key;
             this.value = value;
-            this.handle = new DefaultHandle<Node<K, V>>();
+            this.handle = new DefaultMultiversionedHandle<Node<K, V>>();
         }
 
         private Node<K, V> readRight() {

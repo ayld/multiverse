@@ -20,7 +20,9 @@ public abstract class TransactionTemplate<E> {
      * @throws NullPointerException if stm is null.
      */
     protected TransactionTemplate(Stm stm) {
-        if (stm == null) throw new NullPointerException();
+        if (stm == null) {
+            throw new NullPointerException();
+        }
         this.stm = stm;
     }
 
@@ -40,7 +42,9 @@ public abstract class TransactionTemplate<E> {
      * @throws IllegalArgumentException if maximumRetryCount smaller than 0.
      */
     public void setMaximumRetryCount(int maximumRetryCount) {
-        if (maximumRetryCount < 0) throw new IllegalArgumentException();
+        if (maximumRetryCount < 0) {
+            throw new IllegalArgumentException();
+        }
         this.maximumRetryCount = maximumRetryCount;
     }
 
@@ -89,6 +93,8 @@ public abstract class TransactionTemplate<E> {
                     //the handles that have been read for the multiversionedstm-version of condition variables. The transacties
                     //can be retried.
                     retryCount++;
+                } catch (StarvationException ex) {
+                    retryCount++;
                 }
                 finally {
                     TransactionThreadLocal.remove();
@@ -98,7 +104,7 @@ public abstract class TransactionTemplate<E> {
                 }
             } while (retryCount < maximumRetryCount || maximumRetryCount == 0);
 
-            throw new TooManyRetriesException();
+            throw new StarvationException();
         } catch (RuntimeException ex) {
             //we don't want unchecked exceptions to be wrapped again.
             throw ex;
