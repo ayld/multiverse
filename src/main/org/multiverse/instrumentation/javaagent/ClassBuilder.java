@@ -24,21 +24,25 @@ public class ClassBuilder implements Opcodes {
         return classNode.name;
     }
 
-    public void addPublicFinalField(String name, Class theType) {
-        addPublicFinalField(name, getDescriptor(theType));
+    public void addPublicSyntheticField(String name, Class theType) {
+        addPublicSyntheticField(name, getDescriptor(theType));
     }
 
-    public void addPublicField(String name, Class theType) {
+    public void addPublicSyntheticField(String name, String descriptor) {
         FieldNode field = new FieldNode(
-                ACC_PUBLIC,
+                ACC_PUBLIC | ACC_SYNTHETIC,
                 name,
-                getDescriptor(theType),
+                descriptor,
                 null,
                 null);
         classNode.fields.add(field);
     }
 
-    public void addPublicFinalField(String name, String typeDescriptor) {
+    public void addPublicFinalSyntheticField(String name, Class theType) {
+        addPublicFinalSynthethicField(name, getDescriptor(theType));
+    }
+
+    public void addPublicFinalSynthethicField(String name, String typeDescriptor) {
         FieldNode field = new FieldNode(
                 ACC_PUBLIC | ACC_FINAL,
                 name,
