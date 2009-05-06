@@ -1,11 +1,18 @@
 package org.multiverse.instrumentation.utils;
 
+import static org.multiverse.instrumentation.javaagent.utils.AsmUtils.toBytecode;
+import org.objectweb.asm.tree.ClassNode;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 public final class ByteCodeWriter {
+
+    public static void writeToFixedTmpFile(ClassNode classNode) throws IOException {
+        writeToFixedTmpFile(toBytecode(classNode));
+    }
 
     public static void writeToFixedTmpFile(byte[] bytecode) throws IOException {
         File file = new File(System.getProperty("java.io.tmpdir"), "debug.class");

@@ -11,6 +11,8 @@ public interface Stm {
 
     /**
      * Starts a Transaction.
+     * <p/>
+     * Method is threadsafe.
      *
      * @return the Transaction (that is active).
      */

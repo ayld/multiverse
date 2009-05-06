@@ -63,7 +63,7 @@ public class QueueStressTest {
         testProducerConsumer(1000000);
     }
 
-    //@Test
+    @Test
     public void testProducerConsumer_5000000() {
         testProducerConsumer(50000000);
     }

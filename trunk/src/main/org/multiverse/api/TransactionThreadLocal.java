@@ -22,7 +22,7 @@ public final class TransactionThreadLocal {
      * Removes the current transaction reference in this TransactionThreadLocal. If no transaction is
      * set, the call is ignored.
      * <p/>
-     * This call is made package private so that only the stm implementation is able to call it.
+     * This call is made package private so that only the TransactionTemplate is able to call it.
      */
     static void remove() {
         transactionThreadLocal.set(null);

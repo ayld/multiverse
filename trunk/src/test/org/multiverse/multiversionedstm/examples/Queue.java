@@ -1,9 +1,9 @@
 package org.multiverse.multiversionedstm.examples;
 
 import org.multiverse.api.LazyReference;
+import org.multiverse.api.StmUtils;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
-import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
 
 import static java.lang.String.format;
 import static java.util.Collections.reverse;
@@ -27,7 +27,7 @@ public final class Queue<E> implements MaterializedObject {
         //moved into the constructor.
         this.readyToPopStack = new Stack<E>();
         this.pushedStack = new Stack<E>();
-        this.handle = new DefaultHandle<Queue<E>>();
+        this.handle = new DefaultMultiversionedHandle<Queue<E>>();
     }
 
     public int getMaxCapacity() {
@@ -70,7 +70,7 @@ public final class Queue<E> implements MaterializedObject {
         ensurePushedStackLoaded();
 
         if (size() == maxCapacity)
-            retry();
+            StmUtils.retry();
 
         pushedStack.push(value);
     }

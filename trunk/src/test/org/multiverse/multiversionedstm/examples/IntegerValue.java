@@ -14,7 +14,7 @@ public final class IntegerValue implements MaterializedObject {
     }
 
     public IntegerValue(int value) {
-        this.handle = new DefaultHandle<IntegerValue>();
+        this.handle = new DefaultMultiversionedHandle<IntegerValue>();
         this.value = value;
     }
 
@@ -108,9 +108,9 @@ public final class IntegerValue implements MaterializedObject {
         private final MultiversionedHandle<IntegerValue> handle;
         private final int value;
 
-        private DematerializedIntegerValue(IntegerValue source) {
-            this.handle = source.getHandle();
-            this.value = source.value;
+        private DematerializedIntegerValue(IntegerValue integerValue) {
+            this.handle = integerValue.handle;
+            this.value = integerValue.value;
         }
 
         @Override

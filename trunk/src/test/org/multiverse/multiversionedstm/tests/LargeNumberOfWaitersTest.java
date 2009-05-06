@@ -7,10 +7,10 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
+import org.multiverse.api.StmUtils;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import static org.multiverse.multiversionedstm.MultiversionedStmUtils.retry;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -120,7 +120,7 @@ public class LargeNumberOfWaitersTest {
                 protected Object execute(Transaction t) throws Exception {
                     IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
                     if (notifyLatch.get() == 0)
-                        retry();
+                        StmUtils.retry();
                     notifyLatch.set(0);
 
                     IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
@@ -150,7 +150,7 @@ public class LargeNumberOfWaitersTest {
                 protected Object execute(Transaction t) throws Exception {
                     IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
                     if (waiterLatch.get() <= 0)
-                        retry();
+                        StmUtils.retry();
                     waiterLatch.dec();
 
                     if (waiterLatch.get() == 0) {

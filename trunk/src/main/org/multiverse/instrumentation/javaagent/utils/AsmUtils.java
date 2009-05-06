@@ -1,10 +1,8 @@
 package org.multiverse.instrumentation.javaagent.utils;
 
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.*;
@@ -13,6 +11,24 @@ import java.io.*;
  *
  */
 public class AsmUtils {
+
+    public static String getShortClassName(ClassNode classNode) {
+        String internalName = classNode.name;
+        int lastIndex = internalName.lastIndexOf('/');
+        if (lastIndex == -1)
+            return internalName;
+
+        return internalName.substring(lastIndex + 1);
+    }
+
+    public static String getPackagename(ClassNode classNode) {
+        String internalName = classNode.name;
+        int lastIndex = internalName.lastIndexOf('/');
+        if (lastIndex == -1)
+            return internalName;
+
+        return internalName.substring(0, lastIndex).replace('/', '.');
+    }
 
     public static void verify(File file) {
         verify(toBytes(file));
@@ -69,6 +85,10 @@ public class AsmUtils {
             throw new RuntimeException(msg);
     }
 
+    public static void verify(ClassNode classNode) {
+        verify(toBytecode(classNode));
+    }
+
     /**
      * Checks if a type is a secondary (primitive long or double) type or not.
      *
@@ -79,69 +99,16 @@ public class AsmUtils {
         return desc.equals("J") || desc.equals("L");
     }
 
-    public static void insertInFront(MethodNode method, InsnList instructions) {
-        if (method == null || instructions == null) throw new NullPointerException();
-
-        //instructions.add(method.instructions);
-        //method.instructions = instructions;
-        throw new RuntimeException();
-    }
-
-    /*
-    public static boolean applyAndStopAfterFirstSuccess(InsnList insnList, FieldInsnNodeVisitor<Boolean> f) {
-        if (insnList == null || f == null) throw new NullPointerException();
-
-        AbstractInsnNode insn = insnList.getFirst();
-        while (insn != null) {
-            if (insn instanceof FieldInsnNode) {
-                FieldInsnNode fieldInsnNode = (FieldInsnNode) insn;
-                if (f.visit(fieldInsnNode)) {
-                    return true;
-                }
-            }
-            insn = insn.getNext();
-        }
-
-        return false;
-    }
-
-    public static void applyAndInsertBeforeEachField(InsnList insnList, FieldInsnNodeVisitor<InsnList> generator) {
-        if (insnList == null || generator == null) throw new NullPointerException();
-
-        AbstractInsnNode insn = insnList.getFirst();
-        while (insn != null) {
-            if (insn instanceof FieldInsnNode) {
-                FieldInsnNode fieldInsnNode = (FieldInsnNode) insn;
-                InsnList result = generator.visit(fieldInsnNode);
-                insnList.insertBefore(fieldInsnNode, result);
-            }
-            insn = insn.getNext();
-        }
-    }
-
-    public static void applyAndInsertAfterEachField(InsnList insnList, FieldInsnNodeVisitor<InsnList> generator) {
-        if (insnList == null || generator == null) throw new NullPointerException();
-
-        AbstractInsnNode insn = insnList.getFirst();
-        while (insn != null) {
-            if (insn instanceof FieldInsnNode) {
-                FieldInsnNode fieldInsnNode = (FieldInsnNode) insn;
-                InsnList result = generator.visit(fieldInsnNode);
-                insnList.insert(insn, result);
-            }
-            insn = insn.getNext();
-        }
-    } */
-
     public static ClassNode loadAsClassNode(Class clazz) {
-        String fileName = Type.getType(clazz).getInternalName() + ".class";
+        //String fileName = Type.getInternalName(clazz) + ".class";
+        String testClassName = clazz.getName().replace('.', '/');
+        String fileName = testClassName.substring(testClassName.lastIndexOf('/') + 1) + ".class";
         InputStream is = clazz.getResourceAsStream(fileName);
 
         try {
             ClassNode classNode = new ClassNode();
-            ClassReader reader = null;
-            reader = new ClassReader(is);
-            //reader.accept(classNode, 0);//todo
+            ClassReader reader = new ClassReader(is);
+            reader.accept(classNode, 0);
             return classNode;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -157,7 +124,7 @@ public class AsmUtils {
 
         ClassNode classNode = new ClassNode();
         ClassReader cr = new ClassReader(originalByteCode);
-        //cr.accept(classNode, 0);   todo
+        cr.accept(classNode, 0);
         return classNode;
     }
 
@@ -171,10 +138,9 @@ public class AsmUtils {
     public static byte[] toBytecode(ClassNode classNode) {
         if (classNode == null) throw new NullPointerException();
 
-        //ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        //classNode.accept(cw);
-        //return cw.toByteArray();
-        throw new RuntimeException();
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        classNode.accept(cw);
+        return cw.toByteArray();
     }
 
     /**
@@ -189,10 +155,9 @@ public class AsmUtils {
         if (classname == null) throw new NullPointerException();
 
         ClassReader reader = new ClassReader(classname);
-        //ClassWriter writer = new ClassWriter(reader, 0);
-        //reader.accept(writer, 0);  todo
-        //return writer.toByteArray();
-        throw new RuntimeException();
+        ClassWriter writer = new ClassWriter(reader, 0);
+        reader.accept(writer, 0);
+        return writer.toByteArray();
     }
 
     //we don't want instances.

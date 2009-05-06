@@ -1,7 +1,6 @@
 package org.multiverse.multiversionedstm;
 
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.util.Bag;
 
 import java.util.Iterator;
@@ -9,6 +8,9 @@ import java.util.Iterator;
 public final class MultiversionedStmUtils {
 
     public static MaterializedObject initializeNextChain(Iterator<? extends LazyReference> it) {
+        if (!it.hasNext())
+            return null;
+
         final Bag<MaterializedObject> traverseBag = new Bag<MaterializedObject>();
         final Ref<MaterializedObject> lastInChain = new Ref<MaterializedObject>();
         final Ref<MaterializedObject> first = new Ref<MaterializedObject>();
@@ -49,10 +51,6 @@ public final class MultiversionedStmUtils {
 
     static class Ref<T> {
         T value;
-    }
-
-    public static void retry() {
-        throw new RetryError();
     }
 
     public static <T> MultiversionedHandle<T> getHandle(T value) {

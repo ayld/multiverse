@@ -1,9 +1,9 @@
-package org.multiverse.multiversionedstm;
+package org.multiverse.util;
 
 import org.multiverse.util.latches.Latch;
 
 /**
- * A immutable list for storing listener-latches.
+ * A immutable single-linked list for storing listener-latches.
  * <p/>
  * Structure is threadsafe and designed to be used in a CAS-loop.
  *
@@ -19,16 +19,26 @@ public final class ListenerNode {
         this.next = next;
     }
 
+    /**
+     * Returns the listener Latch stored in this ListenerNode.
+     *
+     * @return the listener Latch.
+     */
     public Latch getListener() {
         return listener;
     }
 
+    /**
+     * Gets the next ListenerNode or null if this ListerNode is the end of the line.
+     *
+     * @return the next ListenerNode
+     */
     public ListenerNode getNext() {
         return next;
     }
 
     /**
-     * Opens all listeners.
+     * Opens all listeners. Method is not recursive but iterative.
      */
     public void openAll() {
         ListenerNode listenerNode = this;

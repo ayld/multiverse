@@ -1,5 +1,0 @@
-- implementatie van interface
-
-- luisteren naar put
-
-- de genereerde class
