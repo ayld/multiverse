@@ -12,7 +12,7 @@ public class TestTransform {
     public static void main(String[] args) throws IOException {
         DematerializableClassTransformer classCreator = new DematerializableClassTransformer(SimplePair.class);
         ClassNode classNode = classCreator.create();
-        AsmUtils.verify(classNode);
+        //AsmUtils.verify(classNode);
 
         BytecodeWriteUtil.writeToFixedTmpFile(AsmUtils.toBytecode(classNode));
     }

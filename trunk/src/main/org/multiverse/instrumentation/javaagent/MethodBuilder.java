@@ -1,6 +1,7 @@
 package org.multiverse.instrumentation.javaagent;
 
 import static org.multiverse.instrumentation.javaagent.InstrumentationUtils.getConstructor;
+import static org.multiverse.instrumentation.javaagent.InstrumentationUtils.getField;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Type.*;
 import org.objectweb.asm.tree.*;
@@ -14,7 +15,7 @@ public abstract class MethodBuilder implements Opcodes {
     protected MethodNode methodNode = new MethodNode();
 
     public MethodBuilder() {
-        setAccess(ACC_PUBLIC);
+        setAccess(ACC_PUBLIC | ACC_SYNTHETIC);
         methodNode.exceptions = new LinkedList();
         methodNode.tryCatchBlocks = new LinkedList();
     }
@@ -38,7 +39,6 @@ public abstract class MethodBuilder implements Opcodes {
     }
 
     public void initWithInterfaceMethod(Method method) {
-        methodNode.access = method.getModifiers();
         methodNode.name = method.getName();
         methodNode.desc = getMethodDescriptor(method);
     }
@@ -64,6 +64,15 @@ public abstract class MethodBuilder implements Opcodes {
                 NEW,
                 desc);
         methodNode.instructions.add(ins);
+    }
+
+    public void INVOKEINTERFACE(Method method) {
+        MethodInsnNode instr = new MethodInsnNode(
+                INVOKEINTERFACE,
+                getInternalName(method.getDeclaringClass()),
+                method.getName(),
+                getMethodDescriptor(method));
+        methodNode.instructions.add(instr);
     }
 
 
@@ -92,7 +101,7 @@ public abstract class MethodBuilder implements Opcodes {
     public void INVOKESPECIAL(Method method) {
         MethodInsnNode instr = new MethodInsnNode(
                 INVOKESPECIAL,
-                getInternalName(method.getClass()),
+                getInternalName(method.getDeclaringClass()),
                 method.getName(),
                 getMethodDescriptor(method));
         methodNode.instructions.add(instr);
@@ -101,7 +110,7 @@ public abstract class MethodBuilder implements Opcodes {
     public void INVOKESTATIC(Method method) {
         MethodInsnNode instr = new MethodInsnNode(
                 INVOKESTATIC,
-                getInternalName(method.getClass()),
+                getInternalName(method.getDeclaringClass()),
                 method.getName(),
                 getMethodDescriptor(method));
         methodNode.instructions.add(instr);
@@ -125,16 +134,24 @@ public abstract class MethodBuilder implements Opcodes {
         methodNode.instructions.add(instr);
     }
 
+    public void GETFIELD(Class owner, String name) {
+        GETFIELD(getInternalName(owner), name, getField(owner, name).getType());
+    }
+
     public void GETFIELD(Class owner, String name, Class fieldType) {
         GETFIELD(getInternalName(owner), name, fieldType);
     }
 
     public void GETFIELD(String owner, String name, Class fieldType) {
+        GETFIELD(owner, name, getDescriptor(fieldType));
+    }
+
+    public void GETFIELD(String owner, String name, String fieldDesc) {
         FieldInsnNode instr = new FieldInsnNode(
                 GETFIELD,
                 owner,
                 name,
-                getDescriptor(fieldType)
+                fieldDesc
         );
         methodNode.instructions.add(instr);
     }
@@ -164,6 +181,50 @@ public abstract class MethodBuilder implements Opcodes {
         methodNode.instructions.add(new InsnNode(RETURN));
     }
 
+    public void IRETURN() {
+        methodNode.instructions.add(new InsnNode(IRETURN));
+    }
+
+    public void IFNONNULL(LabelNode label) {
+        methodNode.instructions.add(new JumpInsnNode(IFNONNULL, label));
+    }
+
+    public void ICONST_0() {
+        methodNode.instructions.add(new InsnNode(ICONST_0));
+    }
+
+    public void ICONST_FALSE() {
+        ICONST_0();
+    }
+
+    public void ICONST_TRUE() {
+        ICONST_1();
+    }
+
+    public void ICONST_1() {
+        methodNode.instructions.add(new InsnNode(ICONST_1));
+    }
+
+    public void IF_ICMPEQ(LabelNode success) {
+        methodNode.instructions.add(new JumpInsnNode(IF_ICMPEQ, success));
+    }
+
+    public void IFNULL(LabelNode success) {
+        methodNode.instructions.add(new JumpInsnNode(IFNULL, success));
+    }
+
+    public void IF_ACMPEQ(LabelNode success) {
+        methodNode.instructions.add(new JumpInsnNode(IF_ACMPEQ, success));
+    }
+
+    public void placeLabelNode(LabelNode labelNode) {
+        methodNode.instructions.add(labelNode);
+    }
+
+    public void CHECKCAST(Class required) {
+        TypeInsnNode in = new TypeInsnNode(CHECKCAST, getDescriptor(required));
+        methodNode.instructions.add(in);
+    }
 
     public MethodNode create() {
         return methodNode;

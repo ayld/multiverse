@@ -6,7 +6,9 @@ import static org.multiverse.instrumentation.javaagent.InstrumentationUtils.*;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MemberWalker;
 import org.multiverse.multiversionedstm.MultiversionedHandle;
+import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.getInternalName;
+import org.objectweb.asm.tree.LabelNode;
 
 import java.lang.reflect.Field;
 
@@ -23,12 +25,14 @@ public class DematerializableClassTransformer extends ClassBuilder {
 
         addInterface(MaterializedObject.class);
 
-        addPublicFinalField("handle", MultiversionedHandle.class);
-        addPublicFinalField("lastMaterialized", internalFormToDescriptor(dematerializedClass));
+        addPublicFinalSyntheticField("handle", MultiversionedHandle.class);
+        addPublicSyntheticField("lastMaterialized", internalFormToDescriptor(dematerializedClass));
 
         for (Field field : materializedClass.getFields()) {
-            if (field.getType().isAnnotationPresent(Dematerializable.class)) {
-                addPublicFinalField(field.getName() + "Ref", LazyReference.class);
+            if (!field.isSynthetic()) {
+                if (field.getType().isAnnotationPresent(Dematerializable.class)) {
+                    addPublicSyntheticField(field.getName() + "Ref", LazyReference.class);
+                }
             }
         }
 
@@ -83,6 +87,7 @@ public class DematerializableClassTransformer extends ClassBuilder {
     }
 
     private class GetHandleMethodBuilder extends MethodBuilder {
+
         GetHandleMethodBuilder() {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "getHandle"));
 
@@ -93,32 +98,43 @@ public class DematerializableClassTransformer extends ClassBuilder {
     }
 
     private class IsDirtyMethodBuilder extends MethodBuilder {
+
         IsDirtyMethodBuilder() {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "isDirty"));
 
-            /*
- 0 aload_0
- 1 getfield #66 <org/multiverse/multiversionedstm/examples/IntegerValue.lastDematerialized>
- 4 ifnonnull 9 (+5)
- 7 iconst_1
- 8 ireturn
- 9 aload_0
-10 getfield #66 <org/multiverse/multiversionedstm/examples/IntegerValue.lastDematerialized>
-13 invokestatic #74 <org/multiverse/multiversionedstm/examples/IntegerValue$DematerializedIntegerValue.access$100>
-16 aload_0
-17 getfield #36 <org/multiverse/multiversionedstm/examples/IntegerValue.value>
-20 if_icmpeq 25 (+5)
-23 iconst_1
-24 ireturn
-25 iconst_0
-26 ireturn
-
-             */
-
             ALOAD(0);
-            //GETFIELD();
+            GETFIELD(getInternalName(materializedClass), "lastMaterialized", internalFormToDescriptor(dematerializedClass));
+            LabelNode nonNullLastMaterialized = new LabelNode();
+            IFNONNULL(nonNullLastMaterialized);
+            ICONST_TRUE();
+            IRETURN();
+            placeLabelNode(nonNullLastMaterialized);
 
-            codeForThrowRuntimeException();
+            for (Field field : materializedClass.getFields()) {
+                if (!field.isSynthetic()) {
+                    ALOAD(0);
+                    LabelNode equals = new LabelNode();
+                    GETFIELD(getInternalName(materializedClass), "lastDematerialized", internalFormToDescriptor(dematerializedClass));
+                    GETFIELD(dematerializedClass, field.getName(), internalFormToDescriptor(dematerializedClass));
+                    ALOAD(0);
+                    GETFIELD(getInternalName(materializedClass), field.getName(), Type.getDescriptor(field.getType()));
+                    if (field.getType().isPrimitive()) {
+                        IF_ICMPEQ(equals);
+                    } else if (field.getType().isAnnotationPresent(Dematerializable.class)) {
+                        IF_ICMPEQ(equals);//todo
+                    } else {
+                        IF_ACMPEQ(equals);
+                    }
+
+                    ICONST_TRUE();
+                    IRETURN();
+                    placeLabelNode(equals);
+                }
+
+            }
+
+            ICONST_FALSE();
+            IRETURN();
         }
     }
 
@@ -127,7 +143,26 @@ public class DematerializableClassTransformer extends ClassBuilder {
         WalkMaterializedMembersMethodBuilder() {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "walkMaterializedMembers", MemberWalker.class));
 
-            codeForThrowRuntimeException();
+            LabelNode next = new LabelNode();
+
+            for (Field field : materializedClass.getFields()) {
+                if (!field.isSynthetic()) {
+                    if (field.getType().isAnnotationPresent(Dematerializable.class)) {
+                        ALOAD(0);
+                        GETFIELD(field.getDeclaringClass(), field.getName());
+                        IFNULL(next);
+                        ALOAD(1);
+                        ALOAD(0);
+                        GETFIELD(field.getDeclaringClass(), field.getName());
+                        CHECKCAST(MaterializedObject.class);
+                        INVOKEINTERFACE(getMethod(MemberWalker.class, "onMember", MaterializedObject.class));
+                        placeLabelNode(next);
+                        next = new LabelNode();
+                    }
+                }
+            }
+
+            RETURN();
         }
     }
 }

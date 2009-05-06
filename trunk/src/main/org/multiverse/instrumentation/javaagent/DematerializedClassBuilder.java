@@ -22,13 +22,13 @@ public class DematerializedClassBuilder extends ClassBuilder {
 
         addInterface(Dematerializable.class);
 
-        addPublicFinalField("handle", MultiversionedHandle.class);
+        addPublicFinalSyntheticField("handle", MultiversionedHandle.class);
 
         for (Field field : materializedClass.getFields()) {
             if (field.getType().isAnnotationPresent(Dematerializable.class)) {
-                addPublicFinalField(field.getName(), MultiversionedHandle.class);
+                addPublicFinalSyntheticField(field.getName(), MultiversionedHandle.class);
             } else {
-                addPublicFinalField(field.getName(), field.getType());
+                addPublicFinalSyntheticField(field.getName(), field.getType());
             }
         }
 
