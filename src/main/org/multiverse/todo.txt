@@ -1,5 +1,9 @@
 TODO
 
+- intellij files should be removed from project
+
+- writeandreleaselock returns a ListenerNode, this needs to be checked
+
 - zorgen dat je een nieuwe class kunt toevoegen bij het load proces; noodzakelijk voor de dematerialized objects.
     - de dematerializedclass is toegevoegd aan de classnode, maar is niet zichtbaar bij het laden.
 
@@ -181,3 +185,6 @@ that a pointer to the object will not be needed again).
 
 - ASM based instrumentatie classes als ClassFileTransformer aan de praat krijgen.
 
+- .classpath and .project need to be removed
+
+- japex.cml is removed

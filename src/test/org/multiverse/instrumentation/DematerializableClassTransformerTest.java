@@ -2,7 +2,7 @@ package org.multiverse.instrumentation;
 
 import org.junit.Test;
 
-public class DematerializableClassTransformerTest extends InstrumentationTest {
+public class DematerializableClassTransformerTest extends InstrumentationTestSupport {
 
     @Test
     public void test() {

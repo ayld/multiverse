@@ -38,7 +38,7 @@ public interface Transaction {
      * probably is not going to be called by users, but by the TransactionTemplate.
      *
      * @return the new created Transaction
-     * @throws InterruptedException
+     * @throws InterruptedException  if the thread is interrupted while waiting
      * @throws org.multiverse.api.exceptions.NoProgressPossibleException
      *
      * @throws IllegalStateException if the transaction is not active anymore.

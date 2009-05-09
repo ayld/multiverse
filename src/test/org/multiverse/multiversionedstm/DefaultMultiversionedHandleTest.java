@@ -9,7 +9,6 @@ import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.multiversionedstm.DefaultMultiversionedHandle.State;
 import org.multiverse.multiversionedstm.examples.IntegerValue;
 import org.multiverse.multiversionedstm.examples.Stack;
-import org.multiverse.util.Bag;
 import org.multiverse.util.RetryCounter;
 
 public class DefaultMultiversionedHandleTest {
@@ -24,7 +23,7 @@ public class DefaultMultiversionedHandleTest {
         object.tryToAcquireLocksForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));
 
         //todo: bag
-        object.writeAndReleaseLock(id, materializedObject.dematerialize(), version, new Bag());
+        object.writeAndReleaseLock(id, materializedObject.dematerialize(), version);
         return object;
     }
 
@@ -175,7 +174,7 @@ public class DefaultMultiversionedHandleTest {
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
         handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId, 0, new RetryCounter(1));
-        handle.writeAndReleaseLock(transactionId, dematerialized, materializeVersion, new Bag());
+        handle.writeAndReleaseLock(transactionId, dematerialized, materializeVersion);
 
         DematerializedObject found = handle.tryRead(searchVersion, new RetryCounter(1));
         assertSame(dematerialized, found);
@@ -193,7 +192,7 @@ public class DefaultMultiversionedHandleTest {
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
         handle.tryToAcquireLocksForWritingAndDetectForConflicts(owner, 0, new RetryCounter(1));
-        handle.writeAndReleaseLock(owner, dematerialized, dematerializeVersion, new Bag());
+        handle.writeAndReleaseLock(owner, dematerialized, dematerializeVersion);
 
         try {
             handle.tryRead(searchVersion, new RetryCounter(1));
@@ -213,7 +212,7 @@ public class DefaultMultiversionedHandleTest {
         TransactionId id = new TransactionId();
         handle.tryToAcquireLocksForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));
         DematerializedObject dematerializedObject = object.dematerialize();
-        handle.writeAndReleaseLock(id, dematerializedObject, 100, new Bag());
+        handle.writeAndReleaseLock(id, dematerializedObject, 100);
 
         RetryCounter retryCounter = new RetryCounter(1);
         DematerializedObject found = handle.tryGetLastCommitted(retryCounter);

@@ -7,6 +7,7 @@
 
     <property name="src" value="src"/>
     <property name="src.main" value="${src}/main"/>
+    <property name="src.boot" value="${src}/boot"/>
     <property name="src.test" value="${src}/test"/>
 
     <property name="lib" value="lib"/>
@@ -17,7 +18,8 @@
     <property name="dist" value="${target}/dist"/>
     <property name="classes.main" value="${target}/classes.main"/>
     <property name="classes.test" value="${target}/classes.test"/>
-    <property name="classes.japex" value="${target}/classes.japex"/>
+    <property name="classes.boot" value="${target}/classes.boot"/>
+
     <property name="javadoc" value="${target}/javadoc"/>
     <property name="unitreports" value="${target}/junit-reports"/>
 
@@ -88,6 +90,21 @@
             </fileset>
         </copy>
     </target>
+
+    <target name="jar.boot"
+            description="Creates the bootjar containing access to the protected stuff">
+
+        <mkdir dir="${classes.boot}"/>
+
+        <javac debug="on"
+               srcdir="${src.boot}"
+               destdir="${classes.boot}"
+               source="1.5"/>
+
+        <jar jarfile="${target}/boot.jar"
+             basedir="${classes.boot}"/>
+    </target>
+
 
     <target name="compile.all"
             description="Compiles all the sources"
@@ -199,14 +216,10 @@
         </zip>
     </target>
 
-    <target name="run"
-            description="do run"
-            depends="jar">
-
+    <target name="run" description="do run" depends="jar">
         <java classname="org.multiverse.instrumentation.Main" fork="true">
+            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
             <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
-            <!-- jvmarg value="-Xbootclasspath/p:${target}/${application.name}-${application.version}.jar"/ -->
         </java>
     </target>
-
 </project>

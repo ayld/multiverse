@@ -5,7 +5,6 @@ import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.StarvationException;
 import org.multiverse.api.exceptions.WriteConflictException;
-import org.multiverse.util.Bag;
 import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
@@ -13,7 +12,14 @@ import org.multiverse.util.latches.Latch;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Default {@link org.multiverse.api.Handle} implementation.
+ * Default {@link MultiversionedHandle} implementation.
+ * <p/>
+ * This object is responsible for storing the content of objects that perticipate in stm space.
+ * So if you have a Person object, you also have a Person handle. This handle can be asked
+ * for the committed versions of that Person (so the handle contains the history of changes
+ * made to a specific person). This history at the moment is limited to only the last committed
+ * version, but in the future a longer history will be added. The big question here is how to
+ * prevent old histories from filling up space.
  *
  * @author Peter Veentjer.
  * @param <T>
@@ -58,20 +64,20 @@ public final class DefaultMultiversionedHandle<T> implements MultiversionedHandl
     }
 
     @Override
-    public void writeAndReleaseLock(TransactionId lockOwner, DematerializedObject dematerialized,
-                                    long dematerializedVersion, Bag<ListenerNode> listenerNodeBag) {
+    public ListenerNode writeAndReleaseLock(TransactionId lockOwner, DematerializedObject dematerialized,
+                                            long dematerializedVersion) {
         assert lockOwner != null;
 
+        State currentState;
         boolean success;
         do {
-            State currentState = stateRef.get();
+            currentState = stateRef.get();
             State tobeState = currentState.writeAndReleaseLock(dematerialized, dematerializedVersion);
             success = stateRef.compareAndSet(currentState, tobeState);
 
-            if (success && currentState.listenerHead != null) {
-                listenerNodeBag.add(currentState.listenerHead);
-            }
         } while (!success);
+
+        return currentState.listenerHead;
     }
 
     @Override
