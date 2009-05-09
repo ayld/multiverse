@@ -3,7 +3,7 @@ package org.multiverse.instrumentation;
 import static org.multiverse.instrumentation.utils.AsmUtils.toBytecode;
 import org.objectweb.asm.tree.ClassNode;
 
-public class MultiverseClassLoader extends ClassLoader {
+public class MultiverseClassLoader extends TestLoader {
 
     public static MultiverseClassLoader INSTANCE;
 
@@ -14,9 +14,5 @@ public class MultiverseClassLoader extends ClassLoader {
 
     public Class defineClass(ClassNode classNode) {
         return this.defineClass(classNode.name.replace("/", "."), toBytecode(classNode));
-    }
-
-    public Class defineClass(String name, byte[] b) {
-        return super.defineClass(name, b, 0, b.length);
     }
 }

@@ -346,7 +346,14 @@ public final class MultiversionedStm implements Stm {
 
             for (int k = 0; k < writeSet.length; k++) {
                 DematerializedObject dirtyObject = writeSet[k];
-                dirtyObject.getHandle().writeAndReleaseLock(transactionId, dirtyObject, writeVersion, listeners);
+                ListenerNode listenerHead = dirtyObject.getHandle().writeAndReleaseLock(
+                        transactionId,
+                        dirtyObject,
+                        writeVersion);
+
+                if (listenerHead != null) {
+                    listeners.add(listenerHead);
+                }
             }
 
             while (!listeners.isEmpty()) {

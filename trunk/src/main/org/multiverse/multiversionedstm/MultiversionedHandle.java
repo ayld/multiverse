@@ -2,7 +2,6 @@ package org.multiverse.multiversionedstm;
 
 import org.multiverse.api.Handle;
 import org.multiverse.api.TransactionId;
-import org.multiverse.util.Bag;
 import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.Latch;
@@ -30,13 +29,13 @@ public interface MultiversionedHandle<T> extends Handle<T> {
      * Writes the stuff and releases the lock. A write only should be done when the lock for writing has
      * been acquired.
      * <p/>
-     * todo: instead of tranfering the bag, just return the listeners.
      *
      * @param committingTransactionId the TransactionId of the Transaction  that wants to commit.
      * @param dematerialized          the stuff to write.
+     * @return the head ListenerNode ofthe listeners to notify, could be null.
      */
-    void writeAndReleaseLock(TransactionId committingTransactionId, DematerializedObject dematerialized,
-                             long dematerializedVersion, Bag<ListenerNode> listeners);
+    ListenerNode writeAndReleaseLock(TransactionId committingTransactionId, DematerializedObject dematerialized,
+                                     long dematerializedVersion);
 
     /**
      * Releases the lock for writing. If a transaction can't acquire all locks it needs for writing,

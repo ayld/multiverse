@@ -17,16 +17,16 @@ public class Main {
 
         SimplePair simplePair = new SimplePair();
 
-        Class clazz = MultiverseClassLoader.INSTANCE.loadClass("org.multiverse.instrumentation.SimplePair$DematerializedSimplePair");
-        Class simplePairClass = MultiverseClassLoader.INSTANCE.loadClass("org.multiverse.instrumentation.SimplePair");
-        Constructor c = clazz.getConstructor(SimplePair.class, Transaction.class);
+        Class dematerializedClass = MultiverseClassLoader.INSTANCE.loadClass("org.multiverse.instrumentation.SimplePair$DematerializedSimplePair");
+        Class materializedClass = MultiverseClassLoader.INSTANCE.loadClass("org.multiverse.instrumentation.SimplePair");
+        Constructor c = dematerializedClass.getConstructor(materializedClass, Transaction.class);
         DematerializedObject x = (DematerializedObject) c.newInstance(null, null);
-        System.out.println("x:" + clazz);
+        System.out.println("x:" + dematerializedClass);
         System.out.println("x: " + x.getHandle());
         System.out.println("x.rematerialize: " + x.rematerialize(null));
 
-        showMemberClasses(simplePairClass);
-        showFields(simplePairClass);
+        showMemberClasses(materializedClass);
+        showFields(materializedClass);
 
         System.out.println("calling getNextInChain");
         ((MaterializedObject) simplePair).getNextInChain();

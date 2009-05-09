@@ -27,17 +27,17 @@ public class DematerializableClassTransformer extends ClassBuilder {
     private static final String VARNAME_NEXTINCHAIN = "nextInChain";
     private static final String VARNAME_LASTMATERIALIZED = "lastMaterialized";
 
-    private ClassNode materializedClass;
+    private ClassNode materializedClassNode;
 
     private ClassLoader classLoader;
-    private ClassNode dematerialized;
+    private ClassNode dematerializedClassNode;
 
-    public DematerializableClassTransformer(ClassNode materializedClass, ClassNode dematerialized, ClassLoader classLoader) {
-        super(materializedClass);
+    public DematerializableClassTransformer(ClassNode materializedClassNode, ClassNode dematerialized, ClassLoader classLoader) {
+        super(materializedClassNode);
 
-        this.dematerialized = dematerialized;
+        this.dematerializedClassNode = dematerialized;
         this.classLoader = classLoader;
-        this.materializedClass = materializedClass;
+        this.materializedClassNode = materializedClassNode;
 
         addInterface(MaterializedObject.class);
 
@@ -45,7 +45,7 @@ public class DematerializableClassTransformer extends ClassBuilder {
         addPublicSyntheticField(VARNAME_NEXTINCHAIN, MaterializedObject.class);
         addPublicSyntheticField(VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerialized.name));
 
-        for (FieldNode field : (List<FieldNode>) materializedClass.fields) {
+        for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
             if (!isSynthetic(field)) {
                 //    if (field.getType().isAnnotationPresent(Dematerializable.class)) {
                 //        addPublicSyntheticField(field.name + "Ref", LazyReference.class);
@@ -65,9 +65,9 @@ public class DematerializableClassTransformer extends ClassBuilder {
 
     private void addDematerializedInnerClass() {
         InnerClassNode node = new InnerClassNode(
-                dematerialized.name,//innerclass name
-                materializedClass.name,//outerclass name
-                InstrumentationUtils.getInnerInternalNameOfDematerializedClass(materializedClass),
+                dematerializedClassNode.name,//innerclass name
+                materializedClassNode.name,//outerclass name
+                InstrumentationUtils.getInnerInternalNameOfDematerializedClass(materializedClassNode),
                 ACC_STATIC | ACC_PUBLIC);
 
         classNode.innerClasses.add(node);
@@ -77,7 +77,7 @@ public class DematerializableClassTransformer extends ClassBuilder {
         RematerializeConstructorBuilder() {
             methodNode.access = ACC_PUBLIC;
             methodNode.name = "<init>";
-            methodNode.desc = format("(L%s;L%s;)V", dematerialized.name, Type.getInternalName(Transaction.class));
+            methodNode.desc = format("(L%s;L%s;)V", dematerializedClassNode.name, Type.getInternalName(Transaction.class));
 
             ALOAD(0);
             INVOKESPECIAL(getConstructor(Object.class));
@@ -99,7 +99,7 @@ public class DematerializableClassTransformer extends ClassBuilder {
 
             ALOAD(0);
             ALOAD(1);
-            PUTFIELD(materializedClass, VARNAME_NEXTINCHAIN, MaterializedObject.class);
+            PUTFIELD(materializedClassNode, VARNAME_NEXTINCHAIN, MaterializedObject.class);
             RETURN();
         }
     }
@@ -109,7 +109,7 @@ public class DematerializableClassTransformer extends ClassBuilder {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "getNextInChain"));
 
             ALOAD(0);
-            GETFIELD(materializedClass, VARNAME_NEXTINCHAIN, MaterializedObject.class);
+            GETFIELD(materializedClassNode, VARNAME_NEXTINCHAIN, MaterializedObject.class);
             ARETURN();
         }
     }
@@ -118,13 +118,13 @@ public class DematerializableClassTransformer extends ClassBuilder {
         DematerializeMethodBuilder() {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "dematerialize"));
             ALOAD(0);
-            NEW(dematerialized);
+            NEW(dematerializedClassNode);
             DUP();
             ALOAD(0);
             ACONST_NULL();
-            INVOKESPECIAL(dematerialized, "<init>", format("(L%s;L%s;)V", materializedClass.name, getInternalName(Transaction.class)));
+            INVOKESPECIAL(dematerializedClassNode, "<init>", format("(L%s;L%s;)V", materializedClassNode.name, getInternalName(Transaction.class)));
             DUP_X1();
-            PUTFIELD(materializedClass, "lastMaterialized", dematerialized);
+            PUTFIELD(materializedClassNode, "lastMaterialized", dematerializedClassNode);
             ARETURN();
         }
     }
@@ -135,46 +135,45 @@ public class DematerializableClassTransformer extends ClassBuilder {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "getHandle"));
 
             ALOAD(0);
-            GETFIELD(materializedClass, "handle", MultiversionedHandle.class);
+            GETFIELD(materializedClassNode, "handle", MultiversionedHandle.class);
             ARETURN();
         }
     }
 
-    /*
     private class IsDirtyMethodBuilder extends MethodBuilder {
 
         IsDirtyMethodBuilder() {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "isDirty"));
 
             ALOAD(0);
-            GETFIELD(getInternalName(materializedClass), "lastMaterialized", internalFormToDescriptor(dematerializedClass));
+            GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
             LabelNode nonNullLastMaterialized = new LabelNode();
             IFNONNULL(nonNullLastMaterialized);
             ICONST_TRUE();
             IRETURN();
             placeLabelNode(nonNullLastMaterialized);
 
-            for (Field field : materializedClass.getFields()) {
-                if (!field.isSynthetic()) {
+            for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
+                if (!isSynthetic(field)) {
                     ALOAD(0);
                     LabelNode equals = new LabelNode();
-                    GETFIELD(getInternalName(materializedClass), "lastDematerialized", internalFormToDescriptor(dematerializedClass));
-                    GETFIELD(dematerializedClass, field.getName(), internalFormToDescriptor(dematerializedClass));
+                    GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
+                    GETFIELD(dematerializedClassNode, field.name, internalFormToDescriptor(dematerializedClassNode.name));
                     ALOAD(0);
-                    GETFIELD(getInternalName(materializedClass), field.getName(), Type.getDescriptor(field.getType()));
-                    if (field.getType().isPrimitive()) {
-                        IF_ICMPEQ(equals);
-                    } else if (field.getType().isAnnotationPresent(Dematerializable.class)) {
-                        IF_ICMPEQ(equals);//todo
-                    } else {
-                        IF_ACMPEQ(equals);
-                    }
+                    GETFIELD(materializedClassNode, field.name, field.desc);
+
+                    //if (field.getType().isPrimitive()) {
+                    //    IF_ICMPEQ(equals);
+                    //} else if (field.getType().isAnnotationPresent(Dematerializable.class)) {
+                    IF_ICMPEQ(equals);//todo
+                    //} else {
+                    //    IF_ACMPEQ(equals);
+                    //}
 
                     ICONST_TRUE();
                     IRETURN();
                     placeLabelNode(equals);
                 }
-
             }
 
             ICONST_FALSE();
@@ -182,7 +181,7 @@ public class DematerializableClassTransformer extends ClassBuilder {
         }
     }
 
-*/    private class WalkMaterializedMembersMethodBuilder extends MethodBuilder {
+    private class WalkMaterializedMembersMethodBuilder extends MethodBuilder {
 
         WalkMaterializedMembersMethodBuilder() {
             initWithInterfaceMethod(getMethod(MaterializedObject.class, "walkMaterializedMembers", MemberWalker.class));
@@ -190,15 +189,15 @@ public class DematerializableClassTransformer extends ClassBuilder {
             LabelNode next = new LabelNode();
 
 
-            for (FieldNode field : (List<FieldNode>) materializedClass.fields) {
+            for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
                 if (!isSynthetic(field)) {
                     if (hasVisibleAnnotation(field.desc, Dematerializable.class, classLoader)) {
                         ALOAD(0);
-                        GETFIELD(materializedClass, field.name, field.desc);
+                        GETFIELD(materializedClassNode, field.name, field.desc);
                         IFNULL(next);
                         ALOAD(1);
                         ALOAD(0);
-                        GETFIELD(materializedClass, field.name, field.desc);
+                        GETFIELD(materializedClassNode, field.name, field.desc);
                         CHECKCAST(MaterializedObject.class);
                         INVOKEINTERFACE(getMethod(MemberWalker.class, "onMember", MaterializedObject.class));
                         placeLabelNode(next);

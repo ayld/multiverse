@@ -6,7 +6,7 @@ import static org.multiverse.instrumentation.utils.AsmUtils.toBytecode;
 
 import java.lang.instrument.ClassFileTransformer;
 
-public class InstrumentationTest {
+public class InstrumentationTestSupport {
 
     protected MyClassLoader classLoader;
 
