@@ -1,5 +1,18 @@
 TODO
 
+- zorgen dat je een nieuwe class kunt toevoegen bij het load proces; noodzakelijk voor de dematerialized objects.
+    - de dematerializedclass is toegevoegd aan de classnode, maar is niet zichtbaar bij het laden.
+
+- java agent aan de praat krijgen onder intellij.
+
+- pojo instrumentatie van @atomic classes
+
+- pojo instrumentatie van @Materializable classes
+
+- pojo instrumentatie van @Materializable.dematerialized classes
+
+- pojo instrumentatie van access naar @Materializable classes.
+
 - track number of starvation problems: transaction
 
 - track number of starvation problems: read
@@ -9,8 +22,6 @@ TODO
 - the number of writes a transaction has done when it commit should be stored somewhere
 
 - the number of reads a transaction has done when it commit should be stored somewhere
-
-- independant state, scalability test.
 
 - atm worden te pas en te onpas de retrycounters gezet
 
@@ -68,10 +79,6 @@ IMPROVEMENTS
 - support voor echte readonly transacties toevoegen.
 
 - transactie propagatie
-
-- @atomic support
-
-- pojo instrumentatie
 
 - omgaan met subclasses.
 
@@ -169,4 +176,8 @@ that a pointer to the object will not be needed again).
     - originator in de api moet dom zijn
 
     - originator in de stm package moet slim zijn.
+
+- independant state, scalability test.
+
+- ASM based instrumentatie classes als ClassFileTransformer aan de praat krijgen.
 

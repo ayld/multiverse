@@ -1,23 +1,31 @@
-package org.multiverse.instrumentation.javaagent;
+package org.multiverse.instrumentation.utils;
 
-import org.multiverse.instrumentation.javaagent.utils.AsmUtils;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 
-public class ClassBuilder implements Opcodes {
+public abstract class ClassBuilder implements Opcodes {
 
     protected ClassNode classNode = new ClassNode();
 
     public ClassBuilder() {
         setSuperclass(Object.class);
+        this.classNode.superName = getInternalName(Object.class);
         this.classNode.access = ACC_PUBLIC;
     }
 
-    public ClassBuilder(Class clazz) {
-        classNode = AsmUtils.loadAsClassNode(clazz);
+    public ClassBuilder(ClassNode classNode) {
+        this.classNode = classNode;
+    }
+
+    public void addInterface(Class theInterface) {
+        classNode.interfaces.add(getInternalName(theInterface));
+    }
+
+    public void setAccess(int access) {
+        classNode.access = access;
     }
 
     public String getClassInternalName() {
@@ -50,10 +58,6 @@ public class ClassBuilder implements Opcodes {
                 null,
                 null);
         classNode.fields.add(field);
-    }
-
-    public void addInterface(Class theInterface) {
-        classNode.interfaces.add(getInternalName(theInterface));
     }
 
     public void addMethod(MethodBuilder methodBuilder) {

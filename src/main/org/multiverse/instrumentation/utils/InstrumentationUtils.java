@@ -1,7 +1,9 @@
-package org.multiverse.instrumentation.javaagent;
+package org.multiverse.instrumentation.utils;
 
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.ClassNode;
 
+import static java.lang.String.format;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -32,22 +34,26 @@ public class InstrumentationUtils {
         }
     }
 
-    public static String getInternalNameOfDematerializedClass(Class materializedClass) {
-        String packagename = materializedClass.getPackage().getName();
-        String simpleName = "Dematerialized" + materializedClass.getSimpleName();
-        return (packagename + "." + simpleName).replace('.', '/');
+    public static String getInternalNameOfDematerializedClass(ClassNode materializedClass) {
+        return materializedClass.name + "$Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
     }
 
-    public static String getVoidMethodDescriptor(Class<?>... parameterTypes) {
+    public static String getInnerInternalNameOfDematerializedClass(ClassNode materializedClass) {
+        return "Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
+    }
+
+    public static String getVoidMethodDescriptor(ClassNode... parameterTypes) {
         Type[] args = new Type[parameterTypes.length];
         for (int k = 0; k < parameterTypes.length; k++) {
-            args[k] = Type.getType(parameterTypes[k]);
+            args[k] = Type.getType(internalFormToDescriptor(parameterTypes[k].name));
         }
 
         return Type.getMethodDescriptor(Type.getType(Void.TYPE), args);
     }
 
+
     public static String internalFormToDescriptor(String internalForm) {
-        return java.lang.String.format("L%s;", internalForm);
+        return format("L%s;", internalForm);
     }
+
 }

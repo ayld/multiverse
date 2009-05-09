@@ -3,6 +3,7 @@ package org.multiverse.instrumentation.javaagent.analysis;
 import org.multiverse.instrumentation.utils.InternalFormClassnameUtil;
 import static org.multiverse.instrumentation.utils.InternalFormFieldnameUtil.getClassname;
 import org.objectweb.asm.*;
+import static org.objectweb.asm.Type.getInternalName;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A {@link FieldAnalyzer} implementation that uses ASM for classfile analysis.
+ * A {@link StmAnalyzer} implementation that uses ASM for classfile analysis.
  * <p/>
  * If a field can't be found on a class, it won't lead to re-analyzing the class again
  * when the AsmFieldAnalyzer is asked again.
@@ -23,12 +24,15 @@ import java.util.Set;
  *
  * @author Peter Veentjer.
  */
-public final class AsmFieldAnalyzer implements FieldAnalyzer {
+public final class AsmStmAnalyzer implements StmAnalyzer {
 
-    private final Map<String, FieldDescription> fieldMap = new HashMap<String, FieldDescription>();
+    private static final String OBJECT_INTERNAL_NAME = getInternalName(Object.class);
+
+    private final Map<String, StmField> fieldMap = new HashMap<String, StmField>();
     private final Set<String> ignoredFields = new HashSet<String>();
     private final Set<String> ignoredClasses = new HashSet<String>();
     private final ClassLoader classloader;
+
 
     /**
      * Creates a new AsmFieldAnalyzer
@@ -36,8 +40,10 @@ public final class AsmFieldAnalyzer implements FieldAnalyzer {
      * @param loader the ClassLoader used to load the content of the classes for analysis.
      * @throws NullPointerException if loader is null
      */
-    public AsmFieldAnalyzer(ClassLoader loader) {
-        if (loader == null) throw new NullPointerException();
+    public AsmStmAnalyzer(ClassLoader loader) {
+        if (loader == null) {
+            throw new NullPointerException();
+        }
         this.classloader = loader;
     }
 
@@ -48,7 +54,7 @@ public final class AsmFieldAnalyzer implements FieldAnalyzer {
      *
      * @return
      */
-    Map<String, FieldDescription> getFieldMap() {
+    Map<String, StmField> getFieldMap() {
         return fieldMap;
     }
 
@@ -83,29 +89,29 @@ public final class AsmFieldAnalyzer implements FieldAnalyzer {
         return classloader;
     }
 
-    public FieldDescription find(String fieldpath) {
+    public StmField findField(String fieldpath) {
         if (fieldpath == null) throw new NullPointerException();
 
-        //check if the fieldDescription should be ignored.
+        //check if the stmField should be ignored.
         if (ignoredFields.contains(fieldpath))
             return null;
 
-        //check if the fieldDescription already is retrieved
-        FieldDescription fieldDescription = fieldMap.get(fieldpath);
-        if (fieldDescription != null)
-            return fieldDescription;
+        //check if the stmField already is retrieved
+        StmField stmField = fieldMap.get(fieldpath);
+        if (stmField != null)
+            return stmField;
 
-        //the fieldDescription was not yet analyzed, so analyze the class the fieldDescription belongs too.
+        //the stmField was not yet analyzed, so analyze the class the stmField belongs too.
         retrieveAllFieldsFromClass(getClassname(fieldpath));
 
-        //if the fieldDescription was created, this value can be returned.
-        fieldDescription = fieldMap.get(fieldpath);
-        if (fieldDescription == null) {
-            //no fieldDescription was created, so we should prevent analyzing again.
+        //if the stmField was created, this value can be returned.
+        stmField = fieldMap.get(fieldpath);
+        if (stmField == null) {
+            //no stmField was created, so we should prevent analyzing again.
             ignoredFields.add(fieldpath);
         }
 
-        return fieldDescription;
+        return stmField;
     }
 
     private void retrieveAllFieldsFromClass(String classname) {
@@ -115,24 +121,27 @@ public final class AsmFieldAnalyzer implements FieldAnalyzer {
         String superclassname = classname;
         do {
             superclassname = read(superclassname, classname);
-        } while (!superclassname.equals("java/lang/Object"));
+        } while (!superclassname.equals(OBJECT_INTERNAL_NAME));
     }
 
     private String read(String actualClassname, String targetClassname) {
         String resource = actualClassname + ".class";
 
         try {
+
+
             ClassReader cr = new ClassReader(classloader.getResourceAsStream(resource));
+
+
             FieldAnalyzingClassVisitor classVisitor = new FieldAnalyzingClassVisitor(targetClassname);
             cr.accept(classVisitor, 0);
             return classVisitor.superName;
         } catch (IOException e) {
             ignoredClasses.add(targetClassname);
             System.out.printf("WARNING: could not load class '%s'\n", resource);
-            return "java/lang/Object";
+            return OBJECT_INTERNAL_NAME;
         }
     }
-
 
     private class FieldAnalyzingClassVisitor implements ClassVisitor {
 
@@ -169,15 +178,14 @@ public final class AsmFieldAnalyzer implements FieldAnalyzer {
         }
 
         public FieldVisitor visitField(int access, String fieldname, String desc, String signature, Object value) {
-            FieldDescription fieldDescription = new FieldDescription(
+            StmField stmField = new StmField(
                     access,
                     InternalFormClassnameUtil.getPackagename(targetClassname),
                     InternalFormClassnameUtil.getBaseClassname(targetClassname),
                     fieldname,
                     desc,
                     signature);
-            //     System.out.println("  found fieldDescription: "+fieldDescription.toInternalForm());
-            fieldMap.put(fieldDescription.toInternalForm(), fieldDescription);
+            fieldMap.put(stmField.toInternalForm(), stmField);
             return null;
         }
 

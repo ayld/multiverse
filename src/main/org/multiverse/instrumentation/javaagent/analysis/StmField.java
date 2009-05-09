@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier;
  *
  * @author Peter Veentjer.
  */
-public final class FieldDescription {
+public final class StmField {
     private final int modifiers;
     private final String classname;
     private final String packagename;
@@ -19,7 +19,7 @@ public final class FieldDescription {
     private final String typeDesc;
     private final String signature;
 
-    public FieldDescription(int modifiers, String packagename, String classname, String fieldname, String typeDesc, String signature) {
+    public StmField(int modifiers, String packagename, String classname, String fieldname, String typeDesc, String signature) {
         if (classname == null || fieldname == null || typeDesc == null)
             throw new NullPointerException();
         this.modifiers = modifiers;

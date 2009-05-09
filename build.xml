@@ -116,11 +116,22 @@
             depends="compile.main"
             description="Builds the jar without including dependant jars">
 
+        <unzip dest="${classes.main}">
+            <fileset dir="${lib.provided}">
+                <include name="*.jar"/>
+            </fileset>
+        </unzip>
+
         <jar jarfile="${target}/${application.name}-${application.version}.jar"
-             basedir="${classes.main}"/>
+             basedir="${classes.main}">
+            <manifest>
+                <attribute name="Premain-Class" value="org.multiverse.instrumentation.MultiverseJavaAgent"/>
+            </manifest>
+        </jar>
     </target>
 
     <target name="test"
+            description="Runs the standard unit tests"
             depends="compile.test">
 
         <mkdir dir="${unitreports}"/>
@@ -139,10 +150,39 @@
                 <fileset dir="${src.test}">
                     <include name="**/*Test.java"/>
                     <exclude name="**/Abstract*Test.java"/>
+                    <exclude name="**/*StressTest.java"/>
                 </fileset>
             </batchtest>
         </junit>
     </target>
+
+    <target name="test.stress"
+            description="Runs the stress tests (can take a long time)"
+            depends="compile.test">
+
+        <mkdir dir="${unitreports}"/>
+
+        <junit printsummary="yes" haltonfailure="yes">
+            <classpath>
+                <pathelement location="${classes.test}"/>
+                <pathelement location="${classes.main}"/>
+                <path refid="classpath.provided"/>
+                <path refid="classpath.support"/>
+            </classpath>
+
+            <formatter type="plain"/>
+
+            <batchtest fork="yes" todir="${unitreports}">
+                <fileset dir="${src.test}">
+                    <include name="**/*StressTest.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="test.all"
+            description="Runs all tests in the system"
+            depends="test, test.stress"/>
 
     <target name="dist"
             description="Builds the complete distribution"
@@ -157,6 +197,16 @@
             <fileset dir="${target}" includes="*.jar"/>
             <fileset dir="${target}" includes="sources.zip"/>
         </zip>
+    </target>
+
+    <target name="run"
+            description="do run"
+            depends="jar">
+
+        <java classname="org.multiverse.instrumentation.Main" fork="true">
+            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
+            <!-- jvmarg value="-Xbootclasspath/p:${target}/${application.name}-${application.version}.jar"/ -->
+        </java>
     </target>
 
 </project>
