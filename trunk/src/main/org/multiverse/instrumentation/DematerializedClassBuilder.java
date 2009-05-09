@@ -1,36 +1,40 @@
-package org.multiverse.instrumentation.javaagent;
+package org.multiverse.instrumentation;
 
-import org.multiverse.api.Dematerializable;
 import org.multiverse.api.Transaction;
-import static org.multiverse.instrumentation.javaagent.InstrumentationUtils.*;
+import org.multiverse.instrumentation.utils.ClassBuilder;
+import static org.multiverse.instrumentation.utils.InstrumentationUtils.*;
+import org.multiverse.instrumentation.utils.MethodBuilder;
 import org.multiverse.multiversionedstm.DematerializedObject;
 import org.multiverse.multiversionedstm.MultiversionedHandle;
 import static org.objectweb.asm.Type.getDescriptor;
+import static org.objectweb.asm.Type.getInternalName;
+import org.objectweb.asm.tree.ClassNode;
 
 import static java.lang.String.format;
-import java.lang.reflect.Field;
 
 public class DematerializedClassBuilder extends ClassBuilder {
+    private static final String VARNAME_HANDLE = "handle";
 
-    private final Class materializedClass;
+    private final ClassNode materializedClass;
 
-    public DematerializedClassBuilder(Class materializedClass) {
+    public DematerializedClassBuilder(ClassNode materializedClass) {
         this.materializedClass = materializedClass;
         this.classNode.version = V1_5;
-        this.classNode.access = ACC_PUBLIC | ACC_FINAL;
         this.classNode.name = getInternalNameOfDematerializedClass(materializedClass);
+        this.classNode.outerClass = materializedClass.name;
+        setAccess(ACC_PUBLIC | ACC_FINAL);
 
-        addInterface(Dematerializable.class);
+        addInterface(DematerializedObject.class);
 
-        addPublicFinalSyntheticField("handle", MultiversionedHandle.class);
+        addPublicFinalSyntheticField(VARNAME_HANDLE, MultiversionedHandle.class);
 
-        for (Field field : materializedClass.getFields()) {
-            if (field.getType().isAnnotationPresent(Dematerializable.class)) {
-                addPublicFinalSyntheticField(field.getName(), MultiversionedHandle.class);
-            } else {
-                addPublicFinalSyntheticField(field.getName(), field.getType());
-            }
-        }
+        //for (Field field : materializedClass.getFields()) {
+        //    if (field.getType().isAnnotationPresent(Dematerializable.class)) {
+        //        addPublicFinalSyntheticField(field.getName(), MultiversionedHandle.class);
+        //    } else {
+        //        addPublicFinalSyntheticField(field.getName(), field.getType());
+        //    }
+        //}
 
         addMethod(new ConstructorBuilder());
         addMethod(new GetHandleMethodBuilder());
@@ -41,7 +45,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
 
         private ConstructorBuilder() {
             setName("<init>");
-            setDescription(format("(L%s;)V", getClassInternalName()));
+            setDescriptor(format("(L%s;L%s;)V", materializedClass.name, getInternalName(Transaction.class)));
 
             ALOAD(0);
             INVOKESPECIAL(getConstructor(Object.class));
@@ -63,12 +67,11 @@ public class DematerializedClassBuilder extends ClassBuilder {
     }
 
     private class GetHandleMethodBuilder extends MethodBuilder {
-
         private GetHandleMethodBuilder() {
             initWithInterfaceMethod(getMethod(DematerializedObject.class, "getHandle"));
 
             ALOAD(0);
-            PUTFIELD(getClassInternalName(), "handle", MultiversionedHandle.class);
+            GETFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
             ARETURN();
         }
     }

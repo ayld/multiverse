@@ -7,15 +7,15 @@ package org.multiverse.instrumentation.javaagent.analysis;
  *
  * @author Peter Veentjer.
  */
-public interface FieldAnalyzer {
+public interface StmAnalyzer {
 
     /**
-     * Retrieves the {@link FieldDescription} for a specific field.
+     * Retrieves the {@link StmField} for a specific field.
      *
      * @param fieldpath the internal form path to the Field, eg. com/foo/Person.age
      * @return the found Field, or null if no Field is found.
      * @throws NullPointerException     if fieldpath is null.
      * @throws IllegalArgumentException if fieldpath has an invalid syntax.
      */
-    FieldDescription find(String fieldpath);
+    StmField findField(String fieldpath);
 }

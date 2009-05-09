@@ -1,16 +1,15 @@
 package org.multiverse.multiversionedstm.examples;
 
-import org.multiverse.instrumentation.javaagent.utils.AsmUtils;
-import org.multiverse.instrumentation.utils.BytecodeWriteUtil;
+import org.multiverse.instrumentation.utils.AsmUtils;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.IOException;
 
-public class Test {
+public class Rubish {
 
     public static void main(String[] args) throws IOException {
         ClassNode classNode = AsmUtils.loadAsClassNode(IntegerValue.class);
-        BytecodeWriteUtil.writeToFixedTmpFile(AsmUtils.toBytecode(classNode));
+        AsmUtils.writeToFixedTmpFile(AsmUtils.toBytecode(classNode));
     }
 
 }

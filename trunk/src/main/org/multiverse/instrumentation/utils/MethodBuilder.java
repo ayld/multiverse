@@ -1,7 +1,7 @@
-package org.multiverse.instrumentation.javaagent;
+package org.multiverse.instrumentation.utils;
 
-import static org.multiverse.instrumentation.javaagent.InstrumentationUtils.getConstructor;
-import static org.multiverse.instrumentation.javaagent.InstrumentationUtils.getField;
+import static org.multiverse.instrumentation.utils.InstrumentationUtils.getConstructor;
+import static org.multiverse.instrumentation.utils.InstrumentationUtils.getField;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Type.*;
 import org.objectweb.asm.tree.*;
@@ -28,7 +28,7 @@ public abstract class MethodBuilder implements Opcodes {
         methodNode.access = access;
     }
 
-    public void setDescription(String desc) {
+    public void setDescriptor(String desc) {
         methodNode.desc = desc;
     }
 
@@ -55,6 +55,10 @@ public abstract class MethodBuilder implements Opcodes {
         methodNode.instructions.add(instr);
     }
 
+    public void NEW(ClassNode classNode) {
+        NEW(classNode.name);
+    }
+
     public void NEW(Class clazz) {
         NEW(getInternalName(clazz));
     }
@@ -75,6 +79,9 @@ public abstract class MethodBuilder implements Opcodes {
         methodNode.instructions.add(instr);
     }
 
+    public void INVOKESPECIAL(ClassNode clazzNode, String name, String descriptor) {
+        INVOKESPECIAL(clazzNode.name, name, descriptor);
+    }
 
     public void INVOKESPECIAL(Class clazz, String name, String descriptor) {
         INVOKESPECIAL(getInternalName(clazz), name, descriptor);
@@ -116,6 +123,14 @@ public abstract class MethodBuilder implements Opcodes {
         methodNode.instructions.add(instr);
     }
 
+    public void PUTFIELD(ClassNode owner, String name, ClassNode fieldType) {
+        PUTFIELD(owner.name, name, InstrumentationUtils.internalFormToDescriptor(fieldType.name));
+    }
+
+    public void PUTFIELD(ClassNode owner, String name, Class fieldType) {
+        PUTFIELD(owner.name, name, getDescriptor(fieldType));
+    }
+
     public void PUTFIELD(Class owner, String name, Class fieldType) {
         PUTFIELD(getInternalName(owner), name, fieldType);
     }
@@ -132,6 +147,15 @@ public abstract class MethodBuilder implements Opcodes {
                 fieldType
         );
         methodNode.instructions.add(instr);
+    }
+
+
+    public void GETFIELD(ClassNode owner, String name, String desc) {
+        GETFIELD(owner.name, name, desc);
+    }
+
+    public void GETFIELD(ClassNode owner, String name, Class fieldType) {
+        GETFIELD(owner.name, name, getDescriptor(fieldType));
     }
 
     public void GETFIELD(Class owner, String name) {
@@ -159,6 +183,10 @@ public abstract class MethodBuilder implements Opcodes {
 
     public void DUP() {
         methodNode.instructions.add(new InsnNode(DUP));
+    }
+
+    public void POP() {
+        methodNode.instructions.add(new InsnNode(POP));
     }
 
     public void DUP_X1() {
