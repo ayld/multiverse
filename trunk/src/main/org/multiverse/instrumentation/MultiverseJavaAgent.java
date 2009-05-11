@@ -1,6 +1,6 @@
 package org.multiverse.instrumentation;
 
-import org.multiverse.api.Dematerializable;
+import org.multiverse.api.TmEntity;
 import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.hasVisibleAnnotation;
 import static org.multiverse.instrumentation.utils.AsmUtils.loadAsClassNode;
@@ -20,8 +20,6 @@ public class MultiverseJavaAgent {
 
         inst.addTransformer(new Phase1ClassFileTransformer());
         //inst.addTransformer(new Phase2ClassFileTransformer());
-
-        System.out.println("Finished initializing Multiverse JavaAgent");
     }
 
     //responsible for transforming and generated the dematerializable/dematerialized classes
@@ -29,16 +27,17 @@ public class MultiverseJavaAgent {
 
         @Override
         public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-            //System.out.printf("className: %s loader: %s\n",className, loader );
-
             try {
+
                 ClassNode classNode = loadAsClassNode(classfileBuffer);
 
-                if (!hasVisibleAnnotation(classNode, Dematerializable.class)) {
+                if (!hasVisibleAnnotation(classNode, TmEntity.class)) {
                     return null;
                 }
 
-                DematerializedClassBuilder dematerializedClassBuilder = new DematerializedClassBuilder(classNode);
+                System.out.printf("Transforming class %s\n", className);
+
+                DematerializedClassBuilder dematerializedClassBuilder = new DematerializedClassBuilder(classNode, loader);
                 ClassNode dematerialized = dematerializedClassBuilder.create();
 
                 if (MultiverseClassLoader.INSTANCE == null)
@@ -46,14 +45,13 @@ public class MultiverseJavaAgent {
 
                 MultiverseClassLoader.INSTANCE.defineClass(dematerialized);
 
-                DematerializableClassTransformer t = new DematerializableClassTransformer(classNode, dematerialized, loader);
+                TmEntityClassTransformer t = new TmEntityClassTransformer(classNode, dematerialized, loader);
                 ClassNode materialized = t.create();
                 return AsmUtils.toBytecode(materialized);
             } catch (RuntimeException ex) {
                 ex.printStackTrace();
                 throw ex;
-            }
-            catch (Error e) {
+            } catch (Error e) {
                 e.printStackTrace();
                 throw e;
             }

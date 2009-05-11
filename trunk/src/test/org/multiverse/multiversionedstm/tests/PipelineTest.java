@@ -11,7 +11,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.Queue;
+import org.multiverse.multiversionedstm.examples.ExampleQueue;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -27,7 +27,7 @@ import java.util.List;
 public class PipelineTest {
 
     private MultiversionedStm stm;
-    private Handle<Queue<Integer>>[] queueHandles;
+    private Handle<ExampleQueue<Integer>>[] queueHandles;
     private int queueCount = 10;
     private int produceCount = 5000;
     private int delayMs = 5;
@@ -71,8 +71,8 @@ public class PipelineTest {
 
     public void assertQueuesAreEmpty() {
         Transaction t = stm.startTransaction();
-        for (Handle<Queue<Integer>> handle : queueHandles) {
-            Queue<Integer> queue = t.read(handle);
+        for (Handle<ExampleQueue<Integer>> handle : queueHandles) {
+            ExampleQueue<Integer> queue = t.read(handle);
             if (!queue.isEmpty())
                 fail();
         }
@@ -82,9 +82,9 @@ public class PipelineTest {
 
     private Handle[] createQueues() {
         Transaction t = stm.startTransaction();
-        Handle<Queue>[] result = new Handle[queueCount];
+        Handle<ExampleQueue>[] result = new Handle[queueCount];
         for (int k = 0; k < queueCount; k++) {
-            result[k] = t.attach(new Queue());
+            result[k] = t.attach(new ExampleQueue());
         }
         t.commit();
         return result;
@@ -101,7 +101,7 @@ public class PipelineTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Object execute(Transaction t) throws Exception {
-                    Queue<Integer> queue = t.read(queueHandles[0]);
+                    ExampleQueue<Integer> queue = t.read(queueHandles[0]);
                     queue.push(item);
                     return null;
                 }
@@ -128,7 +128,7 @@ public class PipelineTest {
             return new TransactionTemplate<Integer>(stm) {
                 @Override
                 protected Integer execute(Transaction t) throws Exception {
-                    Queue<Integer> queue = t.read(queueHandles[queueHandles.length - 1]);
+                    ExampleQueue<Integer> queue = t.read(queueHandles[queueHandles.length - 1]);
                     return queue.pop();
                 }
             }.execute();
@@ -144,10 +144,10 @@ public class PipelineTest {
     }
 
     private class HandoverThread extends TestThread {
-        private final Handle<Queue<Integer>> fromHandle;
-        private final Handle<Queue<Integer>> toHandle;
+        private final Handle<ExampleQueue<Integer>> fromHandle;
+        private final Handle<ExampleQueue<Integer>> toHandle;
 
-        public HandoverThread(Handle<Queue<Integer>> fromQueueHandle, Handle<Queue<Integer>> toQueueHandle) {
+        public HandoverThread(Handle<ExampleQueue<Integer>> fromQueueHandle, Handle<ExampleQueue<Integer>> toQueueHandle) {
             setName("HandoverThread");
             this.fromHandle = fromQueueHandle;
             this.toHandle = toQueueHandle;
@@ -157,8 +157,8 @@ public class PipelineTest {
             new TransactionTemplate<Integer>(stm) {
                 @Override
                 protected Integer execute(Transaction t) throws Exception {
-                    Queue<Integer> fromQueue = t.read(fromHandle);
-                    Queue<Integer> toQueue = t.read(toHandle);
+                    ExampleQueue<Integer> fromQueue = t.read(fromHandle);
+                    ExampleQueue<Integer> toQueue = t.read(toHandle);
                     toQueue.push(fromQueue.pop());
                     return null;
                 }

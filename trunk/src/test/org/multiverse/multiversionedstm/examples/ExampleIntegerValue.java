@@ -5,16 +5,17 @@ import org.multiverse.multiversionedstm.*;
 
 import static java.lang.String.format;
 
-public final class IntegerValue implements MaterializedObject {
+public final class ExampleIntegerValue implements MaterializedObject {
 
     private int value;
 
-    public IntegerValue() {
-        this(0);
+    public ExampleIntegerValue() {
+        this.value = 0;
+        this.handle = new DefaultMultiversionedHandle<ExampleIntegerValue>();
     }
 
-    public IntegerValue(int value) {
-        this.handle = new DefaultMultiversionedHandle<IntegerValue>();
+    public ExampleIntegerValue(int value) {
+        this.handle = new DefaultMultiversionedHandle<ExampleIntegerValue>();
         this.value = value;
     }
 
@@ -49,10 +50,10 @@ public final class IntegerValue implements MaterializedObject {
         if (thatObj == this)
             return true;
 
-        if (!(thatObj instanceof IntegerValue))
+        if (!(thatObj instanceof ExampleIntegerValue))
             return false;
 
-        IntegerValue that = (IntegerValue) thatObj;
+        ExampleIntegerValue that = (ExampleIntegerValue) thatObj;
         return that.value == this.value;
     }
 
@@ -61,7 +62,7 @@ public final class IntegerValue implements MaterializedObject {
     private DematerializedIntegerValue lastDematerialized;
     private final MultiversionedHandle handle;
 
-    private IntegerValue(DematerializedIntegerValue dematerializedIntegerValue) {
+    private ExampleIntegerValue(DematerializedIntegerValue dematerializedIntegerValue) {
         this.lastDematerialized = dematerializedIntegerValue;
         this.handle = dematerializedIntegerValue.handle;
         this.value = dematerializedIntegerValue.value;
@@ -89,7 +90,7 @@ public final class IntegerValue implements MaterializedObject {
     }
 
     @Override
-    public MultiversionedHandle<IntegerValue> getHandle() {
+    public MultiversionedHandle<ExampleIntegerValue> getHandle() {
         return handle;
     }
 
@@ -104,22 +105,22 @@ public final class IntegerValue implements MaterializedObject {
         return false;
     }
 
-    public static class DematerializedIntegerValue implements DematerializedObject {
-        private final MultiversionedHandle<IntegerValue> handle;
+    private static class DematerializedIntegerValue implements DematerializedObject {
+        private final MultiversionedHandle<ExampleIntegerValue> handle;
         private final int value;
 
-        private DematerializedIntegerValue(IntegerValue integerValue) {
+        private DematerializedIntegerValue(ExampleIntegerValue integerValue) {
             this.handle = integerValue.handle;
             this.value = integerValue.value;
         }
 
         @Override
         public MaterializedObject rematerialize(Transaction t) {
-            return new IntegerValue(this);
+            return new ExampleIntegerValue(this);
         }
 
         @Override
-        public MultiversionedHandle<IntegerValue> getHandle() {
+        public MultiversionedHandle<ExampleIntegerValue> getHandle() {
             return handle;
         }
     }

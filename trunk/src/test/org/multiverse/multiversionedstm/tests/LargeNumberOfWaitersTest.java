@@ -11,7 +11,7 @@ import org.multiverse.api.StmUtils;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LargeNumberOfWaitersTest {
 
     private MultiversionedStm stm;
-    private Handle<IntegerValue> waiterLatchHandle;
-    private Handle<IntegerValue> notifyLatchHandle;
+    private Handle<ExampleIntegerValue> waiterLatchHandle;
+    private Handle<ExampleIntegerValue> notifyLatchHandle;
 
     private int totalWakeupCount = 1000000;
     private int wakeupCount = 1000;
@@ -55,8 +55,8 @@ public class LargeNumberOfWaitersTest {
     public void test() {
         wakeupCountDown.set(totalWakeupCount);
         notifyCountDown.set(totalWakeupCount);
-        waiterLatchHandle = commit(stm, new IntegerValue(0));
-        notifyLatchHandle = commit(stm, new IntegerValue(1));
+        waiterLatchHandle = commit(stm, new ExampleIntegerValue(0));
+        notifyLatchHandle = commit(stm, new ExampleIntegerValue(1));
 
         System.out.println(stm.getStatistics());
 
@@ -70,9 +70,9 @@ public class LargeNumberOfWaitersTest {
         joinAll(notifyThread);
 
         Transaction t = stm.startTransaction();
-        IntegerValue waiterLatch = t.read(waiterLatchHandle);
+        ExampleIntegerValue waiterLatch = t.read(waiterLatchHandle);
         assertEquals(0, waiterLatch.get());
-        IntegerValue notifyLatch = t.read(notifyLatchHandle);
+        ExampleIntegerValue notifyLatch = t.read(notifyLatchHandle);
         assertEquals(1, notifyLatch.get());
         t.commit();
     }
@@ -118,12 +118,12 @@ public class LargeNumberOfWaitersTest {
         public void wakeup(final int count) {
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
-                    IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
+                    ExampleIntegerValue notifyLatch = (ExampleIntegerValue) t.read(notifyLatchHandle);
                     if (notifyLatch.get() == 0)
                         StmUtils.retry();
                     notifyLatch.set(0);
 
-                    IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
+                    ExampleIntegerValue waiterLatch = (ExampleIntegerValue) t.read(waiterLatchHandle);
                     waiterLatch.set(count);
                     return null;
                 }
@@ -148,13 +148,13 @@ public class LargeNumberOfWaitersTest {
             //System.out.println("wait");
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
-                    IntegerValue waiterLatch = (IntegerValue) t.read(waiterLatchHandle);
+                    ExampleIntegerValue waiterLatch = (ExampleIntegerValue) t.read(waiterLatchHandle);
                     if (waiterLatch.get() <= 0)
                         StmUtils.retry();
                     waiterLatch.dec();
 
                     if (waiterLatch.get() == 0) {
-                        IntegerValue notifyLatch = (IntegerValue) t.read(notifyLatchHandle);
+                        ExampleIntegerValue notifyLatch = (ExampleIntegerValue) t.read(notifyLatchHandle);
                         notifyLatch.set(1);
                     }
                     return null;

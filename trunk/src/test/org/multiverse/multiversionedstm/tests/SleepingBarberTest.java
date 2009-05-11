@@ -10,7 +10,7 @@ import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 public class SleepingBarberTest {
     private MultiversionedStm stm;
@@ -18,19 +18,19 @@ public class SleepingBarberTest {
     private int cutsCount = 100000000;
     private int customerChairCount = 10;
 
-    private Handle<IntegerValue> barberChairHandle;
-    private Handle<IntegerValue> chair1;
-    private Handle<IntegerValue> chair2;
-    private Handle<IntegerValue> chair3;
+    private Handle<ExampleIntegerValue> barberChairHandle;
+    private Handle<ExampleIntegerValue> chair1;
+    private Handle<ExampleIntegerValue> chair2;
+    private Handle<ExampleIntegerValue> chair3;
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
 
-        chair1 = commit(stm, new IntegerValue(0));
-        chair2 = commit(stm, new IntegerValue(0));
-        chair3 = commit(stm, new IntegerValue(0));
-        barberChairHandle = commit(stm, new IntegerValue(0));
+        chair1 = commit(stm, new ExampleIntegerValue(0));
+        chair2 = commit(stm, new ExampleIntegerValue(0));
+        chair3 = commit(stm, new ExampleIntegerValue(0));
+        barberChairHandle = commit(stm, new ExampleIntegerValue(0));
     }
 
     @After
@@ -112,7 +112,7 @@ public class SleepingBarberTest {
         }
 
         private void barberLogic(Transaction t) {
-            IntegerValue barberChair = t.read(barberChairHandle);
+            ExampleIntegerValue barberChair = t.read(barberChairHandle);
 
             if (barberChair.get() == 1) {
                 //now cut the customer

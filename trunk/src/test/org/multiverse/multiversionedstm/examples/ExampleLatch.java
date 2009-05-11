@@ -14,17 +14,17 @@ import static java.lang.String.format;
  *
  * @author Peter Veentjer.
  */
-public final class Latch implements MaterializedObject {
+public final class ExampleLatch implements MaterializedObject {
 
     private boolean isOpen;
 
-    public Latch() {
+    public ExampleLatch() {
         this(false);
     }
 
-    public Latch(boolean isOpen) {
+    public ExampleLatch(boolean isOpen) {
         this.isOpen = isOpen;
-        this.handle = new DefaultMultiversionedHandle<Latch>();
+        this.handle = new DefaultMultiversionedHandle<ExampleLatch>();
     }
 
     public void awaitOpen() {
@@ -47,17 +47,17 @@ public final class Latch implements MaterializedObject {
 
     // ================== generated ====================
 
-    private final MultiversionedHandle<Latch> handle;
+    private final MultiversionedHandle<ExampleLatch> handle;
     private DematerializedLatch lastDematerialized;
 
-    public Latch(DematerializedLatch dematerializedLatch) {
+    public ExampleLatch(DematerializedLatch dematerializedLatch) {
         this.handle = dematerializedLatch.handle;
         this.isOpen = dematerializedLatch.isOpen;
         this.lastDematerialized = dematerializedLatch;
     }
 
     @Override
-    public MultiversionedHandle<Latch> getHandle() {
+    public MultiversionedHandle<ExampleLatch> getHandle() {
         return handle;
     }
 
@@ -96,22 +96,22 @@ public final class Latch implements MaterializedObject {
 
     static class DematerializedLatch implements DematerializedObject {
 
-        private final MultiversionedHandle<Latch> handle;
+        private final MultiversionedHandle<ExampleLatch> handle;
         private final boolean isOpen;
 
-        DematerializedLatch(Latch latch) {
+        DematerializedLatch(ExampleLatch latch) {
             this.handle = latch.handle;
             this.isOpen = latch.isOpen;
         }
 
         @Override
-        public MultiversionedHandle<Latch> getHandle() {
+        public MultiversionedHandle<ExampleLatch> getHandle() {
             return handle;
         }
 
         @Override
         public MaterializedObject rematerialize(Transaction t) {
-            return new Latch(this);
+            return new ExampleLatch(this);
         }
     }
 }

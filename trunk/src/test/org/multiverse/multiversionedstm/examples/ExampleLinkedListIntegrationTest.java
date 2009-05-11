@@ -10,7 +10,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class LinkedListIntegrationTest {
+public class ExampleLinkedListIntegrationTest {
     private MultiversionedStm stm;
 
     @Before
@@ -25,24 +25,24 @@ public class LinkedListIntegrationTest {
 
     @Test
     public void rematerializeEmptyList() {
-        LinkedList<String> list = new LinkedList<String>();
-        Handle<LinkedList<String>> handle = commit(stm, list);
+        ExampleLinkedList<String> list = new ExampleLinkedList<String>();
+        Handle<ExampleLinkedList<String>> handle = commit(stm, list);
 
         Transaction t = stm.startTransaction();
-        LinkedList<String> found = t.read(handle);
+        ExampleLinkedList<String> found = t.read(handle);
         assertTrue(found.isEmpty());
     }
 
     @Test
     public void rematerializeNonEmptyList() {
-        LinkedList<String> list = new LinkedList<String>();
+        ExampleLinkedList<String> list = new ExampleLinkedList<String>();
         list.add("1");
         list.add("2");
         list.add("3");
 
-        Handle<LinkedList<String>> handle = commit(stm, list);
+        Handle<ExampleLinkedList<String>> handle = commit(stm, list);
         Transaction t = stm.startTransaction();
-        LinkedList<String> found = t.read(handle);
+        ExampleLinkedList<String> found = t.read(handle);
         assertEquals(list.size(), found.size());
         assertEquals("1", found.get(0));
         assertEquals("2", found.get(1));

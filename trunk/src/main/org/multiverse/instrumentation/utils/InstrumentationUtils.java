@@ -35,7 +35,16 @@ public class InstrumentationUtils {
     }
 
     public static String getInternalNameOfDematerializedClass(ClassNode materializedClass) {
-        return materializedClass.name + "$Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
+        if (materializedClass.outerClass == null) {
+            return InternalFormClassnameUtil.getPackagename(materializedClass.name) +
+                    "/" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name) +
+                    "$Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
+        } else {
+            return InternalFormClassnameUtil.getPackagename(materializedClass.name) +
+                    "/" + InternalFormClassnameUtil.getBaseClassname(materializedClass.outerClass) +
+                    "$Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
+        }
+
     }
 
     public static String getInnerInternalNameOfDematerializedClass(ClassNode materializedClass) {

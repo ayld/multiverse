@@ -6,12 +6,12 @@ import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MemberWalker;
 import org.multiverse.multiversionedstm.MultiversionedHandle;
 
-public class SkipList<E> implements MaterializedObject {
+public class ExampleSkipList<E> implements MaterializedObject {
 
     private DematerializedSkipList<E> lastDematerialized;
-    private final MultiversionedHandle<SkipList<E>> handle;
+    private final MultiversionedHandle<ExampleSkipList<E>> handle;
 
-    private SkipList(DematerializedSkipList<E> dematerializedSkipList, Transaction t) {
+    private ExampleSkipList(DematerializedSkipList<E> dematerializedSkipList, Transaction t) {
         this.handle = dematerializedSkipList.handle;
         this.lastDematerialized = dematerializedSkipList;
     }
@@ -54,9 +54,9 @@ public class SkipList<E> implements MaterializedObject {
     }
 
     private static class DematerializedSkipList<E> implements DematerializedObject {
-        private final MultiversionedHandle<SkipList<E>> handle;
+        private final MultiversionedHandle<ExampleSkipList<E>> handle;
 
-        DematerializedSkipList(SkipList<E> e) {
+        DematerializedSkipList(ExampleSkipList<E> e) {
             this.handle = e.handle;
         }
 
@@ -67,7 +67,7 @@ public class SkipList<E> implements MaterializedObject {
 
         @Override
         public MaterializedObject rematerialize(Transaction t) {
-            return new SkipList(this, t);
+            return new ExampleSkipList(this, t);
         }
     }
 }

@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"ClassExplicitlyExtendsThread"})
-public class StackIntegrationTest {
+public class ExampleStackIntegrationTest {
     private Set<String> producedSet = new HashSet<String>();
     private Set<String> consumedSet = new HashSet<String>();
 
@@ -24,12 +24,12 @@ public class StackIntegrationTest {
     private final static AtomicInteger produceCountDown = new AtomicInteger();
 
     private MultiversionedStm stm;
-    private Handle<Stack<String>> stackHandle;
+    private Handle<ExampleStack<String>> stackHandle;
 
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        stackHandle = commit(stm, new Stack<String>());
+        stackHandle = commit(stm, new ExampleStack<String>());
         //    new PrintMultiversionedStmStatisticsThread(stm).start();
     }
 
@@ -43,7 +43,7 @@ public class StackIntegrationTest {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
                 t.setDescription("Push transaction");
-                Stack<String> stack = t.read(stackHandle);
+                ExampleStack<String> stack = t.read(stackHandle);
                 stack.push(item);
                 return null;
             }
@@ -54,7 +54,7 @@ public class StackIntegrationTest {
         return new TransactionTemplate<String>(stm) {
             protected String execute(Transaction t) throws Exception {
                 t.setDescription("Pop transaction");
-                Stack<String> stack = t.read(stackHandle);
+                ExampleStack<String> stack = t.read(stackHandle);
                 return stack.pop();
             }
         }.execute();
@@ -143,15 +143,15 @@ public class StackIntegrationTest {
 
     @Test
     public void testReferencesWithinStackArePersisted() {
-        Stack<IntegerValue> stack = new Stack<IntegerValue>();
-        stack.push(new IntegerValue(10));
+        ExampleStack<ExampleIntegerValue> stack = new ExampleStack<ExampleIntegerValue>();
+        stack.push(new ExampleIntegerValue(10));
 
-        Handle<Stack<IntegerValue>> handle = commit(stm, stack);
+        Handle<ExampleStack<ExampleIntegerValue>> handle = commit(stm, stack);
 
         Transaction t = stm.startTransaction();
-        Stack<IntegerValue> foundStack = t.read(handle);
+        ExampleStack<ExampleIntegerValue> foundStack = t.read(handle);
         assertStackSize(foundStack, 1);
-        IntegerValue foundValue = foundStack.peek();
+        ExampleIntegerValue foundValue = foundStack.peek();
         assertValue(foundValue, 10);
         foundValue.inc();
         System.out.println("testReferencesWithinStackArePersisted.commitStart");
@@ -166,19 +166,19 @@ public class StackIntegrationTest {
         t.commit();
     }
 
-    private void assertValue(IntegerValue value, int expected) {
+    private void assertValue(ExampleIntegerValue value, int expected) {
         assertNotNull(value);
         assertEquals(expected, value.get());
     }
 
-    private void assertStackSize(Stack stack, int expected) {
+    private void assertStackSize(ExampleStack stack, int expected) {
         assertNotNull(stack);
         assertEquals(expected, stack.size());
     }
 
     private void assertStackIsEmpty() {
         Transaction t = stm.startTransaction();
-        Stack stack = t.read(stackHandle);
+        ExampleStack stack = t.read(stackHandle);
         assertTrue(stack.isEmpty());
         t.commit();
     }

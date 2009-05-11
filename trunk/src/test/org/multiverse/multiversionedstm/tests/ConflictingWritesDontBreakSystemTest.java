@@ -11,14 +11,14 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConflictingWritesDontBreakSystemTest {
     private MultiversionedStm stm;
     private AtomicInteger transactionCountDown = new AtomicInteger();
-    private Handle<IntegerValue>[] handles;
+    private Handle<ExampleIntegerValue>[] handles;
 
     private int structureCount = 100;
     private int writerThreadCount = 10;
@@ -50,8 +50,8 @@ public class ConflictingWritesDontBreakSystemTest {
 
     private void assertValues(int value) {
         Transaction t = stm.startTransaction();
-        for (Handle<IntegerValue> handle : handles) {
-            IntegerValue integerValue = t.read(handle);
+        for (Handle<ExampleIntegerValue> handle : handles) {
+            ExampleIntegerValue integerValue = t.read(handle);
             assertEquals(value, integerValue.get());
         }
         t.commit();
@@ -61,7 +61,7 @@ public class ConflictingWritesDontBreakSystemTest {
         Transaction t = stm.startTransaction();
         handles = new Handle[structureCount];
         for (int k = 0; k < handles.length; k++) {
-            handles[k] = t.attach(new IntegerValue());
+            handles[k] = t.attach(new ExampleIntegerValue());
         }
         t.commit();
     }
@@ -90,7 +90,7 @@ public class ConflictingWritesDontBreakSystemTest {
                 @Override
                 protected Object execute(Transaction t) {
                     for (int k = 0; k < handles.length; k++) {
-                        IntegerValue value = (IntegerValue) t.read(handles[k]);
+                        ExampleIntegerValue value = (ExampleIntegerValue) t.read(handles[k]);
                         sleepRandomMs(5);
                         value.inc();
                     }

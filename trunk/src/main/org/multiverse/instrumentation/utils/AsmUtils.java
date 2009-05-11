@@ -33,6 +33,13 @@ public final class AsmUtils {
         return (fieldNode.access & Opcodes.ACC_SYNTHETIC) != 0;
     }
 
+    public static void printFields(ClassNode classNode) {
+        System.out.println("Printing fields for classNode: " + classNode.name);
+        for (FieldNode fieldNode : (List<FieldNode>) classNode.fields) {
+            System.out.println("fieldNode.name: " + fieldNode.name);
+        }
+    }
+
     public static boolean hasVisibleAnnotation(String typeDescriptor, Class annotationClass, ClassLoader classLoader) {
         if (typeDescriptor == null || annotationClass == null || classLoader == null)
             throw new NullPointerException();

@@ -7,7 +7,7 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.Stack;
+import org.multiverse.multiversionedstm.examples.ExampleStack;
 
 /**
  * MVCC suffers from a problem that serialized transactions are not completely serialized.
@@ -25,14 +25,14 @@ import org.multiverse.multiversionedstm.examples.Stack;
  */
 public class BrokenSerializedTest {
     private MultiversionedStm stm;
-    private Handle<Stack> stackHandle1;
-    private Handle<Stack> stackHandle2;
+    private Handle<ExampleStack> stackHandle1;
+    private Handle<ExampleStack> stackHandle2;
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        stackHandle1 = commit(stm, new Stack());
-        stackHandle2 = commit(stm, new Stack());
+        stackHandle1 = commit(stm, new ExampleStack());
+        stackHandle2 = commit(stm, new ExampleStack());
     }
 
     @Test
@@ -40,12 +40,12 @@ public class BrokenSerializedTest {
         Transaction t1 = stm.startTransaction();
         Transaction t2 = stm.startTransaction();
 
-        Stack t1Stack1 = t1.read(stackHandle1);
-        Stack t1Stack2 = t1.read(stackHandle2);
+        ExampleStack t1Stack1 = t1.read(stackHandle1);
+        ExampleStack t1Stack2 = t1.read(stackHandle2);
         t1Stack1.push(t1Stack2.size());
 
-        Stack t2Stack1 = t2.read(stackHandle1);
-        Stack t2Stack2 = t2.read(stackHandle2);
+        ExampleStack t2Stack1 = t2.read(stackHandle1);
+        ExampleStack t2Stack2 = t2.read(stackHandle2);
         t2Stack2.push(t2Stack1.size());
 
         t1.commit();
@@ -55,9 +55,9 @@ public class BrokenSerializedTest {
         assertStackContainZero(stackHandle2);
     }
 
-    public void assertStackContainZero(Handle<Stack> stackHandle) {
+    public void assertStackContainZero(Handle<ExampleStack> stackHandle) {
         Transaction t = stm.startTransaction();
-        Stack stack = (Stack) t.read(stackHandle);
+        ExampleStack stack = (ExampleStack) t.read(stackHandle);
         //only one element on the list
         assertEquals(1, stack.size());
         //the top element is zero

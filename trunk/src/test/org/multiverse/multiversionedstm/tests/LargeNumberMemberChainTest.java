@@ -8,7 +8,7 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.Pair;
+import org.multiverse.multiversionedstm.examples.ExamplePair;
 
 public class LargeNumberMemberChainTest {
     private MultiversionedStm stm;
@@ -25,53 +25,53 @@ public class LargeNumberMemberChainTest {
 
     @Test
     public void testTree_5() {
-        Pair pair = createTree(5);
-        Handle<Pair> handle = commit(stm, pair);
+        ExamplePair pair = createTree(5);
+        Handle<ExamplePair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(handle);
+        ExamplePair found = t.read(handle);
         assertEquals(pair, found);
     }
 
     @Test
     public void testTree_10() {
-        Pair pair = createTree(10);
-        Handle<Pair> handle = commit(stm, pair);
+        ExamplePair pair = createTree(10);
+        Handle<ExamplePair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(handle);
+        ExamplePair found = t.read(handle);
         assertEquals(pair, found);
     }
 
 
     @Test
     public void testTree_15() {
-        Pair pair = createTree(15);
-        Handle<Pair> handle = commit(stm, pair);
+        ExamplePair pair = createTree(15);
+        Handle<ExamplePair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(handle);
+        ExamplePair found = t.read(handle);
         assertEquals(pair, found);
     }
 
     @Test
     public void testTree_20() {
-        Pair pair = createTree(15);
-        Handle<Pair> handle = commit(stm, pair);
+        ExamplePair pair = createTree(15);
+        Handle<ExamplePair> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair found = t.read(handle);
+        ExamplePair found = t.read(handle);
         assertEquals(pair, found);
     }
 
 
-    public Pair createTree(int todo) {
+    public ExamplePair createTree(int todo) {
         if (todo == 0) {
-            return new Pair(1, 1);
+            return new ExamplePair(1, 1);
         } else {
-            Pair left = createTree(todo - 1);
-            Pair right = createTree(todo - 1);
-            return new Pair(left, right);
+            ExamplePair left = createTree(todo - 1);
+            ExamplePair right = createTree(todo - 1);
+            return new ExamplePair(left, right);
         }
     }
 

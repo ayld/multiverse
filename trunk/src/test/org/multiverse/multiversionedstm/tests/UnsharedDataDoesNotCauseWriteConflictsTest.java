@@ -11,11 +11,11 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 public class UnsharedDataDoesNotCauseWriteConflictsTest {
     private MultiversionedStm stm;
-    private Handle<IntegerValue>[] handles;
+    private Handle<ExampleIntegerValue>[] handles;
     private int threadCount = 10 * Runtime.getRuntime().availableProcessors();
     private int updateCountPerThread = 100000;
 
@@ -45,7 +45,7 @@ public class UnsharedDataDoesNotCauseWriteConflictsTest {
         Transaction t = stm.startTransaction();
         handles = new Handle[threadCount];
         for (int k = 0; k < threadCount; k++) {
-            handles[k] = t.attach(new IntegerValue());
+            handles[k] = t.attach(new ExampleIntegerValue());
         }
         t.commit();
     }
@@ -71,7 +71,7 @@ public class UnsharedDataDoesNotCauseWriteConflictsTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        IntegerValue value = t.read(handles[id]);
+                        ExampleIntegerValue value = t.read(handles[id]);
                         value.inc();
                         return null;
                     }

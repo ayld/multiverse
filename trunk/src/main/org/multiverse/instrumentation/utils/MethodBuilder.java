@@ -12,12 +12,17 @@ import java.util.LinkedList;
 
 public abstract class MethodBuilder implements Opcodes {
 
-    protected MethodNode methodNode = new MethodNode();
+    protected MethodNode methodNode;
 
     public MethodBuilder() {
+        methodNode = new MethodNode();
         setAccess(ACC_PUBLIC | ACC_SYNTHETIC);
         methodNode.exceptions = new LinkedList();
         methodNode.tryCatchBlocks = new LinkedList();
+    }
+
+    public MethodBuilder(MethodNode methodNode) {
+        this.methodNode = methodNode;
     }
 
     public void setName(String name) {
@@ -125,6 +130,10 @@ public abstract class MethodBuilder implements Opcodes {
 
     public void PUTFIELD(ClassNode owner, String name, ClassNode fieldType) {
         PUTFIELD(owner.name, name, InstrumentationUtils.internalFormToDescriptor(fieldType.name));
+    }
+
+    public void PUTFIELD(ClassNode owner, String name, String fieldType) {
+        PUTFIELD(owner.name, name, fieldType);
     }
 
     public void PUTFIELD(ClassNode owner, String name, Class fieldType) {

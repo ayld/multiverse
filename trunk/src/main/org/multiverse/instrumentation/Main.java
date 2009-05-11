@@ -1,12 +1,15 @@
 package org.multiverse.instrumentation;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.DematerializedObject;
+import org.multiverse.collections.Latch;
+import org.multiverse.collections.Queue;
+import org.multiverse.collections.Stack;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MemberWalker;
+import org.multiverse.multiversionedstm.MultiversionedStm;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
@@ -15,30 +18,51 @@ public class Main {
     public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
         System.out.println("Main called");
 
-        SimplePair simplePair = new SimplePair();
+        testLatch();
+        testStack();
+    }
 
-        Class dematerializedClass = MultiverseClassLoader.INSTANCE.loadClass("org.multiverse.instrumentation.SimplePair$DematerializedSimplePair");
-        Class materializedClass = MultiverseClassLoader.INSTANCE.loadClass("org.multiverse.instrumentation.SimplePair");
-        Constructor c = dematerializedClass.getConstructor(materializedClass, Transaction.class);
-        DematerializedObject x = (DematerializedObject) c.newInstance(null, null);
-        System.out.println("x:" + dematerializedClass);
-        System.out.println("x: " + x.getHandle());
-        System.out.println("x.rematerialize: " + x.rematerialize(null));
+    private static void testLatch() {
+        Latch latch = new Latch();
+        latch.open();
+        System.out.println("original " + latch);
 
-        showMemberClasses(materializedClass);
-        showFields(materializedClass);
+        MultiversionedStm stm = new MultiversionedStm();
+        Transaction t = stm.startTransaction();
+        Handle<Latch> handle = t.attach(latch);
+        t.commit();
 
-        System.out.println("calling getNextInChain");
-        ((MaterializedObject) simplePair).getNextInChain();
+        Transaction t2 = stm.startTransaction();
+        Latch found = t2.read(handle);
+        System.out.println("found: " + found);
+        t2.commit();
+    }
 
-        System.out.println("Calling setNextInChain");
-        ((MaterializedObject) simplePair).setNextInChain(null);
+    private static void testQueue() {
+        Queue queue = new Queue();
 
-        ((MaterializedObject) simplePair).getHandle();
+        MultiversionedStm stm = new MultiversionedStm();
+        Transaction t = stm.startTransaction();
+        Handle<Queue> handle = t.attach(queue);
+        t.commit();
+    }
 
-        ((MaterializedObject) simplePair).walkMaterializedMembers(new MemberWalkerImpl());
+    private static void testStack() {
+        Stack stack = new Stack();
 
-        System.out.println("finished");
+        MultiversionedStm stm = new MultiversionedStm();
+        Transaction t = stm.startTransaction();
+        Handle<Stack> handle = t.attach(stack);
+        stack.push("hallo");
+        t.commit();
+
+        Transaction t2 = stm.startTransaction();
+        Stack found = t2.read(handle);
+        System.out.println("stack.handle: " + ((MaterializedObject) (Object) found).getHandle());
+
+        System.out.println("found.size: " + found.size());
+        t2.commit();
+
     }
 
     private static void showMemberClasses(Class simplePairClass) {

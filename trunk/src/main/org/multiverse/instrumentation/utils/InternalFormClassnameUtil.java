@@ -27,6 +27,8 @@ public final class InternalFormClassnameUtil {
 
     /**
      * Returns the name of the class without the package.
+     * <p/>
+     * todo: it it is an internal class, it will return the name of theinternal class.
      *
      * @param classname the fully qualified classname
      * @return the name of the class without the package.
@@ -34,8 +36,13 @@ public final class InternalFormClassnameUtil {
      */
     public static String getBaseClassname(String classname) {
         if (classname == null) throw new NullPointerException();
-        int lastDashIndex = classname.lastIndexOf("/");
-        return lastDashIndex == -1 ? classname : classname.substring(lastDashIndex + 1, classname.length());
+        int lastDolarSignIndex = classname.lastIndexOf("$");
+        if (lastDolarSignIndex == -1) {
+            int lastDashIndex = classname.lastIndexOf("/");
+            return lastDashIndex == -1 ? classname : classname.substring(lastDashIndex + 1, classname.length());
+        } else {
+            return classname.substring(lastDolarSignIndex + 1, classname.length());
+        }
     }
 
     //we don't want instances

@@ -10,7 +10,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class PairTest {
+public class ExamplePairTest {
     private MultiversionedStm stm;
 
     @Before
@@ -27,11 +27,11 @@ public class PairTest {
     public void testPersistWithoutMaterializedMembers() {
         Integer left = 10;
         Integer right = 20;
-        Pair<Integer, Integer> pair = new Pair<Integer, Integer>(left, right);
-        Handle<Pair<Integer, Integer>> handle = commit(stm, pair);
+        ExamplePair<Integer, Integer> pair = new ExamplePair<Integer, Integer>(left, right);
+        Handle<ExamplePair<Integer, Integer>> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair<Integer, Integer> found = t.read(handle);
+        ExamplePair<Integer, Integer> found = t.read(handle);
         assertNotNull(found);
         assertEquals(left, found.getLeft());
         assertEquals(right, found.getRight());
@@ -39,13 +39,13 @@ public class PairTest {
 
     @Test
     public void testPersistSimpleMaterializedMembers() {
-        IntegerValue left = new IntegerValue(10);
-        IntegerValue right = new IntegerValue(20);
-        Pair<IntegerValue, IntegerValue> pair = new Pair<IntegerValue, IntegerValue>(left, right);
-        Handle<Pair<IntegerValue, IntegerValue>> handle = commit(stm, pair);
+        ExampleIntegerValue left = new ExampleIntegerValue(10);
+        ExampleIntegerValue right = new ExampleIntegerValue(20);
+        ExamplePair<ExampleIntegerValue, ExampleIntegerValue> pair = new ExamplePair<ExampleIntegerValue, ExampleIntegerValue>(left, right);
+        Handle<ExamplePair<ExampleIntegerValue, ExampleIntegerValue>> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        Pair<IntegerValue, IntegerValue> found = t.read(handle);
+        ExamplePair<ExampleIntegerValue, ExampleIntegerValue> found = t.read(handle);
         assertNotNull(found);
         assertEquals(left, found.getLeft());
         assertEquals(right, found.getRight());
