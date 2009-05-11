@@ -7,7 +7,7 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.Pair;
+import org.multiverse.multiversionedstm.examples.ExamplePair;
 
 /**
  * A Test to see how well the MultiversionedStm deals with cycles
@@ -29,12 +29,12 @@ public class CycleHandlingTest {
 
     @Test
     public void testDirectCycle() {
-        Pair pair = new Pair();
+        ExamplePair pair = new ExamplePair();
         pair.setLeft(pair);
 
-        Handle<Pair> handle = commit(stm, pair);
+        Handle<ExamplePair> handle = commit(stm, pair);
         Transaction t = stm.startTransaction();
-        Pair found = t.read(handle);
+        ExamplePair found = t.read(handle);
         //todo
     }
 

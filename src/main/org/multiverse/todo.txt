@@ -1,8 +1,18 @@
 TODO
 
-- intellij files should be removed from project
+- beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
+    http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
 
-- writeandreleaselock returns a ListenerNode, this needs to be checked
+- pojo instrumentatie: veld conflict namen van lazy reference 
+
+- pojo instrumentation: is dirty field
+
+- pojo instrumentation: fields that only are at runtime to be determined dematerializable.
+
+- simple function for outputting a string on the console: should be placed in the method builder for
+debugging purposes.
+
+- intellij files should be removed from project
 
 - zorgen dat je een nieuwe class kunt toevoegen bij het load proces; noodzakelijk voor de dematerialized objects.
     - de dematerializedclass is toegevoegd aan de classnode, maar is niet zichtbaar bij het laden.
@@ -23,9 +33,9 @@ TODO
 
 - track number of starvation problems: listen
 
-- the number of writes a transaction has done when it commit should be stored somewhere
+- the number of writes a transaction has done when it commits should be stored somewhere
 
-- the number of reads a transaction has done when it commit should be stored somewhere
+- the number of reads a transaction has done when it commits should be stored somewhere
 
 - atm worden te pas en te onpas de retrycounters gezet
 
@@ -188,3 +198,6 @@ that a pointer to the object will not be needed again).
 - .classpath and .project need to be removed
 
 - japex.cml is removed
+
+- writeandreleaselock returns a ListenerNode, this needs to be checked
+

@@ -47,10 +47,10 @@ public abstract class ClassBuilder implements Opcodes {
     }
 
     public void addPublicFinalSyntheticField(String name, Class theType) {
-        addPublicFinalSynthethicField(name, getDescriptor(theType));
+        addPublicFinalSyntheticField(name, getDescriptor(theType));
     }
 
-    public void addPublicFinalSynthethicField(String name, String typeDescriptor) {
+    public void addPublicFinalSyntheticField(String name, String typeDescriptor) {
         FieldNode field = new FieldNode(
                 ACC_PUBLIC | ACC_FINAL,
                 name,

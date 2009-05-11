@@ -6,7 +6,7 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 /**
  * A test that shows that the ABA problem is not detected.
@@ -35,21 +35,21 @@ public class AbaProblemIsNotDetectedTest {
     private static final int C = 3;
 
     private MultiversionedStm stm;
-    private Handle<IntegerValue> handle;
+    private Handle<ExampleIntegerValue> handle;
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        handle = commit(stm, new IntegerValue(A));
+        handle = commit(stm, new ExampleIntegerValue(A));
     }
 
     @Test
     public void test() {
         Transaction t1 = stm.startTransaction();
-        IntegerValue r1 = t1.read(handle);
+        ExampleIntegerValue r1 = t1.read(handle);
 
         Transaction t2 = stm.startTransaction();
-        IntegerValue r2 = t2.read(handle);
+        ExampleIntegerValue r2 = t2.read(handle);
         r2.set(B);
         r2.set(A);
         t2.commit();

@@ -5,8 +5,8 @@ import static org.junit.Assert.assertSame;
 import org.junit.Test;
 import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
-import org.multiverse.multiversionedstm.examples.Pair;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExamplePair;
 import org.multiverse.util.ArrayIterator;
 import org.multiverse.util.EmptyIterator;
 import org.multiverse.util.InstanceIterator;
@@ -21,7 +21,7 @@ public class MultiversionedStmUtilsTest {
 
     @Test
     public void testSingleElement() {
-        MaterializedObject obj = new IntegerValue();
+        MaterializedObject obj = new ExampleIntegerValue();
         MaterializedObject first = MultiversionedStmUtils.initializeNextChain(
                 new InstanceIterator(new NonLazy(obj)));
 
@@ -31,9 +31,9 @@ public class MultiversionedStmUtilsTest {
 
     @Test
     public void testMultipleDirectElements() {
-        MaterializedObject obj1 = new IntegerValue();
-        MaterializedObject obj2 = new IntegerValue();
-        MaterializedObject obj3 = new IntegerValue();
+        MaterializedObject obj1 = new ExampleIntegerValue();
+        MaterializedObject obj2 = new ExampleIntegerValue();
+        MaterializedObject obj3 = new ExampleIntegerValue();
 
         MaterializedObject first = MultiversionedStmUtils.initializeNextChain(
                 new ArrayIterator(new NonLazy(obj1), new NonLazy(obj2), new NonLazy(obj3)));
@@ -46,7 +46,7 @@ public class MultiversionedStmUtilsTest {
 
     @Test
     public void testIndirect() {
-        Pair<IntegerValue, IntegerValue> pair = new Pair(new IntegerValue(1), new IntegerValue(2));
+        ExamplePair<ExampleIntegerValue, ExampleIntegerValue> pair = new ExamplePair(new ExampleIntegerValue(1), new ExampleIntegerValue(2));
 
         MaterializedObject first = MultiversionedStmUtils.initializeNextChain(
                 new InstanceIterator(new NonLazy(pair)));

@@ -9,8 +9,8 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
-import org.multiverse.multiversionedstm.examples.Pair;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExamplePair;
 
 public class Transaction_ReadUnmanagedTest {
     private MultiversionedStm stm;
@@ -35,13 +35,13 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void readUnmanagedDoesNotReturnSameValue() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue v1 = t.readUnmanaged(handle);
-        IntegerValue v2 = t.readUnmanaged(handle);
+        ExampleIntegerValue v1 = t.readUnmanaged(handle);
+        ExampleIntegerValue v2 = t.readUnmanaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -53,11 +53,11 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void readUnmanagedIgnoresReadObject() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
-        IntegerValue v1 = t.read(handle);
-        IntegerValue v2 = t.readUnmanaged(handle);
+        ExampleIntegerValue v1 = t.read(handle);
+        ExampleIntegerValue v2 = t.readUnmanaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -68,12 +68,12 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void readUnmanagedIgnoresAttachedObject() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
-        IntegerValue v1 = t.read(handle);
+        ExampleIntegerValue v1 = t.read(handle);
         t.attach(v1);
-        IntegerValue v2 = t.readUnmanaged(handle);
+        ExampleIntegerValue v2 = t.readUnmanaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -84,13 +84,13 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void changeOnReadUnmanagedWontBeCommittedIfThereIsNoReferenceToIt() {
-        IntegerValue original = new IntegerValue(29);
-        Handle<IntegerValue> handle = commit(stm, original);
+        ExampleIntegerValue original = new ExampleIntegerValue(29);
+        Handle<ExampleIntegerValue> handle = commit(stm, original);
 
         long writes = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue changed = t.readUnmanaged(handle);
+        ExampleIntegerValue changed = t.readUnmanaged(handle);
         changed.inc();
         t.commit();
 
@@ -100,14 +100,14 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void changeOnreadUnmanagedWillBeCommittedIfThereIsSomeReferenceToIt() {
-        IntegerValue original = new IntegerValue(29);
+        ExampleIntegerValue original = new ExampleIntegerValue(29);
 
-        Handle<IntegerValue> handle = commit(stm, original);
+        Handle<ExampleIntegerValue> handle = commit(stm, original);
         long writeCount = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue changed = t.readUnmanaged(handle);
-        Pair<IntegerValue, Object> pair = new Pair<IntegerValue, Object>(changed, null);
+        ExampleIntegerValue changed = t.readUnmanaged(handle);
+        ExamplePair<ExampleIntegerValue, Object> pair = new ExamplePair<ExampleIntegerValue, Object>(changed, null);
         t.attach(pair);
         changed.inc();
         t.commit();
@@ -118,10 +118,10 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void readUnmanagedNotUsedInListeningIfThereIsNoOtherReferenceToIt() throws InterruptedException {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
-        IntegerValue found = t.readUnmanaged(handle);
+        ExampleIntegerValue found = t.readUnmanaged(handle);
 
         try {
             t.abortAndRetry();
@@ -132,7 +132,7 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void readUnmanagedFailsIfTransactionAborted() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
         t.abort();
@@ -148,7 +148,7 @@ public class Transaction_ReadUnmanagedTest {
 
     @Test
     public void readUnmanagedFailsIfTransactionCommitted() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
         t.commit();

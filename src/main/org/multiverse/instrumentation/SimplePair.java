@@ -1,8 +1,8 @@
 package org.multiverse.instrumentation;
 
-import org.multiverse.api.Dematerializable;
+import org.multiverse.api.TmEntity;
 
-@Dematerializable
+@TmEntity
 public class SimplePair {
     public int left;
     public int right;

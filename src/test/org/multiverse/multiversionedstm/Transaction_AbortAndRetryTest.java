@@ -8,9 +8,9 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
-import org.multiverse.multiversionedstm.examples.Queue;
-import org.multiverse.multiversionedstm.examples.Stack;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleQueue;
+import org.multiverse.multiversionedstm.examples.ExampleStack;
 
 public class Transaction_AbortAndRetryTest {
 
@@ -24,7 +24,7 @@ public class Transaction_AbortAndRetryTest {
 
     @Test
     public void abortAndRetryWithSingleRead() throws InterruptedException {
-        final Handle<Queue<IntegerValue>> handle = commit(stm, new Queue<IntegerValue>());
+        final Handle<ExampleQueue<ExampleIntegerValue>> handle = commit(stm, new ExampleQueue<ExampleIntegerValue>());
 
         TestThread waiter = new TestThread() {
             public void run() {
@@ -44,8 +44,8 @@ public class Transaction_AbortAndRetryTest {
         TestThread thread = new TestThread() {
             public void run() {
                 Transaction t = stm.startTransaction();
-                Queue<IntegerValue> stack = t.read(handle);
-                stack.push(new IntegerValue());
+                ExampleQueue<ExampleIntegerValue> stack = t.read(handle);
+                stack.push(new ExampleIntegerValue());
                 t.commit();
             }
         };
@@ -61,8 +61,8 @@ public class Transaction_AbortAndRetryTest {
     //@Test
     public void abortAndRetryFailsOnTransactionWithFreshAttach() throws InterruptedException {
         Transaction t = stm.startTransaction();
-        Handle<Stack> handle = t.attach(new Stack());
-        Stack stack = t.read(handle);
+        Handle<ExampleStack> handle = t.attach(new ExampleStack());
+        ExampleStack stack = t.read(handle);
 
         long globalVersion = stm.getGlobalVersion();
         long abortedCount = stm.getStatistics().getTransactionAbortedCount();

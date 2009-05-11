@@ -17,19 +17,19 @@ import java.util.NoSuchElementException;
  * @author Peter Veentjer.
  * @param <E>
  */
-public final class LinkedList<E> extends AbstractSequentialList<E> implements MaterializedObject {
+public final class ExampleLinkedList<E> extends AbstractSequentialList<E> implements MaterializedObject {
 
     private Entry<E> header;
     private int size;
 
-    public LinkedList() {
+    public ExampleLinkedList() {
         size = 0;
         header = new Entry<E>(null, null, null);
         header.next = header.previous = header;
-        handle = new DefaultMultiversionedHandle<LinkedList<E>>();
+        handle = new DefaultMultiversionedHandle<ExampleLinkedList<E>>();
     }
 
-    public LinkedList(Collection<? extends E> c) {
+    public ExampleLinkedList(Collection<? extends E> c) {
         this();
         addAll(c);
     }
@@ -197,9 +197,9 @@ public final class LinkedList<E> extends AbstractSequentialList<E> implements Ma
     // ============== generated ===================
 
     private DematerializedLinkedList<E> lastDematerialized;
-    private final MultiversionedHandle<LinkedList<E>> handle;
+    private final MultiversionedHandle<ExampleLinkedList<E>> handle;
 
-    private LinkedList(DematerializedLinkedList<E> dematerializedLinkedList, Transaction t) {
+    private ExampleLinkedList(DematerializedLinkedList<E> dematerializedLinkedList, Transaction t) {
         this.handle = dematerializedLinkedList.handle;
         this.lastDematerialized = dematerializedLinkedList;
         this.size = dematerializedLinkedList.size;
@@ -320,24 +320,24 @@ public final class LinkedList<E> extends AbstractSequentialList<E> implements Ma
     }
 
     static class DematerializedLinkedList<E> implements DematerializedObject {
-        private final MultiversionedHandle<LinkedList<E>> handle;
+        private final MultiversionedHandle<ExampleLinkedList<E>> handle;
         private final int size;
         private MultiversionedHandle<Entry<E>> header;
 
-        public DematerializedLinkedList(LinkedList<E> list) {
+        public DematerializedLinkedList(ExampleLinkedList<E> list) {
             this.handle = list.handle;
             this.size = list.size;
             this.header = MultiversionedStmUtils.getHandle(list.header);
         }
 
         @Override
-        public MultiversionedHandle<LinkedList<E>> getHandle() {
+        public MultiversionedHandle<ExampleLinkedList<E>> getHandle() {
             return handle;
         }
 
         @Override
-        public LinkedList<E> rematerialize(Transaction t) {
-            return new LinkedList<E>(this, t);
+        public ExampleLinkedList<E> rematerialize(Transaction t) {
+            return new ExampleLinkedList<E>(this, t);
         }
     }
 

@@ -7,7 +7,7 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 public class Transaction_ReadTest {
     private MultiversionedStm stm;
@@ -31,12 +31,12 @@ public class Transaction_ReadTest {
 
     @Test
     public void read() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue v = t.read(handle);
+        ExampleIntegerValue v = t.read(handle);
 
         assertNotNull(v);
         assertEquals(0, v.get());
@@ -47,11 +47,11 @@ public class Transaction_ReadTest {
     @Test
     public void readAttached() {
         Transaction t = stm.startTransaction();
-        IntegerValue original = new IntegerValue();
-        Handle<IntegerValue> handle = t.attach(original);
+        ExampleIntegerValue original = new ExampleIntegerValue();
+        Handle<ExampleIntegerValue> handle = t.attach(original);
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
-        IntegerValue found = t.read(handle);
+        ExampleIntegerValue found = t.read(handle);
 
         assertSame(original, found);
         assertMaterializedCount(stm, materializedCount);
@@ -60,13 +60,13 @@ public class Transaction_ReadTest {
 
     @Test
     public void rereadDoesntLeadToAnotherMaterialize() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        IntegerValue v1 = t.read(handle);
-        IntegerValue v2 = t.read(handle);
+        ExampleIntegerValue v1 = t.read(handle);
+        ExampleIntegerValue v2 = t.read(handle);
 
         assertNotNull(v1);
         assertEquals(0, v1.get());
@@ -78,7 +78,7 @@ public class Transaction_ReadTest {
     @Test
     public void readFailsIThereIsNoCommittedData() {
         Transaction t1 = stm.startTransaction();
-        Handle<IntegerValue> handle = t1.attach(new IntegerValue());
+        Handle<ExampleIntegerValue> handle = t1.attach(new ExampleIntegerValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
@@ -96,7 +96,7 @@ public class Transaction_ReadTest {
 
     @Test
     public void readFailsIfTransactionAlreadyIsAborted() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
         t.abort();
@@ -114,7 +114,7 @@ public class Transaction_ReadTest {
     }
 
     public void readFailsIfTransactionAlreadyIsCommitted() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
         t.abort();

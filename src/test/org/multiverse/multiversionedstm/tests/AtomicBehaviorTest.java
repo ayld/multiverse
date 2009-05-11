@@ -10,7 +10,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.api.exceptions.AbortedTransactionException;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,14 +28,14 @@ public class AtomicBehaviorTest {
 
     private MultiversionedStm stm;
 
-    private Handle<IntegerValue> handle;
+    private Handle<ExampleIntegerValue> handle;
     private int modifyCount = 500;
     private AtomicInteger modifyCountDown = new AtomicInteger();
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        handle = commit(stm, new IntegerValue());
+        handle = commit(stm, new ExampleIntegerValue());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class AtomicBehaviorTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Object execute(Transaction t) throws Exception {
-                    IntegerValue value = (IntegerValue) t.read(handle);
+                    ExampleIntegerValue value = (ExampleIntegerValue) t.read(handle);
                     if (value.get() % 2 != 0)
                         fail();
 
@@ -98,7 +98,7 @@ public class AtomicBehaviorTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        IntegerValue value = (IntegerValue) t.read(handle);
+                        ExampleIntegerValue value = (ExampleIntegerValue) t.read(handle);
                         if (value.get() % 2 != 0)
                             fail();
 

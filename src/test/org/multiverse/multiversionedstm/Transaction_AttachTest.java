@@ -7,8 +7,8 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
-import org.multiverse.multiversionedstm.examples.Stack;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleStack;
 
 public class Transaction_AttachTest {
     private MultiversionedStm stm;
@@ -33,21 +33,21 @@ public class Transaction_AttachTest {
 
     @Test
     public void attachOfReadObject() {
-        Handle<IntegerValue> handle = commit(stm, new IntegerValue());
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
-        IntegerValue foundValue = t.read(handle);
-        Handle<IntegerValue> foundHandle = t.attach(foundValue);
+        ExampleIntegerValue foundValue = t.read(handle);
+        Handle<ExampleIntegerValue> foundHandle = t.attach(foundValue);
         assertSame(handle, foundHandle);
     }
 
     @Test
     public void attachAlreadyAttachedObjectReturnsTheSameHandle() {
-        IntegerValue value = new IntegerValue(1);
+        ExampleIntegerValue value = new ExampleIntegerValue(1);
 
         Transaction t = stm.startTransaction();
-        Handle<IntegerValue> handle1 = t.attach(value);
-        Handle<IntegerValue> handle2 = t.attach(value);
+        Handle<ExampleIntegerValue> handle1 = t.attach(value);
+        Handle<ExampleIntegerValue> handle2 = t.attach(value);
         assertSame(handle1, handle2);
     }
 
@@ -72,7 +72,7 @@ public class Transaction_AttachTest {
         t.abort();
 
         try {
-            t.attach(new Stack());
+            t.attach(new ExampleStack());
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -86,7 +86,7 @@ public class Transaction_AttachTest {
         t.commit();
 
         try {
-            t.attach(new Stack());
+            t.attach(new ExampleStack());
             fail();
         } catch (IllegalStateException ex) {
         }

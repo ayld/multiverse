@@ -5,28 +5,22 @@ import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
 
-public final class StackNode<E> implements MaterializedObject {
-    private StackNode<E> next;
+public final class ExampleStackNode<E> implements MaterializedObject {
+    private ExampleStackNode<E> next;
     private final E value;
-    private final int length;
 
-    public StackNode(StackNode<E> next, E value) {
-        this.handle = new DefaultMultiversionedHandle<StackNode<E>>();
+    public ExampleStackNode(ExampleStackNode<E> next, E value) {
+        this.handle = new DefaultMultiversionedHandle<ExampleStackNode<E>>();
         this.next = next;
         this.value = value;
-        this.length = next == null ? 1 : next.length + 1;
     }
 
-    public StackNode<E> getNext() {
+    public ExampleStackNode<E> getNext() {
         if (nextRef != null) {
             next = nextRef.get();
             nextRef = null;
         }
         return next;
-    }
-
-    public int length() {
-        return length;
     }
 
     public E getValue() {
@@ -36,19 +30,18 @@ public final class StackNode<E> implements MaterializedObject {
     // ============================== generated ========================
 
     private DematerializedNode<E> lastDematerialized;
-    private LazyReference<StackNode<E>> nextRef;
-    private MultiversionedHandle<StackNode<E>> handle;
+    private LazyReference<ExampleStackNode<E>> nextRef;
+    private MultiversionedHandle<ExampleStackNode<E>> handle;
 
-    private StackNode(DematerializedNode<E> dematerializedNode, Transaction t) {
+    private ExampleStackNode(DematerializedNode<E> dematerializedNode, Transaction t) {
         this.lastDematerialized = dematerializedNode;
         this.handle = dematerializedNode.getHandle();
         this.value = dematerializedNode.value instanceof Handle ? (E) t.read((Handle) dematerializedNode.value) : (E) dematerializedNode.value;
-        this.length = dematerializedNode.length;
-        this.nextRef = t.readLazyAndUnmanaged(dematerializedNode.nextHandle);
+        this.nextRef = t.readLazyAndUnmanaged(dematerializedNode.next);
     }
 
     @Override
-    public MultiversionedHandle<StackNode<E>> getHandle() {
+    public MultiversionedHandle<ExampleStackNode<E>> getHandle() {
         return handle;
     }
 
@@ -84,25 +77,23 @@ public final class StackNode<E> implements MaterializedObject {
     }
 
     public static class DematerializedNode<E> implements DematerializedObject {
-        private final MultiversionedHandle<StackNode<E>> handle;
+        private final MultiversionedHandle<ExampleStackNode<E>> handle;
         private final Object value;
-        private final int length;
-        private final MultiversionedHandle<StackNode<E>> nextHandle;
+        private final MultiversionedHandle<ExampleStackNode<E>> next;
 
-        public DematerializedNode(StackNode<E> node) {
+        public DematerializedNode(ExampleStackNode<E> node) {
             this.handle = node.handle;
             this.value = node.value instanceof MaterializedObject ? ((MaterializedObject) node.value).getHandle() : node.value;
-            this.length = node.length;
-            this.nextHandle = MultiversionedStmUtils.getHandle(node.nextRef, node.next);
+            this.next = MultiversionedStmUtils.getHandle(node.nextRef, node.next);
         }
 
         @Override
         public MaterializedObject rematerialize(Transaction t) {
-            return new StackNode<E>(this, t);
+            return new ExampleStackNode<E>(this, t);
         }
 
         @Override
-        public MultiversionedHandle<StackNode<E>> getHandle() {
+        public MultiversionedHandle<ExampleStackNode<E>> getHandle() {
             return handle;
         }
     }

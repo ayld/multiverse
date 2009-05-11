@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"ClassExplicitlyExtendsThread"})
-public class QueueIntegrationTest {
+public class ExampleQueueIntegrationTest {
 
     private List<String> producedList = new LinkedList<String>();
     private List<String> consumedList = new LinkedList<String>();
@@ -27,7 +27,7 @@ public class QueueIntegrationTest {
     private AtomicInteger consumeCountDown = new AtomicInteger();
 
     private MultiversionedStm stm;
-    private Handle<Queue<String>> queueHandle;
+    private Handle<ExampleQueue<String>> queueHandle;
 
     private int consumeMaxSleepMs = 10;
     private int produceMaxSleepMs = 10;
@@ -35,7 +35,7 @@ public class QueueIntegrationTest {
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        queueHandle = commit(stm, new Queue<String>());
+        queueHandle = commit(stm, new ExampleQueue<String>());
     }
 
     @After
@@ -46,7 +46,7 @@ public class QueueIntegrationTest {
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                Queue<String> queue = t.read(queueHandle);
+                ExampleQueue<String> queue = t.read(queueHandle);
                 queue.push(item);
                 return null;
             }
@@ -56,7 +56,7 @@ public class QueueIntegrationTest {
     public String atomicPop() {
         return new TransactionTemplate<String>(stm) {
             protected String execute(Transaction t) throws Exception {
-                Queue<String> queue = t.read(queueHandle);
+                ExampleQueue<String> queue = t.read(queueHandle);
                 return queue.pop();
             }
         }.execute();
@@ -65,7 +65,7 @@ public class QueueIntegrationTest {
     public int atomicSize() {
         return new TransactionTemplate<Integer>(stm) {
             protected Integer execute(Transaction t) throws Exception {
-                Queue<String> queue = t.read(queueHandle);
+                ExampleQueue<String> queue = t.read(queueHandle);
                 return queue.size();
             }
         }.execute();
@@ -154,7 +154,7 @@ public class QueueIntegrationTest {
 
     public void assertQueueIsEmpty() {
         Transaction t = stm.startTransaction();
-        Queue<String> queue = t.read(queueHandle);
+        ExampleQueue<String> queue = t.read(queueHandle);
         assertTrue(queue.isEmpty());
         t.commit();
     }

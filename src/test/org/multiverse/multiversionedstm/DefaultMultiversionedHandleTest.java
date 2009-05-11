@@ -2,19 +2,23 @@ package org.multiverse.multiversionedstm;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.multiverse.DummyTransaction;
 import org.multiverse.api.TransactionId;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.StarvationException;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.multiversionedstm.DefaultMultiversionedHandle.State;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
-import org.multiverse.multiversionedstm.examples.Stack;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleStack;
+import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
+import org.multiverse.util.latches.CheapLatch;
+import org.multiverse.util.latches.Latch;
 
 public class DefaultMultiversionedHandleTest {
 
     private DefaultMultiversionedHandle createCommitted(long version) {
-        return createCommitted(new Stack(), version);
+        return createCommitted(new ExampleStack(), version);
     }
 
     private DefaultMultiversionedHandle createCommitted(MaterializedObject materializedObject, long version) {
@@ -22,7 +26,6 @@ public class DefaultMultiversionedHandleTest {
         TransactionId id = new TransactionId();
         object.tryToAcquireLocksForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));
 
-        //todo: bag
         object.writeAndReleaseLock(id, materializedObject.dematerialize(), version);
         return object;
     }
@@ -118,7 +121,7 @@ public class DefaultMultiversionedHandleTest {
         assertSame(oldState, handle.getState());
     }
 
-    // ============== writeAndReleaseLock ==================
+    // ============== releaseLock ==================
     @Test
     public void releaseLockForWritingSucceeds() {
         long version = 10;
@@ -150,7 +153,78 @@ public class DefaultMultiversionedHandleTest {
         assertSame(lockOwner, state.lockOwner);
     }
 
-    //=======================================
+    //============= write and release lock ================
+
+    @Test
+    public void writeAndReleaseLockOnFreshObject() {
+        long version = 10;
+
+        ExampleIntegerValue value = new ExampleIntegerValue();
+        DematerializedObject dematerializedObject = value.dematerialize();
+        DefaultMultiversionedHandle handle = (DefaultMultiversionedHandle) value.getHandle();
+        TransactionId lockOwner = new TransactionId();
+        handle.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+
+        ListenerNode listener = handle.writeAndReleaseLock(lockOwner, dematerializedObject, version);
+        assertNull(listener);
+
+        State state = handle.getState();
+        assertNull(state.listenerHead);
+        assertEquals(dematerializedObject, state.dematerializedObject);
+        assertEquals(version, state.dematerializedVersion);
+        assertNull(state.lockOwner);
+    }
+
+    @Test
+    public void writeAndReleaseLockSucceedsOnNonFreshObject() {
+        long version = 10;
+        DefaultMultiversionedHandle handle = createCommitted(version);
+
+        MaterializedObject object = handle.getState().dematerializedObject.rematerialize(new DummyTransaction());
+        DematerializedObject dematerializedObject = object.dematerialize();
+
+        TransactionId lockOwner = new TransactionId();
+        handle.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+
+        long newVersion = 11;
+        ListenerNode listener = handle.writeAndReleaseLock(lockOwner, dematerializedObject, newVersion);
+        assertNull(listener);
+
+        State state = handle.getState();
+        assertNull(state.listenerHead);
+        assertEquals(dematerializedObject, state.dematerializedObject);
+        assertEquals(newVersion, state.dematerializedVersion);
+        assertNull(state.lockOwner);
+    }
+
+    @Test
+    public void writeAndReleaseLockOnObjectWithListeners() {
+        long version = 10;
+        DefaultMultiversionedHandle handle = createCommitted(version);
+
+        Latch latch = new CheapLatch();
+        handle.tryAddLatch(latch, version + 1, new RetryCounter(0));
+
+        MaterializedObject object = handle.getState().dematerializedObject.rematerialize(new DummyTransaction());
+        DematerializedObject dematerializedObject = object.dematerialize();
+
+        TransactionId lockOwner = new TransactionId();
+        handle.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+
+        long newVersion = 11;
+        ListenerNode listener = handle.writeAndReleaseLock(lockOwner, dematerializedObject, newVersion);
+
+        assertNotNull(listener);
+        assertSame(latch, listener.listener);
+        assertNull(listener.next);
+        State state = handle.getState();
+        assertNull(state.listenerHead);
+        assertEquals(dematerializedObject, state.dematerializedObject);
+        assertEquals(newVersion, state.dematerializedVersion);
+        assertNull(state.lockOwner);
+    }
+
+    //=====================================================
 
     @Test
     public void getDehydratedSearchingForMatchingVersion() {
@@ -169,7 +243,7 @@ public class DefaultMultiversionedHandleTest {
     }
 
     public void getDehydrated(long materializeVersion, long searchVersion) {
-        MaterializedObject object = new IntegerValue();
+        MaterializedObject object = new ExampleIntegerValue();
         MultiversionedHandle handle = object.getHandle();
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
@@ -187,7 +261,7 @@ public class DefaultMultiversionedHandleTest {
         long searchVersion = 2;
 
         TransactionId owner = new TransactionId();
-        MaterializedObject materializedObject = new IntegerValue();
+        MaterializedObject materializedObject = new ExampleIntegerValue();
         MultiversionedHandle handle = materializedObject.getHandle();
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
@@ -207,7 +281,7 @@ public class DefaultMultiversionedHandleTest {
     //@Test
 
     public void getLastCommited() {
-        MaterializedObject object = new IntegerValue(45);
+        MaterializedObject object = new ExampleIntegerValue(45);
         MultiversionedHandle handle = object.getHandle();
         TransactionId id = new TransactionId();
         handle.tryToAcquireLocksForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));

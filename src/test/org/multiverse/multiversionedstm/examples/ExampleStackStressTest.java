@@ -12,7 +12,7 @@ import org.multiverse.multiversionedstm.MultiversionedStm;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class StackStressTest {
+public class ExampleStackStressTest {
 
     public static String item = "foo";
 
@@ -21,7 +21,7 @@ public class StackStressTest {
     private final AtomicInteger produceCountDown = new AtomicInteger();
 
     private MultiversionedStm stm;
-    private Handle<Stack<String>> stackHandle;
+    private Handle<ExampleStack<String>> stackHandle;
     private long startMs;
     private long endMs;
     private int itemCount;
@@ -32,7 +32,7 @@ public class StackStressTest {
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        stackHandle = commit(stm, new Stack<String>());
+        stackHandle = commit(stm, new ExampleStack<String>());
     }
 
     @After
@@ -114,7 +114,7 @@ public class StackStressTest {
 
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        Stack<String> stack = t.read(stackHandle);
+                        ExampleStack<String> stack = t.read(stackHandle);
                         stack.push(item);
                         return null;
                     }
@@ -138,7 +138,7 @@ public class StackStressTest {
             while (consumeCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate<String>(stm) {
                     protected String execute(Transaction t) throws Exception {
-                        Stack<String> stack = t.read(stackHandle);
+                        ExampleStack<String> stack = t.read(stackHandle);
                         return stack.pop();
                     }
                 }.execute();

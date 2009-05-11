@@ -9,25 +9,25 @@ import static java.lang.String.format;
 import static java.util.Collections.reverse;
 import java.util.List;
 
-public final class Queue<E> implements MaterializedObject {
+public final class ExampleQueue<E> implements MaterializedObject {
 
-    private Stack<E> readyToPopStack;
-    private Stack<E> pushedStack;
+    private ExampleStack<E> readyToPopStack;
+    private ExampleStack<E> pushedStack;
     private final int maxCapacity;
 
-    public Queue() {
+    public ExampleQueue() {
         this(Integer.MAX_VALUE);
     }
 
-    public Queue(int maximumCapacity) {
+    public ExampleQueue(int maximumCapacity) {
         if (maximumCapacity < 1)
             throw new IllegalArgumentException();
         this.maxCapacity = maximumCapacity;
 
         //moved into the constructor.
-        this.readyToPopStack = new Stack<E>();
-        this.pushedStack = new Stack<E>();
-        this.handle = new DefaultMultiversionedHandle<Queue<E>>();
+        this.readyToPopStack = new ExampleStack<E>();
+        this.pushedStack = new ExampleStack<E>();
+        this.handle = new DefaultMultiversionedHandle<ExampleQueue<E>>();
     }
 
     public int getMaxCapacity() {
@@ -119,10 +119,10 @@ public final class Queue<E> implements MaterializedObject {
         if (thatObj == this)
             return true;
 
-        if (!(thatObj instanceof Queue))
+        if (!(thatObj instanceof ExampleQueue))
             return false;
 
-        Queue<E> that = (Queue<E>) thatObj;
+        ExampleQueue<E> that = (ExampleQueue<E>) thatObj;
         if (that.size() != this.size())
             return false;
 
@@ -134,11 +134,11 @@ public final class Queue<E> implements MaterializedObject {
     //================== generated =================
 
     private DematerializedQueue<E> lastDematerialized;
-    private final MultiversionedHandle<Queue<E>> handle;
-    private LazyReference<Stack<E>> pushedStackRef;
-    private LazyReference<Stack<E>> readyToPopStackRef;
+    private final MultiversionedHandle<ExampleQueue<E>> handle;
+    private LazyReference<ExampleStack<E>> pushedStackRef;
+    private LazyReference<ExampleStack<E>> readyToPopStackRef;
 
-    public Queue(DematerializedQueue<E> dematerializedQueue, Transaction transaction) {
+    public ExampleQueue(DematerializedQueue<E> dematerializedQueue, Transaction transaction) {
         this.lastDematerialized = dematerializedQueue;
         this.handle = dematerializedQueue.handle;
         this.readyToPopStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.readyToPopStackHandle);
@@ -179,7 +179,7 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     @Override
-    public MultiversionedHandle<Queue<E>> getHandle() {
+    public MultiversionedHandle<ExampleQueue<E>> getHandle() {
         return handle;
     }
 
@@ -196,12 +196,12 @@ public final class Queue<E> implements MaterializedObject {
     }
 
     public static class DematerializedQueue<E> implements DematerializedObject {
-        private final MultiversionedHandle<Stack<E>> readyToPopStackHandle;
-        private final MultiversionedHandle<Stack<E>> pushedStackHandle;
-        private final MultiversionedHandle<Queue<E>> handle;
+        private final MultiversionedHandle<ExampleStack<E>> readyToPopStackHandle;
+        private final MultiversionedHandle<ExampleStack<E>> pushedStackHandle;
+        private final MultiversionedHandle<ExampleQueue<E>> handle;
         private final int maxCapacity;
 
-        DematerializedQueue(Queue<E> queue) {
+        DematerializedQueue(ExampleQueue<E> queue) {
             this.handle = queue.handle;
             this.readyToPopStackHandle = MultiversionedStmUtils.getHandle(queue.readyToPopStackRef, queue.readyToPopStack);
             this.pushedStackHandle = MultiversionedStmUtils.getHandle(queue.pushedStackRef, queue.pushedStack);
@@ -209,13 +209,13 @@ public final class Queue<E> implements MaterializedObject {
         }
 
         @Override
-        public MultiversionedHandle<Queue<E>> getHandle() {
+        public MultiversionedHandle<ExampleQueue<E>> getHandle() {
             return handle;
         }
 
         @Override
-        public Queue rematerialize(Transaction t) {
-            return new Queue<E>(this, t);
+        public ExampleQueue rematerialize(Transaction t) {
+            return new ExampleQueue<E>(this, t);
         }
     }
 }

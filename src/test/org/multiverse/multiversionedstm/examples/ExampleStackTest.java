@@ -8,7 +8,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class StackTest {
+public class ExampleStackTest {
     private MultiversionedStm stm;
 
     @Before
@@ -18,18 +18,18 @@ public class StackTest {
 
     @Test
     public void dematerializeAndMaterializedNonEmptyStack() {
-        Stack stack = new Stack();
+        ExampleStack stack = new ExampleStack();
         stack.push(10);
         stack.push(20);
         stack.push(30);
         stack.push(40);
 
         Transaction t1 = stm.startTransaction();
-        Handle<Stack> handle = t1.attach(stack);
+        Handle<ExampleStack> handle = t1.attach(stack);
         t1.commit();
 
         Transaction t2 = stm.startTransaction();
-        Stack foundStack = t2.read(handle);
+        ExampleStack foundStack = t2.read(handle);
         assertEquals(40, foundStack.pop());
         assertEquals(30, foundStack.pop());
         assertEquals(20, foundStack.pop());
@@ -39,14 +39,14 @@ public class StackTest {
 
     @Test
     public void dematerializeAndMaterializedEmptyStack() {
-        Stack stack = new Stack();
+        ExampleStack stack = new ExampleStack();
 
         Transaction t1 = stm.startTransaction();
-        Handle<Stack> handle = t1.attach(stack);
+        Handle<ExampleStack> handle = t1.attach(stack);
         t1.commit();
 
         Transaction t2 = stm.startTransaction();
-        Stack foundStack = t2.read(handle);
+        ExampleStack foundStack = t2.read(handle);
         assertTrue(foundStack.isEmpty());
     }
 }

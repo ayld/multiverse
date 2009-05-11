@@ -13,7 +13,7 @@ import org.multiverse.multiversionedstm.MultiversionedStm;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class QueueStressTest {
+public class ExampleQueueStressTest {
 
     private String item = "foo";
 
@@ -34,7 +34,7 @@ public class QueueStressTest {
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        this.queueHandle = commit(stm, new Queue(100000));
+        this.queueHandle = commit(stm, new ExampleQueue(100000));
 
         //    new PrintMultiversionedStmStatisticsThread(stm).start();
     }
@@ -91,7 +91,7 @@ public class QueueStressTest {
 
     public void assertQueueIsEmpty() {
         Transaction t = stm.startTransaction();
-        Queue queue = (Queue) t.read(queueHandle);
+        ExampleQueue queue = (ExampleQueue) t.read(queueHandle);
         assertTrue(queue.isEmpty());
         t.commit();
     }
@@ -122,7 +122,7 @@ public class QueueStressTest {
             while (produceCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        Queue queue = (Queue) t.read(queueHandle);
+                        ExampleQueue queue = (ExampleQueue) t.read(queueHandle);
                         queue.push(item);
                         return null;
                     }
@@ -147,7 +147,7 @@ public class QueueStressTest {
             while (consumeCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        Queue queue = (Queue) t.read(queueHandle);
+                        ExampleQueue queue = (ExampleQueue) t.read(queueHandle);
                         return queue.pop();
                     }
                 }.execute();

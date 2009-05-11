@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionState;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.IntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 import org.multiverse.util.latches.Latch;
 
 import java.util.*;
@@ -67,9 +67,9 @@ public class TestUtils {
         assertEquals(expectedMaterializedCount, stm.getStatistics().getMaterializedCount());
     }
 
-    public static void assertIntegerValue(MultiversionedStm stm, Handle<IntegerValue> handle, int value) {
+    public static void assertIntegerValue(MultiversionedStm stm, Handle<ExampleIntegerValue> handle, int value) {
         Transaction t = stm.startTransaction();
-        IntegerValue i = t.read(handle);
+        ExampleIntegerValue i = t.read(handle);
         assertEquals(value, i.get());
         t.commit();
     }
