@@ -20,84 +20,34 @@
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/ClassBuilder.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/ClassBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/WritersDontBlockReadersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/CycleHandlingTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AttachTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/StmField.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" afterPath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackNode.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStackNode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadUnmanagedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadUnmanagedTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleIntegerValue.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/PairTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExamplePairTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemOverMultipleTransactionsIsDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/SimplePair.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/SimplePair.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/boot/java/lang/TestLoader.java" afterPath="$PROJECT_DIR$/src/boot/java/lang/TestLoader.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleQueueStressTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/SleepingBarberTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/SleepingBarberTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/DematerializableClassTransformer.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/LatchIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleLatchIntegrationTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Pair.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExamplePair.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections/LinkedList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultMultiversionedHandleTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/DefaultMultiversionedHandleTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AbaProblemIsNotDetectedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/TransactionOverheadStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/TransactionOverheadStressTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections/Stack.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/LinkedListIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleLinkedListIntegrationTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStackStressTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Queue.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleQueue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_CommitTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections/StackNode.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections/Latch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_AbortAndRetryTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyAndUnmanagedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyAndUnmanagedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/RetryTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections/Queue.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/SingleLinkedNode.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ReadersDontBlockWritersTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTreeTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleBTreeTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IndependantScalabilityTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IndependantScalabilityTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/LinkedList.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleLinkedList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/BrokenSerializedTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InternalFormClassnameUtil.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InternalFormClassnameUtil.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstructionsBuilder.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/Transaction_ReadLazyTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstrumentationUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstrumentationUtils.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/Dematerializable.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/TmEntity.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/StmClass.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/MethodBuilder.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/MethodBuilder.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStackIntegrationTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/BTree.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleBTree.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessClassTransformator.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/AsmStmAnalyzer.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/AsmUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/AsmUtils.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Latch.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleLatch.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/SkipList.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleSkipList.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/DematerializedClassBuilder.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/DematerializedClassBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/StackTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStackTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/QueueIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleQueueIntegrationTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/StmAnalyzer.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Stack.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/instrumentation/DematerializableClassTransformerTest.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/collections/StackNode.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections/StackNode.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstrumentationUtils.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/TestUtils.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/TestUtils.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/IntegerValueTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleIntegerValueTest.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
-    <ignored path="stm.iws" />
     <ignored path=".idea/workspace.xml" />
+    <ignored path="stm.iws" />
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CloverPlugin" class="com.cenqua.clover.idea7.config.IdeaCloverConfig">
@@ -219,10 +169,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="DematerializedClassBuilder.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/DematerializedClassBuilder.java">
+      <file leaf-file-name="AccessTransformer.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="83" column="0" selection-start="3440" selection-end="3440" vertical-scroll-proportion="0.3757503">
+            <state line="80" column="71" selection-start="3543" selection-end="3543" vertical-scroll-proportion="0.6096386">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -230,10 +180,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TmEntityClassTransformer.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java">
+      <file leaf-file-name="InstructionsBuilder.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstructionsBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="156" column="10" selection-start="5946" selection-end="5946" vertical-scroll-proportion="0.0">
+            <state line="34" column="38" selection-start="1125" selection-end="1125" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -241,10 +191,73 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ExampleStack.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java">
+      <file leaf-file-name="LazyReference.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="172" column="19" selection-start="4438" selection-end="4438" vertical-scroll-proportion="0.0">
+            <state line="43" column="11" selection-start="958" selection-end="958" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MultiversionedStm.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="427" column="25" selection-start="14448" selection-end="14448" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="method#getStatistics#0;class#MultiversionedStm#0" expanded="true" />
+                <element signature="method#getId#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+                <element signature="method#getState#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+                <element signature="method#setDescription#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+                <element signature="method#getDescription#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+                <element signature="method#getHandle#0;class#LazyReferenceImpl#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MultiversionedStmUtilsTest.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="53" column="99" selection-start="2056" selection-end="2056" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MultiverseJavaAgent.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="43" column="51" selection-start="1976" selection-end="1976" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="75" column="72" selection-start="2510" selection-end="2510" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InsnList.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file:///java/api/asm-3.1/src/org/objectweb/asm/tree/InsnList.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="564" column="40" selection-start="18867" selection-end="18883" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Rubish.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="14" column="83" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -357,6 +370,42 @@
           <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
         </PATH_ELEMENT>
       </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org.multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="collections" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+        </PATH_ELEMENT>
+      </PATH>
+      <PATH>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="stm" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="org.multiverse" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+        </PATH_ELEMENT>
+        <PATH_ELEMENT>
+          <option name="myItemId" value="api" />
+          <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+        </PATH_ELEMENT>
+      </PATH>
     </subPane>
   </component>
   <component name="ProjectLevelVcsManager">
@@ -393,16 +442,16 @@
   </component>
   <component name="PropertiesComponent">
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth1" value="182" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth0" value="134" />
     <property name="project.structure.last.edited" value="Modules" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth0" value="134" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth3" value="36" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth2" value="163" />
     <property name="project.structure.proportion" value="0.15" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatWidth2" value="163" />
     <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder1" value="1" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder0" value="0" />
-    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder3" value="3" />
     <property name="RunManagerConfig.showSettingsBeforeRunnig" value="false" />
+    <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder3" value="3" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_flatOrder2" value="2" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeWidth2" value="138" />
     <property name="MemberChooser.sorted" value="false" />
@@ -423,23 +472,23 @@
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder3" value="3" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder4" value="4" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder1" value="1" />
-    <property name="project.structure.side.proportion" value="0.2" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder2" value="2" />
-    <property name="MemberChooser.copyJavadoc" value="false" />
+    <property name="project.structure.side.proportion" value="0.2" />
     <property name="FileHistory.org.jetbrains.idea.svn.history.SvnHistoryProvider_treeOrder0" value="0" />
-    <property name="dynamic.classpath" value="false" />
+    <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="options.searchVisible" value="true" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="" />
     </key>
     <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="org.multiverse.instrumentation.utils.AsmUtils" />
       <recent name="org.multiverse.instrumentation.javaagent.utils.AsmUtils" />
       <recent name="org.multiverse.instrumentation.javaagent.InstrumentationUtils" />
       <recent name="org.multiverse.api.TransactionUtils" />
       <recent name="org.multiverse.api.Transaction" />
-      <recent name="org.codehaus.multiverse.multiversionedstm.StmObject" />
     </key>
     <key name="IntroduceConstantDialog.RECENTS_KEY">
       <recent name="org.multiverse.instrumentation.DematerializedClassBuilder.GetHandleMethodBuilder" />
@@ -1449,14 +1498,14 @@
       <window_info id="Dataflow to this" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295325" sideWeight="0.5" order="12" side_tool="false" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" />
-      <window_info id="FindBugs-IDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3295325" sideWeight="0.5" order="7" side_tool="false" />
+      <window_info id="FindBugs-IDEA" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3287827" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32764506" sideWeight="0.5" order="9" side_tool="false" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28782707" sideWeight="0.5" order="10" side_tool="false" />
       <window_info id="TODO" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32901233" sideWeight="0.5838084" order="10" side_tool="false" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24876544" sideWeight="0.70874864" order="1" side_tool="false" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3204105" sideWeight="0.5" order="13" side_tool="false" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3294335" sideWeight="0.6757679" order="0" side_tool="false" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3294335" sideWeight="0.58589303" order="0" side_tool="false" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5118913" sideWeight="0.5" order="11" side_tool="false" />
       <window_info id="Web Preview" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39794755" sideWeight="0.5" order="6" side_tool="false" />
@@ -1467,8 +1516,8 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32963648" sideWeight="0.5" order="3" side_tool="false" />
       <window_info id="Code explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26555762" sideWeight="0.5" order="4" side_tool="false" />
       <window_info id="Structure101" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292232" sideWeight="0.5" order="10" side_tool="false" />
-      <window_info id="SVN Repositories" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3287827" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="Coverage" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" />
+      <window_info id="SVN Repositories" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3287827" sideWeight="0.5" order="7" side_tool="false" />
       <window_info id="Maven projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" />
       <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24938272" sideWeight="0.5" order="2" side_tool="false" />
@@ -1589,89 +1638,89 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleQueueIntegrationTest.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="20" column="13" selection-start="669" selection-end="669" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleIntegerValueTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="13" selection-start="380" selection-end="380" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExamplePairTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="13" selection-start="414" selection-end="414" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStackTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="13" selection-start="334" selection-end="334" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/collections/Latch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="7" selection-start="170" selection-end="170" vertical-scroll-proportion="0.08888889">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstrumentationUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="46" column="46" selection-start="1811" selection-end="1811" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleLinkedListIntegrationTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="41" selection-start="895" selection-end="895" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStackStressTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="444" selection-end="444" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleBTree.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStmUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+        <state line="31" column="17" selection-start="769" selection-end="769" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="156" column="10" selection-start="5946" selection-end="5946" vertical-scroll-proportion="0.0">
+        <state line="145" column="24" selection-start="6259" selection-end="6259" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///java/api/asm-3.1/src/org/objectweb/asm/Type.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="75" column="72" selection-start="2510" selection-end="2510" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java">
+    <entry file="file:///java/api/asm-3.1/src/org/objectweb/asm/tree/InsnList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="172" column="19" selection-start="4438" selection-end="4438" vertical-scroll-proportion="0.0">
+        <state line="564" column="40" selection-start="18867" selection-end="18883" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///java/api/asm-3.1/src/org/objectweb/asm/Frame.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1296" column="49" selection-start="43941" selection-end="43941" vertical-scroll-proportion="0.033027522">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///java/api/asm-3.1/src/org/objectweb/asm/ClassWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/AsmUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="261" column="67" selection-start="9150" selection-end="9150" vertical-scroll-proportion="0.399754">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="51" selection-start="1976" selection-end="1976" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="43" column="11" selection-start="958" selection-end="958" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="427" column="25" selection-start="14448" selection-end="14448" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="method#getStatistics#0;class#MultiversionedStm#0" expanded="true" />
+            <element signature="method#getId#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+            <element signature="method#getState#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+            <element signature="method#setDescription#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+            <element signature="method#getDescription#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+            <element signature="method#getHandle#0;class#LazyReferenceImpl#0;class#MultiversionedTransaction#0;class#MultiversionedStm#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1682,23 +1731,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/MethodBuilder.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="182" column="40" selection-start="5835" selection-end="5835" vertical-scroll-proportion="0.0">
+        <state line="14" column="83" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file:///java/api/asm-3.1/src/org/objectweb/asm/tree/FieldNode.java">
+    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="53" column="99" selection-start="2056" selection-end="2056" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/DematerializedClassBuilder.java">
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstructionsBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="83" column="0" selection-start="3440" selection-end="3440" vertical-scroll-proportion="0.3757503">
+        <state line="34" column="38" selection-start="1125" selection-end="1125" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="80" column="71" selection-start="3543" selection-end="3543" vertical-scroll-proportion="0.6096386">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

@@ -58,11 +58,11 @@ public class Main {
 
         Transaction t2 = stm.startTransaction();
         Stack found = t2.read(handle);
-        System.out.println("stack.handle: " + ((MaterializedObject) (Object) found).getHandle());
 
+        Object item = found.pop();
+        System.out.println("popped item: " + item);
         System.out.println("found.size: " + found.size());
         t2.commit();
-
     }
 
     private static void showMemberClasses(Class simplePairClass) {

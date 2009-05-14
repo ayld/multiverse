@@ -36,4 +36,11 @@ public interface LazyReference<T> {
      * @throws IllegalStateException
      */
     T get();
+
+    /**
+     * Added for instrumentation testing, should be removed
+     *
+     * @return
+     */
+    Object goat();
 }

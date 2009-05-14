@@ -1,5 +1,6 @@
 package org.multiverse.instrumentation.utils;
 
+import org.multiverse.api.TmEntity;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -11,6 +12,9 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -18,19 +22,70 @@ import java.util.List;
  */
 public final class AsmUtils {
 
-    /**
-     * Checks if a type is a secondary (primitive long or double) type or not.
-     *
-     * @param desc a description of the type
-     * @return true if it is a secondary type, false otherwise.
-     */
-    public static boolean isSecondaryType(String desc) {
-        return desc.equals("J") || desc.equals("L");
+    public static Constructor getConstructor(Class clazz, Class<?>... parameterTypes) {
+        try {
+            return clazz.getConstructor(parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    public static Field getField(Class clazz, String fieldName) {
+        try {
+            return clazz.getField(fieldName);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Method getMethod(Class clazz, String methodName, Class<?>... parameterTypes) {
+        try {
+            return clazz.getMethod(methodName, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getInternalNameOfDematerializedClass(ClassNode materializedClass) {
+        if (materializedClass.outerClass == null) {
+            return InternalFormClassnameUtil.getPackagename(materializedClass.name) +
+                    "/" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name) +
+                    "$Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
+        } else {
+            return InternalFormClassnameUtil.getPackagename(materializedClass.name) +
+                    "/" + InternalFormClassnameUtil.getBaseClassname(materializedClass.outerClass) +
+                    "$Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
+        }
+
+    }
+
+    public static String getInnerInternalNameOfDematerializedClass(ClassNode materializedClass) {
+        return "Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
+    }
+
+    public static String getVoidMethodDescriptor(ClassNode... parameterTypes) {
+        Type[] args = new Type[parameterTypes.length];
+        for (int k = 0; k < parameterTypes.length; k++) {
+            args[k] = getType(internalFormToDescriptor(parameterTypes[k].name));
+        }
+
+        return getMethodDescriptor(getType(Void.TYPE), args);
+    }
+
+    public static String internalFormToDescriptor(String internalForm) {
+        return java.lang.String.format("L%s;", internalForm);
+    }
 
     public static boolean isSynthetic(FieldNode fieldNode) {
         return (fieldNode.access & Opcodes.ACC_SYNTHETIC) != 0;
+    }
+
+    public static boolean isObjectType(Type type) {
+        return type.getDescriptor().startsWith("L");
+    }
+
+    public static boolean isTmEntity(String typeDescriptor, ClassLoader classLoader) {
+        return hasVisibleAnnotation(typeDescriptor, TmEntity.class, classLoader);
     }
 
     public static void printFields(ClassNode classNode) {
@@ -40,7 +95,7 @@ public final class AsmUtils {
         }
     }
 
-    public static boolean hasVisibleAnnotation(String typeDescriptor, Class annotationClass, ClassLoader classLoader) {
+    private static boolean hasVisibleAnnotation(String typeDescriptor, Class annotationClass, ClassLoader classLoader) {
         if (typeDescriptor == null || annotationClass == null || classLoader == null)
             throw new NullPointerException();
 
@@ -67,85 +122,22 @@ public final class AsmUtils {
         if (classNode.visibleAnnotations == null)
             return false;
 
-        String annotationClassDesc = getDescriptor(anotationClass);
+        String annotationClassDescriptor = getDescriptor(anotationClass);
 
         for (AnnotationNode node : (List<AnnotationNode>) classNode.visibleAnnotations) {
-            if (annotationClassDesc.equals(node.desc))
+            if (annotationClassDescriptor.equals(node.desc))
                 return true;
         }
 
         return false;
     }
 
-    public static boolean isObjectType(Type type) {
-        return type.getDescriptor().startsWith("L");
-    }
-
-    public static String getShortClassName(ClassNode classNode) {
-        String internalName = classNode.name;
-        int lastIndex = internalName.lastIndexOf('/');
-        if (lastIndex == -1)
-            return internalName;
-
-        return internalName.substring(lastIndex + 1);
-    }
-
-    public static String getPackagename(ClassNode classNode) {
-        String internalName = classNode.name;
-        int lastIndex = internalName.lastIndexOf('/');
-        if (lastIndex == -1)
-            return internalName;
-
-        return internalName.substring(0, lastIndex).replace('/', '.');
+    public static void verify(ClassNode classNode) {
+        verify(toBytecode(classNode));
     }
 
     public static void verify(File file) {
-        verify(toBytes(file));
-    }
-
-    /**
-     * Loads a file as a byte array.
-     *
-     * @param file the File to load.
-     * @return the loaded bytearray.
-     * @throws RuntimeException if an io error occurs.
-     */
-    public static byte[] toBytes(File file) {
-        try {
-            InputStream in = new FileInputStream(file);
-            // Get the size of the file
-            long length = file.length();
-
-            // You cannot create an array using a long type.
-            // It needs to be an int type.
-            // Before converting to an int type, check
-            // to ensure that file is not larger than Integer.MAX_VALUE.
-            if (length > Integer.MAX_VALUE) {
-                // File is too large
-                throw new RuntimeException("file too large");
-            }
-
-            // Create the byte array to hold the data
-            byte[] bytes = new byte[(int) length];
-
-            // Read in the bytes
-            int offset = 0;
-            int numRead = 0;
-            while (offset < bytes.length
-                    && (numRead = in.read(bytes, offset, bytes.length - offset)) >= 0) {
-                offset += numRead;
-            }
-
-            // Ensure all the bytes have been read in
-            if (offset < bytes.length) {
-                throw new IOException("Could not completely read file " + file.getName());
-            }
-
-            in.close();
-            return bytes;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        verify(loadAsBytes(file));
     }
 
     /**
@@ -160,10 +152,6 @@ public final class AsmUtils {
         String msg = sw.toString();
         if (msg.length() > 0)
             throw new RuntimeException(msg);
-    }
-
-    public static void verify(ClassNode classNode) {
-        verify(toBytecode(classNode));
     }
 
     /**
@@ -214,6 +202,53 @@ public final class AsmUtils {
         return classNode;
     }
 
+
+    /**
+     * Loads a file as a byte array.
+     *
+     * @param file the File to load.
+     * @return the loaded bytearray.
+     * @throws RuntimeException if an io error occurs.
+     */
+    public static byte[] loadAsBytes(File file) {
+        try {
+            InputStream in = new FileInputStream(file);
+            // Get the size of the file
+            long length = file.length();
+
+            // You cannot create an array using a long type.
+            // It needs to be an int type.
+            // Before converting to an int type, check
+            // to ensure that file is not larger than Integer.MAX_VALUE.
+            if (length > Integer.MAX_VALUE) {
+                // File is too large
+                throw new RuntimeException("file too large");
+            }
+
+            // Create the byte array to hold the data
+            byte[] bytes = new byte[(int) length];
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead = 0;
+            while (offset < bytes.length
+                    && (numRead = in.read(bytes, offset, bytes.length - offset)) >= 0) {
+                offset += numRead;
+            }
+
+            // Ensure all the bytes have been read in
+            if (offset < bytes.length) {
+                throw new IOException("Could not completely read file " + file.getName());
+            }
+
+            in.close();
+            return bytes;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     /**
      * Transforms a ClassNode to bytecode.
      *
@@ -246,7 +281,6 @@ public final class AsmUtils {
         return writer.toByteArray();
     }
 
-
     public static void writeToFixedTmpFile(Class clazz) throws IOException {
         byte[] bytecode = toBytecode(loadAsClassNode(clazz));
         writeToFixedTmpFile(bytecode);
@@ -257,7 +291,7 @@ public final class AsmUtils {
         writeToFile(file, bytecode);
     }
 
-    public static String getTmpDir() {
+    private static String getTmpDir() {
         return System.getProperty("java.io.tmpdir");
     }
 
@@ -285,7 +319,7 @@ public final class AsmUtils {
         }
     }
 
-    public static void ensureExistingParent(File file) throws IOException {
+    private static void ensureExistingParent(File file) throws IOException {
         File parent = file.getParentFile();
         if (parent.isDirectory())
             return;

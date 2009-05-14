@@ -1,12 +1,11 @@
 package org.multiverse.instrumentation;
 
 import org.multiverse.api.LazyReference;
-import org.multiverse.api.TmEntity;
 import org.multiverse.api.Transaction;
-import static org.multiverse.instrumentation.utils.AsmUtils.hasVisibleAnnotation;
+import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.isSynthetic;
+import static org.multiverse.instrumentation.utils.AsmUtils.isTmEntity;
 import org.multiverse.instrumentation.utils.ClassBuilder;
-import static org.multiverse.instrumentation.utils.InstrumentationUtils.*;
 import org.multiverse.instrumentation.utils.MethodBuilder;
 import org.multiverse.multiversionedstm.DematerializedObject;
 import org.multiverse.multiversionedstm.MultiversionedHandle;
@@ -17,6 +16,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 
 import static java.lang.String.format;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
         this.materializedClass = materializedClass;
         this.classNode.version = V1_5;
         this.classNode.outerClass = materializedClass.name;
-        this.classNode.name = getInternalNameOfDematerializedClass(materializedClass);
+        this.classNode.name = AsmUtils.getInternalNameOfDematerializedClass(materializedClass);
 
         setAccess(ACC_PUBLIC | ACC_FINAL);
         addInterface(DematerializedObject.class);
@@ -47,24 +48,14 @@ public class DematerializedClassBuilder extends ClassBuilder {
 
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClass.fields)) {
             if (!isSynthetic(field)) {
-                if (hasVisibleAnnotation(field.desc, TmEntity.class, classLoader)) {
-                    addPublicFinalSyntheticField(field.name, LazyReference.class);
+                if (isTmEntity(field.desc, classLoader)) {
+                    addPublicFinalSyntheticField(field.name, MultiversionedHandle.class);
                 } else {
                     addPublicFinalSyntheticField(field.name, field.desc);
                 }
             }
         }
     }
-
-    /*
-12 aload_0
-13 aload_1
-14 invokestatic #35 <org/multiverse/multiversionedstm/examples/Stack.access$300>
-17 aload_1
-18 getfield #39 <org/multiverse/multiversionedstm/examples/Stack.head>
-21 invokestatic #44 <org/multiverse/multiversionedstm/MultiversionedStmUtils.getHandle>
-24 putfield #46 <org/multiverse/multiversionedstm/examples/Stack$DematerializedStack.headHandle>
-    */
 
     private class ConstructorBuilder extends MethodBuilder {
 
@@ -73,7 +64,8 @@ public class DematerializedClassBuilder extends ClassBuilder {
             setDescriptor(format("(L%s;L%s;)V", materializedClass.name, getInternalName(Transaction.class)));
 
             ALOAD(0);
-            INVOKESPECIAL(getConstructor(Object.class));
+            Constructor objectConstructor = AsmUtils.getConstructor(Object.class);
+            INVOKESPECIAL(objectConstructor);
             ALOAD(0);
             ALOAD(1);
             GETFIELD(materializedClass, VARNAME_HANDLE, MultiversionedHandle.class);
@@ -81,22 +73,22 @@ public class DematerializedClassBuilder extends ClassBuilder {
 
             for (FieldNode field : (List<FieldNode>) materializedClass.fields) {
                 if (!isSynthetic(field)) {
-                    if (hasVisibleAnnotation(field.desc, TmEntity.class, classLoader)) {
+                    if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         ALOAD(1);
                         GETFIELD(materializedClass, field.name + "Ref", LazyReference.class);
                         ALOAD(1);
-                        GETFIELD(materializedClass, field.name, field.desc);
-                        INVOKESTATIC(getMethod(MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class));
+                        GETFIELD(materializedClass, field);
+                        Method getHandleMethod = AsmUtils.getMethod(MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class);
+                        INVOKESTATIC(getHandleMethod);
                         PUTFIELD(getClassInternalName(), field.name, MultiversionedHandle.class);
                     } else {
                         ALOAD(0);
                         ALOAD(1);
-                        GETFIELD(materializedClass, field.name, field.desc);
+                        GETFIELD(materializedClass, field);
                         PUTFIELD(getClassInternalName(), field.name, field.desc);
                     }
                 }
-
             }
             RETURN();
         }
@@ -104,7 +96,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
 
     private class GetHandleMethodBuilder extends MethodBuilder {
         private GetHandleMethodBuilder() {
-            initWithInterfaceMethod(getMethod(DematerializedObject.class, "getHandle"));
+            initWithInterfaceMethod(AsmUtils.getMethod(DematerializedObject.class, "getHandle"));
 
             ALOAD(0);
             GETFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
@@ -115,14 +107,14 @@ public class DematerializedClassBuilder extends ClassBuilder {
     private class RematerializeMethodBuilder extends MethodBuilder {
 
         private RematerializeMethodBuilder() {
-            initWithInterfaceMethod(getMethod(DematerializedObject.class, "rematerialize", Transaction.class));
+            initWithInterfaceMethod(AsmUtils.getMethod(DematerializedObject.class, "rematerialize", Transaction.class));
 
             NEW(materializedClass);
             DUP();
             ALOAD(0);
             ALOAD(1);
-            String desc = format("(L%s;%s)V", getClassInternalName(), getDescriptor(Transaction.class));
-            INVOKESPECIAL(materializedClass, "<init>", desc);
+            String constructorDescriptor = format("(L%s;%s)V", getClassInternalName(), getDescriptor(Transaction.class));
+            INVOKESPECIAL(materializedClass, "<init>", constructorDescriptor);
             ARETURN();
         }
     }

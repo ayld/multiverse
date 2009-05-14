@@ -27,6 +27,11 @@ public final class ExampleStack<E> implements MaterializedObject {
         return head == null;
     }
 
+    public void deleteMe(ExampleStackNode<E> x) {
+        headRef = null;
+        head = x;
+    }
+
     public void push(E item) {
         ensureHeadLoaded();
         head = new ExampleStackNode<E>(head, item);
