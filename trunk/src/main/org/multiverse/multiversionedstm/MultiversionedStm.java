@@ -423,6 +423,11 @@ public final class MultiversionedStm implements Stm {
 
                 return ref;
             }
+
+            @Override
+            public Object goat() {
+                return get();
+            }
         }
     }
 }

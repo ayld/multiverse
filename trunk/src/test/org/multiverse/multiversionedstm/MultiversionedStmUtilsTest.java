@@ -78,5 +78,12 @@ public class MultiversionedStmUtilsTest {
         public Object get() {
             return value;
         }
+
+        @Override
+        public Object goat() {
+            return get();
+        }
+
+
     }
 }

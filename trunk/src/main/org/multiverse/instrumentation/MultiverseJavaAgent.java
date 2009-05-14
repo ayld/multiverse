@@ -1,9 +1,7 @@
 package org.multiverse.instrumentation;
 
 import org.multiverse.api.TmEntity;
-import org.multiverse.instrumentation.utils.AsmUtils;
-import static org.multiverse.instrumentation.utils.AsmUtils.hasVisibleAnnotation;
-import static org.multiverse.instrumentation.utils.AsmUtils.loadAsClassNode;
+import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -19,11 +17,41 @@ public class MultiverseJavaAgent {
         System.out.println("Starting the Multiverse JavaAgent");
 
         inst.addTransformer(new Phase1ClassFileTransformer());
-        //inst.addTransformer(new Phase2ClassFileTransformer());
+        inst.addTransformer(new Phase2ClassFileTransformer());
+    }
+
+    //responsible for transforming access to fields of dematerializable objects.
+    public static class Phase1ClassFileTransformer implements ClassFileTransformer {
+
+        @Override
+        public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+            try {
+                if (className.startsWith("java"))
+                    return null;
+
+                ClassNode classNode = loadAsClassNode(classfileBuffer);
+
+                //a hack for performance.. atm we only check tmentities.. but object that change fields
+                //on tm entities need to be changed in the future as well.
+                if (!hasVisibleAnnotation(classNode, TmEntity.class)) {
+                    return null;
+                }
+
+                AccessTransformer transformer = new AccessTransformer(classNode, loader);
+                ClassNode transformedClassNode = transformer.create();
+                return toBytecode(transformedClassNode);
+            } catch (RuntimeException ex) {
+                ex.printStackTrace();
+                throw ex;
+            } catch (Error e) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
     }
 
     //responsible for transforming and generated the dematerializable/dematerialized classes
-    public static class Phase1ClassFileTransformer implements ClassFileTransformer {
+    public static class Phase2ClassFileTransformer implements ClassFileTransformer {
 
         @Override
         public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
@@ -40,6 +68,8 @@ public class MultiverseJavaAgent {
                 DematerializedClassBuilder dematerializedClassBuilder = new DematerializedClassBuilder(classNode, loader);
                 ClassNode dematerialized = dematerializedClassBuilder.create();
 
+                //verify(dematerialized);
+
                 if (MultiverseClassLoader.INSTANCE == null)
                     new MultiverseClassLoader();
 
@@ -47,7 +77,7 @@ public class MultiverseJavaAgent {
 
                 TmEntityClassTransformer t = new TmEntityClassTransformer(classNode, dematerialized, loader);
                 ClassNode materialized = t.create();
-                return AsmUtils.toBytecode(materialized);
+                return toBytecode(materialized);
             } catch (RuntimeException ex) {
                 ex.printStackTrace();
                 throw ex;
@@ -58,12 +88,5 @@ public class MultiverseJavaAgent {
         }
     }
 
-    //responsible for transforming access to fields of dematerializable objects. 
-    public static class Phase2ClassFileTransformer implements ClassFileTransformer {
 
-        @Override
-        public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-            return null;
-        }
-    }
 }

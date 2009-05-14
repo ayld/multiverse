@@ -61,7 +61,7 @@ public abstract class ClassBuilder implements Opcodes {
     }
 
     public void addMethod(MethodBuilder methodBuilder) {
-        classNode.methods.add(methodBuilder.create());
+        classNode.methods.add(methodBuilder.createMethod());
     }
 
     public void setSuperclass(Class superClass) {

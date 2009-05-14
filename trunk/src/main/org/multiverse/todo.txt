@@ -1,13 +1,41 @@
 TODO
 
-- beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
-    http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
+- POJO INSTRUMENTATION:
 
-- pojo instrumentatie: veld conflict namen van lazy reference 
+    - pojo instrumentatie van access naar @Materializable classes.
 
-- pojo instrumentation: is dirty field
+    - pojo instrumentatie: the constructor of the TmEntity is changed in a bad way; code
+    is added before the first return. But because there could be multiple exit points, not all
+    possible exit points are changed. So it would be better to do it in the beginning.
 
-- pojo instrumentation: fields that only are at runtime to be determined dematerializable.
+    - beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
+        http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
+
+    - pojo instrumentatie: veld conflict namen van lazy reference
+
+    - pojo instrumentation: isDirty method.
+
+    - pojo instrumentation: fields that only are at runtime to be determined MaterializedObject.
+        - this needs to be done in the stmentity.constructor
+        - this needs to be done in the dematerialized.constructor
+        - this needs to be done in the walkMembers method
+        - this needs to be done in the dirty method.
+
+    - java agent aan de praat krijgen onder intellij.
+
+    - escape analysis needed for read/readUnmanaged
+
+    - analysis for read/readLazy
+
+    - dealing with subclasses
+
+    - dealing with innerclasses.
+
+    - Ignored annotation for ignoring fields.
+
+    - pojo instrumentation of @atomic
+
+    - unit and integration tests for instrumentation.
 
 - simple function for outputting a string on the console: should be placed in the method builder for
 debugging purposes.
@@ -16,16 +44,6 @@ debugging purposes.
 
 - zorgen dat je een nieuwe class kunt toevoegen bij het load proces; noodzakelijk voor de dematerialized objects.
     - de dematerializedclass is toegevoegd aan de classnode, maar is niet zichtbaar bij het laden.
-
-- java agent aan de praat krijgen onder intellij.
-
-- pojo instrumentatie van @atomic classes
-
-- pojo instrumentatie van @Materializable classes
-
-- pojo instrumentatie van @Materializable.dematerialized classes
-
-- pojo instrumentatie van access naar @Materializable classes.
 
 - track number of starvation problems: transaction
 
@@ -93,8 +111,6 @@ IMPROVEMENTS
 - support voor echte readonly transacties toevoegen.
 
 - transactie propagatie
-
-- omgaan met subclasses.
 
 DONE
 
@@ -200,4 +216,8 @@ that a pointer to the object will not be needed again).
 - japex.cml is removed
 
 - writeandreleaselock returns a ListenerNode, this needs to be checked
+
+- pojo instrumentatie van @TmEntity classes
+
+- pojo instrumentatie van @TmEntity.dematerialized classes
 
