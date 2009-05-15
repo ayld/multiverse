@@ -1,6 +1,7 @@
 package org.multiverse.instrumentation;
 
 import org.multiverse.api.LazyReference;
+import static org.multiverse.instrumentation.utils.AsmUtils.getMethod;
 import static org.multiverse.instrumentation.utils.AsmUtils.isTmEntity;
 import org.multiverse.instrumentation.utils.InstructionsBuilder;
 import org.objectweb.asm.Opcodes;
@@ -58,24 +59,13 @@ public class AccessTransformer implements Opcodes {
                 //[.., materialized]
                 b.DUP();
                 //[.., materialized, materialized ]
-                b.DUP2();
-                //[.., materialized, materialized, materialized, materialized]
-                b.GETFIELD(getInstruction.owner, getInstruction.name + "Ref", LazyReference.class);
-                //[.., materialized, materialized, materialized, ref]
-                b.codeForPrintClassTopItem();
-
-                //b.INVOKEINTERFACE(getMethod(LazyReference.class, "get"));
-                //[.., materialized, materialized, value]
-
-                //[.., materialized, materialized, materialized, ref]
-                b.POP();
+                b.DUP();
                 //[.., materialized, materialized, materialized]
-                b.POP();
-                //[.., materialized, materialized]
-                b.ACONST_NULL();
-                //[.., materialized, materialized, null]
-
-
+                b.GETFIELD(getInstruction.owner, getInstruction.name + "Ref", LazyReference.class);
+                //[.., materialized, materialized, ref]
+                b.codeForPrintClassTopItem();
+                b.INVOKEINTERFACE(getMethod(LazyReference.class, "get"));
+                //[.., materialized, materialized, value]
                 b.CHECKCAST(getInstruction.desc);
                 //[.., materialized, materialized, value]
                 b.PUTFIELD(getInstruction.owner, getInstruction.name, getInstruction.desc);
@@ -92,24 +82,6 @@ public class AccessTransformer implements Opcodes {
             }
         }
     }
-
-    /*
- 0 aload_0
- 1 getfield #82 <org/multiverse/multiversionedstm/examples/ExampleStack.headRef>
- 4 ifnull 28 (+24)
- 7 aload_0
- 8 aload_0
- 9 getfield #82 <org/multiverse/multiversionedstm/examples/ExampleStack.headRef>
-12 invokeinterface #87 <org/multiverse/api/LazyReference.get> count 1
-17 checkcast #47 <org/multiverse/multiversionedstm/examples/ExampleStackNode>
-20 putfield #45 <org/multiverse/multiversionedstm/examples/ExampleStack.head>
-23 aload_0
-24 aconst_null
-25 putfield #82 <org/multiverse/multiversionedstm/examples/ExampleStack.headRef>
-
-28 return
-
-     */
 
     public InsnList clone(InsnList insnList) {
         InsnList cloned = new InsnList();

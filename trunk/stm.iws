@@ -19,30 +19,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/ClassBuilder.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/ClassBuilder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/StmField.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" afterPath="$PROJECT_DIR$/src/main/org/multiverse/todo.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/MultiversionedStmUtilsTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstructionsBuilder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/multiversionedstm/MultiversionedStm.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/StmClass.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/MethodBuilder.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/MethodBuilder.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessClassTransformator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/AsmStmAnalyzer.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/AsmUtils.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/AsmUtils.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/MultiverseJavaAgent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/DematerializedClassBuilder.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/DematerializedClassBuilder.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/javaagent/analysis/StmAnalyzer.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/org/multiverse/collections/StackNode.java" afterPath="$PROJECT_DIR$/src/main/org/multiverse/collections/StackNode.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstrumentationUtils.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
@@ -172,7 +150,7 @@
       <file leaf-file-name="AccessTransformer.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="80" column="71" selection-start="3543" selection-end="3543" vertical-scroll-proportion="0.6096386">
+            <state line="35" column="67" selection-start="1391" selection-end="1391" vertical-scroll-proportion="0.021686748">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -183,9 +161,19 @@
       <file leaf-file-name="InstructionsBuilder.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstructionsBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="38" selection-start="1125" selection-end="1125" vertical-scroll-proportion="0.0">
+            <state line="34" column="38" selection-start="1117" selection-end="1117" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
+                <marker date="1242327704000" expanded="true" signature="1409:1508" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="1551:1587" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="1622:1666" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="1701:1828" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="1877:2142" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="2227:2291" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="2368:2440" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="2497:2675" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="2722:2893" placeholder="{...}" />
+                <marker date="1242327704000" expanded="true" signature="2972:3168" placeholder="{...}" />
               </folding>
             </state>
           </provider>
@@ -194,8 +182,10 @@
       <file leaf-file-name="LazyReference.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="43" column="11" selection-start="958" selection-end="958" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="44" column="11" selection-start="965" selection-end="965" vertical-scroll-proportion="0.0">
+              <folding>
+                <marker date="1242327704000" expanded="true" signature="860:953" placeholder="/**...*/" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -239,7 +229,7 @@
       <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="75" column="72" selection-start="2510" selection-end="2510" vertical-scroll-proportion="0.0">
+            <state line="75" column="61" selection-start="2496" selection-end="2496" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -257,7 +247,7 @@
       <file leaf-file-name="Rubish.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="83" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
+            <state line="14" column="69" selection-start="427" selection-end="427" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -1638,13 +1628,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleStack.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="17" selection-start="769" selection-end="769" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/TmEntityClassTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="145" column="24" selection-start="6259" selection-end="6259" vertical-scroll-proportion="0.0">
@@ -1661,10 +1644,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="75" column="72" selection-start="2510" selection-end="2510" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state line="75" column="61" selection-start="2496" selection-end="2496" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1705,8 +1686,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/api/LazyReference.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="43" column="11" selection-start="958" selection-end="958" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="44" column="11" selection-start="965" selection-end="965" vertical-scroll-proportion="0.0">
+          <folding>
+            <marker date="1242327704000" expanded="true" signature="860:953" placeholder="/**...*/" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1733,7 +1716,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/Rubish.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="83" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
+        <state line="14" column="69" selection-start="427" selection-end="427" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -1749,16 +1732,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/utils/InstructionsBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="38" selection-start="1125" selection-end="1125" vertical-scroll-proportion="0.0">
+        <state line="34" column="38" selection-start="1117" selection-end="1117" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
+            <marker date="1242327704000" expanded="true" signature="1409:1508" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="1551:1587" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="1622:1666" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="1701:1828" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="1877:2142" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="2227:2291" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="2368:2440" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="2497:2675" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="2722:2893" placeholder="{...}" />
+            <marker date="1242327704000" expanded="true" signature="2972:3168" placeholder="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/org/multiverse/instrumentation/AccessTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="80" column="71" selection-start="3543" selection-end="3543" vertical-scroll-proportion="0.6096386">
+        <state line="35" column="67" selection-start="1391" selection-end="1391" vertical-scroll-proportion="0.021686748">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
