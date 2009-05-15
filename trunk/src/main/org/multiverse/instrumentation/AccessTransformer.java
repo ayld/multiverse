@@ -7,6 +7,7 @@ import org.multiverse.instrumentation.utils.InstructionsBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class AccessTransformer implements Opcodes {
@@ -22,7 +23,6 @@ public class AccessTransformer implements Opcodes {
             transformMethod(method);
         }
     }
-
 
     public void transformMethod(MethodNode methodNode) {
         InsnList modifiedInstructions = methodNode.instructions;
@@ -63,8 +63,8 @@ public class AccessTransformer implements Opcodes {
                 //[.., materialized, materialized, materialized]
                 b.GETFIELD(getInstruction.owner, getInstruction.name + "Ref", LazyReference.class);
                 //[.., materialized, materialized, ref]
-                b.codeForPrintClassTopItem();
-                b.INVOKEINTERFACE(getMethod(LazyReference.class, "get"));
+                Method getMethod = getMethod(LazyReference.class, "get");
+                b.INVOKEINTERFACE(getMethod);
                 //[.., materialized, materialized, value]
                 b.CHECKCAST(getInstruction.desc);
                 //[.., materialized, materialized, value]

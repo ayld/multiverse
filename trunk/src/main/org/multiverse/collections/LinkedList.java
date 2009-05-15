@@ -1,7 +1,10 @@
 package org.multiverse.collections;
 
+import org.multiverse.api.TmEntity;
+
 import java.util.*;
 
+@TmEntity
 public class LinkedList<E> extends AbstractSequentialList<E>
         implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
 
@@ -696,10 +699,11 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         }
     }
 
+    @TmEntity
     private static class Entry<E> {
-        E element;
-        Entry<E> next;
-        Entry<E> previous;
+        protected E element;
+        protected Entry<E> next;
+        protected Entry<E> previous;
 
         Entry(E element, Entry<E> next, Entry<E> previous) {
             this.element = element;
@@ -764,7 +768,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @return a shallow copy of this <tt>LinkedList</tt> instance
      */
     public Object clone() {
-        LinkedList<E> clone = null;
+        LinkedList<E> clone;
         try {
             clone = (LinkedList<E>) super.clone();
         } catch (CloneNotSupportedException e) {
