@@ -8,6 +8,9 @@ TODO
     is added before the first return. But because there could be multiple exit points, not all
     possible exit points are changed. So it would be better to do it in the beginning.
 
+    - pojo instrumentation van final fields: the final access modifier needs to be removed
+    on fields where a lazy reference is created.
+
     - beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
         http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
 

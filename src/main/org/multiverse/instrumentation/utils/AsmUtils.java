@@ -9,6 +9,7 @@ import static org.objectweb.asm.Type.*;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MemberNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.*;
@@ -111,20 +112,20 @@ public final class AsmUtils {
     /**
      * Checks if a ClassNode has the specified visible annotation.
      *
-     * @param classNode      the ClassNode to check
+     * @param memberNode     the ClassNode to check
      * @param anotationClass the Annotation class that is checked for.
      * @return true if classNode has the specified annotation, false otherwise.
      */
-    public static boolean hasVisibleAnnotation(ClassNode classNode, Class anotationClass) {
-        if (classNode == null || anotationClass == null)
+    public static boolean hasVisibleAnnotation(MemberNode memberNode, Class anotationClass) {
+        if (memberNode == null || anotationClass == null)
             throw new NullPointerException();
 
-        if (classNode.visibleAnnotations == null)
+        if (memberNode.visibleAnnotations == null)
             return false;
 
         String annotationClassDescriptor = getDescriptor(anotationClass);
 
-        for (AnnotationNode node : (List<AnnotationNode>) classNode.visibleAnnotations) {
+        for (AnnotationNode node : (List<AnnotationNode>) memberNode.visibleAnnotations) {
             if (annotationClassDescriptor.equals(node.desc))
                 return true;
         }
@@ -193,7 +194,7 @@ public final class AsmUtils {
      * @param bytecode the bytecode to load.
      * @return the created ClassNode.
      */
-    public static ClassNode loadAsClassNode(byte[] bytecode) {
+    public static ClassNode toClassNode(byte[] bytecode) {
         if (bytecode == null) throw new NullPointerException();
 
         ClassNode classNode = new ClassNode();

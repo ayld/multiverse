@@ -44,7 +44,7 @@ public final class Stack<E> {
 
     private E removeTopItem() {
         StackNode<E> oldHead = head;
-        head = oldHead.next;
+        this.head = oldHead.next;
         size--;
         return oldHead.value;
     }

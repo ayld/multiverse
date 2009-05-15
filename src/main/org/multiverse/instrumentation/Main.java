@@ -20,6 +20,7 @@ public class Main {
 
         testLatch();
         testStack();
+        testQueue();
     }
 
     private static void testLatch() {
@@ -53,15 +54,21 @@ public class Main {
         MultiversionedStm stm = new MultiversionedStm();
         Transaction t = stm.startTransaction();
         Handle<Stack> handle = t.attach(stack);
-        stack.push("hallo");
+        stack.push("item1");
+        stack.push("item2");
+
+        System.out.println("stack.size: " + stack.size());
         t.commit();
 
         Transaction t2 = stm.startTransaction();
-        Stack found = t2.read(handle);
+        Stack foundStack = t2.read(handle);
 
-        Object item = found.pop();
-        System.out.println("popped item: " + item);
-        System.out.println("found.size: " + found.size());
+        System.out.println("foundStack.size: " + foundStack.size());
+
+        while (!foundStack.isEmpty()) {
+            System.out.println("popped item: " + foundStack.pop() + " size = " + foundStack.size());
+        }
+
         t2.commit();
     }
 
