@@ -105,7 +105,6 @@
              basedir="${classes.boot}"/>
     </target>
 
-
     <target name="compile.all"
             description="Compiles all the sources"
             depends="compile.main, compile.test"/>
@@ -149,11 +148,15 @@
 
     <target name="test"
             description="Runs the standard unit tests"
-            depends="compile.test">
+            depends="compile.test, jar">
 
         <mkdir dir="${unitreports}"/>
 
         <junit printsummary="yes" haltonfailure="yes">
+
+            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
+            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
+
             <classpath>
                 <pathelement location="${classes.test}"/>
                 <pathelement location="${classes.main}"/>
@@ -175,7 +178,7 @@
 
     <target name="test.stress"
             description="Runs the stress tests (can take a long time)"
-            depends="compile.test">
+            depends="compile.test,jar">
 
         <mkdir dir="${unitreports}"/>
 
@@ -216,10 +219,11 @@
         </zip>
     </target>
 
-    <target name="run" description="do run" depends="jar">
-        <java classname="org.multiverse.instrumentation.Main" fork="true">
+    <target name="run" description="Runs a few examples.. (is going to be removed)" depends="jar">
+        <java classname="org.multiverse.instrumentation.TestRunningMain" fork="true">
             <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
             <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
         </java>
     </target>
+
 </project>

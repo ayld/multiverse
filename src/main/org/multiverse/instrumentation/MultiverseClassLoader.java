@@ -5,11 +5,10 @@ import org.objectweb.asm.tree.ClassNode;
 
 public class MultiverseClassLoader extends TestLoader {
 
-    public static MultiverseClassLoader INSTANCE;
+    public static MultiverseClassLoader INSTANCE = new MultiverseClassLoader();
 
     public MultiverseClassLoader() {
         super(MultiverseClassLoader.class.getClassLoader());
-        INSTANCE = this;
     }
 
     public Class defineClass(ClassNode classNode) {

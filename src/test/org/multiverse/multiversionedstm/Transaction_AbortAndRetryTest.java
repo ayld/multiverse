@@ -21,7 +21,6 @@ public class Transaction_AbortAndRetryTest {
         stm = new MultiversionedStm();
     }
 
-
     @Test
     public void abortAndRetryWithSingleRead() throws InterruptedException {
         final Handle<ExampleQueue<ExampleIntegerValue>> handle = commit(stm, new ExampleQueue<ExampleIntegerValue>());

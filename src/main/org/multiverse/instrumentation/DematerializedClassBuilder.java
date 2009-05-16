@@ -3,8 +3,7 @@ package org.multiverse.instrumentation;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.instrumentation.utils.AsmUtils;
-import static org.multiverse.instrumentation.utils.AsmUtils.isSynthetic;
-import static org.multiverse.instrumentation.utils.AsmUtils.isTmEntity;
+import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.multiverse.instrumentation.utils.ClassBuilder;
 import org.multiverse.instrumentation.utils.MethodBuilder;
 import org.multiverse.multiversionedstm.DematerializedObject;
@@ -47,7 +46,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
         addPublicFinalSyntheticField(VARNAME_HANDLE, MultiversionedHandle.class);
 
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClass.fields)) {
-            if (!isSynthetic(field)) {
+            if (!isSynthetic(field) && !isStatic(field)) {
                 if (isTmEntity(field.desc, classLoader)) {
                     addPublicFinalSyntheticField(field.name, MultiversionedHandle.class);
                 } else {
@@ -72,7 +71,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
             PUTFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
 
             for (FieldNode field : (List<FieldNode>) materializedClass.fields) {
-                if (!isSynthetic(field)) {
+                if (!isSynthetic(field) && !isStatic(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         ALOAD(1);

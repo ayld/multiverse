@@ -2,6 +2,7 @@ package org.multiverse.collections;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.TmEntity;
+import org.multiverse.api.Unmanaged;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 @TmEntity
 public final class Stack<E> {
 
+    @Unmanaged
     protected StackNode<E> head;
     protected int size;
 
@@ -87,12 +89,25 @@ public final class Stack<E> {
             return false;
 
         Stack that = (Stack) thatObj;
-        if (that.size() != this.size())
+        if (that.size != this.size)
             return false;
 
         if (this.head == null)
             return that.head == null;
 
-        return this.head.equals(that.head);
+        return this.asList().equals(that.asList());
+    }
+
+    @TmEntity
+    public static final class StackNode<E> {
+
+        @Unmanaged
+        protected StackNode<E> next;
+        protected E value;
+
+        public StackNode(StackNode<E> next, E value) {
+            this.next = next;
+            this.value = value;
+        }
     }
 }

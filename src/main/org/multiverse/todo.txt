@@ -2,22 +2,16 @@ TODO
 
 - POJO INSTRUMENTATION:
 
-    - pojo instrumentatie van access naar @Materializable classes.
-
-    - pojo instrumentatie: the constructor of the TmEntity is changed in a bad way; code
-    is added before the first return. But because there could be multiple exit points, not all
-    possible exit points are changed. So it would be better to do it in the beginning.
-
     - pojo instrumentation van final fields: the final access modifier needs to be removed
     on fields where a lazy reference is created.
 
     - beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
         http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
 
-    - pojo instrumentatie: veld conflict namen van lazy reference
-
     - pojo instrumentation: isDirty method.
 
+    - pojo instrumentation: support for static fields.
+       
     - pojo instrumentation: fields that only are at runtime to be determined MaterializedObject.
         - this needs to be done in the stmentity.constructor
         - this needs to be done in the dematerialized.constructor
@@ -26,22 +20,23 @@ TODO
 
     - java agent aan de praat krijgen onder intellij.
 
-    - escape analysis needed for read/readUnmanaged
-
     - analysis for read/readLazy
 
     - dealing with subclasses
 
-    - dealing with innerclasses.
+    - dealing with non static inner classes.
 
-    - Ignored annotation for ignoring fields.
+    - annotation for ignored fields
+
+    - annotation for Unmanaged fields
+
+    - annotation for eager fields
 
     - pojo instrumentation of @atomic
 
     - unit and integration tests for instrumentation.
 
-- simple function for outputting a string on the console: should be placed in the method builder for
-debugging purposes.
+
 
 - intellij files should be removed from project
 
@@ -70,6 +65,8 @@ debugging purposes.
 
 IMPROVEMENTS
 
+- escape analysis needed for read/readUnmanaged
+
 - tree toevoegen
 
     - volledig test van persist
@@ -89,10 +86,6 @@ IMPROVEMENTS
     - iterator
 
 - set toevoegen
-
-- list toevoegen
-
-- dequeue toevoegen
 
 - duidelijk gedrag objecten die aan 'verkeerde' transactie gekoppeld zijn.
 
@@ -223,4 +216,18 @@ that a pointer to the object will not be needed again).
 - pojo instrumentatie van @TmEntity classes
 
 - pojo instrumentatie van @TmEntity.dematerialized classes
+
+- pojo instrumentatie van access naar @Materializable classes.
+
+- pojo instrumentation: static fields are ignored.
+
+- list toevoegen
+
+- dequeue toevoegen
+
+- dealing with static innerclasses.
+
+- pojo instrumentatie: the constructor of the TmEntity is changed in a bad way; code
+    is added before the first return. But because there could be multiple exit points, not all
+    possible exit points are changed. So it would be better to do it in the beginning.
 

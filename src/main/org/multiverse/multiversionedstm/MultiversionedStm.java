@@ -12,6 +12,7 @@ import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.CheapLatch;
 import org.multiverse.util.latches.Latch;
 
+import static java.lang.String.format;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -151,7 +152,8 @@ public final class MultiversionedStm implements Stm {
 
         private void assertActive() {
             if (state != TransactionState.active) {
-                throw new IllegalStateException();
+                String msg = format("Transaction should be active, but was %s", state);
+                throw new IllegalStateException(msg);
             }
         }
 
@@ -160,11 +162,12 @@ public final class MultiversionedStm implements Stm {
             assertActive();
 
             if (objectToAttach == null) {
-                throw new NullPointerException();
+                throw new NullPointerException("objectToAttach can't be null");
             }
 
             if (!(objectToAttach instanceof MaterializedObject)) {
-                throw new IllegalArgumentException();
+                String msg = format("Can't attach %s, it is not a MaterializedObject instance", objectToAttach);
+                throw new IllegalArgumentException(msg);
             }
 
             MaterializedObject materializedObjectToAttach = (MaterializedObject) objectToAttach;

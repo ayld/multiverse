@@ -1,6 +1,7 @@
 package org.multiverse.instrumentation;
 
 import org.multiverse.api.LazyReference;
+import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.getMethod;
 import static org.multiverse.instrumentation.utils.AsmUtils.isTmEntity;
 import org.multiverse.instrumentation.utils.InstructionsBuilder;
@@ -10,12 +11,21 @@ import org.objectweb.asm.tree.*;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class AccessTransformer implements Opcodes {
+/**
+ * The LazyAccessTransformer is responsible for transforming a ClassNode so that access it makes
+ * to all @TmEntity objects, are modified if needed.
+ * <p/>
+ * For each member of type {@link @TmEntity} of an object, extra code will be generated to deal with the
+ * LazyReference.
+ *
+ * @author Peter Veentjer.
+ */
+public class LazyAccessTransformer implements Opcodes {
 
     private final ClassNode materializedClassNode;
     private final ClassLoader classLoader;
 
-    public AccessTransformer(ClassNode materializedClassNode, ClassLoader classLoader) {
+    public LazyAccessTransformer(ClassNode materializedClassNode, ClassLoader classLoader) {
         this.materializedClassNode = materializedClassNode;
         this.classLoader = classLoader;
 
@@ -25,8 +35,10 @@ public class AccessTransformer implements Opcodes {
     }
 
     public void transformMethod(MethodNode methodNode) {
+        //a clone is created to prevent 'concurrent' failure. The unmodified is traversed and the
+        //changes are made to the modifiedInstructions.
         InsnList modifiedInstructions = methodNode.instructions;
-        InsnList unmodifiedInstructions = clone(modifiedInstructions);
+        InsnList unmodifiedInstructions = AsmUtils.clone(modifiedInstructions);
 
         for (int k = 0; k < unmodifiedInstructions.size(); k++) {
             AbstractInsnNode instruction = unmodifiedInstructions.get(k);
@@ -83,25 +95,16 @@ public class AccessTransformer implements Opcodes {
         }
     }
 
-    public InsnList clone(InsnList insnList) {
-        InsnList cloned = new InsnList();
-        for (int k = 0; k < insnList.size(); k++) {
-            cloned.add(insnList.get(k));
-        }
-        return cloned;
-    }
-
     private boolean isPutOnStmEntityField(AbstractInsnNode insnNode) {
-        if (insnNode.getOpcode() != PUTFIELD) {
-            return false;
-        }
-
-        FieldInsnNode fieldInsnNode = (FieldInsnNode) insnNode;
-        return isTmEntity(fieldInsnNode.desc, classLoader);
+        return isFieldInsnNodeOnStmEntityField(insnNode, PUTFIELD);
     }
 
     private boolean isGetOnStmEntityField(AbstractInsnNode insnNode) {
-        if (insnNode.getOpcode() != GETFIELD) {
+        return isFieldInsnNodeOnStmEntityField(insnNode, GETFIELD);
+    }
+
+    private boolean isFieldInsnNodeOnStmEntityField(AbstractInsnNode insnNode, int opcode) {
+        if (insnNode.getOpcode() != opcode) {
             return false;
         }
 
