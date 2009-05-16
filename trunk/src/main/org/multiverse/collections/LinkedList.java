@@ -8,8 +8,8 @@ import java.util.*;
 public class LinkedList<E> extends AbstractSequentialList<E>
         implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
 
-    protected transient Entry<E> header = new Entry<E>(null, null, null);
-    protected transient int size = 0;
+    protected Entry<E> header = new Entry<E>(null, null, null);
+    protected int size = 0;
 
     /**
      * Constructs an empty list.
@@ -27,7 +27,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @throws NullPointerException if the specified collection is null
      */
     public LinkedList(Collection<? extends E> c) {
-        this();
+        header.next = header.previous = header;
         addAll(c);
     }
 
@@ -604,11 +604,12 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         return new ListItr(index);
     }
 
+    @TmEntity
     private class ListItr implements ListIterator<E> {
-        private Entry<E> lastReturned = header;
-        private Entry<E> next;
-        private int nextIndex;
-        private int expectedModCount = modCount;
+        protected Entry<E> lastReturned = header;
+        protected Entry<E> next;
+        protected int nextIndex;
+        protected int expectedModCount = modCount;
 
         ListItr(int index) {
             if (index < 0 || index > size)
@@ -700,7 +701,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
     }
 
     @TmEntity
-    private static class Entry<E> {
+    protected static class Entry<E> {
         protected E element;
         protected Entry<E> next;
         protected Entry<E> previous;
@@ -745,8 +746,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
     /**
      * Adapter to provide descending iterators via ListItr.previous
      */
-    private class DescendingIterator implements Iterator {
-        final ListItr itr = new ListItr(size());
+    @TmEntity
+    protected class DescendingIterator implements Iterator {
+        protected ListItr itr = new ListItr(size());
 
         public boolean hasNext() {
             return itr.hasPrevious();
@@ -863,7 +865,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         return a;
     }
 
-    private static final long serialVersionUID = 876323262645176354L;
+    //private static final long serialVersionUID = 876323262645176354L;
 
     /**
      * Save the state of this <tt>LinkedList</tt> instance to a stream (that

@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.collections;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -8,7 +8,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class ExampleBTreeTest {
+public class BTreeTest {
     private MultiversionedStm stm;
 
     @Before
@@ -18,7 +18,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void sizeEmptyBTree() {
-        ExampleBTree tree = new ExampleBTree();
+        BTree tree = new BTree();
         assertEquals(0, tree.size());
     }
 
@@ -26,13 +26,13 @@ public class ExampleBTreeTest {
 
     @Test
     public void isEmptyOnEmptyBTree() {
-        ExampleBTree tree = new ExampleBTree();
+        BTree tree = new BTree();
         assertTrue(tree.isEmpty());
     }
 
     @Test
     public void isEmptyOnNonEmptyBTree() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         tree.put("foo", "bar");
         assertFalse(tree.isEmpty());
     }
@@ -42,7 +42,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void heightOnEmptyBTree() {
-        ExampleBTree tree = new ExampleBTree();
+        BTree tree = new BTree();
         assertEquals(0, tree.height());
     }
 
@@ -50,14 +50,14 @@ public class ExampleBTreeTest {
 
     @Test
     public void findOnEmptyBTree() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         String result = tree.find("foo");
         assertNull(result);
     }
 
     @Test
     public void findORootAndMatch() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         String key = "foo";
         String value = "bar";
         tree.put(key, value);
@@ -67,7 +67,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void findORootAndNoMatch() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         String key = "foo";
         String value = "bar";
         tree.put(key, value);
@@ -80,7 +80,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void removeOnEmptyBTree() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         String found = tree.remove("foo");
         assertNull(found);
         assertTrue(tree.isEmpty());
@@ -90,7 +90,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void putOnEmptyBTree() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         String key = "foo";
         String value = "bar";
         String replaced = tree.put(key, value);
@@ -100,7 +100,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void putReplaceRoot() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         String key = "foo";
         String oldValue = "bar";
         tree.put(key, oldValue);
@@ -114,7 +114,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void putReplaceNonEmptyRoot() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
 
         tree.put("1", "oldValue");
         tree.put("0", "banana");
@@ -131,7 +131,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void putAddToLeft() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
 
         tree.put("1", "root");
 
@@ -145,7 +145,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void putReplaceLeft() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
 
         tree.put("1", "root");
         tree.put("0", "oldValue");
@@ -159,7 +159,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void putAddToRight() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
 
         tree.put("1", "root");
 
@@ -173,7 +173,7 @@ public class ExampleBTreeTest {
 
     @Test
     public void putReplaceRight() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
 
         tree.put("1", "root");
         tree.put("2", "oldValue");
@@ -190,14 +190,14 @@ public class ExampleBTreeTest {
 
     @Test
     public void clearOnEmptyBTreeIsIgnored() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         tree.clear();
         assertTrue(tree.isEmpty());
     }
 
     @Test
     public void clearOnANonEmptyTree() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         tree.put("foo", "bar");
         tree.clear();
         assertTrue(tree.isEmpty());
@@ -207,25 +207,25 @@ public class ExampleBTreeTest {
 
     @Test
     public void persistEmptyTree() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
-        Handle<ExampleBTree<String, String>> handle = commit(stm, tree);
+        BTree<String, String> tree = new BTree<String, String>();
+        Handle<BTree<String, String>> handle = commit(stm, tree);
 
         Transaction t = stm.startTransaction();
-        ExampleBTree<String, String> foundTree = t.read(handle);
+        BTree<String, String> foundTree = t.read(handle);
         assertEquals(tree, foundTree);
     }
 
     //@Test
     public void persistNonEmptyTree() {
-        ExampleBTree<String, String> tree = new ExampleBTree<String, String>();
+        BTree<String, String> tree = new BTree<String, String>();
         tree.put("1", "value1");
         tree.put("0", "value0");
         tree.put("2", "value2");
 
-        Handle<ExampleBTree<String, String>> handle = commit(stm, tree);
+        Handle<BTree<String, String>> handle = commit(stm, tree);
 
         Transaction t = stm.startTransaction();
-        ExampleBTree<String, String> foundTree = t.read(handle);
+        BTree<String, String> foundTree = t.read(handle);
         assertEquals(tree, foundTree);
     }
 }

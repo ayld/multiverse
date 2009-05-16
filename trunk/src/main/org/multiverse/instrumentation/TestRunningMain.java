@@ -2,25 +2,57 @@ package org.multiverse.instrumentation;
 
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.collections.Latch;
-import org.multiverse.collections.Queue;
-import org.multiverse.collections.Stack;
-import org.multiverse.multiversionedstm.MaterializedObject;
-import org.multiverse.multiversionedstm.MemberWalker;
+import org.multiverse.collections.*;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+/**
+ * A Main that runs some tests.
+ */
+public class TestRunningMain {
 
-public class Main {
-
-    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, IOException {
+    public static void main(String[] args) {
         System.out.println("Main called");
 
         testLatch();
         testStack();
         testQueue();
+        testBTree();
+        testLinkedList();
+    }
+
+    private static void testLinkedList() {
+        LinkedList tree = new LinkedList();
+        tree.add("a");
+        tree.add("b");
+        tree.add("c");
+
+        MultiversionedStm stm = new MultiversionedStm();
+        Transaction t = stm.startTransaction();
+        Handle<LinkedList> handle = t.attach(tree);
+        t.commit();
+
+        Transaction t2 = stm.startTransaction();
+        LinkedList found = t2.read(handle);
+        System.out.println("found: " + found);
+        found.clear();
+        t2.commit();
+
+        Transaction t3 = stm.startTransaction();
+    }
+
+
+    private static void testBTree() {
+        BTree tree = new BTree();
+
+        MultiversionedStm stm = new MultiversionedStm();
+        Transaction t = stm.startTransaction();
+        Handle<BTree> handle = t.attach(tree);
+        t.commit();
+
+        Transaction t2 = stm.startTransaction();
+        BTree found = t2.read(handle);
+        System.out.println("found: " + found);
+        t2.commit();
     }
 
     private static void testLatch() {
@@ -70,24 +102,5 @@ public class Main {
         }
 
         t2.commit();
-    }
-
-    private static void showMemberClasses(Class simplePairClass) {
-        for (Class memberClass : simplePairClass.getClasses()) {
-            System.out.println("member: " + memberClass.getName());
-        }
-    }
-
-    private static void showFields(Class simplePairClass) {
-        for (Field field : simplePairClass.getFields()) {
-            System.out.println("fields: " + field.getName());
-        }
-    }
-
-    static class MemberWalkerImpl implements MemberWalker {
-        @Override
-        public void onMember(MaterializedObject member) {
-            //To change body of implemented methods use File | Settings | File Templates.
-        }
     }
 }

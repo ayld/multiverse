@@ -7,7 +7,8 @@
 package java.lang;
 
 /**
- *
+ * This is a hack to get the classloading up and running. In the future this really needs
+ * to be improved. I don't want people to be forced fooling around with bootclasspaths.
  */
 public class TestLoader extends ClassLoader {
 

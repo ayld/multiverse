@@ -6,10 +6,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MemberNode;
+import org.objectweb.asm.tree.*;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.*;
@@ -79,6 +76,10 @@ public final class AsmUtils {
 
     public static boolean isSynthetic(FieldNode fieldNode) {
         return (fieldNode.access & Opcodes.ACC_SYNTHETIC) != 0;
+    }
+
+    public static boolean isStatic(FieldNode fieldNode) {
+        return (fieldNode.access & Opcodes.ACC_STATIC) != 0;
     }
 
     public static boolean isObjectType(Type type) {
@@ -331,5 +332,13 @@ public final class AsmUtils {
 
     //we don't want instances.
     private AsmUtils() {
+    }
+
+    public static InsnList clone(InsnList insnList) {
+        InsnList cloned = new InsnList();
+        for (int k = 0; k < insnList.size(); k++) {
+            cloned.add(insnList.get(k));
+        }
+        return cloned;
     }
 }

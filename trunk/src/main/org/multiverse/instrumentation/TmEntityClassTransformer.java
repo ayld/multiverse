@@ -4,8 +4,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.instrumentation.utils.AsmUtils;
-import static org.multiverse.instrumentation.utils.AsmUtils.isSynthetic;
-import static org.multiverse.instrumentation.utils.AsmUtils.isTmEntity;
+import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.multiverse.instrumentation.utils.ClassBuilder;
 import org.multiverse.instrumentation.utils.InstructionsBuilder;
 import org.multiverse.instrumentation.utils.MethodBuilder;
@@ -60,7 +59,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
 
     private void createAdditionalLazyReferenceFields() {
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClassNode.fields)) {
-            if (!isSynthetic(field)) {
+            if (!isSynthetic(field) && !isStatic(field)) {
                 if (isTmEntity(field.desc, classLoader)) {
                     addPublicSyntheticField(field.name + "Ref", LazyReference.class);
                 }
@@ -78,17 +77,31 @@ public class TmEntityClassTransformer extends ClassBuilder {
     private void transformConstructors() {
         for (MethodNode methodNode : (List<MethodNode>) materializedClassNode.methods) {
             if (methodNode.name.equals("<init>")) {
-                InstructionsBuilder codeBuilder = new InstructionsBuilder();
-                codeBuilder.ALOAD(0);
-                codeBuilder.NEW(DefaultMultiversionedHandle.class);
-                codeBuilder.DUP();
-                codeBuilder.INVOKESPECIAL(DefaultMultiversionedHandle.class, "<init>", "()V");
-                codeBuilder.PUTFIELD(materializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
-
-                int indexOfReturn = indexOfReturn(methodNode.instructions);
-                methodNode.instructions.insertBefore(methodNode.instructions.get(indexOfReturn), codeBuilder.createInstructions());
+                transformConstructor(methodNode);
             }
         }
+    }
+
+    private void transformConstructor(MethodNode methodNode) {
+        InstructionsBuilder codeBuilder = new InstructionsBuilder();
+        //[..]
+        codeBuilder.ALOAD(0);
+        //[.., this]
+        codeBuilder.NEW(DefaultMultiversionedHandle.class);
+        //[.., this, handle]
+        codeBuilder.DUP();
+        //[.., this, handle, handle]
+        codeBuilder.INVOKESPECIAL(DefaultMultiversionedHandle.class, "<init>", "()V");
+        //[.., this, handle]
+        codeBuilder.PUTFIELD(materializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
+        //[..]
+
+        MethodInsnNode superInit = getSuperInit(methodNode);
+        methodNode.instructions.insert(superInit, codeBuilder.createInstructions());
+    }
+
+    private MethodInsnNode getSuperInit(MethodNode methodNode) {
+        return (MethodInsnNode) methodNode.instructions.get(indexOfSuperInit(methodNode.instructions));
     }
 
     /**
@@ -100,10 +113,11 @@ public class TmEntityClassTransformer extends ClassBuilder {
      * @param list
      * @return
      */
-    public static int indexOfReturn(InsnList list) {
+    public static int indexOfSuperInit(InsnList list) {
         for (int k = 0; k < list.size(); k++) {
-            if (list.get(k).getOpcode() == RETURN)
+            if (list.get(k).getOpcode() == INVOKESPECIAL) {
                 return k;
+            }
         }
 
         return -1;
@@ -136,7 +150,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
             PUTFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedClassNode);
 
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isSynthetic(field)) {
+                if (!isSynthetic(field) && !isStatic(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         ALOAD(2);
@@ -260,7 +274,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
             LabelNode next = new LabelNode();
 
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isSynthetic(field)) {
+                if (!isSynthetic(field) && !isStatic(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         GETFIELD(materializedClassNode, field);

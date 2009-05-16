@@ -18,7 +18,7 @@ public class MultiverseJavaAgent {
 
         inst.addTransformer(new Phase1ClassFileTransformer());
         inst.addTransformer(new Phase2ClassFileTransformer());
-        inst.addTransformer(new Phase3ClassFileTransformer());
+        //    inst.addTransformer(new Phase3ClassFileTransformer());
     }
 
     /**
@@ -40,7 +40,7 @@ public class MultiverseJavaAgent {
                     return null;
                 }
 
-                AccessTransformer transformer = new AccessTransformer(classNode, loader);
+                LazyAccessTransformer transformer = new LazyAccessTransformer(classNode, loader);
                 ClassNode transformedClassNode = transformer.create();
                 return toBytecode(transformedClassNode);
             } catch (RuntimeException ex) {
@@ -74,11 +74,6 @@ public class MultiverseJavaAgent {
 
                 DematerializedClassBuilder dematerializedClassBuilder = new DematerializedClassBuilder(classNode, loader);
                 ClassNode dematerialized = dematerializedClassBuilder.create();
-
-                //verify(dematerialized);
-
-                if (MultiverseClassLoader.INSTANCE == null)
-                    new MultiverseClassLoader();
 
                 MultiverseClassLoader.INSTANCE.defineClass(dematerialized);
 
