@@ -31,13 +31,12 @@ public class InstructionsBuilder implements Opcodes {
         SWAP();
         //[.., ref, printstream, ref]
         Method getClassMethod = AsmUtils.getMethod(Object.class, "getClass");
-        INVOKEVIRTUAL(getInternalName(Object.class), "getClass", getMethodDescriptor(getClassMethod));
+        INVOKEVIRTUAL(getInternalName(Object.class), getClassMethod.getName(), getMethodDescriptor(getClassMethod));
         //[.., ref, printstream, class]                    
         Method printlnMethod = AsmUtils.getMethod(PrintStream.class, "println", Object.class);
-        INVOKEVIRTUAL(getInternalName(PrintStream.class), "println", getMethodDescriptor(printlnMethod));
+        INVOKEVIRTUAL(getInternalName(PrintStream.class), printlnMethod.getName(), getMethodDescriptor(printlnMethod));
         //[.., ref]        
     }
-
 
     public void ALOAD(int index) {
         VarInsnNode instr = new VarInsnNode(ALOAD, index);

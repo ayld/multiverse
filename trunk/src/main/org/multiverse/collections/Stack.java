@@ -26,6 +26,7 @@ public final class Stack<E> {
     }
 
     public void push(E item) {
+        if (item == null) throw new NullPointerException();
         head = new StackNode<E>(head, item);
         size++;
     }

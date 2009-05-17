@@ -11,7 +11,11 @@ TODO
     - pojo instrumentation: isDirty method.
 
     - pojo instrumentation: support for static fields.
-       
+
+    - pojo instrumentatie: initialisation of fields of objects are also done with the
+       constructor for materialization and this doesn't have to. It could even cause problems
+       because the fields could be final.
+
     - pojo instrumentation: fields that only are at runtime to be determined MaterializedObject.
         - this needs to be done in the stmentity.constructor
         - this needs to be done in the dematerialized.constructor

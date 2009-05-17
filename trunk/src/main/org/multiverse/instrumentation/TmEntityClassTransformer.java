@@ -5,7 +5,7 @@ import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.*;
-import org.multiverse.instrumentation.utils.ClassBuilder;
+import org.multiverse.instrumentation.utils.ClassNodeBuilder;
 import org.multiverse.instrumentation.utils.InstructionsBuilder;
 import org.multiverse.instrumentation.utils.MethodBuilder;
 import org.multiverse.multiversionedstm.DefaultMultiversionedHandle;
@@ -16,20 +16,49 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import static java.lang.String.format;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TmEntityClassTransformer extends ClassBuilder {
+public class TmEntityClassTransformer extends ClassNodeBuilder {
 
     private static final String VARNAME_HANDLE = "handle";
+
     private static final String VARNAME_NEXTINCHAIN = "nextInChain";
+
     private static final String VARNAME_LASTMATERIALIZED = "lastMaterialized";
 
-    private ClassNode materializedClassNode;
+    private static final Method READ_LAZY_METHOD =
+            getMethod(Transaction.class, "readLazy", Handle.class);
 
-    private ClassLoader classLoader;
+    private static final Method WALK_MATERIALIZED_MEMBERS_METHOD =
+            getMethod(MaterializedObject.class, "walkMaterializedMembers", MemberWalker.class);
+
+    private static final Method ON_MEMBER_METHOD =
+            getMethod(MemberWalker.class, "onMember", MaterializedObject.class);
+
+    private static final Method SET_NEXT_IN_CHAIN_METHOD =
+            getMethod(MaterializedObject.class, "setNextInChain", MaterializedObject.class);
+
+    private static final Method IS_DIRTY_METHOD =
+            getMethod(MaterializedObject.class, "isDirty");
+
+    private static final Constructor OBJECT_CONSTRUCTOR =
+            getConstructor(Object.class);
+
+    private static final Method GET_NEXT_IN_CHAIN_METHOD =
+            getMethod(MaterializedObject.class, "getNextInChain");
+
+    private static final Method GET_HANDLE_METHOD =
+            getMethod(MaterializedObject.class, "getHandle");
+
+    private static final Method DEMATERIALIZE_METHOD =
+            getMethod(MaterializedObject.class, "dematerialize");
+
+    private ClassNode materializedClassNode;
     private ClassNode dematerializedClassNode;
+    private ClassLoader classLoader;
 
     public TmEntityClassTransformer(ClassNode materializedClassNode, ClassNode dematerialized, ClassLoader classLoader) {
         super(materializedClassNode);
@@ -67,13 +96,6 @@ public class TmEntityClassTransformer extends ClassBuilder {
         }
     }
 
-    /**
-     * Fouten:
-     * <p/>
-     * -constructors die this aanroepen krijgen dus meerdere keren een handle gezet
-     * -constructors die super aanroepen waarbij de super ook een handle krijgt wordt meerdere
-     * keren een handle gezet.
-     */
     private void transformConstructors() {
         for (MethodNode methodNode : (List<MethodNode>) materializedClassNode.methods) {
             if (methodNode.name.equals("<init>")) {
@@ -140,7 +162,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
             methodNode.desc = format("(L%s;L%s;)V", dematerializedClassNode.name, Type.getInternalName(Transaction.class));
 
             ALOAD(0);
-            INVOKESPECIAL(AsmUtils.getConstructor(Object.class));
+            INVOKESPECIAL(OBJECT_CONSTRUCTOR);
             ALOAD(0);
             ALOAD(1);
             GETFIELD(dematerializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
@@ -156,8 +178,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
                         ALOAD(2);
                         ALOAD(1);
                         GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
-                        Method readLazyMethod = AsmUtils.getMethod(Transaction.class, "readLazy", Handle.class);
-                        INVOKEINTERFACE(readLazyMethod);
+                        INVOKEINTERFACE(READ_LAZY_METHOD);
                         CHECKCAST(LazyReference.class);
                         PUTFIELD(materializedClassNode, field.name + "Ref", LazyReference.class);
                     } else {
@@ -174,7 +195,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
 
     private class SetNextInChainMethodBuilder extends MethodBuilder {
         SetNextInChainMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(MaterializedObject.class, "setNextInChain", MaterializedObject.class));
+            initWithInterfaceMethod(SET_NEXT_IN_CHAIN_METHOD);
 
             ALOAD(0);
             ALOAD(1);
@@ -185,7 +206,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
 
     private class GetNextInChainMethodBuilder extends MethodBuilder {
         GetNextInChainMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(MaterializedObject.class, "getNextInChain"));
+            initWithInterfaceMethod(GET_NEXT_IN_CHAIN_METHOD);
 
             ALOAD(0);
             GETFIELD(materializedClassNode, VARNAME_NEXTINCHAIN, MaterializedObject.class);
@@ -195,7 +216,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
 
     private class DematerializeMethodBuilder extends MethodBuilder {
         DematerializeMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(MaterializedObject.class, "dematerialize"));
+            initWithInterfaceMethod(DEMATERIALIZE_METHOD);
 
             ALOAD(0);
             NEW(dematerializedClassNode);
@@ -212,7 +233,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
     private class GetHandleMethodBuilder extends MethodBuilder {
 
         GetHandleMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(MaterializedObject.class, "getHandle"));
+            initWithInterfaceMethod(GET_HANDLE_METHOD);
 
             ALOAD(0);
             GETFIELD(materializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
@@ -223,14 +244,16 @@ public class TmEntityClassTransformer extends ClassBuilder {
     private class IsDirtyMethodBuilder extends MethodBuilder {
 
         IsDirtyMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(MaterializedObject.class, "isDirty"));
+            initWithInterfaceMethod(IS_DIRTY_METHOD);
+
+            String dematerializedDesc = internalFormToDescriptor(dematerializedClassNode.name);
 
             ICONST_TRUE();
             IRETURN();
             /*
-
             ALOAD(0);
-            GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
+
+            GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
             LabelNode nonNullLastMaterialized = new LabelNode();
             IFNONNULL(nonNullLastMaterialized);
             ICONST_TRUE();
@@ -239,25 +262,27 @@ public class TmEntityClassTransformer extends ClassBuilder {
             placeLabelNode(nonNullLastMaterialized);
 
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isSynthetic(field)) {
+                if (!isSynthetic(field) && !isStatic(field)) {
+
                     ALOAD(0);
-                    LabelNode equals = new LabelNode();
-                    GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
-                    GETFIELD(dematerializedClassNode, field.name, internalFormToDescriptor(dematerializedClassNode.name));
+                    LabelNode equalsLabel = new LabelNode();
+                    GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
+                    GETFIELD(dematerializedClassNode, field.name, dematerializedDesc);
                     ALOAD(0);
                     GETFIELD(materializedClassNode, field.name, field.desc);
 
-                    //if (field.getType().isPrimitive()) {
-                    //    IF_ICMPEQ(equals);
-                    //} else if (field.getType().isAnnotationPresent(Dematerializable.class)) {
-                    IF_ICMPEQ(equals);//todo
-                    //} else {
-                    //    IF_ACMPEQ(equals);
-                    //}
+                    String type = field.desc;
+                    if (isPrimitive(type)) {
+                        IF_ICMPEQ(equalsLabel);
+                    } else if (isTmEntity(type)) {
+                        IF_ICMPEQ(equalsLabel);//todo
+                    } else {
+                        IF_ACMPEQ(equalsLabel);
+                    }
 
                     ICONST_TRUE();
                     IRETURN();
-                    placeLabelNode(equals);
+                    placeLabelNode(equalsLabel);
                 }
             }
 
@@ -269,10 +294,9 @@ public class TmEntityClassTransformer extends ClassBuilder {
     private class WalkMaterializedMembersMethodBuilder extends MethodBuilder {
 
         WalkMaterializedMembersMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(MaterializedObject.class, "walkMaterializedMembers", MemberWalker.class));
+            initWithInterfaceMethod(WALK_MATERIALIZED_MEMBERS_METHOD);
 
             LabelNode next = new LabelNode();
-
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
                 if (!isSynthetic(field) && !isStatic(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
@@ -283,8 +307,7 @@ public class TmEntityClassTransformer extends ClassBuilder {
                         ALOAD(0);
                         GETFIELD(materializedClassNode, field);
                         CHECKCAST(MaterializedObject.class);
-                        Method onMemberMethod = AsmUtils.getMethod(MemberWalker.class, "onMember", MaterializedObject.class);
-                        INVOKEINTERFACE(onMemberMethod);
+                        INVOKEINTERFACE(ON_MEMBER_METHOD);
                         placeLabelNode(next);
                         next = new LabelNode();
                     }

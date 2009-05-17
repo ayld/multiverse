@@ -4,7 +4,7 @@ package org.multiverse.api;
  * A lazy loaded reference.
  * <p/>
  * LazyReferences are very useful for dealing with object cycles (something that can occur in
- * arbitrary object graphs).
+ * arbitrary object graphs) and large object graphs.
  * <p/>
  * The LazyReference is not threadsafe to use.
  *
@@ -21,7 +21,7 @@ public interface LazyReference<T> {
     boolean isLoaded();
 
     /**
-     * Returns the Handle to the reference.
+     * Returns the Handle of the reference.
      *
      * @return the handle.
      */
@@ -36,11 +36,4 @@ public interface LazyReference<T> {
      * @throws IllegalStateException
      */
     T get();
-
-    /**
-     * Added for instrumentation testing, should be removed
-     *
-     * @return
-     */
-    Object goat();
 }

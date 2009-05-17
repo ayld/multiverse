@@ -6,17 +6,17 @@ import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 
-public abstract class ClassBuilder implements Opcodes {
+public abstract class ClassNodeBuilder implements Opcodes {
 
     protected ClassNode classNode = new ClassNode();
 
-    public ClassBuilder() {
+    public ClassNodeBuilder() {
         setSuperclass(Object.class);
         this.classNode.superName = getInternalName(Object.class);
         this.classNode.access = ACC_PUBLIC;
     }
 
-    public ClassBuilder(ClassNode classNode) {
+    public ClassNodeBuilder(ClassNode classNode) {
         this.classNode = classNode;
     }
 

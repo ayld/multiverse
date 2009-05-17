@@ -38,7 +38,7 @@ public class LazyAccessTransformer implements Opcodes {
         //a clone is created to prevent 'concurrent' failure. The unmodified is traversed and the
         //changes are made to the modifiedInstructions.
         InsnList modifiedInstructions = methodNode.instructions;
-        InsnList unmodifiedInstructions = AsmUtils.clone(modifiedInstructions);
+        InsnList unmodifiedInstructions = AsmUtils.cloneShallow(modifiedInstructions);
 
         for (int k = 0; k < unmodifiedInstructions.size(); k++) {
             AbstractInsnNode instruction = unmodifiedInstructions.get(k);

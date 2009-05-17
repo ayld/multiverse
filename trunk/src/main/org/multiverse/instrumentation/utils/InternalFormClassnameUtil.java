@@ -20,7 +20,9 @@ public final class InternalFormClassnameUtil {
      * @throws NullPointerException if classname is null.
      */
     public static String getPackagename(String classname) {
-        if (classname == null) throw new NullPointerException();
+        if (classname == null) {
+            throw new NullPointerException();
+        }
         int index = classname.lastIndexOf("/");
         return index == -1 ? "" : classname.substring(0, index);
     }
@@ -35,7 +37,9 @@ public final class InternalFormClassnameUtil {
      * @throws NullPointerException if classname is null.
      */
     public static String getBaseClassname(String classname) {
-        if (classname == null) throw new NullPointerException();
+        if (classname == null) {
+            throw new NullPointerException();
+        }
         int lastDolarSignIndex = classname.lastIndexOf("$");
         if (lastDolarSignIndex == -1) {
             int lastDashIndex = classname.lastIndexOf("/");

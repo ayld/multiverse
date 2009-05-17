@@ -8,10 +8,18 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
+/**
+ * A MethodBuilder a Builder responsible for creating {@link MethodNode}.
+ *
+ * @author Peter Veentjer.
+ */
 public abstract class MethodBuilder extends InstructionsBuilder {
 
     protected MethodNode methodNode;
 
+    /**
+     * Creates a MethodBuilder with a default MethodNode with a public/synthetic access modifier.
+     */
     public MethodBuilder() {
         methodNode = new MethodNode();
         setAccess(ACC_PUBLIC | ACC_SYNTHETIC);
@@ -19,7 +27,15 @@ public abstract class MethodBuilder extends InstructionsBuilder {
         methodNode.tryCatchBlocks = new LinkedList();
     }
 
+    /**
+     * Creates a MethodBuilder with the provided MethodNode.
+     *
+     * @param methodNode the MethodNode
+     */
     public MethodBuilder(MethodNode methodNode) {
+        if (methodNode == null) {
+            throw new NullPointerException();
+        }
         this.methodNode = methodNode;
     }
 

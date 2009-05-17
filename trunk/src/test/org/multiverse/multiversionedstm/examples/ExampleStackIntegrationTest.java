@@ -152,21 +152,19 @@ public class ExampleStackIntegrationTest {
         ExampleStack<ExampleIntegerValue> foundStack = t.read(handle);
         assertStackSize(foundStack, 1);
         ExampleIntegerValue foundValue = foundStack.peek();
-        assertValue(foundValue, 10);
+        assertIntegerValue(10, foundValue);
         foundValue.inc();
-        System.out.println("testReferencesWithinStackArePersisted.commitStart");
         t.commit();
-        System.out.println("testReferencesWithinStackArePersisted.commitCompleted");
 
         t = stm.startTransaction();
         foundStack = t.read(handle);
         assertStackSize(foundStack, 1);
         foundValue = foundStack.peek();
-        assertValue(foundValue, 11);
+        assertIntegerValue(11, foundValue);
         t.commit();
     }
 
-    private void assertValue(ExampleIntegerValue value, int expected) {
+    private void assertIntegerValue(int expected, ExampleIntegerValue value) {
         assertNotNull(value);
         assertEquals(expected, value.get());
     }
