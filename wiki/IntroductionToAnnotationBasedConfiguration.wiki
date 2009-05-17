@@ -1,6 +1,6 @@
 #summary Annotation based configuration
-<wiki:toc max_depth="1" />
 #sidebar TableOfContents
+<wiki:toc max_depth="1" />
 
 = Transaction =
 
@@ -21,7 +21,6 @@ public void storeItem(String item){
 }
 
 }}}
-
 
 This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @Atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time, propagation etc.
 
