@@ -1,6 +1,21 @@
 <wiki:toc max_depth="1" />
 #summary Annotation based configuration
 
+= Transaction =
+
+If a method needs to be transactional, this can be done with the @atomic annotation, example:
+
+{{{
+private Handle<Queue<String>> queueHandle;
+
+@atomic
+public void createQueue(){
+    queueHandle = getTransaction().attach(new Queue<String>());
+}
+}}}
+
+This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries etc. 
+
 = Mapping an entity =
 
 A Entity (an object that lives in STM space) can be configured by placing an @TmEntity annotation, example:
@@ -146,3 +161,9 @@ public class Stack{
 }
 }}}
 The @Unmanaged annotation is perfect for inner objects that won't escape the outer object and where the outer object will keep a reference to the inner objects (directly or indirectly). In the future this information could be retrieved by escape analysis, but for now the @Unmanaged annotation is a good solution.
+
+= Annotations planned =
+
+Annotations planned for future releases:
+  # @Lock(mode=LockMode.exclusive), @Lock(mode=LockMode.shared) 
+  # @Immutable, to indicate that an entity (and everything that can be reached from it) is immutable. This is useful for improving performance.
