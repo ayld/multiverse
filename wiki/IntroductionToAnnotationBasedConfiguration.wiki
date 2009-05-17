@@ -12,8 +12,6 @@ private Handle<Queue<String>> queueHandle;
 public void createQueue(){
     queueHandle = getTransaction().attach(new Queue<String>());
 }
-}}}
-
 
 @Atomic
 public void storeItem(String item){
@@ -24,7 +22,7 @@ public void storeItem(String item){
 }}}
 
 
-This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time etc.
+This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @Atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time etc.
 
 = Mapping an entity =
 
@@ -39,7 +37,7 @@ public class Account{
 }
 }}}
 
-When this object is attached to a transaction, it will be persisted when the transaction is committed. If an entity has a reference to one or more other entities, they will be persisted as well, example: 
+When this object is attached to a transaction, it will be persisted (to shared memory) when the transaction is committed. If an entity has a reference to one or more other entities, they will be persisted as well, example: 
 
 {{{
 @TmEntity
