@@ -7,6 +7,7 @@ A Entity (an object that lives in STM space) can be configured by placing an @Tm
 {{{
 @TmEntity
 public class Account{
+
    private int amount;
    ...
 }
@@ -21,6 +22,7 @@ Normally all fields of an object will be stored in STM space. But in some cases 
 {{{
 @TmEntity
 public class Person{
+
    @Ignore
    private String firstname;
 
@@ -37,7 +39,9 @@ In this case the firstname is completely ignored and the lastname will be persis
 Normally all references to other entities are loaded lazy. But in some cases it is better that the reference is loaded eager because it is always needed. This can be done with the @Eager annotation:
 
 {{{
+@TmEntity
 public class Node{
+
     @Eager
     private Node left;
 
@@ -57,6 +61,7 @@ But the problem is that helpful behaviour causes a lot of cpu and memory usage. 
 {{{
 @TmEntity
 public class Stack{
+
    private Node head;
 
    public void push(Object item){
@@ -75,7 +80,9 @@ public class Stack{
 
    @TmEntity
    private class Node{
+
        private Node next;
+
        private Object item;
 
        private Node(Node next, Object item){
@@ -91,6 +98,7 @@ In this case a head or next will only be loaded once so there is no reason to ad
 {{{
 @TmEntity
 public class Stack{
+
    @Unmanaged
    private Node head;
 
@@ -113,6 +121,7 @@ public class Stack{
        
        @Unmanaged
        private Node next;
+
        private Object item;
 
        private Node(Node next, Object item){
