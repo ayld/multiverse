@@ -1,0 +1,125 @@
+#summary Annotation based configuration
+
+= Mapping an entity =
+
+A Entity (an object that lives in STM space) can be configured by placing an @TmEntity annotation, example:
+
+{{{
+@TmEntity
+public class Account{
+   private int amount;
+   ...
+}
+}}}
+
+When this object is attached to a transaction, it will be persisted when the transaction is committed. If an entity has a reference to one or more other entities, they will be persisted as well. So there is no need to attach each object individually to a transaction.
+
+= Ignoring fields = 
+
+Normally all fields of an object will be stored in STM space. But in some cases it is better to ignore a field. This can be done with the @Ignore annotation, example:
+
+{{{
+@TmEntity
+public class Person{
+   @Ignore
+   private String firstname;
+
+   private String lastname;
+ 
+   ...
+}
+}}}
+
+In this case the firstname is completely ignored and the lastname will be persisted.
+
+= Eager Loading =
+
+Normally all references to other entities are loaded lazy. But in some cases it is better that the reference is loaded eager because it is always needed. This can be done with the @Eager annotation:
+
+{{{
+public class Node{
+    @Eager
+    private Node left;
+
+    private Node right;
+}
+}}}
+
+In this case the left is loaded when the Node is loaded. And the right is loaded when it is needed.
+
+= Preventing transaction overload =
+
+Normally all objects that are loaded from a transaction, are stored in the transaction. This is done for 2 reasons:
+  # when the transaction commits, it can find these objects and knows that these need to be committed if they are dirty.
+  # multiple requests for the same instance, give the same instance.
+But the problem is that helpful behaviour causes a lot of cpu and memory usage. But there are cases where this behaviour is not needed, example:
+
+{{{
+@TmEntity
+public class Stack{
+   private Node head;
+
+   public void push(Object item){
+         head = new Node(head, item);
+   }
+
+   public void pop(){
+      if(head == null){
+          retry();
+      }
+
+      Node oldHead = head;
+      head = head.next;
+      return oldHead.item;
+   }
+
+   @TmEntity
+   private class Node{
+       private Node next;
+       private Object item;
+
+       private Node(Node next, Object item){
+          this.next = next;
+          this.item = item;
+       }
+   }
+}
+}}}
+
+In this case a head or next will only be loaded once so there is no reason to add every node to the transaction. And because the stack has a reference to the head, and a head to each next node, all changes will be persisted when the transaction commits. Again there is no reason to store this information in the transaction. That is why the @Unmanaged annotation is added, example:
+
+{{{
+@TmEntity
+public class Stack{
+   @Unmanaged
+   private Node head;
+
+   public void push(Object item){
+         head = new Node(head, item);
+   }
+
+   public void pop(){
+      if(head == null){
+          retry();
+      }
+
+      Node oldHead = head;
+      head = head.next;
+      return oldHead.item;
+   }
+
+   @TmEntity
+   private class Node{
+       
+       @Unmanaged
+       private Node next;
+       private Object item;
+
+       private Node(Node next, Object item){
+          this.next = next;
+          this.item = item;
+       }
+   }
+}
+}}}
+The @Unmanaged annotation is perfect for inner objects that won't escape the outer object and where the outer object will keep a reference to the inner objects (directly or indirectly). In the future this information could be retrieved by escape analysis, but for now the @Unmanaged annotation is a good solution.
