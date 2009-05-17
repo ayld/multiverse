@@ -4,7 +4,7 @@ import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.*;
-import org.multiverse.instrumentation.utils.ClassBuilder;
+import org.multiverse.instrumentation.utils.ClassNodeBuilder;
 import org.multiverse.instrumentation.utils.MethodBuilder;
 import org.multiverse.multiversionedstm.DematerializedObject;
 import org.multiverse.multiversionedstm.MultiversionedHandle;
@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DematerializedClassBuilder extends ClassBuilder {
+public class DematerializedClassBuilder extends ClassNodeBuilder {
 
     private static final String VARNAME_HANDLE = "handle";
 
@@ -28,11 +28,15 @@ public class DematerializedClassBuilder extends ClassBuilder {
     private final ClassLoader classLoader;
 
     public DematerializedClassBuilder(ClassNode materializedClass, ClassLoader classLoader) {
+        if (materializedClass == null || classLoader == null) {
+            throw new NullPointerException();
+        }
+
         this.classLoader = classLoader;
         this.materializedClass = materializedClass;
         this.classNode.version = V1_5;
         this.classNode.outerClass = materializedClass.name;
-        this.classNode.name = AsmUtils.getInternalNameOfDematerializedClass(materializedClass);
+        this.classNode.name = getInternalNameOfDematerializedClass(materializedClass);
 
         setAccess(ACC_PUBLIC | ACC_FINAL);
         addInterface(DematerializedObject.class);
@@ -45,6 +49,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
     private void addFields() {
         addPublicFinalSyntheticField(VARNAME_HANDLE, MultiversionedHandle.class);
 
+        //a clone of the list is made to prevent concurrentmodificationexceptions.
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClass.fields)) {
             if (!isSynthetic(field) && !isStatic(field)) {
                 if (isTmEntity(field.desc, classLoader)) {
@@ -78,7 +83,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
                         GETFIELD(materializedClass, field.name + "Ref", LazyReference.class);
                         ALOAD(1);
                         GETFIELD(materializedClass, field);
-                        Method getHandleMethod = AsmUtils.getMethod(MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class);
+                        Method getHandleMethod = getMethod(MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class);
                         INVOKESTATIC(getHandleMethod);
                         PUTFIELD(getClassInternalName(), field.name, MultiversionedHandle.class);
                     } else {
@@ -95,7 +100,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
 
     private class GetHandleMethodBuilder extends MethodBuilder {
         private GetHandleMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(DematerializedObject.class, "getHandle"));
+            initWithInterfaceMethod(getMethod(DematerializedObject.class, "getHandle"));
 
             ALOAD(0);
             GETFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
@@ -106,7 +111,7 @@ public class DematerializedClassBuilder extends ClassBuilder {
     private class RematerializeMethodBuilder extends MethodBuilder {
 
         private RematerializeMethodBuilder() {
-            initWithInterfaceMethod(AsmUtils.getMethod(DematerializedObject.class, "rematerialize", Transaction.class));
+            initWithInterfaceMethod(getMethod(DematerializedObject.class, "rematerialize", Transaction.class));
 
             NEW(materializedClass);
             DUP();

@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- *
+ * @author Peter Veentjer.
  */
 public final class AsmUtils {
 
@@ -98,13 +98,15 @@ public final class AsmUtils {
     }
 
     private static boolean hasVisibleAnnotation(String typeDescriptor, Class annotationClass, ClassLoader classLoader) {
-        if (typeDescriptor == null || annotationClass == null || classLoader == null)
+        if (typeDescriptor == null || annotationClass == null || classLoader == null) {
             throw new NullPointerException();
+        }
 
         Type fieldType = getType(typeDescriptor);
 
-        if (!isObjectType(fieldType))
+        if (!isObjectType(fieldType)) {
             return false;
+        }
 
         ClassNode classNode = loadAsClassNode(classLoader, fieldType.getInternalName());
         return hasVisibleAnnotation(classNode, annotationClass);
@@ -118,11 +120,13 @@ public final class AsmUtils {
      * @return true if classNode has the specified annotation, false otherwise.
      */
     public static boolean hasVisibleAnnotation(MemberNode memberNode, Class anotationClass) {
-        if (memberNode == null || anotationClass == null)
+        if (memberNode == null || anotationClass == null) {
             throw new NullPointerException();
+        }
 
-        if (memberNode.visibleAnnotations == null)
+        if (memberNode.visibleAnnotations == null) {
             return false;
+        }
 
         String annotationClassDescriptor = getDescriptor(anotationClass);
 
@@ -152,8 +156,9 @@ public final class AsmUtils {
         PrintWriter pw = new PrintWriter(sw);
         CheckClassAdapter.verify(new ClassReader(bytes), false, pw);
         String msg = sw.toString();
-        if (msg.length() > 0)
+        if (msg.length() > 0) {
             throw new RuntimeException(msg);
+        }
     }
 
     /**
@@ -174,7 +179,9 @@ public final class AsmUtils {
      * @return the loaded ClassNode.
      */
     public static ClassNode loadAsClassNode(ClassLoader loader, String classInternalForm) {
-        if (loader == null || classInternalForm == null) throw new NullPointerException();
+        if (loader == null || classInternalForm == null) {
+            throw new NullPointerException();
+        }
 
         String fileName = classInternalForm + ".class";
         InputStream is = loader.getResourceAsStream(fileName);
@@ -196,7 +203,9 @@ public final class AsmUtils {
      * @return the created ClassNode.
      */
     public static ClassNode toClassNode(byte[] bytecode) {
-        if (bytecode == null) throw new NullPointerException();
+        if (bytecode == null) {
+            throw new NullPointerException();
+        }
 
         ClassNode classNode = new ClassNode();
         ClassReader cr = new ClassReader(bytecode);
@@ -259,7 +268,9 @@ public final class AsmUtils {
      * @throws NullPointerException if classNode is null.
      */
     public static byte[] toBytecode(ClassNode classNode) {
-        if (classNode == null) throw new NullPointerException();
+        if (classNode == null) {
+            throw new NullPointerException();
+        }
 
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         classNode.accept(cw);
@@ -275,7 +286,9 @@ public final class AsmUtils {
      * @throws NullPointerException if classname is null.
      */
     public static byte[] toBytecode(String classname) throws IOException {
-        if (classname == null) throw new NullPointerException();
+        if (classname == null) {
+            throw new NullPointerException();
+        }
 
         ClassReader reader = new ClassReader(classname);
         ClassWriter writer = new ClassWriter(reader, 0);
@@ -323,22 +336,37 @@ public final class AsmUtils {
 
     private static void ensureExistingParent(File file) throws IOException {
         File parent = file.getParentFile();
-        if (parent.isDirectory())
+        if (parent.isDirectory()) {
             return;
+        }
 
-        if (!parent.mkdirs())
+        if (!parent.mkdirs()) {
             throw new IOException("Failed to make parent directories for file " + file);
+        }
     }
 
-    //we don't want instances.
-    private AsmUtils() {
-    }
+    /**
+     * Creates a shallow clone of the insnList. So you get a new list, but the nodes are
+     * the same.
+     *
+     * @param insnList the InsnList to clone
+     * @return the cloned InsnList.
+     * @throws NullPointerException if insnList is null.
+     */
+    public static InsnList cloneShallow(InsnList insnList) {
+        if (insnList == null) {
+            throw new NullPointerException();
+        }
 
-    public static InsnList clone(InsnList insnList) {
         InsnList cloned = new InsnList();
         for (int k = 0; k < insnList.size(); k++) {
             cloned.add(insnList.get(k));
         }
         return cloned;
     }
+
+    //we don't want instances.
+    private AsmUtils() {
+    }
+
 }

@@ -37,8 +37,10 @@ public final class MultiversionedStm implements Stm {
     }
 
     public MultiversionedTransaction startTransaction() {
-        if (statistics != null)
+        if (statistics != null) {
             statistics.incTransactionStartedCount();
+        }
+
         return new MultiversionedTransaction();
     }
 
@@ -85,8 +87,9 @@ public final class MultiversionedStm implements Stm {
             switch (state) {
                 case active:
                     state = TransactionState.aborted;
-                    if (statistics != null)
+                    if (statistics != null) {
                         statistics.incTransactionAbortedCount();
+                    }
                     break;
                 case aborted:
                     //ignore
@@ -106,16 +109,18 @@ public final class MultiversionedStm implements Stm {
 
             Latch listener = registerListener();
             awaitListenerToOpen(listener);
-            if (statistics != null)
+            if (statistics != null) {
                 statistics.incTransactionRetriedCount();
+            }
             Transaction t = startTransaction();
             t.setDescription(description);
             return t;
         }
 
         private void assertProgressPossible() {
-            if (isNoProgressPossible())
+            if (isNoProgressPossible()) {
                 throw new NoProgressPossibleException();
+            }
         }
 
         private boolean isNoProgressPossible() {
@@ -123,13 +128,16 @@ public final class MultiversionedStm implements Stm {
         }
 
         private void awaitListenerToOpen(Latch listener) throws InterruptedException {
-            if (statistics != null)
+            if (statistics != null) {
                 statistics.incTransactionPendingRetryCount();
+            }
+
             try {
                 listener.await();
             } finally {
-                if (statistics != null)
+                if (statistics != null) {
                     statistics.decTransactionPendingRetryCount();
+                }
             }
         }
 
@@ -192,8 +200,9 @@ public final class MultiversionedStm implements Stm {
 
             DematerializedObject dematerializedObject = getDematerialized((MultiversionedHandle) handle);
             T result = (T) dematerializedObject.rematerialize(this);
-            if (statistics != null)
+            if (statistics != null) {
                 statistics.incMaterializedCount();
+            }
             return result;
         }
 
@@ -226,8 +235,9 @@ public final class MultiversionedStm implements Stm {
         }
 
         private MaterializedObject[] createWriteSet() {
-            if (first == null)
+            if (first == null) {
                 return new MaterializedObject[]{};
+            }
 
             final List<MaterializedObject> writeSet = new LinkedList<MaterializedObject>();
             MaterializedObject m = first;
@@ -364,8 +374,9 @@ public final class MultiversionedStm implements Stm {
                 listenerNode.openAll();
             }
 
-            if (statistics != null)
+            if (statistics != null) {
                 statistics.incWriteCount(writeSet.length);
+            }
         }
 
         private void releaseLocksForWriting(MaterializedObject[] writeSet) {
@@ -381,8 +392,9 @@ public final class MultiversionedStm implements Stm {
                 //todo:
                 dematerialized = handle.tryRead(readVersion, new RetryCounter(1));
             } catch (SnapshotTooOldException ex) {
-                if (statistics != null)
+                if (statistics != null) {
                     statistics.incTransactionSnapshotTooOldCount();
+                }
 
                 throw ex;
             }
@@ -420,16 +432,12 @@ public final class MultiversionedStm implements Stm {
                     DematerializedObject dematerialized = getDematerialized(handle);
 
                     ref = (S) dematerialized.rematerialize(MultiversionedTransaction.this);
-                    if (statistics != null)
+                    if (statistics != null) {
                         statistics.incMaterializedCount();
+                    }
                 }
 
                 return ref;
-            }
-
-            @Override
-            public Object goat() {
-                return get();
             }
         }
     }

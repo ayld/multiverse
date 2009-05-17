@@ -1,8 +1,11 @@
 package org.multiverse.instrumentation;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.toBytecode;
+import org.multiverse.multiversionedstm.MaterializedObject;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -27,6 +30,11 @@ public class InstrumentationTestSupport {
 
         AsmUtils.writeToFixedTmpFile(newBytecode);
         classLoader.defineClass(classname, newBytecode);
+    }
+
+    public static void assertIsDirty(Object object, boolean expected) {
+        assertTrue(object instanceof MaterializedObject);
+        assertEquals(expected, ((MaterializedObject) object).isDirty());
     }
 
     public static class MyClassLoader extends ClassLoader {
