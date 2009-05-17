@@ -1,3 +1,4 @@
+<wiki:toc max_depth="1" />
 #summary Annotation based configuration
 
 = Mapping an entity =
@@ -32,7 +33,7 @@ public class Person{
 }
 }}}
 
-In this case the firstname is completely ignored and the lastname will be persisted.
+In this case the firstname is completely ignored and the lastname is not ignored.
 
 = Eager Loading =
 
