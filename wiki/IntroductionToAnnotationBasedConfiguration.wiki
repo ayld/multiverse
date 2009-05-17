@@ -22,7 +22,9 @@ public void storeItem(String item){
 }}}
 
 
-This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @Atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time etc.
+This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @Atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time, propagation etc.
+
+It is also important to realize that not every method needs to be @Atomic; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
 
 = Mapping an entity =
 
