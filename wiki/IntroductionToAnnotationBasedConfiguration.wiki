@@ -14,6 +14,16 @@ public void createQueue(){
 }
 }}}
 
+
+@Atomic
+public void storeItem(String item){
+    Queue<String> queue = getTransaction().read(queueHandle);
+    queue.push(item);
+}
+
+}}}
+
+
 This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time etc.
 
 = Mapping an entity =
