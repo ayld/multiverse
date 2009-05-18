@@ -23,11 +23,11 @@ import java.util.List;
 
 public class TmEntityClassTransformer extends ClassNodeBuilder {
 
-    private static final String VARNAME_HANDLE = "handle";
+    private static final String VARNAME_HANDLE = "$handle";
 
-    private static final String VARNAME_NEXTINCHAIN = "nextInChain";
+    private static final String VARNAME_NEXTINCHAIN = "$nextInChain";
 
-    private static final String VARNAME_LASTMATERIALIZED = "lastMaterialized";
+    private static final String VARNAME_LASTMATERIALIZED = "$lastMaterialized";
 
     private static final Method READ_LAZY_METHOD =
             getMethod(Transaction.class, "readLazy", Handle.class);
@@ -100,7 +100,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClassNode.fields)) {
             if (!isSynthetic(field) && !isStatic(field)) {
                 if (isTmEntity(field.desc, classLoader)) {
-                    addPublicSyntheticField(field.name + "Ref", LazyReference.class);
+                    addPublicSyntheticField(field.name + "$Ref", LazyReference.class);
                 }
             }
         }
@@ -198,7 +198,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
                         GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
                         INVOKEINTERFACE(READ_LAZY_METHOD);
                         CHECKCAST(LazyReference.class);
-                        PUTFIELD(materializedClassNode, field.name + "Ref", LazyReference.class);
+                        PUTFIELD(materializedClassNode, field.name + "$Ref", LazyReference.class);
                     } else {
                         ALOAD(0);
                         ALOAD(1);
@@ -243,7 +243,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
             ACONST_NULL();
             INVOKESPECIAL(dematerializedClassNode, "<init>", format("(L%s;L%s;)V", materializedClassNode.name, Type.getInternalName(Transaction.class)));
             DUP_X1();
-            PUTFIELD(materializedClassNode, "lastMaterialized", dematerializedClassNode);
+            PUTFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedClassNode);
             ARETURN();
         }
     }

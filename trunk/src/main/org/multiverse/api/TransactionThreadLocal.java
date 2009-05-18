@@ -14,7 +14,7 @@ public final class TransactionThreadLocal {
      *
      * @return the current transaction, or null of none is set.
      */
-    public static Transaction get() {
+    public static Transaction getTransaction() {
         return transactionThreadLocal.get();
     }
 
@@ -42,7 +42,7 @@ public final class TransactionThreadLocal {
         if (transaction == null)
             throw new NullPointerException();
 
-        if (get() != null) {
+        if (getTransaction() != null) {
             throw new IllegalStateException("Another transaction already is set on the threadlocal, " +
                     "nested transactions are not allowed (yet).");
         }

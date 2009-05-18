@@ -14,7 +14,7 @@ public class TransactionThreadLocalTest {
 
     @Test
     public void testGetInitial() {
-        Transaction t = TransactionThreadLocal.get();
+        Transaction t = TransactionThreadLocal.getTransaction();
         assertNull(t);
     }
 
@@ -23,7 +23,7 @@ public class TransactionThreadLocalTest {
         Transaction t = new DummyTransaction();
         TransactionThreadLocal.set(t);
 
-        Transaction found = TransactionThreadLocal.get();
+        Transaction found = TransactionThreadLocal.getTransaction();
         assertSame(t, found);
     }
 
@@ -39,7 +39,7 @@ public class TransactionThreadLocalTest {
 
         }
 
-        Transaction found = TransactionThreadLocal.get();
+        Transaction found = TransactionThreadLocal.getTransaction();
         assertSame(oldTransaction, found);
     }
 
@@ -55,7 +55,7 @@ public class TransactionThreadLocalTest {
 
         }
 
-        Transaction found = TransactionThreadLocal.get();
+        Transaction found = TransactionThreadLocal.getTransaction();
         assertSame(oldTransaction, found);
     }
 
@@ -66,7 +66,7 @@ public class TransactionThreadLocalTest {
 
         TransactionThreadLocal.remove();
 
-        Transaction found = TransactionThreadLocal.get();
+        Transaction found = TransactionThreadLocal.getTransaction();
         assertNull(found);
     }
 
@@ -75,7 +75,7 @@ public class TransactionThreadLocalTest {
         TransactionThreadLocal.remove();
         TransactionThreadLocal.remove();
 
-        Transaction found = TransactionThreadLocal.get();
+        Transaction found = TransactionThreadLocal.getTransaction();
         assertNull(found);
     }
 }

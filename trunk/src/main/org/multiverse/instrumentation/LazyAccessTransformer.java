@@ -53,7 +53,7 @@ public class LazyAccessTransformer implements Opcodes {
                 //[.., materialized, value, materialized]
                 b.ACONST_NULL();
                 //[.., materialized, value, materialized, null]
-                b.PUTFIELD(putInstruction.owner, putInstruction.name + "Ref", LazyReference.class);
+                b.PUTFIELD(putInstruction.owner, putInstruction.name + "$Ref", LazyReference.class);
                 //[.., materialized, value]
 
                 modifiedInstructions.insertBefore(putInstruction, b.createInstructions());
@@ -64,7 +64,7 @@ public class LazyAccessTransformer implements Opcodes {
                 //[.., materialized]
                 b.DUP();
                 //[.., materialized, materialized]
-                b.GETFIELD(getInstruction.owner, getInstruction.name + "Ref", LazyReference.class);
+                b.GETFIELD(getInstruction.owner, getInstruction.name + "$Ref", LazyReference.class);
                 //[.., materialized, ref]
                 LabelNode refIsNullLabel = new LabelNode();
                 b.IFNULL(refIsNullLabel);
@@ -73,7 +73,7 @@ public class LazyAccessTransformer implements Opcodes {
                 //[.., materialized, materialized ]
                 b.DUP();
                 //[.., materialized, materialized, materialized]
-                b.GETFIELD(getInstruction.owner, getInstruction.name + "Ref", LazyReference.class);
+                b.GETFIELD(getInstruction.owner, getInstruction.name + "$Ref", LazyReference.class);
                 //[.., materialized, materialized, ref]
                 Method getMethod = getMethod(LazyReference.class, "get");
                 b.INVOKEINTERFACE(getMethod);
@@ -86,7 +86,7 @@ public class LazyAccessTransformer implements Opcodes {
                 //[.., materialized, materialized]
                 b.ACONST_NULL();
                 //[.., materialized, materialized, null]
-                b.PUTFIELD(getInstruction.owner, getInstruction.name + "Ref", LazyReference.class);
+                b.PUTFIELD(getInstruction.owner, getInstruction.name + "$Ref", LazyReference.class);
                 //[.., materialized]*/
                 b.placeLabelNode(refIsNullLabel);
 
