@@ -7,6 +7,10 @@
 If a method needs to be transactional, this can be done with the @Atomic annotation, example:
 
 {{{
+import org.multiverse.collections.Queue;
+
+...
+
 private Handle<Queue<String>> queueHandle;
 
 @Atomic
