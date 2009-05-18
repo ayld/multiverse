@@ -20,21 +20,7 @@
   <component name="ChangeListManager">
     <list default="true" readonly="true" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.xml" afterPath="$PROJECT_DIR$/build.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberMemberChainLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/UnsharedDataDoesNotCauseWriteConflictsLongTest.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stm.iws" afterPath="$PROJECT_DIR$/stm.iws" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNumberOfWaitersLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ConflictingWritesDontBreakSystemLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/PipelineLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IsolatedBehaviorLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/AtomicBehaviorLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/ClassicStackProducerConsumerLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/TransactionOverheadStressTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/TransactionOverheadStressLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DiningPhilosophersLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IndependantScalabilityTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/IndependantScalabilityLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleQueueIntegrationTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/examples/ExampleQueueIntegrationLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/LargeNonParallelWriteonlyTransactionsLongTest.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainTest.java" afterPath="$PROJECT_DIR$/src/test/org/multiverse/multiversionedstm/tests/DeepMemberChainLongTest.java" />
     </list>
     <list name="Failed commit: Default" comment="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <list name="Failed commit: Default (2)" comment="" />
@@ -245,7 +231,7 @@
       <file leaf-file-name="build.xml" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="212" column="8" selection-start="6711" selection-end="6711" vertical-scroll-proportion="0.9758713">
+            <state line="206" column="36" selection-start="6547" selection-end="6547" vertical-scroll-proportion="0.87935656">
               <folding />
             </state>
           </provider>
@@ -1624,7 +1610,7 @@
     <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
     <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="- renamed a lot of long runing tests to xxxLongTest so they can be excluded from the short tests." />
+    <option name="LAST_COMMIT_MESSAGE" value="- renamed a lot of long runing tests to xxxLongTest so they can be excluded from the short tests... and fixed the ant script as well" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
@@ -1635,7 +1621,6 @@
     <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
-    <MESSAGE value="- added an additional test for the aba problem" />
     <MESSAGE value="- simplified the stmobject interface (removed a lot of old junk)&#10;- added some extra tests" />
     <MESSAGE value="- renamed the core package to api package&#10;- moved the exceptions in the api package to api.exception package&#10;- removed the snapshotchain.. it wasn't needed anymore because everybody keeps track of their snapshot&#10;- did some initial work on adding pessimistic locking (transaction interface/heap interface have method but no implementation for acquiring locks and reading lock information)&#10;- added the transactionid to transactions (needed for locking since all locks are done for a specific transaction)" />
     <MESSAGE value="- removed the listener support, lock placement, commit and listener adding all is done in the same manner (by creating a new heapsnapshot that contains the new information). So no more worries caused by the memory leak in the listenersupport (old handles are not removed)" />
@@ -1660,6 +1645,7 @@
     <MESSAGE value="- moved the annotations to a different subpackage in the api&#10;- instrumentation: fields are allowed to be private&#10;- instrumentation: fields are allowed to be final" />
     <MESSAGE value="- fixed the build breakers&#10;- generated variables in tmentities now contain $ to prevent name conflicts" />
     <MESSAGE value="- renamed a lot of long runing tests to xxxLongTest so they can be excluded from the short tests." />
+    <MESSAGE value="- renamed a lot of long runing tests to xxxLongTest so they can be excluded from the short tests... and fixed the ant script as well" />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -1826,7 +1812,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="212" column="8" selection-start="6711" selection-end="6711" vertical-scroll-proportion="0.9758713">
+        <state line="206" column="36" selection-start="6547" selection-end="6547" vertical-scroll-proportion="0.87935656">
           <folding />
         </state>
       </provider>
