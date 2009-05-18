@@ -8,7 +8,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
-public class LargeNonParallelWriteonlyTransactionsTest {
+public class LargeNonParallelWriteonlyTransactionsLongTest {
     private MultiversionedStm stm;
 
     @Before

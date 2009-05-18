@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Peter Veentjer.
  */
-public class AtomicBehaviorTest {
+public class AtomicBehaviorLongTest {
 
     private MultiversionedStm stm;
 

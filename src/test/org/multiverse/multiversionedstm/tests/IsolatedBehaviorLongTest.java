@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Peter Veentjer.
  */
-public class IsolatedBehaviorTest {
+public class IsolatedBehaviorLongTest {
 
     private MultiversionedStm stm;
     private Handle<ExampleIntegerValue> handle;

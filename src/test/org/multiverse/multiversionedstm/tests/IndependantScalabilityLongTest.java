@@ -11,7 +11,7 @@ import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
-public class IndependantScalabilityTest {
+public class IndependantScalabilityLongTest {
     private MultiversionedStm stm;
     private long updateCount = 10000000;
 

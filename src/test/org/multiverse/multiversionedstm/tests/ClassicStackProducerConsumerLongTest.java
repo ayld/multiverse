@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Peter Veentjer.
  */
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-public class ClassicStackProducerConsumerTest {
+public class ClassicStackProducerConsumerLongTest {
     private BlockingDeque stack;
 
     private final AtomicInteger produceCountDown = new AtomicInteger();
