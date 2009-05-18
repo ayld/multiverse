@@ -3,12 +3,11 @@
 = Features =
   * multi version concurrency control (the same mechanism Oracle, Postgresql and other databases use). So readers don't block writers, and writers don't block readers. And transactions with non conflicting writes can be committed in parallel.
   * no overhead on reads/writes of object fields that point to primitives or non stm objects. Instead of working with a transaction log, the object is checked for changes when the commit happens. So all classic compiler optimisations are not obstructed in any way.
-  * small overhead (for lazy loading purposes) on mutable stm references. 
-  * special optimisations for immutable stm structures so that loading gets really cheap (O(c)) no matter the size of the structure.
+  * small overhead (for lazy loading purposes) on mutable stm references.   
   * non managed stm objects can flow through stm space (for example for handing over an object from one thread to another).
   * transaction level read consistency (the same isolation Oracle provides, so not 100% serialized)
-  * supports the retry
-  * Instrumentation of pojo's. 
+  * supports the retry (the conditional variable for the stm).
+  * Instrumentation of pojo's, so implementing interface is not needed.
 
 = Planned =
   * Pessimistic locking
@@ -23,3 +22,4 @@
   * detachment and reattachment of stm objects
   * A distributed version
   * Control number of old version of data.
+  * special optimisations for immutable stm structures so that loading gets really cheap (O(c)) no matter the size of the structure.
