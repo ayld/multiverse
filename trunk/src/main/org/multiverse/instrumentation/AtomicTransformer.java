@@ -1,6 +1,6 @@
 package org.multiverse.instrumentation;
 
-import org.multiverse.api.Atomic;
+import org.multiverse.api.annotations.Atomic;
 import static org.multiverse.instrumentation.utils.AsmUtils.hasVisibleAnnotation;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;

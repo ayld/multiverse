@@ -3,7 +3,9 @@ package org.multiverse.api;
 import org.multiverse.api.exceptions.*;
 
 /**
- * idea: Could also be created by a factory method of the stm.
+ * A TransactionTemplate is a Method template (comparable to the Spring Hibernate template) responsible
+ * for dealing with the plumming logic like starting transaction, retrying them if needed etc. The same
+ * could be achieved through the {@link org.multiverse.api.annotations.Atomic} annotation.
  *
  * @author Peter Veentjer.
  * @param <E>

@@ -8,6 +8,4 @@ package org.multiverse.api;
  * @param <T> the type of the object this Handle points to.
  */
 public interface Handle<T> {
-
-
 }

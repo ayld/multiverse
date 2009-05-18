@@ -1,6 +1,6 @@
 package org.multiverse.collections;
 
-import org.multiverse.api.TmEntity;
+import org.multiverse.api.annotations.TmEntity;
 
 import java.util.*;
 
@@ -8,8 +8,8 @@ import java.util.*;
 public class LinkedList<E> extends AbstractSequentialList<E>
         implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
 
-    protected Entry<E> header = new Entry<E>(null, null, null);
-    protected int size = 0;
+    private Entry<E> header = new Entry<E>(null, null, null);
+    private int size = 0;
 
     /**
      * Constructs an empty list.

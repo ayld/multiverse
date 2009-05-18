@@ -1,8 +1,8 @@
 package org.multiverse.collections;
 
-import org.multiverse.api.Eager;
-import org.multiverse.api.TmEntity;
-import org.multiverse.api.Unmanaged;
+import org.multiverse.api.annotations.Eager;
+import org.multiverse.api.annotations.TmEntity;
+import org.multiverse.api.annotations.Unmanaged;
 
 import static java.lang.Math.max;
 
@@ -15,7 +15,7 @@ public final class BTree<K extends Comparable, V> {
 
     @Unmanaged
     @Eager
-    protected BTreeNode<K, V> root;
+    private BTreeNode<K, V> root;
 
     public BTree() {
     }
@@ -92,14 +92,14 @@ public final class BTree<K extends Comparable, V> {
 
 
     @TmEntity
-    public static final class BTreeNode<K extends Comparable, V> {
+    private static final class BTreeNode<K extends Comparable, V> {
 
-        protected K key;
-        protected V value;
+        private K key;
+        private V value;
         @Unmanaged
-        protected BTreeNode<K, V> left;
+        private BTreeNode<K, V> left;
         @Unmanaged
-        protected BTreeNode<K, V> right;
+        private BTreeNode<K, V> right;
 
         BTreeNode(K key, V value) {
             this.key = key;

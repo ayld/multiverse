@@ -2,12 +2,6 @@ TODO
 
 - POJO INSTRUMENTATION:
 
-    - pojo instrumentation van final fields: the final access modifier needs to be removed
-    on fields where a lazy reference is created.
-
-    - beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
-        http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
-
     - pojo instrumentation: isDirty method.
 
     - pojo instrumentation: support for static fields.
@@ -28,6 +22,8 @@ TODO
 
     - dealing with subclasses
 
+    - dealing with fields that are override in subclasses.
+
     - dealing with non static inner classes.
 
     - annotation for ignored fields
@@ -39,8 +35,6 @@ TODO
     - pojo instrumentation of @atomic
 
     - unit and integration tests for instrumentation.
-
-
 
 - intellij files should be removed from project
 
@@ -234,4 +228,10 @@ that a pointer to the object will not be needed again).
 - pojo instrumentatie: the constructor of the TmEntity is changed in a bad way; code
     is added before the first return. But because there could be multiple exit points, not all
     possible exit points are changed. So it would be better to do it in the beginning.
+
+- pojo instrumentation van final fields: the final access modifier needs to be removed
+    on fields where a lazy reference is created.
+
+- beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
+        http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
 

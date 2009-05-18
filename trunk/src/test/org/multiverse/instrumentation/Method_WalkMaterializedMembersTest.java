@@ -4,8 +4,8 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.Ignore;
-import org.multiverse.api.TmEntity;
+import org.multiverse.api.annotations.Exclude;
+import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MemberWalker;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -120,7 +120,7 @@ public class Method_WalkMaterializedMembersTest {
 
     @TmEntity
     static class IgnoredMember {
-        @Ignore
+        @Exclude
         protected NoMembers members;
     }
 

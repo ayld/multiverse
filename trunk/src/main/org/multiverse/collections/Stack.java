@@ -1,8 +1,8 @@
 package org.multiverse.collections;
 
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.TmEntity;
-import org.multiverse.api.Unmanaged;
+import org.multiverse.api.annotations.TmEntity;
+import org.multiverse.api.annotations.Unmanaged;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +11,8 @@ import java.util.List;
 public final class Stack<E> {
 
     @Unmanaged
-    protected StackNode<E> head;
-    protected int size;
+    private StackNode<E> head;
+    private int size;
 
     public Stack() {
     }
@@ -26,7 +26,10 @@ public final class Stack<E> {
     }
 
     public void push(E item) {
-        if (item == null) throw new NullPointerException();
+        if (item == null) {
+            throw new NullPointerException();
+        }
+
         head = new StackNode<E>(head, item);
         size++;
     }
@@ -39,8 +42,9 @@ public final class Stack<E> {
     }
 
     public E tryPop() {
-        if (head == null)
+        if (head == null) {
             return null;
+        }
 
         return removeTopItem();
     }
@@ -100,11 +104,11 @@ public final class Stack<E> {
     }
 
     @TmEntity
-    public static final class StackNode<E> {
+    private static final class StackNode<E> {
 
         @Unmanaged
-        protected StackNode<E> next;
-        protected E value;
+        private final StackNode<E> next;
+        private final E value;
 
         public StackNode(StackNode<E> next, E value) {
             this.next = next;

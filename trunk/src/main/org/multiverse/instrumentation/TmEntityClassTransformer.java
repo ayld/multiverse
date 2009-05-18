@@ -60,21 +60,19 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
     private ClassNode dematerializedClassNode;
     private ClassLoader classLoader;
 
-    public TmEntityClassTransformer(ClassNode materializedClassNode, ClassNode dematerialized, ClassLoader classLoader) {
+    public TmEntityClassTransformer(ClassNode materializedClassNode, ClassNode dematerializedClassNode, ClassLoader classLoader) {
         super(materializedClassNode);
 
-        this.dematerializedClassNode = dematerialized;
+        this.dematerializedClassNode = dematerializedClassNode;
         this.classLoader = classLoader;
         this.materializedClassNode = materializedClassNode;
 
         addInterface(MaterializedObject.class);
-
-        addPublicFinalSyntheticField(VARNAME_HANDLE, MultiversionedHandle.class);
-        addPublicSyntheticField(VARNAME_NEXTINCHAIN, MaterializedObject.class);
-        addPublicSyntheticField(VARNAME_LASTMATERIALIZED, AsmUtils.internalFormToDescriptor(dematerialized.name));
-
+        addHandleField();
+        addNextInChainField();
+        addLastMaterializedField();
+        transformFields();
         createAdditionalLazyReferenceFields();
-
         transformConstructors();
         addMethod(new RematerializeConstructorBuilder());
         addMethod(new WalkMaterializedMembersMethodBuilder());
@@ -86,6 +84,18 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
         addDematerializedInnerClass();
     }
 
+    private void addLastMaterializedField() {
+        addPublicSyntheticField(VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
+    }
+
+    private void addNextInChainField() {
+        addPublicSyntheticField(VARNAME_NEXTINCHAIN, MaterializedObject.class);
+    }
+
+    private void addHandleField() {
+        addPublicFinalSyntheticField(VARNAME_HANDLE, MultiversionedHandle.class);
+    }
+
     private void createAdditionalLazyReferenceFields() {
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClassNode.fields)) {
             if (!isSynthetic(field) && !isStatic(field)) {
@@ -94,6 +104,23 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
                 }
             }
         }
+    }
+
+    private void transformFields() {
+        for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
+            if (!isSynthetic(field) && !isStatic(field)) {
+                removeAccess(field, ACC_FINAL);
+                removeAccess(field, ACC_PRIVATE);
+                removeAccess(field, ACC_PROTECTED);
+                removeAccess(field, ACC_PUBLIC);
+                field.access += ACC_PUBLIC;
+            }
+        }
+    }
+
+    private void removeAccess(FieldNode field, int removed) {
+        int access = field.access;
+        field.access = (access & removed) != 0 ? access - removed : access;
     }
 
     private void transformConstructors() {
@@ -126,15 +153,6 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
         return (MethodInsnNode) methodNode.instructions.get(indexOfSuperInit(methodNode.instructions));
     }
 
-    /**
-     * Todo:
-     * instead of placing code for the last return, it should be better if the code is added
-     * to the at the beginning. A constructor could have multiple exit points, to if you add
-     * the code for the last return, you have to add it multiple times.
-     *
-     * @param list
-     * @return
-     */
     public static int indexOfSuperInit(InsnList list) {
         for (int k = 0; k < list.size(); k++) {
             if (list.get(k).getOpcode() == INVOKESPECIAL) {
@@ -250,6 +268,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
 
             ICONST_TRUE();
             IRETURN();
+
             /*
             ALOAD(0);
 
@@ -259,6 +278,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
             ICONST_TRUE();
             IRETURN();
 
+            
             placeLabelNode(nonNullLastMaterialized);
 
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
@@ -274,7 +294,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
                     String type = field.desc;
                     if (isPrimitive(type)) {
                         IF_ICMPEQ(equalsLabel);
-                    } else if (isTmEntity(type)) {
+                    } else if (isTmEntity(type, classLoader)) {
                         IF_ICMPEQ(equalsLabel);//todo
                     } else {
                         IF_ACMPEQ(equalsLabel);
@@ -288,6 +308,10 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
 
             ICONST_FALSE();
             IRETURN();*/
+        }
+
+        private boolean isPrimitive(String type) {
+            return false;  //To change body of created methods use File | Settings | File Templates.
         }
     }
 

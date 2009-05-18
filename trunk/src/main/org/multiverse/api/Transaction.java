@@ -4,7 +4,7 @@ package org.multiverse.api;
  * Unit of work.
  * <p/>
  * All changes made on objects reachable from this Transaction (attached, read, or reachable from those
- * 2) will be committed when the Transaction commits. Watch out for {@link #readUnmanaged(Handle)} btw.
+ * 2) will be persisted to the shared memory when the Transaction commits.
  * <p/>
  * A Transaction is not threadsafe to use (although it can be handed over from thread to thread).
  *
@@ -16,8 +16,6 @@ public interface Transaction {
      * Commits all changes made under this transaction to the STM. If the transaction
      * already is committed, this call is ignored.
      *
-     * @throws org.multiverse.api.exceptions.WriteConflictException
-     *
      * @throws IllegalStateException if the Transaction is not active anymore.
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *                               if a write conflict was found.
@@ -26,7 +24,7 @@ public interface Transaction {
     void commit();
 
     /**
-     * Aborts the transaction (other transaction will never see the changes made under
+     * Aborts the transaction (other transaction will never see the changes made so far under
      * this transaction). If this Transaction already is aborted, this call is ignored.
      *
      * @throws IllegalStateException if this Transaction already is committed.

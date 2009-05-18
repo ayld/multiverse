@@ -1,6 +1,6 @@
 package org.multiverse.instrumentation;
 
-import org.multiverse.api.TmEntity;
+import org.multiverse.api.annotations.TmEntity;
 
 @TmEntity
 public class SimplePair {
