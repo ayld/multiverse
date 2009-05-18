@@ -1,8 +1,8 @@
 package org.multiverse.collections;
 
 import org.multiverse.api.StmUtils;
-import org.multiverse.api.TmEntity;
-import org.multiverse.api.Unmanaged;
+import org.multiverse.api.annotations.TmEntity;
+import org.multiverse.api.annotations.Unmanaged;
 
 import static java.lang.String.format;
 import static java.util.Collections.reverse;
@@ -12,10 +12,10 @@ import java.util.List;
 public final class Queue<E> {
 
     @Unmanaged
-    protected Stack<E> readyToPopStack;
+    private final Stack<E> readyToPopStack;
     @Unmanaged
-    protected Stack<E> pushedStack;
-    protected final int maxCapacity;
+    private final Stack<E> pushedStack;
+    private final int maxCapacity;
 
     public Queue() {
         this(Integer.MAX_VALUE);

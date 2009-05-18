@@ -1,6 +1,6 @@
 package org.multiverse.instrumentation.utils;
 
-import org.multiverse.api.TmEntity;
+import org.multiverse.api.annotations.TmEntity;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;

@@ -9,6 +9,7 @@ import org.multiverse.api.exceptions.RetryError;
  */
 public final class StmUtils {
 
+    //we don't want instances.
     private StmUtils() {
     }
 

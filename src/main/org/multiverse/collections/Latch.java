@@ -1,14 +1,14 @@
 package org.multiverse.collections;
 
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.TmEntity;
+import org.multiverse.api.annotations.TmEntity;
 
 import static java.lang.String.format;
 
 @TmEntity
 public final class Latch {
 
-    protected boolean isOpen;
+    private boolean isOpen;
 
     public Latch() {
         this.isOpen = false;

@@ -1,13 +1,12 @@
 package org.multiverse.instrumentation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
-import org.multiverse.api.TmEntity;
 import org.multiverse.api.Transaction;
+import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
@@ -70,18 +69,88 @@ public class Method_DematerializeTest {
     }
 
     @Test
-    public void testObjectMemberThatIsNotTmEntity() {
-        IntegerContent content = new IntegerContent();
-        content.integer = 100000;
+    public void testNonTmObjectMember() {
+        IntegerMember original = new IntegerMember();
+        original.member = 100000;
 
-        Handle<IntegerContent> handle = commit(stm, content);
+        Handle<IntegerMember> handle = commit(stm, original);
         Transaction t = stm.startTransaction();
-        IntegerContent found = t.read(handle);
-        assertEquals(content.integer, found.integer);
+        IntegerMember found = t.read(handle);
+        assertEquals(original.member, found.member);
+    }
+
+    @Test
+    public void testNonTmObjectMemberThatIsNull() {
+        IntegerMember original = new IntegerMember();
+        original.member = null;
+
+        Handle<IntegerMember> handle = commit(stm, original);
+        Transaction t = stm.startTransaction();
+        IntegerMember found = t.read(handle);
+        assertEquals(original.member, found.member);
     }
 
     @TmEntity
-    public static class IntegerContent {
-        public Integer integer;
+    public static class IntegerMember {
+        public Integer member;
+
+        public IntegerMember() {
+        }
+
+        public IntegerMember(Integer member) {
+            this.member = member;
+        }
+    }
+
+    @Test
+    public void testTmMemberIsNotNull() {
+        TmMember original = new TmMember();
+        original.member = new IntegerMember(10);
+
+        Handle<TmMember> handle = commit(stm, original);
+        Transaction t = stm.startTransaction();
+        TmMember found = t.read(handle);
+        assertEquals(original.member.member, found.getMember().member);
+    }
+
+    @Test
+    public void testTmMemberIsNull() {
+        TmMember original = new TmMember();
+        original.member = null;
+
+        Handle<TmMember> handle = commit(stm, original);
+        Transaction t = stm.startTransaction();
+        TmMember found = t.read(handle);
+        assertNull(found.getMember());
+    }
+
+    @TmEntity
+    public static class TmMember {
+        public IntegerMember member;
+
+        public IntegerMember getMember() {
+            return member;
+        }
+    }
+
+    //todo: @Test
+    public void testRuntimeTmMember() {
+
+    }
+
+    @Test
+    public void testRuntimeNonTmMember() {
+        ObjectMember original = new ObjectMember();
+        original.member = new Integer(10);
+
+        Handle<ObjectMember> handle = commit(stm, original);
+        Transaction t = stm.startTransaction();
+        ObjectMember found = t.read(handle);
+        assertSame(original.member, found.member);
+    }
+
+    @TmEntity
+    public static class ObjectMember {
+        public Object member;
     }
 }

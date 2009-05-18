@@ -1,4 +1,4 @@
-package org.multiverse.api;
+package org.multiverse.api.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,14 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation for an Object that is able to live inside Stm space.
- * <p/>
- * It could be compared with the JPA Entity annotation.
+ * An Eager annotation can be placed on fields of TmEnties to indicate that the field needs to be
+ * loaded eagerly. The default is lazy loading.
  *
  * @author Peter Veentjer.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface TmEntity {
-
+@Target(ElementType.FIELD)
+public @interface Eager {
 }
