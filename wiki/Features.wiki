@@ -8,14 +8,18 @@
   * non managed stm objects can flow through stm space (for example for handing over an object from one thread to another).
   * transaction level read consistency (the same isolation Oracle provides, so not 100% serialized)
   * supports the retry
+  * Instrumentation of pojo's. 
 
 = Planned =
-  * Pessimistic locking & deadlock detection 
-  * Instrumentation of pojo's. At the moment the main goal is to create a good Stm implementation and that is why classes need to be 'instrumented' manually (so implement the interfaces on the pojo's). Once the Stm is nearing completion, the instrumentation will be added. 
+  * Pessimistic locking
+  * Deadlock detection for the pessimistic locking
+  * Support for the @Exclude field annotation
+  * Support for the @Unmanaged field annotation (performance optimisation to lower the stress on the transaction).
   * Annotation driven transaction instead of the current template driven version
   * A lot of statistics to help developers figure out what goes on and how to improve performance.
-  * support for OrElse (is peanuts).
-  * readonly transactions
-  * garbage collection of non references stm content. Once the objects are committed, they are dehydrated and the heap is pointing to them so the gc won't throw them away even though they are not used anymore.
+  * support for OrElse.
+  * Support for readonly transactions (optimizations).
   * nested transactions
   * detachment and reattachment of stm objects
+  * A distributed version
+  * Control number of old version of data.
