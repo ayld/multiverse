@@ -146,7 +146,7 @@
         </jar>
     </target>
 
-    <target name="test.fast"
+    <target name="test"
             description="Runs the standard unit tests"
             depends="compile.test, jar">
 
@@ -177,7 +177,7 @@
         </junit>
     </target>
 
-    <target name="test"
+    <target name="test.long"
             description="Runs the stress tests (can take a long time)"
             depends="compile.test,jar">
 
@@ -204,7 +204,7 @@
 
     <target name="test.all"
             description="Runs all tests in the system"
-            depends="test, test.fast"/>
+            depends="test, test.long"/>
 
     <target name="dist"
             description="Builds the complete distribution"
