@@ -95,7 +95,7 @@ In this case the left is loaded when the Node is loaded. And the right is loaded
 Normally all objects that are loaded from a transaction, are stored in the transaction. This is done for 2 reasons:
   # when the transaction commits, it can find these objects and knows that these need to be committed if they are dirty.
   # multiple requests for the same instance, give the same instance.
-But the problem is this helpful behaviour causes cpu and memory overhead. Luckily there are cases where this behaviour is not needed, example:
+But the problem is that this helpful behaviour causes cpu and memory overhead. Luckily there are a lot of cases where this behaviour is not needed, example:
 
 {{{
 @TmEntity
