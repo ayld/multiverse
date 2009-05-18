@@ -1,13 +1,13 @@
 package org.multiverse;
 
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionState;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
+import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 import org.multiverse.util.latches.Latch;
@@ -15,6 +15,12 @@ import org.multiverse.util.latches.Latch;
 import java.util.*;
 
 public class TestUtils {
+
+    public static void assertSameHandle(Object item1, Object item2) {
+        assertTrue(item1 instanceof MaterializedObject);
+        assertTrue(item2 instanceof MaterializedObject);
+        assertSame(((MaterializedObject) item1).getHandle(), ((MaterializedObject) item2).getHandle());
+    }
 
     public static void assertIsActive(Transaction t) {
         assertEquals(TransactionState.active, t.getState());
@@ -92,6 +98,14 @@ public class TestUtils {
         t.commit();
         return handle;
     }
+
+    public static <T> T read(Stm stm, Handle<T> handle) {
+        Transaction t = stm.startTransaction();
+        T result = t.read(handle);
+        t.commit();
+        return result;
+    }
+
 
     public static boolean randomBoolean() {
         return randomInteger(10) % 2 == 0;
