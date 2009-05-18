@@ -7,5 +7,5 @@ Recommended literature if you are going to work on Multiverse:
   * [http://research.sun.com/scalable/pubs/DISC2006.pdf Transactional Locking 2]
   * [http://www.amazon.com/Transactional-Synthesis-Lectures-Computer-Architecture/dp/1598291246/ref=sr_1_1?ie=UTF8&s=books&qid=1242680680&sr=1-1 Transactional Memory (Synthesis Lectures on Computer Architecture)]
   * [http://www.amazon.com/Art-Multiprocessor-Programming-Maurice-Herlihy/dp/0123705916 The Art of Multiprocessor Programming]
-  * [http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/ref=sr_1_1?ie=UTF8&s=books&qid=1242680643&sr=1-1 Java Concurrency in Practice*
+  * [http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/ref=sr_1_1?ie=UTF8&s=books&qid=1242680643&sr=1-1 Java Concurrency in Practice]
   
