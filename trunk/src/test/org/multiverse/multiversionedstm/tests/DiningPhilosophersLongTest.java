@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Peter Veentjer.
  */
 @SuppressWarnings({"VolatileLongOrDoubleField", "ArithmeticOnVolatileField"})
-public class DiningPhilosophersTest {
+public class DiningPhilosophersLongTest {
     private int forkCount = 10;
     private int attemptCount = 1000;
 

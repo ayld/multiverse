@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"ClassExplicitlyExtendsThread"})
-public class ExampleQueueIntegrationTest {
+public class ExampleQueueIntegrationLongTest {
 
     private List<String> producedList = new LinkedList<String>();
     private List<String> consumedList = new LinkedList<String>();

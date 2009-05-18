@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleStack;
 
-public class TransactionOverheadStressTest {
+public class TransactionOverheadStressLongTest {
     private MultiversionedStm stm;
     private long itemCount = 10000000;
     private long startMs;

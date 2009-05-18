@@ -13,7 +13,7 @@ import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
-public class UnsharedDataDoesNotCauseWriteConflictsTest {
+public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
     private MultiversionedStm stm;
     private Handle<ExampleIntegerValue>[] handles;
     private int threadCount = 10 * Runtime.getRuntime().availableProcessors();

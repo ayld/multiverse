@@ -23,7 +23,7 @@ import org.multiverse.multiversionedstm.examples.ExamplePair;
  *
  * @author Peter Veentjer.
  */
-public class DeepMemberChainTest {
+public class DeepMemberChainLongTest {
     private MultiversionedStm stm;
 
     @Before

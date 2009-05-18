@@ -15,7 +15,7 @@ import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConflictingWritesDontBreakSystemTest {
+public class ConflictingWritesDontBreakSystemLongTest {
     private MultiversionedStm stm;
     private AtomicInteger transactionCountDown = new AtomicInteger();
     private Handle<ExampleIntegerValue>[] handles;

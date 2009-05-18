@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author Peter Veentjer.
  */
-public class PipelineTest {
+public class PipelineLongTest {
 
     private MultiversionedStm stm;
     private Handle<ExampleQueue<Integer>>[] queueHandles;

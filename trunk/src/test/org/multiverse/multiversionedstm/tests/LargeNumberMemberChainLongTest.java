@@ -10,7 +10,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExamplePair;
 
-public class LargeNumberMemberChainTest {
+public class LargeNumberMemberChainLongTest {
     private MultiversionedStm stm;
 
     @Before

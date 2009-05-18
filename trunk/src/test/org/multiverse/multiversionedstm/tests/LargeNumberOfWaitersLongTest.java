@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Peter Veentjer.
  */
-public class LargeNumberOfWaitersTest {
+public class LargeNumberOfWaitersLongTest {
 
     private MultiversionedStm stm;
     private Handle<ExampleIntegerValue> waiterLatchHandle;
