@@ -17,7 +17,6 @@ public class TestRunningMain {
         testStack();
         testQueue();
         testBTree();
-        testLinkedList();
     }
 
     private static void testLinkedList() {

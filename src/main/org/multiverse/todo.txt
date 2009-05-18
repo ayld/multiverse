@@ -2,6 +2,10 @@ TODO
 
 - POJO INSTRUMENTATION:
 
+    - at the moment the final access modifier also is removed non TmEntity members
+
+    - at the moment each field (not the TmEntities) are made public through instrumentation
+
     - pojo instrumentation: isDirty method.
 
     - pojo instrumentation: support for static fields.

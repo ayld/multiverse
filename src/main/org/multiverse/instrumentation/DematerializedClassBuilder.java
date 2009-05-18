@@ -22,7 +22,7 @@ import java.util.List;
 
 public class DematerializedClassBuilder extends ClassNodeBuilder {
 
-    private static final String VARNAME_HANDLE = "handle";
+    private static final String VARNAME_HANDLE = "$handle";
 
     private final ClassNode materializedClass;
     private final ClassLoader classLoader;
@@ -80,7 +80,7 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
                     if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         ALOAD(1);
-                        GETFIELD(materializedClass, field.name + "Ref", LazyReference.class);
+                        GETFIELD(materializedClass, field.name + "$Ref", LazyReference.class);
                         ALOAD(1);
                         GETFIELD(materializedClass, field);
                         Method getHandleMethod = getMethod(MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class);
