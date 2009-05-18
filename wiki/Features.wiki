@@ -8,7 +8,7 @@
   * Non managed stm objects can flow through stm space (for example for handing over an object from one thread to another).
   * Transaction level read consistency (the same isolation Oracle provides, so not 100% serialized)
   * Supports the retry (the conditional variable for the stm).
-  * No threads threads; so a thread can't in an inconsistent state and there is no need to 'kill' zombie threads.
+  * No zombie threads; so a thread can't in an inconsistent state and there is no need to 'kill' zombie threads.
 
 = Planned =
   * Pessimistic locking
