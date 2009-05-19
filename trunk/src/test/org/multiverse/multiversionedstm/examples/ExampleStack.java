@@ -18,6 +18,8 @@ public final class ExampleStack<E> implements MaterializedObject {
     }
 
     public E peek() {
+        ensureHeadLoaded();
+
         return head == null ? null : head.getValue();
     }
 

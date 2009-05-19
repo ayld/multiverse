@@ -9,6 +9,12 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
+/**
+ * A test that checks if classes with suspicous fieldnames (so has fields with the same name as the
+ * added files by the instrumentation) give no problems.
+ *
+ * @author Peter Veentjer.
+ */
 public class NoFieldNameConflictsTest {
     private MultiversionedStm stm;
 

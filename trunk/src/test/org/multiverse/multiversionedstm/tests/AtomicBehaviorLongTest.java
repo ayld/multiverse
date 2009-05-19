@@ -59,6 +59,7 @@ public class AtomicBehaviorLongTest {
                 try {
                     doit();
                 } catch (AbortedTransactionException ex) {
+                    //ignore
                 }
             }
         }
@@ -67,7 +68,7 @@ public class AtomicBehaviorLongTest {
             new TransactionTemplate(stm) {
                 @Override
                 protected Object execute(Transaction t) throws Exception {
-                    ExampleIntegerValue value = (ExampleIntegerValue) t.read(handle);
+                    ExampleIntegerValue value = t.read(handle);
                     if (value.get() % 2 != 0)
                         fail();
 
@@ -98,7 +99,7 @@ public class AtomicBehaviorLongTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleIntegerValue value = (ExampleIntegerValue) t.read(handle);
+                        ExampleIntegerValue value = t.read(handle);
                         if (value.get() % 2 != 0)
                             fail();
 
