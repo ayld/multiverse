@@ -1,91 +1,18 @@
 TODO
 
-- POJO INSTRUMENTATION:
-
-    - at the moment the final access modifier also is removed non TmEntity members
-
-    - at the moment each field (not the TmEntities) are made public through instrumentation
-
-    - pojo instrumentation: isDirty method.
-
-    - pojo instrumentation: support for static fields.
-
-    - pojo instrumentatie: initialisation of fields of objects are also done with the
-       constructor for materialization and this doesn't have to. It could even cause problems
-       because the fields could be final.
-
-    - pojo instrumentation: fields that only are at runtime to be determined MaterializedObject.
-        - this needs to be done in the stmentity.constructor
-        - this needs to be done in the dematerialized.constructor
-        - this needs to be done in the walkMembers method
-        - this needs to be done in the dirty method.
-
-    - java agent aan de praat krijgen onder intellij.
-
-    - analysis for read/readLazy
-
-    - dealing with subclasses
-
-    - dealing with fields that are override in subclasses.
-
-    - dealing with non static inner classes.
-
-    - annotation for ignored fields
-
-    - annotation for Unmanaged fields
-
-    - annotation for eager fields
-
-    - pojo instrumentation of @atomic
-
-    - unit and integration tests for instrumentation.
-
-- intellij files should be removed from project
-
-- zorgen dat je een nieuwe class kunt toevoegen bij het load proces; noodzakelijk voor de dematerialized objects.
-    - de dematerializedclass is toegevoegd aan de classnode, maar is niet zichtbaar bij het laden.
-
 - track number of starvation problems: transaction
 
 - track number of starvation problems: read
 
 - track number of starvation problems: listen
 
-- the number of writes a transaction has done when it commits should be stored somewhere
-
-- the number of reads a transaction has done when it commits should be stored somewhere
-
-- atm worden te pas en te onpas de retrycounters gezet
-
 - percentage fout bij locks.
-
-- uitvoering transaction.abortAndRetry testen
-
-- cycle handling test
 
 - http://jee-bpel-soa.blogspot.com/2009/05/parameterising-junit-tests.html
 
 IMPROVEMENTS
 
 - escape analysis needed for read/readUnmanaged
-
-- tree toevoegen
-
-    - volledig test van persist
-
-    - balancing
-
-    - removal
-
-    - equals
-
-    - hash
-
-    - toString
-
-    - asList
-
-    - iterator
 
 - set toevoegen
 

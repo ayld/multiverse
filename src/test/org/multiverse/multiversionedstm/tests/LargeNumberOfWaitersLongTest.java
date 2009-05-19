@@ -118,12 +118,12 @@ public class LargeNumberOfWaitersLongTest {
         public void wakeup(final int count) {
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
-                    ExampleIntegerValue notifyLatch = (ExampleIntegerValue) t.read(notifyLatchHandle);
+                    ExampleIntegerValue notifyLatch = t.read(notifyLatchHandle);
                     if (notifyLatch.get() == 0)
                         StmUtils.retry();
                     notifyLatch.set(0);
 
-                    ExampleIntegerValue waiterLatch = (ExampleIntegerValue) t.read(waiterLatchHandle);
+                    ExampleIntegerValue waiterLatch = t.read(waiterLatchHandle);
                     waiterLatch.set(count);
                     return null;
                 }
@@ -148,13 +148,13 @@ public class LargeNumberOfWaitersLongTest {
             //System.out.println("wait");
             new TransactionTemplate(stm) {
                 protected Object execute(Transaction t) throws Exception {
-                    ExampleIntegerValue waiterLatch = (ExampleIntegerValue) t.read(waiterLatchHandle);
+                    ExampleIntegerValue waiterLatch = t.read(waiterLatchHandle);
                     if (waiterLatch.get() <= 0)
                         StmUtils.retry();
                     waiterLatch.dec();
 
                     if (waiterLatch.get() == 0) {
-                        ExampleIntegerValue notifyLatch = (ExampleIntegerValue) t.read(notifyLatchHandle);
+                        ExampleIntegerValue notifyLatch = t.read(notifyLatchHandle);
                         notifyLatch.set(1);
                     }
                     return null;

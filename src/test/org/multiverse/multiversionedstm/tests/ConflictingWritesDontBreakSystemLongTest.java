@@ -90,7 +90,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
                 @Override
                 protected Object execute(Transaction t) {
                     for (int k = 0; k < handles.length; k++) {
-                        ExampleIntegerValue value = (ExampleIntegerValue) t.read(handles[k]);
+                        ExampleIntegerValue value = t.read(handles[k]);
                         sleepRandomMs(5);
                         value.inc();
                     }

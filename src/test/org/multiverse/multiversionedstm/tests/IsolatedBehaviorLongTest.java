@@ -68,7 +68,7 @@ public class IsolatedBehaviorLongTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleIntegerValue value = (ExampleIntegerValue) t.read(handle);
+                        ExampleIntegerValue value = t.read(handle);
                         value.inc();
 
                         sleepRandomMs(50);
@@ -94,7 +94,7 @@ public class IsolatedBehaviorLongTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleIntegerValue value = (ExampleIntegerValue) t.read(handle);
+                        ExampleIntegerValue value = t.read(handle);
                         if (value.get() % 2 != 0)
                             fail();
 

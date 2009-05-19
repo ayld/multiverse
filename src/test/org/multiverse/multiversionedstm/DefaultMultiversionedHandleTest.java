@@ -30,7 +30,6 @@ public class DefaultMultiversionedHandleTest {
         return object;
     }
 
-
     // ============== tryToAcquireLocksForWritingAndDetectForConflicts ==================
 
     @Test

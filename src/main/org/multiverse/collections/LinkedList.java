@@ -604,12 +604,11 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         return new ListItr(index);
     }
 
-    @TmEntity
     private class ListItr implements ListIterator<E> {
-        protected Entry<E> lastReturned = header;
-        protected Entry<E> next;
-        protected int nextIndex;
-        protected int expectedModCount = modCount;
+        private Entry<E> lastReturned = header;
+        private Entry<E> next;
+        private int nextIndex;
+        private int expectedModCount = modCount;
 
         ListItr(int index) {
             if (index < 0 || index > size)
@@ -702,9 +701,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
 
     @TmEntity
     protected static class Entry<E> {
-        protected E element;
-        protected Entry<E> next;
-        protected Entry<E> previous;
+        private E element;
+        private Entry<E> next;
+        private Entry<E> previous;
 
         Entry(E element, Entry<E> next, Entry<E> previous) {
             this.element = element;

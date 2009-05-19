@@ -141,7 +141,7 @@ public class ExampleStackIntegrationTest {
         assertStackIsEmpty();
     }
 
-    //todo: @Test
+    @Test
     public void testReferencesWithinStackArePersisted() {
         ExampleStack<ExampleIntegerValue> stack = new ExampleStack<ExampleIntegerValue>();
         stack.push(new ExampleIntegerValue(10));
