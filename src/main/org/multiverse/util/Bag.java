@@ -24,7 +24,9 @@ public final class Bag<E> {
      * @throws NullPointerException if item is null.
      */
     public void add(E item) {
-        if (item == null) throw new NullPointerException();
+        if (item == null) {
+            throw new NullPointerException();
+        }
         root = new Node<E>(item, root);
     }
 
@@ -39,8 +41,9 @@ public final class Bag<E> {
 
     @Override
     public String toString() {
-        if (isEmpty())
+        if (isEmpty()) {
             return "[]";
+        }
 
         StringBuffer sb = new StringBuffer();
         Node node = root;
@@ -60,8 +63,10 @@ public final class Bag<E> {
      * @throws IllegalStateException if the Bag is empty.
      */
     public E takeAny() {
-        if (root == null)
+        if (root == null) {
             throw new IllegalStateException();
+        }
+
         Node<E> oldRoot = root;
         root = oldRoot.parent;
         return oldRoot.value;

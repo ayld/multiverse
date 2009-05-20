@@ -16,7 +16,9 @@ public final class InstanceIterator<E> implements Iterator<E> {
     private final E item;
 
     public InstanceIterator(E item) {
-        if (item == null) throw new NullPointerException();
+        if (item == null) {
+            throw new NullPointerException();
+        }
         this.item = item;
     }
 
@@ -31,8 +33,9 @@ public final class InstanceIterator<E> implements Iterator<E> {
 
     @Override
     public E next() {
-        if (!hasNext())
+        if (!hasNext()) {
             throw new NoSuchElementException();
+        }
 
         nextCalled = true;
         return item;

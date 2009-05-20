@@ -22,8 +22,9 @@ public final class Queue<E> {
     }
 
     public Queue(int maximumCapacity) {
-        if (maximumCapacity < 1)
+        if (maximumCapacity < 1) {
             throw new IllegalArgumentException();
+        }
         this.maxCapacity = maximumCapacity;
 
         //moved into the constructor.
@@ -37,8 +38,9 @@ public final class Queue<E> {
 
     public E tryPop() {
         E result = readyToPopStack.tryPop();
-        if (result != null)
+        if (result != null) {
             return result;
+        }
 
         flip();
         return readyToPopStack.tryPop();
@@ -61,8 +63,9 @@ public final class Queue<E> {
     }
 
     public void push(E value) {
-        if (size() == maxCapacity)
+        if (size() == maxCapacity) {
             StmUtils.retry();
+        }
 
         pushedStack.push(value);
     }
@@ -99,11 +102,13 @@ public final class Queue<E> {
 
     @Override
     public boolean equals(Object thatObj) {
-        if (thatObj == this)
+        if (thatObj == this) {
             return true;
+        }
 
-        if (!(thatObj instanceof Queue))
+        if (!(thatObj instanceof Queue)) {
             return false;
+        }
 
         Queue<E> that = (Queue<E>) thatObj;
         if (that.size() != this.size())

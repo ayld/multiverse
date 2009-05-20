@@ -17,7 +17,9 @@ public final class ArrayIterator<E> implements Iterator {
     private int index = -1;
 
     public ArrayIterator(E... array) {
-        if (array == null) throw new NullPointerException();
+        if (array == null) {
+            throw new NullPointerException();
+        }
         this.array = array;
     }
 
@@ -35,8 +37,9 @@ public final class ArrayIterator<E> implements Iterator {
 
     @Override
     public E next() {
-        if (!hasNext())
+        if (!hasNext()) {
             throw new NoSuchElementException();
+        }
 
         index++;
         return array[index];

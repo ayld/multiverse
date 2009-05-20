@@ -7,6 +7,8 @@ import org.multiverse.multiversionedstm.MultiversionedStm;
 
 /**
  * A Main that runs some tests.
+ * <p/>
+ * will be removed in the future..
  */
 public class TestRunningMain {
 

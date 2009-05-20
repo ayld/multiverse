@@ -34,19 +34,22 @@ public final class CheapLatch implements Latch {
     }
 
     public void await() throws InterruptedException {
-        if (isOpen)
+        if (isOpen) {
             return;
+        }
 
         synchronized (this) {
-            while (!isOpen)
+            while (!isOpen) {
                 wait();
+            }
         }
     }
 
     @Override
     public void awaitUniterruptibly() {
-        if (isOpen)
+        if (isOpen) {
             return;
+        }
 
         boolean restoreInterrupt = false;
 
@@ -61,14 +64,16 @@ public final class CheapLatch implements Latch {
                 }
             }
         } finally {
-            if (restoreInterrupt)
+            if (restoreInterrupt) {
                 Thread.currentThread().interrupt();
+            }
         }
     }
 
     public void open() {
-        if (isOpen)
+        if (isOpen) {
             return;
+        }
 
         synchronized (this) {
             isOpen = true;

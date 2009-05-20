@@ -19,8 +19,9 @@ public final class Latch {
     }
 
     public void awaitOpen() {
-        if (!isOpen)
+        if (!isOpen) {
             retry();
+        }
     }
 
     public void open() {

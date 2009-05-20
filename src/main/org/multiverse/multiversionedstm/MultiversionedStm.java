@@ -297,8 +297,9 @@ public final class MultiversionedStm implements Stm {
                     } catch (StarvationException e) {
                         //in case of a starvation exception, we try again.
                         //in the future this needs to be externalized using some kind of starvation policy.
-                        if (statistics != null)
+                        if (statistics != null) {
                             statistics.incTransactionLockAcquireFailureCount();
+                        }
                     } finally {
                         if (!success) {
                             releaseLocksForWriting(writeSet);
@@ -331,7 +332,6 @@ public final class MultiversionedStm implements Stm {
          */
         private void tryAcquireLocksForWritingAndDetectWriteForConflicts(MaterializedObject[] writeSet) {
             int count = 0;
-            //todo: externalize
             RetryCounter retryCounter = new RetryCounter(0);
 
             try {
@@ -389,7 +389,6 @@ public final class MultiversionedStm implements Stm {
         private DematerializedObject getDematerialized(MultiversionedHandle handle) {
             DematerializedObject dematerialized;
             try {
-                //todo:
                 dematerialized = handle.tryRead(readVersion, new RetryCounter(1));
             } catch (SnapshotTooOldException ex) {
                 if (statistics != null) {
