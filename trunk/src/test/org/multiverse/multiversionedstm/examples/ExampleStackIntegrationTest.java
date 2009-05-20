@@ -60,33 +60,7 @@ public class ExampleStackIntegrationTest {
         }.execute();
     }
 
-    private TestThread asynchronousPush(final String item) {
-        TestThread testThread = new TestThread() {
-            public void run() {
-                atomicPush(item);
-            }
-        };
-
-        testThread.start();
-        return testThread;
-    }
-
-    private TestThread asynchronousPop() {
-        TestThread t = new TestThread() {
-            public void run() {
-                try {
-                    System.out.printf("popped %s\n", atomicPop());
-                } catch (RuntimeException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        };
-        t.start();
-        return t;
-    }
-
     @Test
-    //todo: test is flaky.
     public void testSequential() {
         atomicPush("foo");
         atomicPush("bar");
@@ -98,35 +72,16 @@ public class ExampleStackIntegrationTest {
     }
 
     @Test
-    public void testAsynchronous() {
-        TestThread t1 = asynchronousPop();
-        TestThread t3 = asynchronousPush("Hello");
-
-        joinAll(t1, t3);
-        //todo: content needs to be checked
-    }
-
-    @Test
-    public void testPopOnEmptyStackDoesntLoop() {
-        //long active = multiversionedstm.getStatistics().getTransactionsStartedCount();
-
-        asynchronousPop();
-        sleep(500);
-
-        //assertEquals(active + 1, multiversionedstm.getStatistics().getTransactionsStartedCount());
-    }
-
-    @Test
     public void testProduceConsumer_10000() {
-        testProducerConsumer(100);
+        testProducerConsumer(1000);
     }
 
     private void testProducerConsumer(int itemCount) {
         produceCountDown.set(itemCount);
         consumeCountDown.set(itemCount);
 
-        //long startCommitSuccessCount = heap.getStatistics().commitSuccessCount.longValue();
-        //long startCommitReadonlyCount = heap.getStatistics().commitReadonlyCount.longValue();
+        long startCommitSuccessCount = stm.getStatistics().getTransactionCommittedCount();
+        long startCommitReadonlyCount = stm.getStatistics().getTransactionReadonlyCount();
 
         ProducerThread producerThread = new ProducerThread();
         ConsumerThread consumerThread = new ConsumerThread();
@@ -135,8 +90,8 @@ public class ExampleStackIntegrationTest {
         joinAll(producerThread, consumerThread);
 
         assertEquals(producedSet, consumedSet);
-        //assertEquals(startCommitSuccessCount + itemCount * 2, heap.getStatistics().commitSuccessCount.longValue());
-        //assertEquals(startCommitReadonlyCount, heap.getStatistics().commitReadonlyCount.longValue());
+        assertEquals(startCommitSuccessCount + itemCount * 2, stm.getStatistics().getTransactionCommittedCount());
+        assertEquals(startCommitReadonlyCount, stm.getStatistics().getTransactionReadonlyCount());
 
         assertStackIsEmpty();
     }

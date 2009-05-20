@@ -322,7 +322,9 @@ public final class AsmUtils {
     }
 
     public static void writeToFile(File file, byte[] bytecode) throws IOException {
-        if (file == null || bytecode == null) throw new NullPointerException();
+        if (file == null || bytecode == null) {
+            throw new NullPointerException();
+        }
 
         ensureExistingParent(file);
 

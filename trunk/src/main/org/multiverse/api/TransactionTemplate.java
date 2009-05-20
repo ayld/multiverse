@@ -72,8 +72,9 @@ public abstract class TransactionTemplate<E> {
                 TransactionThreadLocal.set(transaction);
                 try {
                     E result = execute(transaction);
-                    if (transaction.getState().equals(TransactionState.aborted))
+                    if (transaction.getState().equals(TransactionState.aborted)) {
                         throw new AbortedTransactionException();
+                    }
 
                     transaction.commit();
                     abort = false;

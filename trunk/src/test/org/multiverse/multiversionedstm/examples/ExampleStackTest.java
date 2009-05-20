@@ -18,14 +18,14 @@ public class ExampleStackTest {
 
     @Test
     public void dematerializeAndMaterializedNonEmptyStack() {
-        ExampleStack stack = new ExampleStack();
+        ExampleStack<Integer> stack = new ExampleStack<Integer>();
         stack.push(10);
         stack.push(20);
         stack.push(30);
         stack.push(40);
 
         Transaction t1 = stm.startTransaction();
-        Handle<ExampleStack> handle = t1.attach(stack);
+        Handle<ExampleStack<Integer>> handle = t1.attach(stack);
         t1.commit();
 
         Transaction t2 = stm.startTransaction();

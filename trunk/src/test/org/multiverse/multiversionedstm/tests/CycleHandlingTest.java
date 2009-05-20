@@ -3,11 +3,12 @@ package org.multiverse.multiversionedstm.tests;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.multiverse.TestUtils.assertSameHandle;
 import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
+import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExamplePair;
 
 /**
  * A Test to see how well the MultiversionedStm deals with cycles
@@ -27,29 +28,130 @@ public class CycleHandlingTest {
         System.out.println(stm.getStatistics());
     }
 
-    @Test
-    public void testDirectCycle() {
-        ExamplePair pair = new ExamplePair();
-        pair.setLeft(pair);
+    @TmEntity
+    public static class SingleLinkedNode {
+        private SingleLinkedNode next;
 
-        Handle<ExamplePair> handle = commit(stm, pair);
+        public void setNext(SingleLinkedNode next) {
+            this.next = next;
+        }
+
+        public SingleLinkedNode getNext() {
+            return next;
+        }
+    }
+
+
+    @Test
+    public void directCycle() {
+        SingleLinkedNode original = new SingleLinkedNode();
+        original.setNext(original);
+
+        Handle<SingleLinkedNode> handle = commit(stm, original);
         Transaction t = stm.startTransaction();
-        ExamplePair found = t.read(handle);
-        //todo
+        SingleLinkedNode found = t.read(handle);
+        assertSameHandle(original, found);
+        assertSameHandle(original.getNext(), found.getNext());
+        t.commit();
     }
 
     @Test
-    public void testShortIndirectCycle() {
-        //todo
+    public void shortIndirectCycle() {
+        SingleLinkedNode original1 = new SingleLinkedNode();
+        SingleLinkedNode original2 = new SingleLinkedNode();
+        original1.setNext(original2);
+        original2.setNext(original1);
+
+        Handle<SingleLinkedNode> handle = commit(stm, original1);
+        Transaction t = stm.startTransaction();
+        SingleLinkedNode found = t.read(handle);
+        assertSameHandle(original1, found);
+        assertSameHandle(original2, found.getNext());
+        assertSameHandle(original1, found.getNext().getNext());
+        t.commit();
     }
 
+    /**
+     * A large number is chosen to see if the system doesn't run out of call stack. If there
+     * is some recursion going on, we would notice it here.
+     */
     @Test
-    public void testLongIndirectCycle() {
-        //todo
+    public void longIndirectCycle() {
+        SingleLinkedNode original = createLongChain(100000);
+
+        Handle<SingleLinkedNode> handle = commit(stm, original);
+        Transaction t = stm.startTransaction();
+
+        SingleLinkedNode found = t.read(handle);
+        SingleLinkedNode currentOriginal = original;
+        SingleLinkedNode currentFound = found;
+        do {
+            assertSameHandle(currentFound, currentOriginal);
+            currentOriginal = currentOriginal.getNext();
+            currentFound = currentFound.getNext();
+        } while (currentOriginal != original);
     }
 
-    @Test
-    public void testNuttyObjectGraphWithLoadsOfCycles() {
-        //todo
+    private SingleLinkedNode createLongChain(int depth) {
+        SingleLinkedNode first = new SingleLinkedNode();
+        SingleLinkedNode current = first;
+        for (int k = 0; k < depth; k++) {
+            SingleLinkedNode newHolder = new SingleLinkedNode();
+            current.setNext(newHolder);
+            current = newHolder;
+        }
+
+        current.setNext(first);
+        return first;
+    }
+
+    /**
+     * A large number is chosen to make sure that there is no hidden recursion in the system.
+     */
+    //@Test
+    public void complexObjectGraphWithLoadsOfCycles() {
+        ComplexNode original = createComplexGraphWithLoadsOfCycles(1000000);
+
+        Handle<ComplexNode> handle = commit(stm, original);
+        Transaction t = stm.startTransaction();
+        ComplexNode found = t.read(handle);
+
+        //todo: structural check
+    }
+
+
+    private ComplexNode createComplexGraphWithLoadsOfCycles(int nodeCount) {
+        return null;
+    }
+
+    @TmEntity
+    static class ComplexNode {
+        private ComplexNode edge1;
+        private ComplexNode edge2;
+        private ComplexNode edge3;
+
+        public ComplexNode getEdge1() {
+            return edge1;
+        }
+
+        public void setEdge1(ComplexNode edge1) {
+            this.edge1 = edge1;
+        }
+
+        public ComplexNode getEdge2() {
+            return edge2;
+        }
+
+        public void setEdge2(ComplexNode edge2) {
+            this.edge2 = edge2;
+        }
+
+        public ComplexNode getEdge3() {
+            return edge3;
+        }
+
+        public void setEdge3(ComplexNode edge3) {
+            this.edge3 = edge3;
+        }
     }
 }

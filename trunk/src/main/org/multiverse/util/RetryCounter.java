@@ -26,8 +26,9 @@ public final class RetryCounter {
      * @return true if another attempt can be done, false otherwise.
      */
     public boolean decrease() {
-        if (value <= 0)
+        if (value <= 0) {
             return false;
+        }
 
         value--;
         return true;

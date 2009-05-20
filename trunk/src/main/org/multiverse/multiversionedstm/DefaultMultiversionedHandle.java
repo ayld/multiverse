@@ -74,7 +74,6 @@ public final class DefaultMultiversionedHandle<T> implements MultiversionedHandl
             currentState = stateRef.get();
             State tobeState = currentState.writeAndReleaseLock(dematerialized, dematerializedVersion);
             success = stateRef.compareAndSet(currentState, tobeState);
-
         } while (!success);
 
         return currentState.listenerHead;
@@ -87,12 +86,14 @@ public final class DefaultMultiversionedHandle<T> implements MultiversionedHandl
         boolean success;
         do {
             State currentState = stateRef.get();
-            if (currentState == null)
+            if (currentState == null) {
                 return;
+            }
 
             State tobeState = currentState.releaseLockForWriting(expectedLockOwner);
-            if (tobeState == currentState)
+            if (tobeState == currentState) {
                 return;
+            }
 
             success = stateRef.compareAndSet(currentState, tobeState);
         } while (!success);
@@ -218,11 +219,13 @@ public final class DefaultMultiversionedHandle<T> implements MultiversionedHandl
         }
 
         State releaseLockForWriting(TransactionId expectedLockOwner) {
-            if (lockOwner == null)
+            if (lockOwner == null) {
                 return this;
+            }
 
-            if (expectedLockOwner != lockOwner)
+            if (expectedLockOwner != lockOwner) {
                 return this;
+            }
 
             return new State(listenerHead, dematerializedObject, dematerializedVersion, null);
         }

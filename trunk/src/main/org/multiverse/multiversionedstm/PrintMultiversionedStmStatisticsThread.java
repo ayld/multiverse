@@ -31,10 +31,12 @@ public final class PrintMultiversionedStmStatisticsThread extends Thread {
      * @throws IllegalArgumentException if delayMs is smaller than zero.
      */
     public PrintMultiversionedStmStatisticsThread(MultiversionedStm stm, long delayMs) {
-        if (stm == null)
+        if (stm == null) {
             throw new NullPointerException();
-        if (delayMs < 0)
+        }
+        if (delayMs < 0) {
             throw new IllegalArgumentException();
+        }
 
         this.stm = stm;
         this.delayMs = delayMs;

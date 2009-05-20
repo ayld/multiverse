@@ -28,8 +28,9 @@ public final class MultiversionedStmStatistics {
     }
 
     public void incWriteCount(int amount) {
-        if (amount < 0)
+        if (amount < 0) {
             throw new IllegalArgumentException();
+        }
         writeCount.addAndGet(amount);
     }
 
@@ -58,8 +59,9 @@ public final class MultiversionedStmStatistics {
     }
 
     public void incLockAcquiredCount(int count) {
-        if (count < 0)
+        if (count < 0) {
             throw new IllegalArgumentException();
+        }
         lockAcquiredCount.addAndGet(count);
     }
 

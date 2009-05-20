@@ -35,8 +35,9 @@ public final class Stack<E> {
     }
 
     public E pop() {
-        if (head == null)
+        if (head == null) {
             retry();
+        }
 
         return removeTopItem();
     }
@@ -87,18 +88,22 @@ public final class Stack<E> {
 
     @Override
     public boolean equals(Object thatObj) {
-        if (thatObj == this)
+        if (thatObj == this) {
             return true;
+        }
 
-        if (!(thatObj instanceof Stack))
+        if (!(thatObj instanceof Stack)) {
             return false;
+        }
 
         Stack that = (Stack) thatObj;
-        if (that.size != this.size)
+        if (that.size != this.size) {
             return false;
+        }
 
-        if (this.head == null)
+        if (this.head == null) {
             return that.head == null;
+        }
 
         return this.asList().equals(that.asList());
     }

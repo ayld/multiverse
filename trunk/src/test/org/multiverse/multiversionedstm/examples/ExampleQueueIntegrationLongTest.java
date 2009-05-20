@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
-import org.multiverse.TestUtils;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
@@ -71,27 +70,6 @@ public class ExampleQueueIntegrationLongTest {
         }.execute();
     }
 
-    public void asynchronousPush(final String item) {
-        new Thread() {
-            public void run() {
-                atomicPush(item);
-            }
-        }.start();
-    }
-
-    public void asynchronousPop() {
-        new Thread() {
-            public void run() {
-                try {
-                    atomicPop();
-                    //System.out.println(Thread.currentThread() + " consumed: " + result);
-                } catch (RuntimeException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }.start();
-    }
-
     @Test
     public void testSequential() {
         atomicPush("item1");
@@ -105,21 +83,7 @@ public class ExampleQueueIntegrationLongTest {
     }
 
     @Test
-    public void test() {
-        asynchronousPop();
-        asynchronousPop();
-        TestUtils.sleep(1000);
-        asynchronousPush("foo");
-        asynchronousPush("bar");
-        TestUtils.sleep(1000);
-
-        //todo: check that content has been returned.
-    }
-
-    @Test
     public void testProducerConsumer_1() {
-        //new PrintMultiversionedStmStatisticsThread(multiversionedstm).start();
-
         testProducerConsumer(1);
     }
 
