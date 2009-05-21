@@ -1,9 +1,8 @@
 package org.multiverse.multiversionedstm.tests;
 
-import java.util.LinkedList;
-import java.util.Random;
-
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertSameHandle;
@@ -12,6 +11,8 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MultiversionedStm;
+
+import java.util.*;
 
 /**
  * A Test to see how well the MultiversionedStm deals with cycles
@@ -113,82 +114,192 @@ public class CycleHandlingTest {
      */
     @Test
     public void complexObjectGraphWithLoadsOfCycles() {
-        ComplexNode original = createComplexGraphWithLoadsOfCycles(1000000);
+        int nodeCount = 100000;
+        ComplexNode original = createComplexGraphWithLoadsOfCycles(nodeCount);
+        complexObjectGraphWithLoadsOfCycles(nodeCount, original);
+    }
 
-        Handle<ComplexNode> handle = commit(stm, original);
-        Transaction t = stm.startTransaction();
-        ComplexNode found = t.read(handle);
-
-        //todo: structural check
+    /**
+     * A large number is chosen to make sure that there is no hidden recursion in the system.
+     */
+    @Test
+    public void anoterComplexObjectGraphWithLoadsOfCycles() {
+        int nodeCount = 100000;
+        ComplexNode original = createAnotherComplexGraphWithLoadsOfCycles(nodeCount);
+        complexObjectGraphWithLoadsOfCycles(nodeCount, original);
     }
 
 
+    public void complexObjectGraphWithLoadsOfCycles(int nodeCount, ComplexNode original) {
+
+        assertFalse(original.getEdge1() == null && original.getEdge2() == null && original.getEdge3() == null);
+
+        long oldWriteCount = stm.getStatistics().getWriteCount();
+        Handle<ComplexNode> handle = commit(stm, original);
+        long newWriteCount = stm.getStatistics().getWriteCount();
+
+        assertEquals(oldWriteCount + nodeCount, newWriteCount);
+        assertStructuralContentIsEquals(original, handle);
+    }
+
+    private void assertStructuralContentIsEquals(ComplexNode original, Handle<ComplexNode> handle) {
+        Transaction t = stm.startTransaction();
+        ComplexNode found = t.read(handle);
+
+        assertSameHandle(original, found);
+        Map<ComplexNode, Object> doneMap = new IdentityHashMap<ComplexNode, Object>();
+        Stack<Pair> traverseStack = new Stack<Pair>();
+        traverseStack.push(new Pair(original, found));
+        do {
+            Pair pair = traverseStack.pop();
+
+            assertSameHandle(pair.original, pair.found);
+
+            if (pair.original == null) {
+                //since they have the same handle and original is null, found will be null as well.
+                //so no need to traverse any further.
+                break;
+            } else {
+                if (!doneMap.containsKey(pair.original)) {
+                    doneMap.put(pair.original, "");
+                    traverseStack.push(new Pair(pair.original.getEdge1(), pair.found.getEdge1()));
+                    traverseStack.push(new Pair(pair.original.getEdge2(), pair.found.getEdge2()));
+                    traverseStack.push(new Pair(pair.original.getEdge3(), pair.found.getEdge3()));
+                }
+            }
+        } while (!traverseStack.isEmpty());
+    }
+
+    class Pair {
+        ComplexNode original;
+        ComplexNode found;
+
+        Pair(ComplexNode original, ComplexNode found) {
+            assert original != null && found != null;
+            this.original = original;
+            this.found = found;
+        }
+    }
+
     /**
      * Create a complex graph that can contain cycles. The maximum amount of nodes
-     * allocated are controlled by the nodeCount parameter, but less could be allocated, 
+     * allocated are controlled by the nodeCount parameter, but less could be allocated,
      * depending on the random generation of the graph.
+     *
      * @param nodeCount The maximum amount of ComplexNode objects allocated.
      * @return A graph of ComplexNodes that can contain cycles.
      */
     private ComplexNode createComplexGraphWithLoadsOfCycles(int nodeCount) {
-    	
-    	if (nodeCount <= 0)
-    		throw new IllegalArgumentException("nodeCount parameter should be > 0.");
-    	
-    	final Random rng = new Random();
-    	
-    	// The chance for the generation of a reference to a previous node.
-    	final double referenceProbability = 0.1;
-    	// The chance for the generation of a terminator node.
-    	final double nullProbability = 0.2;
-    	// Maximum amount of previously generated nodes stored for back referencing.
-    	final int maxReferenceListSize = 12;   	
-    	
-    	// The workList contains all generated ComplexNodes that have no child nodes yet
-    	// and are waiting for processing.
-    	LinkedList<ComplexNode> workList = new LinkedList<ComplexNode>();
-    	// The backreferences contains the list of ComplexNodes that can get referenced by
-    	// a ComplexNode that is processed.
-    	LinkedList<ComplexNode> backreferences = new LinkedList<ComplexNode>();
-    	
-    	// Initialize the lists with the root node.
-    	ComplexNode root = new ComplexNode();
-		--nodeCount;
-    	workList.addFirst(root);    
-    	backreferences.addFirst(root);
-    	
-    	while (!workList.isEmpty() && nodeCount > 0) {
-    		ComplexNode current = workList.removeLast();		
-    		ComplexNode[] children = new ComplexNode[3];
-    		
-    		for (int i = 0; i < 3; ++i) { 
-    			double randomVal = rng.nextDouble();
-    			if (randomVal <= nullProbability) {
-    				children[i] = null;
-    			} else if (randomVal <= (nullProbability + referenceProbability) || nodeCount <= 0) {
-    				// We choose to generate a back reference when we are not allowed to allocate new ComplexNodes
-    				// in order to increase the complexity.
-    				children[i] = backreferences.peekLast();
-    			} else {
-    				children[i] = new ComplexNode();
-    				workList.push(children[i]);
-    				backreferences.addFirst(children[i]);
-    				--nodeCount;
-    				if (backreferences.size() > maxReferenceListSize)
-    					backreferences.removeLast();
-    			}
-    		}
-    		
-    		current.setEdge1(children[0]);
-    		current.setEdge2(children[1]);
-    		current.setEdge3(children[2]);
-    	}
-    	
-    	// After the loop, it could be that the workList is not empty and still many ComplexNodes would
-    	// like to get processed. We can safely ignore these nodes, as their children are initialized to null
-    	// (terminator node) by default.
-    	return root;
+        if (nodeCount <= 0) {
+            throw new IllegalArgumentException("nodeCount parameter should be > 0.");
+        }
+
+        final Random rng = new Random();
+
+        // The chance for the generation of a reference to a previous node.
+        final double referenceProbability = 0.1;
+        // The chance for the generation of a terminator node.
+        final double nullProbability = 0.2;
+        // Maximum amount of previously generated nodes stored for back referencing.
+        final int maxReferenceListSize = 12;
+
+        // The workList contains all generated ComplexNodes that have no child nodes yet
+        // and are waiting for processing.
+        LinkedList<ComplexNode> workList = new LinkedList<ComplexNode>();
+        // The backreferences contains the list of ComplexNodes that can get referenced by
+        // a ComplexNode that is processed.
+        LinkedList<ComplexNode> backreferences = new LinkedList<ComplexNode>();
+
+        // Initialize the lists with the root node.
+        ComplexNode root = new ComplexNode();
+        --nodeCount;
+        workList.addFirst(root);
+        backreferences.addFirst(root);
+
+        while (!workList.isEmpty() && nodeCount > 0) {
+            ComplexNode current = workList.removeLast();
+            ComplexNode[] children = new ComplexNode[3];
+
+            for (int i = 0; i < 3; ++i) {
+                double randomVal = rng.nextDouble();
+                if (randomVal <= nullProbability) {
+                    children[i] = null;
+                } else if (randomVal <= (nullProbability + referenceProbability) || nodeCount <= 0) {
+                    // We choose to generate a back reference when we are not allowed to allocate new ComplexNodes
+                    // in order to increase the complexity.
+                    children[i] = backreferences.peekLast();
+                } else {
+                    children[i] = new ComplexNode();
+                    workList.push(children[i]);
+                    backreferences.addFirst(children[i]);
+                    --nodeCount;
+                    if (backreferences.size() > maxReferenceListSize)
+                        backreferences.removeLast();
+                }
+            }
+
+            current.setEdge1(children[0]);
+            current.setEdge2(children[1]);
+            current.setEdge3(children[2]);
+        }
+
+        // After the loop, it could be that the workList is not empty and still many ComplexNodes would
+        // like to get processed. We can safely ignore these nodes, as their children are initialized to null
+        // (terminator node) by default.
+        return root;
     }
+
+    /**
+     * Create a complex graph that can contain cycles. The maximum amount of nodes
+     * allocated are controlled by the nodeCount parameter, but less could be allocated,
+     * depending on the random generation of the graph.
+     *
+     * @param nodeCount The maximum amount of ComplexNode objects allocated.
+     * @return A graph of ComplexNodes that can contain cycles.
+     */
+    private ComplexNode createAnotherComplexGraphWithLoadsOfCycles(int nodeCount) {
+        if (nodeCount <= 0) {
+            throw new IllegalArgumentException("nodeCount parameter should be > 0.");
+        }
+
+        final Random rng = new Random();
+
+        ComplexNode[] nodes = new ComplexNode[nodeCount];
+        ComplexNode root = new ComplexNode();
+        nodes[0] = root;
+
+        ComplexNode current = root;
+
+        //create an initial set all linked on edge2.
+        for (int k = 1; k < nodeCount; k++) {
+            ComplexNode newNode = new ComplexNode();
+            nodes[k] = newNode;
+
+            current.setEdge2(newNode);
+            current = newNode;
+        }
+
+        //fill edge1 and 3.
+        for (int k = 0; k < nodeCount; k++) {
+            ComplexNode node = nodes[k];
+
+            int edge1Index = (int) Math.round(Math.floor(rng.nextFloat() * nodeCount));
+            node.setEdge1(nodes[edge1Index]);
+
+            int edge3Index = (int) Math.round(Math.floor(rng.nextFloat() * nodeCount));
+            node.setEdge3(nodes[edge3Index]);
+        }
+
+        //introducing self cycles and null references
+        for (int k = 0; k < nodeCount; k += 10) {
+            ComplexNode node = nodes[k];
+            node.edge1 = node;
+            node.edge3 = null;
+        }
+
+        return root;
+    }
+
 
     @TmEntity
     static class ComplexNode {
