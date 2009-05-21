@@ -17,6 +17,11 @@ import java.util.*;
 public class TestUtils {
 
     public static void assertSameHandle(Object item1, Object item2) {
+        if (item1 == null) {
+            assertTrue(item2 == null);
+            return;
+        }
+        assertNotNull(item2);
         assertTrue(item1 instanceof MaterializedObject);
         assertTrue(item2 instanceof MaterializedObject);
         assertSame(((MaterializedObject) item1).getHandle(), ((MaterializedObject) item2).getHandle());

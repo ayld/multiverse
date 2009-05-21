@@ -371,4 +371,11 @@ public final class AsmUtils {
     private AsmUtils() {
     }
 
+    public static boolean isArrayType(FieldNode field) {
+        return isArrayType(field.desc);
+    }
+
+    public static boolean isArrayType(String desc) {
+        return getObjectType(desc).getSort() == ARRAY;
+    }
 }
