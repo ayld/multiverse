@@ -51,7 +51,7 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
 
         //a clone of the list is made to prevent concurrentmodificationexceptions.
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClass.fields)) {
-            if (!isSynthetic(field) && !isStatic(field) && !isArrayType(field)) {
+            if (!isExcluded(field)) {
                 if (isTmEntity(field.desc, classLoader)) {
                     addPublicFinalSyntheticField(field.name, MultiversionedHandle.class);
                 } else {
@@ -76,7 +76,7 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
             PUTFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
 
             for (FieldNode field : (List<FieldNode>) materializedClass.fields) {
-                if (!isSynthetic(field) && !isStatic(field) && !isArrayType(field)) {
+                if (!isExcluded(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         ALOAD(1);

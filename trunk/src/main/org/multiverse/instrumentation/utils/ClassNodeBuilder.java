@@ -32,11 +32,11 @@ public abstract class ClassNodeBuilder implements Opcodes {
         return classNode.name;
     }
 
-    public void addPublicSyntheticField(String name, Class theType) {
-        addPublicSyntheticField(name, getDescriptor(theType));
+    public FieldNode addPublicSyntheticField(String name, Class theType) {
+        return addPublicSyntheticField(name, getDescriptor(theType));
     }
 
-    public void addPublicSyntheticField(String name, String descriptor) {
+    public FieldNode addPublicSyntheticField(String name, String descriptor) {
         FieldNode field = new FieldNode(
                 ACC_PUBLIC | ACC_SYNTHETIC,
                 name,
@@ -44,13 +44,14 @@ public abstract class ClassNodeBuilder implements Opcodes {
                 null,
                 null);
         classNode.fields.add(field);
+        return field;
     }
 
-    public void addPublicFinalSyntheticField(String name, Class theType) {
-        addPublicFinalSyntheticField(name, getDescriptor(theType));
+    public FieldNode addPublicFinalSyntheticField(String name, Class theType) {
+        return addPublicFinalSyntheticField(name, getDescriptor(theType));
     }
 
-    public void addPublicFinalSyntheticField(String name, String typeDescriptor) {
+    public FieldNode addPublicFinalSyntheticField(String name, String typeDescriptor) {
         FieldNode field = new FieldNode(
                 ACC_PUBLIC | ACC_FINAL,
                 name,
@@ -58,6 +59,7 @@ public abstract class ClassNodeBuilder implements Opcodes {
                 null,
                 null);
         classNode.fields.add(field);
+        return field;
     }
 
     public void addMethod(MethodBuilder methodBuilder) {

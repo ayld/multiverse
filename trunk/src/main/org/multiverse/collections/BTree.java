@@ -1,8 +1,8 @@
 package org.multiverse.collections;
 
 import org.multiverse.api.annotations.Eager;
+import org.multiverse.api.annotations.SelfManaged;
 import org.multiverse.api.annotations.TmEntity;
-import org.multiverse.api.annotations.Unmanaged;
 
 import static java.lang.Math.max;
 
@@ -13,12 +13,9 @@ public final class BTree<K extends Comparable, V> {
         goLeft, goRight, spotOn
     }
 
-    @Unmanaged
+    @SelfManaged
     @Eager
     private BTreeNode<K, V> root;
-
-    public BTree() {
-    }
 
     public V put(K key, V value) {
         if (key == null)
@@ -40,8 +37,9 @@ public final class BTree<K extends Comparable, V> {
     }
 
     public boolean containsKey(K key) {
-        if (key == null)
+        if (key == null) {
             throw new NullPointerException();
+        }
 
         return root.find(key) != null;
     }
@@ -96,9 +94,9 @@ public final class BTree<K extends Comparable, V> {
 
         private K key;
         private V value;
-        @Unmanaged
+        @SelfManaged
         private BTreeNode<K, V> left;
-        @Unmanaged
+        @SelfManaged
         private BTreeNode<K, V> right;
 
         BTreeNode(K key, V value) {
