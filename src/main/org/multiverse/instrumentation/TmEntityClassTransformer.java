@@ -68,10 +68,10 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
         this.materializedClassNode = materializedClassNode;
 
         addInterface(MaterializedObject.class);
+        makeFieldsPublicAndNonFinal();
         addHandleField();
         addNextInChainField();
         addLastMaterializedField();
-        transformFields();
         createAdditionalLazyReferenceFields();
         transformConstructors();
         addMethod(new RematerializeConstructorBuilder());
@@ -85,30 +85,34 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
     }
 
     private void addLastMaterializedField() {
-        addPublicSyntheticField(VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
+        FieldNode field = addPublicSyntheticField(VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
+        exclude(field);
     }
 
     private void addNextInChainField() {
-        addPublicSyntheticField(VARNAME_NEXTINCHAIN, MaterializedObject.class);
+        FieldNode field = addPublicSyntheticField(VARNAME_NEXTINCHAIN, MaterializedObject.class);
+        exclude(field);
     }
 
     private void addHandleField() {
-        addPublicFinalSyntheticField(VARNAME_HANDLE, MultiversionedHandle.class);
+        FieldNode field = addPublicFinalSyntheticField(VARNAME_HANDLE, MultiversionedHandle.class);
+        exclude(field);
     }
 
     private void createAdditionalLazyReferenceFields() {
         for (FieldNode field : (List<FieldNode>) new ArrayList(materializedClassNode.fields)) {
-            if (!isSynthetic(field) && !isStatic(field)) {
+            if (!isExcluded(field)) {
                 if (isTmEntity(field.desc, classLoader)) {
-                    addPublicSyntheticField(field.name + "$Ref", LazyReference.class);
+                    FieldNode fieldNode = addPublicSyntheticField(field.name + "$Ref", LazyReference.class);
+                    exclude(fieldNode);
                 }
             }
         }
     }
 
-    private void transformFields() {
+    private void makeFieldsPublicAndNonFinal() {
         for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-            if (!isSynthetic(field) && !isStatic(field)) {
+            if (!isExcluded(field)) {
                 removeAccess(field, ACC_FINAL);
                 removeAccess(field, ACC_PRIVATE);
                 removeAccess(field, ACC_PROTECTED);
@@ -190,7 +194,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
             PUTFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedClassNode);
 
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isSynthetic(field) && !isStatic(field)) {
+                if (!isExcluded(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         ALOAD(2);
@@ -322,7 +326,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
 
             LabelNode next = new LabelNode();
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isSynthetic(field) && !isStatic(field)) {
+                if (!isExcluded(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
                         ALOAD(0);
                         GETFIELD(materializedClassNode, field);

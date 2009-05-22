@@ -1,6 +1,8 @@
 package org.multiverse.instrumentation.utils;
 
+import org.multiverse.api.annotations.Exclude;
 import org.multiverse.api.annotations.TmEntity;
+import org.multiverse.collections.LinkedList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -19,6 +21,16 @@ import java.util.List;
  * @author Peter Veentjer.
  */
 public final class AsmUtils {
+
+    public static final AnnotationNode EXCLUDE = new AnnotationNode(Type.getDescriptor(Exclude.class));
+
+    public static void exclude(FieldNode field) {
+        if (field.visibleAnnotations == null) {
+            field.visibleAnnotations = new LinkedList();
+        }
+
+        field.visibleAnnotations.add(EXCLUDE);
+    }
 
     public static Constructor getConstructor(Class clazz, Class<?>... parameterTypes) {
         try {
@@ -78,6 +90,10 @@ public final class AsmUtils {
         return (fieldNode.access & Opcodes.ACC_SYNTHETIC) != 0;
     }
 
+    public static boolean isVolatile(FieldNode fieldNode) {
+        return (fieldNode.access & Opcodes.ACC_VOLATILE) != 0;
+    }
+
     public static boolean isStatic(FieldNode fieldNode) {
         return (fieldNode.access & Opcodes.ACC_STATIC) != 0;
     }
@@ -88,6 +104,10 @@ public final class AsmUtils {
 
     public static boolean isTmEntity(String typeDescriptor, ClassLoader classLoader) {
         return hasVisibleAnnotation(typeDescriptor, TmEntity.class, classLoader);
+    }
+
+    public static boolean isExcluded(FieldNode fieldNode) {
+        return hasVisibleAnnotation(fieldNode, Exclude.class);
     }
 
     public static void printFields(ClassNode classNode) {
@@ -192,7 +212,7 @@ public final class AsmUtils {
             reader.accept(classNode, 0);
             return classNode;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("A problem ocurred while loading class" + fileName, e);
         }
     }
 

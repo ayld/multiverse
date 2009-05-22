@@ -39,9 +39,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      *          if this list is empty
      */
     public E getFirst() {
-        if (size == 0)
+        if (size == 0) {
             throw new NoSuchElementException();
-
+        }
         return header.next.element;
     }
 
@@ -52,8 +52,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @throws NoSuchElementException if this list is empty
      */
     public E getLast() {
-        if (size == 0)
+        if (size == 0) {
             throw new NoSuchElementException();
+        }
 
         return header.previous.element;
     }
@@ -197,13 +198,15 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @throws NullPointerException      if the specified collection is null
      */
     public boolean addAll(int index, Collection<? extends E> c) {
-        if (index < 0 || index > size)
+        if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("Index: " + index +
                     ", Size: " + size);
+        }
         Object[] a = c.toArray();
         int numNew = a.length;
-        if (numNew == 0)
+        if (numNew == 0) {
             return false;
+        }
         modCount++;
 
         Entry<E> successor = (index == size ? header : entry(index));
@@ -295,16 +298,19 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * Returns the indexed entry.
      */
     private Entry<E> entry(int index) {
-        if (index < 0 || index >= size)
+        if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index: " + index +
                     ", Size: " + size);
+        }
         Entry<E> e = header;
         if (index < (size >> 1)) {
-            for (int i = 0; i <= index; i++)
+            for (int i = 0; i <= index; i++) {
                 e = e.next;
+            }
         } else {
-            for (int i = size; i > index; i--)
+            for (int i = size; i > index; i--) {
                 e = e.previous;
+            }
         }
         return e;
     }
@@ -327,14 +333,16 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         int index = 0;
         if (o == null) {
             for (Entry e = header.next; e != header; e = e.next) {
-                if (e.element == null)
+                if (e.element == null) {
                     return index;
+                }
                 index++;
             }
         } else {
             for (Entry e = header.next; e != header; e = e.next) {
-                if (o.equals(e.element))
+                if (o.equals(e.element)) {
                     return index;
+                }
                 index++;
             }
         }
@@ -357,14 +365,16 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         if (o == null) {
             for (Entry e = header.previous; e != header; e = e.previous) {
                 index--;
-                if (e.element == null)
+                if (e.element == null) {
                     return index;
+                }
             }
         } else {
             for (Entry e = header.previous; e != header; e = e.previous) {
                 index--;
-                if (o.equals(e.element))
+                if (o.equals(e.element)) {
                     return index;
+                }
             }
         }
         return -1;
@@ -379,8 +389,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @since 1.5
      */
     public E peek() {
-        if (size == 0)
+        if (size == 0) {
             return null;
+        }
         return getFirst();
     }
 
@@ -402,8 +413,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @since 1.5
      */
     public E poll() {
-        if (size == 0)
+        if (size == 0) {
             return null;
+        }
         return removeFirst();
     }
 
@@ -463,8 +475,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @since 1.6
      */
     public E peekFirst() {
-        if (size == 0)
+        if (size == 0) {
             return null;
+        }
         return getFirst();
     }
 
@@ -477,8 +490,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @since 1.6
      */
     public E peekLast() {
-        if (size == 0)
+        if (size == 0) {
             return null;
+        }
         return getLast();
     }
 
@@ -491,8 +505,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @since 1.6
      */
     public E pollFirst() {
-        if (size == 0)
+        if (size == 0) {
             return null;
+        }
         return removeFirst();
     }
 
@@ -505,8 +520,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @since 1.6
      */
     public E pollLast() {
-        if (size == 0)
+        if (size == 0) {
             return null;
+        }
         return removeLast();
     }
 
@@ -611,17 +627,20 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         private int expectedModCount = modCount;
 
         ListItr(int index) {
-            if (index < 0 || index > size)
+            if (index < 0 || index > size) {
                 throw new IndexOutOfBoundsException("Index: " + index +
                         ", Size: " + size);
+            }
             if (index < (size >> 1)) {
                 next = header.next;
-                for (nextIndex = 0; nextIndex < index; nextIndex++)
+                for (nextIndex = 0; nextIndex < index; nextIndex++) {
                     next = next.next;
+                }
             } else {
                 next = header;
-                for (nextIndex = size; nextIndex > index; nextIndex--)
+                for (nextIndex = size; nextIndex > index; nextIndex--) {
                     next = next.previous;
+                }
             }
         }
 
@@ -631,8 +650,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
 
         public E next() {
             checkForComodification();
-            if (nextIndex == size)
+            if (nextIndex == size) {
                 throw new NoSuchElementException();
+            }
 
             lastReturned = next;
             next = next.next;
@@ -645,8 +665,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         }
 
         public E previous() {
-            if (nextIndex == 0)
+            if (nextIndex == 0) {
                 throw new NoSuchElementException();
+            }
 
             lastReturned = next = next.previous;
             nextIndex--;
@@ -670,17 +691,20 @@ public class LinkedList<E> extends AbstractSequentialList<E>
             } catch (NoSuchElementException e) {
                 throw new IllegalStateException();
             }
-            if (next == lastReturned)
+
+            if (next == lastReturned) {
                 next = lastNext;
-            else
+            } else {
                 nextIndex--;
+            }
             lastReturned = header;
             expectedModCount++;
         }
 
         public void set(E e) {
-            if (lastReturned == header)
+            if (lastReturned == header) {
                 throw new IllegalStateException();
+            }
             checkForComodification();
             lastReturned.element = e;
         }
@@ -694,8 +718,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         }
 
         final void checkForComodification() {
-            if (modCount != expectedModCount)
+            if (modCount != expectedModCount) {
                 throw new ConcurrentModificationException();
+            }
         }
     }
 
@@ -722,8 +747,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
     }
 
     private E remove(Entry<E> e) {
-        if (e == header)
+        if (e == header) {
             throw new NoSuchElementException();
+        }
 
         E result = e.element;
         e.previous.next = e.next;
@@ -783,8 +809,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         clone.modCount = 0;
 
         // Initialize clone with our elements
-        for (Entry<E> e = header.next; e != header; e = e.next)
+        for (Entry<E> e = header.next; e != header; e = e.next) {
             clone.add(e.element);
+        }
 
         return clone;
     }
@@ -806,8 +833,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
     public Object[] toArray() {
         Object[] result = new Object[size];
         int i = 0;
-        for (Entry<E> e = header.next; e != header; e = e.next)
+        for (Entry<E> e = header.next; e != header; e = e.next) {
             result[i++] = e.element;
+        }
         return result;
     }
 
@@ -850,16 +878,19 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @throws NullPointerException if the specified array is null
      */
     public <T> T[] toArray(T[] a) {
-        if (a.length < size)
+        if (a.length < size) {
             a = (T[]) java.lang.reflect.Array.newInstance(
                     a.getClass().getComponentType(), size);
+        }
         int i = 0;
         Object[] result = a;
-        for (Entry<E> e = header.next; e != header; e = e.next)
+        for (Entry<E> e = header.next; e != header; e = e.next) {
             result[i++] = e.element;
+        }
 
-        if (a.length > size)
+        if (a.length > size) {
             a[size] = null;
+        }
 
         return a;
     }
@@ -883,8 +914,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         s.writeInt(size);
 
         // Write out all elements in the proper order.
-        for (Entry e = header.next; e != header; e = e.next)
+        for (Entry e = header.next; e != header; e = e.next) {
             s.writeObject(e.element);
+        }
     }
 
     /**
@@ -904,7 +936,8 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         header.next = header.previous = header;
 
         // Read in all elements in the proper order.
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < size; i++) {
             addBefore((E) s.readObject(), header);
+        }
     }
 }

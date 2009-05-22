@@ -5,7 +5,6 @@ import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 
-import static java.lang.String.format;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
@@ -19,13 +18,13 @@ public class MultiverseJavaAgent {
     public static void premain(String agentArgs, Instrumentation inst) throws UnmodifiableClassException {
         System.out.println("Starting the Multiverse JavaAgent");
 
-        inst.addTransformer(new NoArraysAsTmEntityFieldsCheck());
+        inst.addTransformer(new ExcludeUnmapablesClassFileTransformer());
         inst.addTransformer(new Phase1ClassFileTransformer());
         inst.addTransformer(new Phase2ClassFileTransformer());
         //    inst.addTransformer(new Phase3ClassFileTransformer());
     }
 
-    public static class NoArraysAsTmEntityFieldsCheck implements ClassFileTransformer {
+    public static class ExcludeUnmapablesClassFileTransformer implements ClassFileTransformer {
 
         @Override
         public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
@@ -44,18 +43,37 @@ public class MultiverseJavaAgent {
             }
 
             for (FieldNode field : (List<FieldNode>) classNode.fields) {
-                if (!isSynthetic(field) && !isStatic(field)) {
-                    if (isArrayType(field.desc)) {
-                        String msg = format("Field %s.%s is an array, and is Excluded from Multiverse. " +
-                                "Arrays are not supported in this version of Multiverse.", className, field.name);
-                        throw new IllegalClassFormatException(msg);
-                    }
+                if (isExcluded(field)) {
+                    //excluded fields are completely ignored.
+                } else if (isVolatile(field)) {
+                    System.err.printf(
+                            "Warning: field '%s.%s' is volatile and is excluded from Multiverse." +
+                                    " volatile fields don't make sense to use in an STM.\n",
+                            className,
+                            field.name);
+                    exclude(field);
+                } else if (isSynthetic(field)) {
+                    //exclude all syntethic fields
+                    exclude(field);
+                } else if (isStatic(field)) {
+                    System.err.printf(
+                            "Warning: field '%s.%s' is static and is excluded from Multiverse." +
+                                    " static fields are not supported yet.\n",
+                            className,
+                            field.name);
+                    exclude(field);
+                } else if (isArrayType(field.desc)) {
+                    System.err.printf(
+                            "Warning: field '%s.%s' is an array and is excluded from Multiverse." +
+                                    " Arrays are not supported yet.\n",
+                            className,
+                            field.name);
+                    exclude(field);
                 }
             }
 
-            return null;
+            return toBytecode(classNode);
         }
-
     }
 
     /**

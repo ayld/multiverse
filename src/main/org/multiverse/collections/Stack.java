@@ -1,8 +1,8 @@
 package org.multiverse.collections;
 
 import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.annotations.SelfManaged;
 import org.multiverse.api.annotations.TmEntity;
-import org.multiverse.api.annotations.Unmanaged;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +10,9 @@ import java.util.List;
 @TmEntity
 public final class Stack<E> {
 
-    @Unmanaged
+    @SelfManaged
     private StackNode<E> head;
     private int size;
-
-    public Stack() {
-    }
 
     public E peek() {
         return head == null ? null : head.value;
@@ -111,7 +108,7 @@ public final class Stack<E> {
     @TmEntity
     private static final class StackNode<E> {
 
-        @Unmanaged
+        @SelfManaged
         private final StackNode<E> next;
         private final E value;
 

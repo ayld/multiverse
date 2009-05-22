@@ -12,6 +12,10 @@ import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 import org.multiverse.util.latches.Latch;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 public class TestUtils {
@@ -95,6 +99,10 @@ public class TestUtils {
         } finally {
             t.abort();
         }
+    }
+
+    public static <T> T commitAndRead(Stm stm, T item) {
+        return read(stm, commit(stm, item));
     }
 
     public static <T> Handle<T> commit(Stm stm, T item) {
@@ -188,5 +196,20 @@ public class TestUtils {
 
     public static void assertIsOpen(Latch latch, boolean isOpen) {
         assertEquals(isOpen, latch.isOpen());
+    }
+
+    public static String readText(File errorOutputFile) {
+        try {
+            StringBuffer sb = new StringBuffer();
+            BufferedReader reader = new BufferedReader(new FileReader(errorOutputFile));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            return sb.toString();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

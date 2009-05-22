@@ -5,6 +5,7 @@
     <property name="application.name" value="multiverse"/>
     <property name="application.version" value="0.1"/>
 
+    <property environment="env"/>
     <property name="src" value="src"/>
     <property name="src.main" value="${src}/main"/>
     <property name="src.boot" value="${src}/boot"/>
@@ -21,7 +22,10 @@
     <property name="classes.boot" value="${target}/classes.boot"/>
 
     <property name="javadoc" value="${target}/javadoc"/>
-    <property name="unitreports" value="${target}/junit-reports"/>
+    <property name="unit.reports" value="${target}/junit-reports"/>
+    <property name="pmd.reports" value="${target}/pmd-reports"/>
+    <property name="findbugs.reports" value="${target}/findbugs-reports"/>
+    <property name="findbugs.home" value="${env.FINDBUGS_HOME}"/>
 
     <path id="classpath.provided">
         <fileset dir="${lib.provided}">
@@ -31,6 +35,12 @@
 
     <path id="classpath.support">
         <fileset dir="${lib.support}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath.findbugs">
+        <fileset dir="${findbugs.home}">
             <include name="**/*.jar"/>
         </fileset>
     </path>
@@ -150,7 +160,7 @@
             description="Runs the standard unit tests"
             depends="compile.test, jar">
 
-        <mkdir dir="${unitreports}"/>
+        <mkdir dir="${unit.reports}"/>
 
         <junit printsummary="yes" haltonfailure="yes">
 
@@ -166,7 +176,7 @@
 
             <formatter type="plain"/>
 
-            <batchtest fork="yes" todir="${unitreports}">
+            <batchtest fork="yes" todir="${unit.reports}">
                 <fileset dir="${src.test}">
                     <include name="**/*Test.java"/>
                     <exclude name="**/Abstract*Test.java"/>
@@ -181,7 +191,7 @@
             description="Runs the stress tests (can take a long time)"
             depends="compile.test,jar">
 
-        <mkdir dir="${unitreports}"/>
+        <mkdir dir="${unit.reports}"/>
 
         <junit printsummary="yes" haltonfailure="yes">
             <classpath>
@@ -193,7 +203,7 @@
 
             <formatter type="plain"/>
 
-            <batchtest fork="yes" todir="${unitreports}">
+            <batchtest fork="yes" todir="${unit.reports}">
                 <fileset dir="${src.test}">
                     <include name="**/*StressTest.java"/>
                     <include name="**/*LongTest.java"/>
@@ -208,7 +218,7 @@
 
     <target name="dist"
             description="Builds the complete distribution"
-            depends="clean, compile.main, test.all, javadoc, jar">
+            depends="clean, compile.main, test, javadoc, pmd, findbugs, jar">
 
         <zip destfile="${target}/sources.zip">
             <zipfileset dir="${src.main}" prefix="src"/>
@@ -226,6 +236,61 @@
             <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
             <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
         </java>
+    </target>
+
+    <target name="pmd"
+            description="Creates a PMD report"
+            depends="compile.main">
+
+        <taskdef name="pmd"
+                 classname="net.sourceforge.pmd.ant.PMDTask">
+            <classpath>
+                <path refid="classpath.support"/>
+            </classpath>
+        </taskdef>
+
+        <mkdir dir="${pmd.reports}"/>
+
+        <pmd shortFilenames="true">
+            <ruleset>rulesets/favorites.xml</ruleset>
+            <ruleset>basic</ruleset>
+            <formatter type="html" toFile="${pmd.reports}/pmd_report.html"
+                       linkPrefix="http://pmd.sourceforge.net/xref/"/>
+            <fileset dir="${src.main}">
+                <include name="**/*.java"/>
+            </fileset>
+        </pmd>
+    </target>
+
+    <target name="findbugs"
+            description="Creates the FindBugs report"
+            depends="compile.main">
+
+        <!--
+       for more information see the following url:
+       https://fisheye.springsource.org/browse/~raw,r=94/dm-server-samples/hello-integration-test/main-branches/jersey/hello-integration-testing/spring-build/lib/findbugs/doc/manual/datamining.html
+        -->
+
+        <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
+            <classpath>
+                <path refid="classpath.findbugs"/>
+            </classpath>
+        </taskdef>
+
+        <mkdir dir="${findbugs.reports}"/>
+
+        <findbugs home="${findbugs.home}"
+                  output="html"
+                  outputFile="${findbugs.reports}/Findbugs-${application.name}-${application.version}.html"
+                  reportLevel="experimental"
+                  workHard="true"
+                  stylesheet="fancy.xsl"
+                  effort="max"
+                  adjustExperimental="true"
+                  failOnError="true"
+                  projectName="${application.name}-${application.version}">
+            <class location="${classes.main}"/>
+        </findbugs>
     </target>
 
 </project>
