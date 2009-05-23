@@ -4,7 +4,7 @@
 
 = Notification =
 
-Just as with traditional lock based approaches, notification between transactions can be very useful (e.g. to wake up when an item has been placed on a queue). But unlike the explicit condition variables in lock based approach, STM's can do this completely behind the screens. At the moment Multiverse only supports one construct: the retry.
+Just as with traditional lock based approaches, notification between transactions can be very useful (e.g. to wake up when an item has been placed on a queue). But unlike the explicit condition variables in lock based approach, STM's can do this completely behind the screens. At the moment Multiverse only supports one construct: the retry (a static method from StmUtils).
 
 === Example ===
 A latch is a structure that can be seen as a door that is closed. As long as the latch is closed, a thread that wants to enter the door needs to wait until it is opened. Once the Latch is opened, it can never be closed and the waiting threads are woken up. If the latch is open, each thread can pass the latch.
