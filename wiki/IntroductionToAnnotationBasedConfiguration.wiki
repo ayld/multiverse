@@ -75,25 +75,6 @@ public class Person{
 
 In this case the firstname is completely ignored and the lastname is not ignored.
 
-= Eager Loading =
-
-Normally all references to other entities are loaded lazy. But in some cases it is better that the reference is loaded eager because it is always needed. This can be done with the @Eager annotation:
-
-{{{
-@TmEntity
-public class Node{
-
-    @Eager
-    private Node left;
-
-    private Node right;
-
-    ...
-}
-}}}
-
-In this case the left is loaded when the Node is loaded. And the right is loaded when it is needed.
-
 = Preventing transaction overload =
 
 Normally all objects that are loaded from a transaction, are stored in the transaction. This is done for 2 reasons:
@@ -181,3 +162,4 @@ The @Unmanaged annotation is perfect for inner objects that won't escape the out
 Annotations planned for future releases:
   # @Lock(mode=LockMode.exclusive), @Lock(mode=LockMode.shared) 
   # @Immutable, to indicate that an entity (and everything that can be reached from it) is immutable. This is useful for improving performance.
+  # Eager for eager loading of references when lazy loading is not needed
