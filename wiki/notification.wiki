@@ -2,7 +2,7 @@
 #sidebar TableOfContents
 <wiki:toc max_depth="1" />
 
-= Notification =
+= Notification: retry =
 
 Just as with traditional lock based approaches, notification between transactions can be very useful (e.g. to wake up when an item has been placed on a queue). But unlike the explicit condition variables in lock based approach, STM's can do this completely behind the screens. At the moment Multiverse only supports one construct: the retry (a static method from StmUtils).
 
@@ -89,7 +89,7 @@ E pop(){
 
 If no items is available on the stacks, the transaction is retried. And since the transaction knows which objects are able to change (the ones you have read), it registers itself as a listener to these structures. And as soon as a change is made on one of the two stacks, the transaction is retried.
 
-= Planned: Timeout =
+= Planned: timeout =
 At the moment there is no support for time-outs; so waiting for some event to happen or until a time-out occurs. But this is going to be added. And instead of placing it at the condition variable as can be seen with traditional lock based approaches, this time-out is going to be stored the transaction. This time-out value can be used over multiple condition variables, so no need to specify it again and again.
 
 = Planned: orelse =
