@@ -127,7 +127,7 @@ public final class ExampleStack<E> implements MaterializedObject {
     private ExampleStack(DematerializedStack<E> dematerializedStack, Transaction t) {
         this.handle = dematerializedStack.getHandle();
         this.lastDematerialized = dematerializedStack;
-        this.headRef = t.readLazyAndUnmanaged(dematerializedStack.head);
+        this.headRef = t.readLazyAndSelfManaged(dematerializedStack.head);
         this.size = dematerializedStack.size;
     }
 

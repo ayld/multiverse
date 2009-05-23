@@ -8,6 +8,11 @@ import org.multiverse.api.annotations.Exclude;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
+/**
+ * Test to see if the @Exclude annotation is working.
+ *
+ * @author Peter Veentjer
+ */
 public class ExcludeTest {
     private MultiversionedStm stm;
 
@@ -27,10 +32,11 @@ public class ExcludeTest {
         assertEquals(25, found.included);
 
         found.excluded = 20;
-        //todo: as soon as the isDirty
+        //todo: as soon as the isDirty is implemented
         //assertFalse(((MaterializedObject) found).isDirty());
 
         found.included = 100;
+        //todo: as soon as the isDirty is implemented        
         //assertTrue(((MaterializedObject) found).isDirty());
     }
 

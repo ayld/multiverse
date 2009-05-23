@@ -24,7 +24,7 @@ public class DefaultMultiversionedHandleTest {
     private DefaultMultiversionedHandle createCommitted(MaterializedObject materializedObject, long version) {
         DefaultMultiversionedHandle object = new DefaultMultiversionedHandle();
         TransactionId id = new TransactionId();
-        object.tryToAcquireLocksForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));
+        object.tryToAcquireLockForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));
 
         object.writeAndReleaseLock(id, materializedObject.dematerialize(), version);
         return object;
@@ -38,7 +38,7 @@ public class DefaultMultiversionedHandleTest {
         DefaultMultiversionedHandle stmObject = new DefaultMultiversionedHandle();
         TransactionId lockOwner = new TransactionId();
 
-        stmObject.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+        stmObject.tryToAcquireLockForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
 
         State state = stmObject.getState();
         assertNotNull(state);
@@ -54,7 +54,7 @@ public class DefaultMultiversionedHandleTest {
         TransactionId lockOwner = new TransactionId();
         State oldState = stmObject.getState();
 
-        stmObject.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+        stmObject.tryToAcquireLockForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
 
         State newState = stmObject.getState();
         assertNotNull(newState);
@@ -69,12 +69,12 @@ public class DefaultMultiversionedHandleTest {
         DefaultMultiversionedHandle handle = createCommitted(version);
 
         TransactionId transactionId1 = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId1, version, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId1, version, new RetryCounter(1));
         State oldState = handle.getState();
 
         TransactionId transactionId2 = new TransactionId();
         try {
-            handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId2, version, new RetryCounter(1));
+            handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId2, version, new RetryCounter(1));
             fail();
         } catch (StarvationException ex) {
 
@@ -88,13 +88,13 @@ public class DefaultMultiversionedHandleTest {
         DefaultMultiversionedHandle handle = new DefaultMultiversionedHandle();
 
         TransactionId transactionId1 = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId1, 0, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId1, 0, new RetryCounter(1));
 
         State oldState = handle.getState();
 
         TransactionId transactionId2 = new TransactionId();
         try {
-            handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId2, 0, new RetryCounter(1));
+            handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId2, 0, new RetryCounter(1));
             fail();
         } catch (StarvationException ex) {
 
@@ -112,7 +112,7 @@ public class DefaultMultiversionedHandleTest {
 
         TransactionId transactionId2 = new TransactionId();
         try {
-            handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId2, version - 1, new RetryCounter(1));
+            handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId2, version - 1, new RetryCounter(1));
             fail();
         } catch (WriteConflictException er) {
         }
@@ -127,7 +127,7 @@ public class DefaultMultiversionedHandleTest {
         DefaultMultiversionedHandle stmObject = createCommitted(version);
         TransactionId lockOwner = new TransactionId();
 
-        stmObject.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+        stmObject.tryToAcquireLockForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
         stmObject.releaseLockForWriting(lockOwner);
 
         State state = stmObject.getState();
@@ -141,7 +141,7 @@ public class DefaultMultiversionedHandleTest {
         DefaultMultiversionedHandle stmObject = createCommitted(version);
         TransactionId lockOwner = new TransactionId();
 
-        stmObject.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+        stmObject.tryToAcquireLockForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
 
         TransactionId other = new TransactionId();
 
@@ -162,7 +162,7 @@ public class DefaultMultiversionedHandleTest {
         DematerializedObject dematerializedObject = value.dematerialize();
         DefaultMultiversionedHandle handle = (DefaultMultiversionedHandle) value.getHandle();
         TransactionId lockOwner = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
 
         ListenerNode listener = handle.writeAndReleaseLock(lockOwner, dematerializedObject, version);
         assertNull(listener);
@@ -183,7 +183,7 @@ public class DefaultMultiversionedHandleTest {
         DematerializedObject dematerializedObject = object.dematerialize();
 
         TransactionId lockOwner = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
 
         long newVersion = 11;
         ListenerNode listener = handle.writeAndReleaseLock(lockOwner, dematerializedObject, newVersion);
@@ -208,7 +208,7 @@ public class DefaultMultiversionedHandleTest {
         DematerializedObject dematerializedObject = object.dematerialize();
 
         TransactionId lockOwner = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(lockOwner, version, new RetryCounter(1));
 
         long newVersion = 11;
         ListenerNode listener = handle.writeAndReleaseLock(lockOwner, dematerializedObject, newVersion);
@@ -246,7 +246,7 @@ public class DefaultMultiversionedHandleTest {
         MultiversionedHandle handle = object.getHandle();
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId, 0, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId, 0, new RetryCounter(1));
         handle.writeAndReleaseLock(transactionId, dematerialized, materializeVersion);
 
         DematerializedObject found = handle.tryRead(searchVersion, new RetryCounter(1));
@@ -264,7 +264,7 @@ public class DefaultMultiversionedHandleTest {
         MultiversionedHandle handle = materializedObject.getHandle();
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(owner, 0, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(owner, 0, new RetryCounter(1));
         handle.writeAndReleaseLock(owner, dematerialized, dematerializeVersion);
 
         try {
@@ -283,7 +283,7 @@ public class DefaultMultiversionedHandleTest {
         MaterializedObject object = new ExampleIntegerValue(45);
         MultiversionedHandle handle = object.getHandle();
         TransactionId id = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(id, 0, new RetryCounter(1));
         DematerializedObject dematerializedObject = object.dematerialize();
         handle.writeAndReleaseLock(id, dematerializedObject, 100);
 
@@ -307,7 +307,7 @@ public class DefaultMultiversionedHandleTest {
         DefaultMultiversionedHandle handle = createCommitted(version);
 
         TransactionId transactionId = new TransactionId();
-        handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId, version, new RetryCounter(1));
+        handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId, version, new RetryCounter(1));
 
         RetryCounter retryCounter = new RetryCounter(50);
         try {

@@ -141,8 +141,8 @@ public final class ExampleQueue<E> implements MaterializedObject {
     public ExampleQueue(DematerializedQueue<E> dematerializedQueue, Transaction transaction) {
         this.lastDematerialized = dematerializedQueue;
         this.handle = dematerializedQueue.handle;
-        this.readyToPopStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.readyToPopStackHandle);
-        this.pushedStackRef = transaction.readLazyAndUnmanaged(dematerializedQueue.pushedStackHandle);
+        this.readyToPopStackRef = transaction.readLazyAndSelfManaged(dematerializedQueue.readyToPopStackHandle);
+        this.pushedStackRef = transaction.readLazyAndSelfManaged(dematerializedQueue.pushedStackHandle);
         this.maxCapacity = dematerializedQueue.maxCapacity;
     }
 

@@ -28,12 +28,12 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
-    public <T> LazyReference<T> readLazyAndUnmanaged(Handle<T> handle) {
+    public <T> LazyReference<T> readLazyAndSelfManaged(Handle<T> handle) {
         return null;
     }
 
     @Override
-    public <T> T readUnmanaged(Handle<T> handle) {
+    public <T> T readSelfManaged(Handle<T> handle) {
         return null;
     }
 
