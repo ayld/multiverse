@@ -56,7 +56,7 @@ public class Person{
 
 So there is no need to attach each object individually to a transaction. 
 
-All changes made on the person will be atomic, consistent and isolated. So just as with a database, a lot of responsibilities have shifted from the developer to the environment. And only in corner cases you need to influence the implementation.
+All changes made on objects attached/loaded directly/indirectly will be committed atomic, consistent and isolated. So just as with a database, a lot of responsibilities have shifted from the developer to the environment. And only in corner cases you need to influence the implementation.
 
 = Ignoring fields = 
 
