@@ -122,4 +122,4 @@ try{
 }
 }}}
 
-This works, but isn't very pretty.
+This works because a retry() only throws a RetryError and doesn't change any state. But isn't very pretty.
