@@ -23,7 +23,7 @@ public interface MultiversionedHandle<T> extends Handle<T> {
      * @throws org.multiverse.api.exceptions.StarvationException
      *          if the transaction was starved for acquiring the lock.
      */
-    void tryToAcquireLocksForWritingAndDetectForConflicts(TransactionId committingTransactionId, long maximumVersion, RetryCounter retryCounter);
+    void tryToAcquireLockForWritingAndDetectForConflicts(TransactionId committingTransactionId, long maximumVersion, RetryCounter retryCounter);
 
     /**
      * Writes the stuff and releases the lock. A write only should be done when the lock for writing has

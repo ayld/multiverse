@@ -37,7 +37,7 @@ public final class ExampleStackNode<E> implements MaterializedObject {
         this.lastDematerialized = dematerializedNode;
         this.handle = dematerializedNode.getHandle();
         this.value = dematerializedNode.value instanceof Handle ? (E) t.read((Handle) dematerializedNode.value) : (E) dematerializedNode.value;
-        this.nextRef = t.readLazyAndUnmanaged(dematerializedNode.next);
+        this.nextRef = t.readLazyAndSelfManaged(dematerializedNode.next);
     }
 
     @Override

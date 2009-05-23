@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Default {@link MultiversionedHandle} implementation.
  * <p/>
- * This object is responsible for storing the content of objects that perticipate in stm space.
+ * This object is responsible for storing the content of objects that participate in stm space.
  * So if you have a Person object, you also have a Person handle. This handle can be asked
  * for the committed versions of that Person (so the handle contains the history of changes
  * made to a specific person). This history at the moment is limited to only the last committed
@@ -36,7 +36,7 @@ public final class DefaultMultiversionedHandle<T> implements MultiversionedHandl
     }
 
     @Override
-    public void tryToAcquireLocksForWritingAndDetectForConflicts(TransactionId lockOwner, long expectedVersion, RetryCounter retryCounter) {
+    public void tryToAcquireLockForWritingAndDetectForConflicts(TransactionId lockOwner, long expectedVersion, RetryCounter retryCounter) {
         assert lockOwner != null && retryCounter != null;
 
         do {

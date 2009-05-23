@@ -203,7 +203,7 @@ public final class ExampleLinkedList<E> extends AbstractSequentialList<E> implem
         this.handle = dematerializedLinkedList.handle;
         this.lastDematerialized = dematerializedLinkedList;
         this.size = dematerializedLinkedList.size;
-        this.header = t.readUnmanaged(dematerializedLinkedList.header);
+        this.header = t.readSelfManaged(dematerializedLinkedList.header);
     }
 
     @Override
@@ -266,8 +266,8 @@ public final class ExampleLinkedList<E> extends AbstractSequentialList<E> implem
         Entry(DematerializedEntry<E> dematerializedEntry, Transaction t) {
             this.handle = dematerializedEntry.handle;
             this.lastDematerialized = dematerializedEntry;
-            this.nextRef = t.readLazyAndUnmanaged(dematerializedEntry.next);
-            this.previousRef = t.readLazyAndUnmanaged(dematerializedEntry.previous);
+            this.nextRef = t.readLazyAndSelfManaged(dematerializedEntry.next);
+            this.previousRef = t.readLazyAndSelfManaged(dematerializedEntry.previous);
             this.element = dematerializedEntry.element;
             //todo: element is not checked for stm membership
         }

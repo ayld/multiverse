@@ -32,6 +32,9 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
     private static final Method READ_LAZY_METHOD =
             getMethod(Transaction.class, "readLazy", Handle.class);
 
+    private static final Method READ_LAZY_AND_SELF_MANAGED_METHOD =
+            getMethod(Transaction.class, "readLazyAndSelfManaged", Handle.class);
+
     private static final Method WALK_MATERIALIZED_MEMBERS_METHOD =
             getMethod(MaterializedObject.class, "walkMaterializedMembers", MemberWalker.class);
 
@@ -196,11 +199,18 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
                 if (!isExcluded(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
+
                         ALOAD(0);
                         ALOAD(2);
                         ALOAD(1);
                         GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
-                        INVOKEINTERFACE(READ_LAZY_METHOD);
+
+                        if (isSelfManaged(field)) {
+                            INVOKEINTERFACE(READ_LAZY_AND_SELF_MANAGED_METHOD);
+                        } else {
+                            INVOKEINTERFACE(READ_LAZY_METHOD);
+                        }
+
                         CHECKCAST(LazyReference.class);
                         PUTFIELD(materializedClassNode, field.name + "$Ref", LazyReference.class);
                     } else {

@@ -1,6 +1,8 @@
 package org.multiverse.instrumentation.utils;
 
+import org.multiverse.api.annotations.Eager;
 import org.multiverse.api.annotations.Exclude;
+import org.multiverse.api.annotations.SelfManaged;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.collections.LinkedList;
 import org.objectweb.asm.ClassReader;
@@ -12,6 +14,7 @@ import org.objectweb.asm.tree.*;
 import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.*;
+import static java.lang.String.format;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -83,7 +86,7 @@ public final class AsmUtils {
     }
 
     public static String internalFormToDescriptor(String internalForm) {
-        return java.lang.String.format("L%s;", internalForm);
+        return format("L%s;", internalForm);
     }
 
     public static boolean isSynthetic(FieldNode fieldNode) {
@@ -108,6 +111,14 @@ public final class AsmUtils {
 
     public static boolean isExcluded(FieldNode fieldNode) {
         return hasVisibleAnnotation(fieldNode, Exclude.class);
+    }
+
+    public static boolean isSelfManaged(FieldNode fieldNode) {
+        return hasVisibleAnnotation(fieldNode, SelfManaged.class);
+    }
+
+    public static boolean isEager(FieldNode fieldNode) {
+        return hasVisibleAnnotation(fieldNode, Eager.class);
     }
 
     public static void printFields(ClassNode classNode) {

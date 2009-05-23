@@ -22,6 +22,12 @@ import java.util.List;
 
 public class DematerializedClassBuilder extends ClassNodeBuilder {
 
+    public final static Method getHandleMethod = getMethod(
+            MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class);
+
+    public final static Constructor objectConstructor = AsmUtils.getConstructor(Object.class);
+
+
     private static final String VARNAME_HANDLE = "$handle";
 
     private final ClassNode materializedClass;
@@ -68,7 +74,6 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
             setDescriptor(format("(L%s;L%s;)V", materializedClass.name, getInternalName(Transaction.class)));
 
             ALOAD(0);
-            Constructor objectConstructor = AsmUtils.getConstructor(Object.class);
             INVOKESPECIAL(objectConstructor);
             ALOAD(0);
             ALOAD(1);
@@ -83,7 +88,6 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
                         GETFIELD(materializedClass, field.name + "$Ref", LazyReference.class);
                         ALOAD(1);
                         GETFIELD(materializedClass, field);
-                        Method getHandleMethod = getMethod(MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class);
                         INVOKESTATIC(getHandleMethod);
                         PUTFIELD(getClassInternalName(), field.name, MultiversionedHandle.class);
                     } else {

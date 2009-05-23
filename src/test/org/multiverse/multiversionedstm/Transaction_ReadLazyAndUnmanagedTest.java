@@ -27,7 +27,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
     public void readLazyAndUnmanagedNull() {
         Transaction t = stm.startTransaction();
         long materializedCount = stm.getStatistics().getMaterializedCount();
-        LazyReference ref = t.readLazyAndUnmanaged(null);
+        LazyReference ref = t.readLazyAndSelfManaged(null);
 
         assertNull(ref);
         assertIsActive(t);
@@ -41,7 +41,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndUnmanaged(handle);
+        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
 
         assertFalse(ref.isLoaded());
         ExampleIntegerValue value = ref.get();
@@ -59,7 +59,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
         ExampleIntegerValue found = t.read(handle);
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndUnmanaged(handle);
+        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
 
         assertFalse(ref.isLoaded());
         ExampleIntegerValue value = ref.get();
@@ -78,7 +78,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
         long writeCount = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndUnmanaged(handle);
+        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
         ref.get().inc();
         t.commit();
 
@@ -92,7 +92,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndUnmanaged(handle);
+        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
         t.abort();
 
         try {
@@ -110,7 +110,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndUnmanaged(handle);
+        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
         t.commit();
 
         try {
@@ -130,7 +130,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
         t.abort();
 
         try {
-            t.readLazyAndUnmanaged(handle);
+            t.readLazyAndSelfManaged(handle);
             fail();
         } catch (IllegalStateException ex) {
         }
@@ -146,7 +146,7 @@ public class Transaction_ReadLazyAndUnmanagedTest {
         t.commit();
 
         try {
-            t.readLazyAndUnmanaged(handle);
+            t.readLazyAndSelfManaged(handle);
             fail();
         } catch (IllegalStateException ex) {
         }

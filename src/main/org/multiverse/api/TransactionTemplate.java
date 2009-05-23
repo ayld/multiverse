@@ -66,6 +66,9 @@ public abstract class TransactionTemplate<E> {
             Transaction predecessor = null;
             int retryCount = 0;
             do {
+                if (TransactionThreadLocal.getTransaction() != null)
+                    throw new RuntimeException("Nested transactions are not supported (yet).");
+
                 Transaction transaction = startTransaction(predecessor);
                 predecessor = null;
                 boolean abort = true;

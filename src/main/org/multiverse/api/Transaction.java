@@ -72,7 +72,7 @@ public interface Transaction {
      * @return the instance or null if handle is nu.
      * @throws IllegalStateException if the transaction is not active anymore.
      */
-    <T> T readUnmanaged(Handle<T> handle);
+    <T> T readSelfManaged(Handle<T> handle);
 
     /**
      * Reads a lazy reference to a managed instance.
@@ -97,7 +97,7 @@ public interface Transaction {
      * @return the lazy reference, or null if handle is null.
      * @throws IllegalStateException if the transaction is not active anymore.
      */
-    <T> LazyReference<T> readLazyAndUnmanaged(Handle<T> handle);
+    <T> LazyReference<T> readLazyAndSelfManaged(Handle<T> handle);
 
     /**
      * Attaches the object to this session. Objects that are reachable from the Transaction (attached, read

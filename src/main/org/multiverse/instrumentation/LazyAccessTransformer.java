@@ -22,6 +22,8 @@ import java.util.List;
  */
 public class LazyAccessTransformer implements Opcodes {
 
+    public final Method getMethod = getMethod(LazyReference.class, "get");
+
     private final ClassNode materializedClassNode;
     private final ClassLoader classLoader;
 
@@ -42,6 +44,7 @@ public class LazyAccessTransformer implements Opcodes {
 
         for (int k = 0; k < unmodifiedInstructions.size(); k++) {
             AbstractInsnNode instruction = unmodifiedInstructions.get(k);
+
             if (isPutOnStmEntityField(instruction)) {
                 FieldInsnNode putInstruction = (FieldInsnNode) instruction;
                 InstructionsBuilder b = new InstructionsBuilder();
@@ -75,7 +78,6 @@ public class LazyAccessTransformer implements Opcodes {
                 //[.., materialized, materialized, materialized]
                 b.GETFIELD(getInstruction.owner, getInstruction.name + "$Ref", LazyReference.class);
                 //[.., materialized, materialized, ref]
-                Method getMethod = getMethod(LazyReference.class, "get");
                 b.INVOKEINTERFACE(getMethod);
                 //[.., materialized, materialized, value]
                 b.CHECKCAST(getInstruction.desc);

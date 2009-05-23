@@ -28,7 +28,7 @@ public class Transaction_ReadUnmanagedTest {
     @Test
     public void readUnmanagedNull() {
         Transaction t = stm.startTransaction();
-        Object result = t.readUnmanaged(null);
+        Object result = t.readSelfManaged(null);
         assertNull(result);
         assertIsActive(t);
     }
@@ -40,8 +40,8 @@ public class Transaction_ReadUnmanagedTest {
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue v1 = t.readUnmanaged(handle);
-        ExampleIntegerValue v2 = t.readUnmanaged(handle);
+        ExampleIntegerValue v1 = t.readSelfManaged(handle);
+        ExampleIntegerValue v2 = t.readSelfManaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -57,7 +57,7 @@ public class Transaction_ReadUnmanagedTest {
 
         Transaction t = stm.startTransaction();
         ExampleIntegerValue v1 = t.read(handle);
-        ExampleIntegerValue v2 = t.readUnmanaged(handle);
+        ExampleIntegerValue v2 = t.readSelfManaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -73,7 +73,7 @@ public class Transaction_ReadUnmanagedTest {
         Transaction t = stm.startTransaction();
         ExampleIntegerValue v1 = t.read(handle);
         t.attach(v1);
-        ExampleIntegerValue v2 = t.readUnmanaged(handle);
+        ExampleIntegerValue v2 = t.readSelfManaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -90,7 +90,7 @@ public class Transaction_ReadUnmanagedTest {
         long writes = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue changed = t.readUnmanaged(handle);
+        ExampleIntegerValue changed = t.readSelfManaged(handle);
         changed.inc();
         t.commit();
 
@@ -106,7 +106,7 @@ public class Transaction_ReadUnmanagedTest {
         long writeCount = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue changed = t.readUnmanaged(handle);
+        ExampleIntegerValue changed = t.readSelfManaged(handle);
         ExamplePair<ExampleIntegerValue, Object> pair = new ExamplePair<ExampleIntegerValue, Object>(changed, null);
         t.attach(pair);
         changed.inc();
@@ -121,7 +121,7 @@ public class Transaction_ReadUnmanagedTest {
         Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue found = t.readUnmanaged(handle);
+        ExampleIntegerValue found = t.readSelfManaged(handle);
 
         try {
             t.abortAndRetry();

@@ -52,7 +52,7 @@ public final class MultiversionedStm implements Stm {
         return globalVersionClock.get();
     }
 
-    private class MultiversionedTransaction implements Transaction {
+    public class MultiversionedTransaction implements Transaction {
         private final HashMap<Handle, LazyReferenceImpl> referenceMap =
                 new HashMap<Handle, LazyReferenceImpl>(2);
 
@@ -80,6 +80,15 @@ public final class MultiversionedStm implements Stm {
         @Override
         public String getDescription() {
             return description;
+        }
+
+        /**
+         * Returns the number of attached/read objects in this transaction.
+         *
+         * @return
+         */
+        public int getReferenceMapSize() {
+            return referenceMap.size();
         }
 
         @Override
@@ -191,7 +200,7 @@ public final class MultiversionedStm implements Stm {
         }
 
         @Override
-        public <T> T readUnmanaged(Handle<T> handle) {
+        public <T> T readSelfManaged(Handle<T> handle) {
             assertActive();
 
             if (handle == null) {
@@ -208,6 +217,8 @@ public final class MultiversionedStm implements Stm {
 
         @Override
         public <T> LazyReference<T> readLazy(Handle<T> handle) {
+            System.out.println("readLazy");
+
             assertActive();
 
             if (handle == null) {
@@ -224,7 +235,9 @@ public final class MultiversionedStm implements Stm {
         }
 
         @Override
-        public <T> LazyReference<T> readLazyAndUnmanaged(Handle<T> handle) {
+        public <T> LazyReference<T> readLazyAndSelfManaged(Handle<T> handle) {
+            System.out.println("readLazyAndSelfManaged");
+
             assertActive();
 
             if (handle == null) {
@@ -339,7 +352,7 @@ public final class MultiversionedStm implements Stm {
                     MaterializedObject obj = writeSet[k];
                     MultiversionedHandle handle = obj.getHandle();
 
-                    handle.tryToAcquireLocksForWritingAndDetectForConflicts(transactionId, readVersion, retryCounter);
+                    handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId, readVersion, retryCounter);
                     count++;
                 }
             } catch (WriteConflictException e) {
