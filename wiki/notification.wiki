@@ -69,6 +69,8 @@ public class Latch{
 
 As you can see there is no concurrency logic here. The retry aborts the current transaction (all changes won't be committed) and registers itself as a listener to all (non immutable) TmEntities it has read.
 
+Another difference is that the while loop in the await from the first version has been replaced by an if statement. If you want to use a condition variable, the Java says that you should be prepared to deal with spurious wakeups. This is why the condition needs to be checked in a loop. With Multiverse this is not needed (todo: explanation).
+
 == Waiting on multiple condition ==
 
 With traditional lock based approaches, it is very hard to wait on multiple waitsets. So if you have 2 stacks for example, and you want to wake up when an item is placed on one of those stacks, you have a hard problem to solve. This is caused by the fact that a  stack has its own lock and own waitset and a thread can also be placed in a single waitset. So the thread is either waiting in the waitset from stack1 (and ignoring notifications in the waitset of stack2) or the other way around. 
