@@ -1,6 +1,8 @@
 #summary Notification (STM version of condition variables)
+#sidebar TableOfContents
+<wiki:toc max_depth="1" />
 
-= Introduction =
+= Notification =
 
 Just as with traditional lock based approaches, notification between transactions can be very useful (e.g. to wake up when an item has been placed on a queue). But unlike the explicit condition variables in lock based approach, STM's can do this completely behind the screens. At the moment Multiverse only supports the retry.
 
