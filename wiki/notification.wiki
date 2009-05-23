@@ -103,3 +103,15 @@ If the stack1.pop fails with an retry, the path containing stack2 can be tried. 
 There are 2 problems that need to be solved with the orelse implementation:
    * The limitations of the Java language makes it hard to create a syntax friendly version of the orelse. Good idea's are appreciated.
    * Changes made in one path within a transaction are not rolled back. So for the orelse a new transaction is needed that knows to execute the second path. So there is quite some overhead. 
+
+A version that causes less overhead but doesn't roll back changes and doesn't have a very nice syntax could be created like this:
+
+{{{
+try{
+    return stack1.pop();
+}catch(RetryError e){
+    return stack2.pop();
+}
+}}}
+
+This works, but isn't very pretty.
