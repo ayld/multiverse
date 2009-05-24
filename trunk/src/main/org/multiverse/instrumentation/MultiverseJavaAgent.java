@@ -1,5 +1,6 @@
 package org.multiverse.instrumentation;
 
+import org.multiverse.SharedStmInstance;
 import org.multiverse.api.annotations.TmEntity;
 import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.objectweb.asm.tree.ClassNode;
@@ -18,10 +19,12 @@ public class MultiverseJavaAgent {
     public static void premain(String agentArgs, Instrumentation inst) throws UnmodifiableClassException {
         System.out.println("Starting the Multiverse JavaAgent");
 
+        System.out.println("Current stm: " + SharedStmInstance.getInstance());
+
         inst.addTransformer(new ExcludeUnmapablesClassFileTransformer());
         inst.addTransformer(new Phase1ClassFileTransformer());
         inst.addTransformer(new Phase2ClassFileTransformer());
-        //    inst.addTransformer(new Phase3ClassFileTransformer());
+        inst.addTransformer(new Phase3ClassFileTransformer());
     }
 
     public static class ExcludeUnmapablesClassFileTransformer implements ClassFileTransformer {
@@ -156,11 +159,9 @@ public class MultiverseJavaAgent {
         @Override
         public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
             try {
-                if (className.startsWith("java")) {
+                if (className.startsWith("java") || className.startsWith("org/apache") || className.startsWith("sun/")) {
                     return null;
                 }
-
-                System.out.printf("Making atomic class %s\n", className);
 
                 ClassNode classNode = toClassNode(classfileBuffer);
 
@@ -173,6 +174,7 @@ public class MultiverseJavaAgent {
 
                 return toBytecode(transformedClassNode);
             } catch (RuntimeException ex) {
+                System.out.println("class: " + className);
                 ex.printStackTrace();
                 throw ex;
             } catch (Error e) {

@@ -1,5 +1,6 @@
 package org.multiverse.instrumentation.utils;
 
+import static org.multiverse.instrumentation.utils.AsmUtils.internalFormToDescriptor;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Type.*;
 import org.objectweb.asm.tree.*;
@@ -170,6 +171,11 @@ public class InstructionsBuilder implements Opcodes {
     public void GETFIELD(String owner, String name, Class fieldType) {
         GETFIELD(owner, name, getDescriptor(fieldType));
     }
+
+    public void GETFIELD(ClassNode owner, String name, ClassNode type) {
+        GETFIELD(owner, name, internalFormToDescriptor(type.name));
+    }
+
 
     public void GETFIELD(String owner, String name, String fieldDesc) {
         FieldInsnNode instr = new FieldInsnNode(

@@ -1,5 +1,6 @@
 package org.multiverse.api;
 
+import org.multiverse.SharedStmInstance;
 import org.multiverse.api.exceptions.*;
 
 /**
@@ -22,11 +23,16 @@ public abstract class TransactionTemplate<E> {
      * @throws NullPointerException if stm is null.
      */
     public TransactionTemplate(Stm stm) {
-        if (stm == null) {
-            throw new NullPointerException();
-        }
+        //if (stm == null) {
+        //    throw new NullPointerException();
+        //}
         this.stm = stm;
     }
+
+    public TransactionTemplate() {
+        this(SharedStmInstance.getInstance());
+    }
+
 
     /**
      * Gets the maximum retry count. 0 indicates never stop retrying.
