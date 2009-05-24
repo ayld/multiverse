@@ -1,8 +1,7 @@
 package org.multiverse.instrumentation.utils;
 
-import org.multiverse.api.annotations.Eager;
 import org.multiverse.api.annotations.Exclude;
-import org.multiverse.api.annotations.SelfManaged;
+import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.collections.LinkedList;
 import org.objectweb.asm.ClassReader;
@@ -72,6 +71,20 @@ public final class AsmUtils {
 
     }
 
+    public static String getInternalNameOfInnerClass(ClassNode outerclass, String basename) {
+        if (outerclass.outerClass == null) {
+            return InternalFormClassnameUtil.getPackagename(outerclass.name) +
+                    "/" + InternalFormClassnameUtil.getBaseClassname(outerclass.name) +
+                    basename + InternalFormClassnameUtil.getBaseClassname(outerclass.name);
+        } else {
+            return InternalFormClassnameUtil.getPackagename(outerclass.name) +
+                    "/" + InternalFormClassnameUtil.getBaseClassname(outerclass.outerClass) +
+                    basename + InternalFormClassnameUtil.getBaseClassname(outerclass.name);
+        }
+
+    }
+
+
     public static String getInnerInternalNameOfDematerializedClass(ClassNode materializedClass) {
         return "Dematerialized" + InternalFormClassnameUtil.getBaseClassname(materializedClass.name);
     }
@@ -83,6 +96,10 @@ public final class AsmUtils {
         }
 
         return getMethodDescriptor(getType(Void.TYPE), args);
+    }
+
+    public static String getVoidMethodDescriptor(Type... parameterTypes) {
+        return getMethodDescriptor(getType(Void.TYPE), parameterTypes);
     }
 
     public static String internalFormToDescriptor(String internalForm) {
@@ -114,11 +131,7 @@ public final class AsmUtils {
     }
 
     public static boolean isSelfManaged(FieldNode fieldNode) {
-        return hasVisibleAnnotation(fieldNode, SelfManaged.class);
-    }
-
-    public static boolean isEager(FieldNode fieldNode) {
-        return hasVisibleAnnotation(fieldNode, Eager.class);
+        return hasVisibleAnnotation(fieldNode, NonEscaping.class);
     }
 
     public static void printFields(ClassNode classNode) {

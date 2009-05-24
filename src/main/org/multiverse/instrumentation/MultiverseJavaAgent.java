@@ -160,10 +160,17 @@ public class MultiverseJavaAgent {
                     return null;
                 }
 
+                System.out.printf("Making atomic class %s\n", className);
+
                 ClassNode classNode = toClassNode(classfileBuffer);
 
                 AtomicTransformer transformer = new AtomicTransformer(classNode, loader);
                 ClassNode transformedClassNode = transformer.create();
+
+                for (ClassNode inner : transformer.getInnerClasses()) {
+                    MultiverseClassLoader.INSTANCE.defineClass(inner);
+                }
+
                 return toBytecode(transformedClassNode);
             } catch (RuntimeException ex) {
                 ex.printStackTrace();

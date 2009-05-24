@@ -1,5 +1,7 @@
 package org.multiverse.instrumentation.utils;
 
+import org.objectweb.asm.tree.ClassNode;
+
 /**
  * A utility class for classnames. A classname is the full blown name of the class, eg:
  * java.lang.String
@@ -10,6 +12,10 @@ public final class InternalFormClassnameUtil {
 
     public static String toInternalForm(Class clazz) {
         return clazz.getName().replace(".", "/");
+    }
+
+    public static String getPackagename(ClassNode classNode) {
+        return getPackagename(classNode.name);
     }
 
     /**

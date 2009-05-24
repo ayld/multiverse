@@ -3,7 +3,7 @@ package org.multiverse.api;
 import org.multiverse.api.exceptions.*;
 
 /**
- * A TransactionTemplate is a Method template (comparable to the Spring Hibernate template) responsible
+ * A TransactionTemplate is a template Method (comparable to the Spring Hibernate template) responsible
  * for dealing with the plumming logic like starting transaction, retrying them if needed etc. The same
  * could be achieved through the {@link org.multiverse.api.annotations.Atomic} annotation.
  *
@@ -21,7 +21,7 @@ public abstract class TransactionTemplate<E> {
      * @param stm the Stm this TransactionTemplate uses.
      * @throws NullPointerException if stm is null.
      */
-    protected TransactionTemplate(Stm stm) {
+    public TransactionTemplate(Stm stm) {
         if (stm == null) {
             throw new NullPointerException();
         }

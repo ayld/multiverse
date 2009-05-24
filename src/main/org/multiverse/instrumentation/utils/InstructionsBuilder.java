@@ -215,6 +215,10 @@ public class InstructionsBuilder implements Opcodes {
         instructions.add(new InsnNode(ACONST_NULL));
     }
 
+    public void RETURN(int returnOpcode) {
+        instructions.add(new InsnNode(returnOpcode));
+    }
+
     public void ARETURN() {
         instructions.add(new InsnNode(ARETURN));
     }

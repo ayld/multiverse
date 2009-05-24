@@ -5,6 +5,7 @@ import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public abstract class ClassNodeBuilder implements Opcodes {
 
@@ -60,6 +61,10 @@ public abstract class ClassNodeBuilder implements Opcodes {
                 null);
         classNode.fields.add(field);
         return field;
+    }
+
+    public void addMethod(MethodNode method) {
+        classNode.methods.add(method);
     }
 
     public void addMethod(MethodBuilder methodBuilder) {
