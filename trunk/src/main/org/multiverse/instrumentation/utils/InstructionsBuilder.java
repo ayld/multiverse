@@ -2,6 +2,7 @@ package org.multiverse.instrumentation.utils;
 
 import static org.multiverse.instrumentation.utils.AsmUtils.internalFormToDescriptor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
 import org.objectweb.asm.tree.*;
 
@@ -42,6 +43,54 @@ public class InstructionsBuilder implements Opcodes {
     public void ALOAD(int index) {
         VarInsnNode instr = new VarInsnNode(ALOAD, index);
         instructions.add(instr);
+    }
+
+    public void DLOAD(int index) {
+        VarInsnNode instr = new VarInsnNode(DLOAD, index);
+        instructions.add(instr);
+    }
+
+    public void LLOAD(int index) {
+        VarInsnNode instr = new VarInsnNode(LLOAD, index);
+        instructions.add(instr);
+    }
+
+    public void ILOAD(int index) {
+        VarInsnNode instr = new VarInsnNode(ILOAD, index);
+        instructions.add(instr);
+    }
+
+    public void FLOAD(int index) {
+        VarInsnNode instr = new VarInsnNode(FLOAD, index);
+        instructions.add(instr);
+    }
+
+    public void LOAD(Type type, int index) {
+        switch (type.getSort()) {
+            case Type.VOID:
+                throw new RuntimeException("LOAD for type VOID is not possible");
+            case Type.BOOLEAN:
+            case Type.BYTE:
+            case Type.CHAR:
+            case Type.SHORT:
+            case Type.INT:
+                ILOAD(index);
+                break;
+            case Type.LONG:
+                LLOAD(index);
+                break;
+            case Type.FLOAT:
+                FLOAD(index);
+                break;
+            case Type.DOUBLE:
+                DLOAD(index);
+                break;
+            case Type.OBJECT:
+                ALOAD(index);
+                break;
+            default:
+                throw new RuntimeException("Unhandled type for LOAD: " + type);
+        }
     }
 
     public void NEW(ClassNode classNode) {
@@ -130,6 +179,10 @@ public class InstructionsBuilder implements Opcodes {
         PUTFIELD(owner.name, name, getDescriptor(fieldType));
     }
 
+    public void PUTFIELD(ClassNode owner, String name, Type fieldType) {
+        PUTFIELD(owner.name, name, fieldType.getDescriptor());
+    }
+
     public void PUTFIELD(Class owner, String name, Class fieldType) {
         PUTFIELD(getInternalName(owner), name, fieldType);
     }
@@ -150,6 +203,10 @@ public class InstructionsBuilder implements Opcodes {
 
     public void GETFIELD(ClassNode owner, FieldNode field) {
         GETFIELD(owner, field.name, field.desc);
+    }
+
+    public void GETFIELD(ClassNode owner, String name, Type fieldType) {
+        GETFIELD(owner, name, fieldType.getDescriptor());
     }
 
     public void GETFIELD(ClassNode owner, String name, String desc) {
@@ -221,12 +278,53 @@ public class InstructionsBuilder implements Opcodes {
         instructions.add(new InsnNode(ACONST_NULL));
     }
 
+    public void RETURN(Type type) {
+        switch (type.getSort()) {
+            case Type.VOID:
+                RETURN();
+                break;
+            case Type.BOOLEAN:
+            case Type.BYTE:
+            case Type.CHAR:
+            case Type.SHORT:
+            case Type.INT:
+                IRETURN();
+                break;
+            case Type.LONG:
+                LRETURN();
+                break;
+            case Type.FLOAT:
+                FRETURN();
+                break;
+            case Type.DOUBLE:
+                DRETURN();
+                break;
+            case Type.OBJECT:
+                ARETURN();
+                break;
+            default:
+                throw new RuntimeException("No RETURN found for type: " + type);
+        }
+    }
+
     public void RETURN(int returnOpcode) {
         instructions.add(new InsnNode(returnOpcode));
     }
 
     public void ARETURN() {
         instructions.add(new InsnNode(ARETURN));
+    }
+
+    public void DRETURN() {
+        instructions.add(new InsnNode(DRETURN));
+    }
+
+    public void FRETURN() {
+        instructions.add(new InsnNode(FRETURN));
+    }
+
+    public void LRETURN() {
+        instructions.add(new InsnNode(LRETURN));
     }
 
     public void RETURN() {
