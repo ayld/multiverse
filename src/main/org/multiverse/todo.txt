@@ -1,5 +1,27 @@
 TODO
 
+- atomic: the arguments of the function need to be created as members in the anonymous inner class
+
+- atomic: the arguments of the function need to be pushed for the constructor for the anoymous inner class
+
+- atomic: the fields of the anonymous inner class need to be pushed as arguments to the function
+
+- atomic: check what happens when a normal exception is thrown
+
+- atomic: check what happens when a retryerror is thrown
+
+- atomic: check what happens when an abortexception is thrown
+
+- atomic: methods with void return type
+
+- atomic: methods with primitive return type
+
+- atomic: which object is used to execute the xxx$atomic method on
+
+- atomic: conflicts with name of method
+
+- atomic: conflicts with name of class.
+
 - track number of starvation problems: transaction
 
 - track number of starvation problems: read
