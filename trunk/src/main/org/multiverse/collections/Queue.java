@@ -1,7 +1,7 @@
 package org.multiverse.collections;
 
 import org.multiverse.api.StmUtils;
-import org.multiverse.api.annotations.SelfManaged;
+import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
 
 import static java.lang.String.format;
@@ -11,9 +11,9 @@ import java.util.List;
 @TmEntity
 public final class Queue<E> {
 
-    @SelfManaged
+    @NonEscaping
     private final Stack<E> readyToPopStack;
-    @SelfManaged
+    @NonEscaping
     private final Stack<E> pushedStack;
     private final int maxCapacity;
 

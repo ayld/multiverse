@@ -13,7 +13,7 @@ import java.util.LinkedList;
  *
  * @author Peter Veentjer.
  */
-public abstract class MethodBuilder extends InstructionsBuilder {
+public class MethodBuilder extends InstructionsBuilder {
 
     protected MethodNode methodNode;
 

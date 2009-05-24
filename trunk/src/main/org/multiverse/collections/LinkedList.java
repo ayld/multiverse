@@ -1,5 +1,6 @@
 package org.multiverse.collections;
 
+import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.TmEntity;
 
 import java.util.*;
@@ -69,6 +70,10 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         return remove(header.next);
     }
 
+    public E takeFirst() {
+        return take(header.next);
+    }
+
     /**
      * Removes and returns the last element from this list.
      *
@@ -78,6 +83,11 @@ public class LinkedList<E> extends AbstractSequentialList<E>
     public E removeLast() {
         return remove(header.previous);
     }
+
+    public E takeLast() {
+        return take(header.previous);
+    }
+
 
     /**
      * Inserts the specified element at the beginning of this list.
@@ -749,6 +759,21 @@ public class LinkedList<E> extends AbstractSequentialList<E>
     private E remove(Entry<E> e) {
         if (e == header) {
             throw new NoSuchElementException();
+        }
+
+        E result = e.element;
+        e.previous.next = e.next;
+        e.next.previous = e.previous;
+        e.next = e.previous = null;
+        e.element = null;
+        size--;
+        modCount++;
+        return result;
+    }
+
+    private E take(Entry<E> e) {
+        if (e == header) {
+            retry();
         }
 
         E result = e.element;

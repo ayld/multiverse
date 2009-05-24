@@ -1,4 +1,4 @@
-package org.multiverse.instrumentation.exclusion;
+package org.multiverse.instrumentation.annotations;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;

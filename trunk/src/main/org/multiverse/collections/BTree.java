@@ -1,7 +1,6 @@
 package org.multiverse.collections;
 
-import org.multiverse.api.annotations.Eager;
-import org.multiverse.api.annotations.SelfManaged;
+import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
 
 import static java.lang.Math.max;
@@ -13,8 +12,7 @@ public final class BTree<K extends Comparable, V> {
         goLeft, goRight, spotOn
     }
 
-    @SelfManaged
-    @Eager
+    @NonEscaping
     private BTreeNode<K, V> root;
 
     public V put(K key, V value) {
@@ -94,9 +92,9 @@ public final class BTree<K extends Comparable, V> {
 
         private K key;
         private V value;
-        @SelfManaged
+        @NonEscaping
         private BTreeNode<K, V> left;
-        @SelfManaged
+        @NonEscaping
         private BTreeNode<K, V> right;
 
         BTreeNode(K key, V value) {

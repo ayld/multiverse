@@ -1,11 +1,11 @@
-package org.multiverse.instrumentation;
+package org.multiverse.instrumentation.annotations;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
-import org.multiverse.api.annotations.SelfManaged;
+import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.MultiversionedStm.MultiversionedTransaction;
@@ -59,11 +59,12 @@ public class ReadLazyAndSelfManagedTest {
 
         MultiversionedTransaction t = stm.startTransaction();
 
+        //load the main reference and see that the field is not loaded yet.
         LazyAndSelfManaged found = t.read(handle);
-
-        //check that only one object is in the found. 
         assertEquals(1, t.getReferenceMapSize());
         int oldSize = t.getReferenceMapSize();
+
+        //load the field
         Field field1 = found.get();
 
         //check that the field is not stored in the transaction.
@@ -79,7 +80,7 @@ public class ReadLazyAndSelfManagedTest {
     @TmEntity
     public static class LazyAndSelfManaged {
 
-        @SelfManaged
+        @NonEscaping
         private Field field;
 
         public void create() {

@@ -2,6 +2,8 @@ package org.multiverse.instrumentation;
 
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
+import org.multiverse.api.annotations.Atomic;
+import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.collections.*;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
@@ -15,11 +17,20 @@ public class TestRunningMain {
     public static void main(String[] args) {
         System.out.println("Main called");
 
-        testLatch();
-        testStack();
-        testQueue();
-        testBTree();
+        Account foo = new Account();
+        foo.transferTo();
     }
+
+    @TmEntity
+    private static class Account {
+        private int balance;
+
+        @Atomic
+        public Object transferTo() {
+            return null;
+        }
+    }
+
 
     private static void testLinkedList() {
         LinkedList tree = new LinkedList();

@@ -199,7 +199,6 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
                 if (!isExcluded(field)) {
                     if (isTmEntity(field.desc, classLoader)) {
-
                         ALOAD(0);
                         ALOAD(2);
                         ALOAD(1);

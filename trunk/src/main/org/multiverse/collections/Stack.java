@@ -1,7 +1,7 @@
 package org.multiverse.collections;
 
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.annotations.SelfManaged;
+import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.List;
 @TmEntity
 public final class Stack<E> {
 
-    @SelfManaged
+    @NonEscaping
     private StackNode<E> head;
     private int size;
 
@@ -108,7 +108,7 @@ public final class Stack<E> {
     @TmEntity
     private static final class StackNode<E> {
 
-        @SelfManaged
+        @NonEscaping
         private final StackNode<E> next;
         private final E value;
 
