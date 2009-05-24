@@ -2,6 +2,7 @@ package org.multiverse.instrumentation.utils;
 
 import static org.multiverse.instrumentation.utils.AsmUtils.internalFormToDescriptor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.tree.ClassNode;
@@ -47,6 +48,10 @@ public abstract class ClassNodeBuilder implements Opcodes {
                 null);
         classNode.fields.add(field);
         return field;
+    }
+
+    public FieldNode addPublicFinalSyntheticField(String name, Type theType) {
+        return addPublicFinalSyntheticField(name, theType.getDescriptor());
     }
 
     public FieldNode addPublicFinalSyntheticField(String name, Class theType) {

@@ -18,6 +18,9 @@ public class TestRunningMain {
         Account foo = new Account();
         foo.transferTo();
         foo.method2();
+        foo.method3("banana");
+        foo.method4(10);
+        System.out.println("method5 returned: " + foo.method5());
     }
 
     private static void testLinkedList() {
