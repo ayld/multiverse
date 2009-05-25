@@ -85,6 +85,7 @@ public class InstructionsBuilder implements Opcodes {
             case Type.DOUBLE:
                 DLOAD(index);
                 break;
+            case Type.ARRAY:
             case Type.OBJECT:
                 ALOAD(index);
                 break;
@@ -299,6 +300,7 @@ public class InstructionsBuilder implements Opcodes {
             case Type.DOUBLE:
                 DRETURN();
                 break;
+            case Type.ARRAY:
             case Type.OBJECT:
                 ARETURN();
                 break;

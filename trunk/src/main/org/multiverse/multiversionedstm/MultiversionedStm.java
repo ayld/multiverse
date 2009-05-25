@@ -217,8 +217,6 @@ public final class MultiversionedStm implements Stm {
 
         @Override
         public <T> LazyReference<T> readLazy(Handle<T> handle) {
-            System.out.println("readLazy");
-
             assertActive();
 
             if (handle == null) {
@@ -236,8 +234,6 @@ public final class MultiversionedStm implements Stm {
 
         @Override
         public <T> LazyReference<T> readLazyAndSelfManaged(Handle<T> handle) {
-            System.out.println("readLazyAndSelfManaged");
-
             assertActive();
 
             if (handle == null) {
@@ -304,8 +300,8 @@ public final class MultiversionedStm implements Stm {
                 boolean success = false;
                 do {
                     try {
-                        tryAcquireLocksForWritingAndDetectWriteForConflicts(writeSet);
-                        writeAndReleaseLocksForWriting(dematerializedWriteSet);
+                        tryAcquireWriteLockAndDetectWriteConflicts(writeSet);
+                        writeAndReleaseWriteLocks(dematerializedWriteSet);
                         success = true;
                     } catch (StarvationException e) {
                         //in case of a starvation exception, we try again.
@@ -315,7 +311,7 @@ public final class MultiversionedStm implements Stm {
                         }
                     } finally {
                         if (!success) {
-                            releaseLocksForWriting(writeSet);
+                            releaseWriteLocks(writeSet);
                         }
                     }
                 } while (!success);
@@ -343,7 +339,7 @@ public final class MultiversionedStm implements Stm {
          * @throws WriteConflictException if a writeconflict was encountered.
          * @throws StarvationException    if the locks could not be acquired because the transaction was starved.
          */
-        private void tryAcquireLocksForWritingAndDetectWriteForConflicts(MaterializedObject[] writeSet) {
+        private void tryAcquireWriteLockAndDetectWriteConflicts(MaterializedObject[] writeSet) {
             int count = 0;
             RetryCounter retryCounter = new RetryCounter(0);
 
@@ -365,7 +361,7 @@ public final class MultiversionedStm implements Stm {
             }
         }
 
-        private void writeAndReleaseLocksForWriting(DematerializedObject[] writeSet) {
+        private void writeAndReleaseWriteLocks(DematerializedObject[] writeSet) {
             long writeVersion = globalVersionClock.incrementAndGet();
 
             Bag<ListenerNode> listeners = new Bag<ListenerNode>();
@@ -392,7 +388,7 @@ public final class MultiversionedStm implements Stm {
             }
         }
 
-        private void releaseLocksForWriting(MaterializedObject[] writeSet) {
+        private void releaseWriteLocks(MaterializedObject[] writeSet) {
             for (MaterializedObject dirtyObject : writeSet) {
                 MultiversionedHandle handle = dirtyObject.getHandle();
                 handle.releaseLockForWriting(transactionId);

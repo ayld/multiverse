@@ -119,7 +119,7 @@ public final class AsmUtils {
     }
 
     public static boolean isObjectType(Type type) {
-        return type.getDescriptor().startsWith("L");
+        return type.getSort() == Type.OBJECT;
     }
 
     public static boolean isTmEntity(String typeDescriptor, ClassLoader classLoader) {

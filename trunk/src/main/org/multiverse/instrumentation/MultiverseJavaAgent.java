@@ -1,6 +1,5 @@
 package org.multiverse.instrumentation;
 
-import org.multiverse.SharedStmInstance;
 import org.multiverse.api.annotations.TmEntity;
 import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.objectweb.asm.tree.ClassNode;
@@ -18,8 +17,6 @@ public class MultiverseJavaAgent {
     //method that a javaagent must implement.
     public static void premain(String agentArgs, Instrumentation inst) throws UnmodifiableClassException {
         System.out.println("Starting the Multiverse JavaAgent");
-
-        System.out.println("Current stm: " + SharedStmInstance.getInstance());
 
         inst.addTransformer(new ExcludeUnmapablesClassFileTransformer());
         inst.addTransformer(new Phase1ClassFileTransformer());

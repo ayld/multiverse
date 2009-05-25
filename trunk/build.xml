@@ -194,6 +194,9 @@
         <mkdir dir="${unit.reports}"/>
 
         <junit printsummary="yes" haltonfailure="yes">
+            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
+            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
+
             <classpath>
                 <pathelement location="${classes.test}"/>
                 <pathelement location="${classes.main}"/>

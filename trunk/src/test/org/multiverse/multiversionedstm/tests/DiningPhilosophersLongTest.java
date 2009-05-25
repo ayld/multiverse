@@ -1,16 +1,14 @@
 package org.multiverse.multiversionedstm.tests;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
+import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
-import org.multiverse.api.StmUtils;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.TransactionTemplate;
-import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import static org.multiverse.api.StmUtils.retry;
+import static org.multiverse.api.TransactionThreadLocal.getTransaction;
+import org.multiverse.api.annotations.Atomic;
+import org.multiverse.api.annotations.TmEntity;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,12 +31,29 @@ public class DiningPhilosophersLongTest {
 
     private final AtomicLong countDown = new AtomicLong();
 
-    private MultiversionedStm stm;
-    private Handle<ExampleIntegerValue>[] forkHandles;
+    private Handle<Fork>[] forkHandles;
 
-    @Before
-    public void setUp() {
-        stm = new MultiversionedStm();
+    @TmEntity
+    private static class Fork {
+        private boolean isUsed;
+
+        Fork() {
+            isUsed = false;
+        }
+
+        public boolean isUsed() {
+            return isUsed;
+        }
+
+        public void release() {
+            isUsed = false;
+        }
+
+        public void take() {
+            if (isUsed)
+                retry();
+            isUsed = true;
+        }
     }
 
     @Test
@@ -56,43 +71,40 @@ public class DiningPhilosophersLongTest {
             System.out.println("count: " + thread.successCount);
     }
 
+    @Atomic
     public void assertAllForksHaveReturned() {
-        Transaction t = stm.startTransaction();
-        for (Handle<ExampleIntegerValue> handle : forkHandles) {
-            ExampleIntegerValue fork = t.read(handle);
-            assertEquals(1, fork.get());
+        for (Handle<Fork> handle : forkHandles) {
+            Fork fork = getTransaction().read(handle);
+            assertFalse(fork.isUsed());
         }
-        t.commit();
     }
 
     public PhilosoperThread[] createPhilosoperThreads() {
         PhilosoperThread[] threads = new PhilosoperThread[forkCount];
         for (int k = 0; k < forkCount; k++) {
-            Handle<ExampleIntegerValue> leftForkHandle = forkHandles[k];
-            Handle<ExampleIntegerValue> rightForkHandle = k == forkCount - 1 ? forkHandles[0] : forkHandles[k + 1];
+            Handle<Fork> leftForkHandle = forkHandles[k];
+            Handle<Fork> rightForkHandle = k == forkCount - 1 ? forkHandles[0] : forkHandles[k + 1];
             threads[k] = new PhilosoperThread(leftForkHandle, rightForkHandle);
         }
         return threads;
     }
 
+    @Atomic
     public void createForks() {
         forkHandles = new Handle[forkCount];
-        Transaction t = stm.startTransaction();
         for (int k = 0; k < forkHandles.length; k++) {
-            forkHandles[k] = t.attach(new ExampleIntegerValue(1));
+            forkHandles[k] = getTransaction().attach(new Fork());
         }
-
-        t.commit();
     }
 
     static AtomicInteger philosoperThreadIdGenerator = new AtomicInteger();
 
     class PhilosoperThread extends TestThread {
-        private final Handle<ExampleIntegerValue> leftForkHandle;
-        private final Handle<ExampleIntegerValue> rightForkHandle;
+        private final Handle<Fork> leftForkHandle;
+        private final Handle<Fork> rightForkHandle;
         private volatile long successCount = 0;
 
-        PhilosoperThread(Handle<ExampleIntegerValue> leftForkHandle, Handle<ExampleIntegerValue> rightForkHandle) {
+        PhilosoperThread(Handle<Fork> leftForkHandle, Handle<Fork> rightForkHandle) {
             super("PhilosoperThread-" + philosoperThreadIdGenerator.incrementAndGet());
             this.leftForkHandle = leftForkHandle;
             this.rightForkHandle = rightForkHandle;
@@ -100,52 +112,39 @@ public class DiningPhilosophersLongTest {
 
         @Override
         public void run() {
-            while (countDown.decrementAndGet() >= 0)
+            while (countDown.decrementAndGet() >= 0) {
                 eat();
+                successCount++;
+            }
         }
 
         public void eat() {
-            obtainForks();
+            takeForks();
+            stuffHole();
+            releaseForks();
+        }
 
+        private void stuffHole() {
             //simulate the eating
             sleepRandomMs(50);
-
-            returnForks();
-            successCount++;
         }
 
-        private void returnForks() {
-            new TransactionTemplate(stm) {
-                @Override
-                protected Boolean execute(Transaction t) throws Exception {
-                    returnFork(t, leftForkHandle);
-                    returnFork(t, rightForkHandle);
-                    return null;
-                }
-            }.execute();
+        @Atomic
+        public void releaseForks() {
+            Fork leftFork = getTransaction().read(leftForkHandle);
+            leftFork.release();
+
+            Fork rightFork = getTransaction().read(rightForkHandle);
+            rightFork.release();
         }
 
-        public void obtainForks() {
-            new TransactionTemplate(stm) {
-                @Override
-                protected Boolean execute(Transaction t) throws Exception {
-                    obtainFork(t, leftForkHandle);
-                    obtainFork(t, rightForkHandle);
-                    return null;
-                }
-            }.execute();
-        }
+        @Atomic
+        public void takeForks() {
+            Fork leftFork = getTransaction().read(leftForkHandle);
+            leftFork.take();
 
-        private void returnFork(Transaction t, Handle<ExampleIntegerValue> forkHandle) {
-            ExampleIntegerValue fork = t.read(forkHandle);
-            fork.set(1);
-        }
-
-        private void obtainFork(Transaction t, Handle<ExampleIntegerValue> forkHandle) {
-            ExampleIntegerValue fork = t.read(forkHandle);
-            if (fork.get() == 0)
-                StmUtils.retry();
-            fork.set(0);
+            Fork rightFork = getTransaction().read(rightForkHandle);
+            rightFork.take();
         }
     }
 }

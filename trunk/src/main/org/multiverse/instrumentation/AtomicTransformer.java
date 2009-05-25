@@ -93,6 +93,7 @@ public class AtomicTransformer implements Opcodes {
                 //a null was placed on the stack to deal with a void, so that should be removed
                 builder.POP();
                 break;
+            case Type.ARRAY:
             case Type.OBJECT:
                 builder.CHECKCAST(returnType.getInternalName());
                 break;
@@ -106,7 +107,7 @@ public class AtomicTransformer implements Opcodes {
                 break;
             case Type.LONG:
                 builder.CHECKCAST(Long.class);
-                builder.INVOKEVIRTUAL(getInternalName(Long.class), "longValue", "()L");
+                builder.INVOKEVIRTUAL(getInternalName(Long.class), "longValue", "()J");
                 break;
             case Type.FLOAT:
                 builder.CHECKCAST(Float.class);
@@ -122,6 +123,10 @@ public class AtomicTransformer implements Opcodes {
 
         builder.RETURN(returnType);
         originalMethod.instructions = builder.createInstructions();
+    }
+
+    public static long value() {
+        return 100;
     }
 
     private String getConstructorDescriptor(MethodNode originalMethod) {
@@ -255,6 +260,8 @@ public class AtomicTransformer implements Opcodes {
                     break;
                 case Type.DOUBLE:
                     i.INVOKESTATIC(getMethod(Double.class, "valueOf", Double.TYPE));
+                    break;
+                case Type.ARRAY:
                     break;
                 case Type.OBJECT:
                     break;

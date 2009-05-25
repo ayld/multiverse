@@ -1,13 +1,16 @@
 package org.multiverse.instrumentation;
 
+import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
 import org.multiverse.api.annotations.TmEntity;
+import org.multiverse.collections.Stack;
 
 @TmEntity
 public class Account {
     private int balance;
+    private Handle<Stack> stackHandle;
 
     public Account() {
 
@@ -40,6 +43,7 @@ public class Account {
     @Atomic
     public int method5() {
         System.out.println("method5 is called");
+        stackHandle = getTransaction().attach(new Stack());
         return 4564;
     }
 }
