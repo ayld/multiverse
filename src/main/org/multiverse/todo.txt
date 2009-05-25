@@ -1,26 +1,20 @@
 TODO
 
-- atomic: the arguments of the function need to be created as members in the anonymous inner class
-
-- atomic: the arguments of the function need to be pushed for the constructor for the anoymous inner class
-
-- atomic: the fields of the anonymous inner class need to be pushed as arguments to the function
-
 - atomic: check what happens when a normal exception is thrown
 
 - atomic: check what happens when a retryerror is thrown
 
 - atomic: check what happens when an abortexception is thrown
 
-- atomic: methods with void return type
-
-- atomic: methods with primitive return type
-
 - atomic: which object is used to execute the xxx$atomic method on
 
 - atomic: conflicts with name of method
 
 - atomic: conflicts with name of class.
+
+- atomic: checked exceptions testen
+
+- atomic: retry testen
 
 - track number of starvation problems: transaction
 
@@ -60,131 +54,3 @@ IMPROVEMENTS
 - transactie propagatie
 
 DONE
-
-- toegevoegd: statistics voor pending transactions ivm retry
-
-- als een transactie bij het committen failed, dan staat die nu automatisch in de aborted state.
-
-- notification
-
-- snapshot too old error of exception?
-
-- write conflict error of exception
-
-- toomanyretrieserror of exception?
-
-- special exception/error needs to be thrown if a value is read but no commits have taken place
-
-- readonly transacties moeten apart geregistreerd worden in de statistics.. + je hoeft al die logica niet door.
-
-- de originator heeft een mem leak omdat de originator tevens het orginele object is.. dus de velden van de originator
-blijven bestaan. Dit issue is gefixed doordat de originator != het object (doordat de originator is losgetrokken).
-
-- de originator moet losgetrokken worden van het object.
-
-- queue toegevoegd
-
-- dirtyness objecten (nu is alles dirty)
-
-- fix the concurrency problem with the commit and the cas...
- (is there a problem? The lock forces an orderering)
-
-- unit tests for integervalue
-
-- attached items moeten ook via transaction.read opgehaald kunnen worden
-    -can the materializedmap and the attached map be replaced with a single map?
-
-- transactie moet weer op de threadlocal beschikbaar zijn.
-
-- isDirty wordt meerdere keren aangeroepen voor enkele commit, dit klopt niet.
-
-- er gaat nog iets fout bij het rematerializen, je kunt meerdere instanties van hetzelfde 'object'
-    binnen 1 transactie krijgen.
-    : bleek fout in de unit test.
-
-- unit tests van defaultoriginator weer aan zetten
-
-- stack en references: toevoegen integratietest.
-
-- dirty checking
-
-- de write set moet niet iedere keer opnieuw opgebouwd worden, maar een keer en dan meegegeven worden
-
-- als een set met locks voor de commit niet obtained kan worden, moeten de locks gereleased worden (gebeurt al)
-en ipv de hele transactie opnieuw te proberen, kan je weer opnieuw beginnen met het ophalen van de locks.
-
-- uitvoerig transaction.attach testen
-
-- stack node moet reference ook meenemen
-
-    - member iterator moet cleaner
-
-    - andere member non materialized/materialized logic moet opschoont worden.
-
-- uitvoerig transaction.commit testen
-
-- deep member chain test
-
-- cycle preventie stm commit.
-
-- uitvoerig transaction.readlazy testen
-
-- uitvoerig transaction.read testen
-
-- bij ConflictingWritesDontBreakSystemTest is er een groot aantal aborts die niet te verklaren vallen
-door writeconflicten:
-   het zit in de snapshot too old kant.
-
-- broken unit tests weer aan de praat krijgen
-
-- optimization: move all the dematerialization before entering the cas loop... this should lower the
-chance of a failure.
-
-- possible optimization; instead of caching the lazy ref, on some occassions no caching...
-let the component be repsonsible for only getting a reference once (so if by analysis can be decided
-that a pointer to the object will not be needed again).
-     - change needed: instead of listening to the set of read reference, the object graph needs to
-       be traversed.
-
-- lenghty execution of the stackstresstest, shows performance degradation
-
-- de originator moet een betere naam, maar wat.. In principe is het een id..
-
-    - originator in de api moet dom zijn
-
-    - originator in de stm package moet slim zijn.
-
-- independant state, scalability test.
-
-- ASM based instrumentatie classes als ClassFileTransformer aan de praat krijgen.
-
-- .classpath and .project need to be removed
-
-- japex.cml is removed
-
-- writeandreleaselock returns a ListenerNode, this needs to be checked
-
-- pojo instrumentatie van @TmEntity classes
-
-- pojo instrumentatie van @TmEntity.dematerialized classes
-
-- pojo instrumentatie van access naar @Materializable classes.
-
-- pojo instrumentation: static fields are ignored.
-
-- list toevoegen
-
-- dequeue toevoegen
-
-- dealing with static innerclasses.
-
-- pojo instrumentatie: the constructor of the TmEntity is changed in a bad way; code
-    is added before the first return. But because there could be multiple exit points, not all
-    possible exit points are changed. So it would be better to do it in the beginning.
-
-- pojo instrumentation van final fields: the final access modifier needs to be removed
-    on fields where a lazy reference is created.
-
-- beperking: atm moeten alle velden van dematerializable objecten protected/public zijn
-        http://www.theserverside.com/tt/articles/article.tss?l=GuideJavaBytecode en static..
-
