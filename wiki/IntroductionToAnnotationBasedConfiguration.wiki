@@ -119,13 +119,13 @@ public class Stack{
 }
 }}}
 
-In this case a head or next will only be loaded once so there is no reason to add every node to the transaction. And because the stack has a reference to the head, and a head to each next node, all changes will be persisted when the transaction commits. Again there is no reason to store this information in the transaction. That is why the @Unmanaged annotation is added, example:
+In this case a head or next will only be loaded once so there is no reason to add every node to the transaction. And because the stack has a reference to the head, and a head to each next node, all changes will be persisted when the transaction commits. Again there is no reason to store this information in the transaction. That is why the @NonEscaping annotation is added, example:
 
 {{{
 @TmEntity
 public class Stack{
 
-   @Unmanaged
+   @NonEscaping
    private Node head;
 
    public void push(Object item){
@@ -145,7 +145,7 @@ public class Stack{
    @TmEntity
    private class Node{
        
-       @Unmanaged
+       @NonEscaping
        private Node next;
 
        private Object item;
@@ -157,7 +157,7 @@ public class Stack{
    }
 }
 }}}
-The @Unmanaged annotation is perfect for inner objects that won't escape the outer object and where the outer object will keep a reference to the inner objects (directly or indirectly). In the future this information could be retrieved by escape analysis, but for now the @Unmanaged annotation is a good solution.
+The @NonEscape annotation is perfect for inner objects that won't escape the outer object and where the outer object will keep a reference to the inner objects (directly or indirectly). In the future this information could be retrieved by escape analysis, but for now the @NonEscape annotation is a good solution.
 
 = Annotations planned =
 
