@@ -1,4 +1,4 @@
-#summary Overview of the (planned) features of Multiverse
+#summary Overview of the (planned) features
 
 = Features =
   * Normal POJO's can participate in STM space. This is done through instrumentation based on annotation. But the same could be achieved by implementing some interface. 
