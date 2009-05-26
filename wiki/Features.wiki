@@ -1,28 +1,26 @@
 #summary Overview of the (planned) features of Multiverse
 
 = Features =
-  * Normal POJO's can participate in STM space. This is done through instrumentation. But the same could be achieved by implementing some interface. Multiverse does touch stuff from the Java API.
+  * Normal POJO's can participate in STM space. This is done through instrumentation based on annotation. But the same could be achieved by implementing some interface. 
   * Multi version concurrency control (the same mechanism Oracle, Postgresql and other databases use). So readers don't block writers, and writers don't block readers. And transactions with non conflicting writes can be committed in parallel.
   * No overhead on reads/writes of object fields that point to primitives or non stm objects. Instead of working with a transaction log, or storing the information in the transaction,the object is checked for dirtyness when the commit happens. So all classic compiler optimisations are not obstructed in any way.
   * Small overhead (for lazy loading purposes) on mutable stm references.   
   * Non managed stm objects can flow through stm space (for example for handing over an object from one thread to another).
   * Transaction level read consistency (the same isolation Oracle provides, so not 100% serialized)
   * Supports the retry (the conditional variable for the stm).
-  * No zombie threads; so a thread can't in an inconsistent state and there is no need to 'kill' zombie threads.
+  * No zombie threads; so a thread can't get in an inconsistent state because it observes isolation problems and therefore therefore there is no need to 'kill' zombie threads.
+  * Multiverse doesn't touch classes from the Java API (unlike Terracotta).
 
 = Planned =
   * Pessimistic locking
   * Deadlock detection for the pessimistic locking
-  * Support for the @Exclude field annotation
-  * Support for the @Unmanaged field annotation (performance optimisation to lower the stress on the transaction).
-  * Annotation driven transaction instead of the current template driven version
   * A lot of statistics to help developers figure out what goes on and how to improve performance.
-  * Support for OrElse.
-  * Support for readonly transactions (optimizations).
+  * Support for orelse.
+  * Support for readonly transactions (optimisations).
   * Nested transactions
   * Detachment and reattachment of stm objects
   * A distributed version
   * Durable state (state that is persisted to disk for example).
-  * Control number of old version of data.
+  * Control history length of previous committed data (needed for MVCC).
   * Special optimisations for immutable structures so that loading gets really cheap (O(c)) no matter the size of the structure.
-  * Statistics to design better performing datastructures.
+  * Statistics to design better performing data structures.
