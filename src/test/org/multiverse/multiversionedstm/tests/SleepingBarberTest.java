@@ -7,10 +7,10 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.TransactionTemplate;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
+import org.multiverse.api.annotations.Atomic;
 import org.multiverse.api.annotations.TmEntity;
+import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
 public class SleepingBarberTest {
@@ -22,8 +22,6 @@ public class SleepingBarberTest {
 
     @Before
     public void setUp() {
-        stm = new MultiversionedStm();
-
         BarberShop barberShop = new BarberShop();
         barberShop.chair1 = new Chair();
         barberShop.chair2 = new Chair();
@@ -57,45 +55,29 @@ public class SleepingBarberTest {
 
         @Override
         public void run() {
-            customerHandle = commit(stm, new Customer());
+            createCustomer();
 
-            if (atomicEnterBarber()) {
-                atomicWaitForCompletion();
+            if (tryEnterBarberShop()) {
+                waitForCompletion();
             }
         }
 
-        //todo: when the atomic annotation is added,this method can be dropped.
-        private boolean atomicEnterBarber() {
-            return new TransactionTemplate<Boolean>(stm) {
-                @Override
-                protected Boolean execute(Transaction t) {
-                    return enterBarber();
-                }
-            }.execute();
+        @Atomic
+        private void createCustomer() {
+            customerHandle = getTransaction().attach(new Customer());
         }
 
-        private boolean enterBarber() {
+        @Atomic
+        public boolean tryEnterBarberShop() {
             Customer customer = getTransaction().read(customerHandle);
             BarberShop barberShop = getTransaction().read(barberShopHandle);
-            return barberShop.placeIfPossible(customer);
+            return barberShop.tryPlace(customer);
         }
 
-        //todo: when the atomic annotation is added, this method can be dropped.
-        private void atomicWaitForCompletion() {
-            new TransactionTemplate(stm) {
-                @Override
-                protected Object execute(Transaction t) {
-                    waitForCompletion();
-                    return null;
-                }
-
-            }.execute();
-        }
-
-
-        private void waitForCompletion() {
+        @Atomic
+        public void waitForCompletion() {
             Customer p = getTransaction().read(customerHandle);
-            p.awaitCut();
+            p.awaitCutCompletion();
         }
     }
 
@@ -108,19 +90,22 @@ public class SleepingBarberTest {
         @Override
         public void run() {
             for (int k = 0; k < cutsCount; k++) {
-                new TransactionTemplate(stm) {
-                    @Override
-                    protected Object execute(Transaction t) throws Exception {
-                        barberLogic(t);
-                        return null;
-                    }
-                }.execute();
+                Handle<Customer> customerHandle = takeCustomer();
+                cutCustomer(customerHandle);
             }
         }
 
-        private void barberLogic(Transaction t) {
-            BarberShop barberShop = t.read(barberShopHandle);
-            barberShop.doCut();
+        @Atomic
+        public Handle<Customer> takeCustomer() {
+            BarberShop barberShop = getTransaction().read(barberShopHandle);
+            return ((MaterializedObject) barberShop.removeCustomerFromOneOfTheChairs()).getHandle();
+        }
+
+        @Atomic
+        public void cutCustomer(Handle<Customer> customerHandle) {
+            BarberShop barberShop = getTransaction().read(barberShopHandle);
+            Customer customer = getTransaction().read(customerHandle);
+            barberShop.cut(customer);
         }
     }
 
@@ -130,25 +115,25 @@ public class SleepingBarberTest {
         private Chair chair2;
         private Chair chair3;
 
-        public void doCut() {
-            Customer customer = removeCustomerFromOneOfTheChairs();
+        @Atomic
+        public void cut(Customer customer) {
             customer.cut();
         }
 
-        private Customer removeCustomerFromOneOfTheChairs() {
+        public Customer removeCustomerFromOneOfTheChairs() {
             if (!chair1.isFree()) {
-                return chair1.remove();
+                return chair1.tryTake();
             } else if (!chair2.isFree()) {
-                return chair2.remove();
+                return chair2.tryTake();
             } else if (!chair3.isFree()) {
-                return chair3.remove();
+                return chair3.tryTake();
             } else {
                 retry();
                 return null;
             }
         }
 
-        public boolean placeIfPossible(Customer p) {
+        public boolean tryPlace(Customer p) {
             if (chair1.placeIfFree(p)) {
                 return true;
             }
@@ -173,14 +158,22 @@ public class SleepingBarberTest {
             return customer;
         }
 
-        public Customer remove() {
+        public Customer tryTake() {
             Customer oldCustomer = customer;
             customer = null;
             return oldCustomer;
         }
 
-        public void setCustomer(Customer customer) {
-            this.customer = customer;
+        public void place(Customer newCustomer) {
+            if (newCustomer == null) {
+                throw new NullPointerException();
+            }
+
+            if (customer != null) {
+                throw new IllegalStateException();
+            }
+
+            customer = newCustomer;
         }
 
         public boolean isFree() {
@@ -202,17 +195,18 @@ public class SleepingBarberTest {
 
         private boolean isCut = false;
 
-        public boolean isCut() {
-            return isCut;
-        }
-
         public void cut() {
+            if (isCut) {
+                throw new IllegalStateException("Should not cut if the customer already is cut");
+            }
+
             isCut = true;
         }
 
-        public void awaitCut() {
-            if (!isCut)
+        public void awaitCutCompletion() {
+            if (!isCut) {
                 retry();
+            }
         }
     }
 }
