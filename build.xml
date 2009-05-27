@@ -233,6 +233,7 @@
             <zipfileset dir="${javadoc}" prefix="javadoc"/>
             <fileset dir="${target}" includes="*.jar"/>
             <fileset dir="${target}" includes="sources.zip"/>
+            <fileset dir="." includes="license.*"/>
         </zip>
     </target>
 
@@ -251,6 +252,7 @@
                  classname="net.sourceforge.pmd.ant.PMDTask">
             <classpath>
                 <path refid="classpath.support"/>
+                <path refid="classpath.provided"/>
             </classpath>
         </taskdef>
 

@@ -9,7 +9,6 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
-import org.multiverse.api.annotations.TmEntity;
 
 /**
  * An integration test for the AtomicTransformer that checks if it can deal with all the possible
@@ -32,22 +31,6 @@ public class AtomicTransformer_ArgumentsTest {
         assertEquals(originalValue, value.getValue());
     }
 
-    @TmEntity
-    public class IntValue {
-        private int value;
-
-        public IntValue(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public void setValue(int value) {
-            this.value = value;
-        }
-    }
 
     // =================== tests =======================
 
@@ -164,6 +147,32 @@ public class AtomicTransformer_ArgumentsTest {
     }
 
     @Test
+    public void multipleIntArguments() {
+        int arg1 = 114;
+        int arg2 = 13243414;
+        int arg3 = -2345114;
+        MultipleIntArguments a = new MultipleIntArguments();
+        a.expectedArg1 = arg1;
+        a.expectedArg2 = arg2;
+        a.expectedArg3 = arg3;
+        a.doIt(arg1, arg2, arg3);
+    }
+
+    public static class MultipleIntArguments {
+        private int expectedArg1;
+        private int expectedArg2;
+        private int expectedArg3;
+
+        @Atomic
+        void doIt(int arg1, int arg2, int arg3) {
+            assertEquals(expectedArg1, arg1);
+            assertEquals(expectedArg2, arg2);
+            assertEquals(expectedArg3, arg3);
+            assertTransactionWorking();
+        }
+    }
+
+    @Test
     public void longArgument() {
         long arg = 114L;
         LongArgument a = new LongArgument();
@@ -180,6 +189,34 @@ public class AtomicTransformer_ArgumentsTest {
             assertTransactionWorking();
         }
     }
+
+    @Test
+    public void multipleLongArguments() {
+        long arg1 = 114L;
+        long arg2 = 3423434324L;
+        long arg3 = -29384734L;
+
+        MultipleLongArguments a = new MultipleLongArguments();
+        a.expectedArg1 = arg1;
+        a.expectedArg2 = arg2;
+        a.expectedArg3 = arg3;
+        a.doIt(arg1, arg2, arg3);
+    }
+
+    public static class MultipleLongArguments {
+        private long expectedArg1;
+        private long expectedArg2;
+        private long expectedArg3;
+
+        @Atomic
+        void doIt(long arg1, long arg2, long arg3) {
+            assertEquals(expectedArg1, arg1);
+            assertEquals(expectedArg2, arg2);
+            assertEquals(expectedArg3, arg3);
+            assertTransactionWorking();
+        }
+    }
+
 
     @Test
     public void floatArgument() {
@@ -199,7 +236,6 @@ public class AtomicTransformer_ArgumentsTest {
         }
     }
 
-
     @Test
     public void doubleArgument() {
         double arg = 114.0d;
@@ -218,6 +254,34 @@ public class AtomicTransformer_ArgumentsTest {
             assertTransactionWorking();
         }
     }
+
+    @Test
+    public void multipleDoubleArguments() {
+        double arg1 = 114.0d;
+        double arg2 = 334334114.0d;
+        double arg3 = -3837262114.0d;
+        MultipleDoubleArguments a = new MultipleDoubleArguments();
+        a.expectedArg1 = arg1;
+        a.expectedArg2 = arg2;
+        a.expectedArg3 = arg3;
+        a.doIt(arg1, arg2, arg3);
+    }
+
+    public static class MultipleDoubleArguments {
+        private double expectedArg1;
+        private double expectedArg2;
+        private double expectedArg3;
+
+
+        @Atomic
+        void doIt(double arg1, double arg2, double arg3) {
+            assertEquals(expectedArg1, arg1, 0.000001);
+            assertEquals(expectedArg2, arg2, 0.000001);
+            assertEquals(expectedArg3, arg3, 0.000001);
+            assertTransactionWorking();
+        }
+    }
+
 
     @Test
     public void complexSetOfArguments() {
@@ -256,7 +320,7 @@ public class AtomicTransformer_ArgumentsTest {
         Object expectedArg9;
 
         @Atomic
-        void doIt(boolean arg1, byte arg2, short arg3, char arg4, int arg5, Object arg6, float arg7, Object arg8, Object arg9) {
+        void doIt(boolean arg1, byte arg2, short arg3, char arg4, int arg5, long arg6, float arg7, Object arg8, Object arg9) {
             assertEquals(expectedArg1, arg1);
             assertEquals(expectedArg2, arg2);
             assertEquals(expectedArg3, arg3);
@@ -331,4 +395,6 @@ public class AtomicTransformer_ArgumentsTest {
             assertTransactionWorking();
         }
     }
+
+    //todo: static 
 }

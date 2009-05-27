@@ -6,7 +6,7 @@ import org.multiverse.multiversionedstm.MultiversionedStm;
 /**
  * @author Peter Veentjer.
  */
-public class SharedStmInstance {
+public final class SharedStmInstance {
 
     private static volatile Stm instance = new MultiversionedStm();
 
@@ -16,5 +16,9 @@ public class SharedStmInstance {
 
     public static void setInstance(Stm instance) {
         SharedStmInstance.instance = instance;
+    }
+
+    //we don't want instances
+    private SharedStmInstance() {
     }
 }

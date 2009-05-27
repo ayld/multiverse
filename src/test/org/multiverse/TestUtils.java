@@ -105,6 +105,10 @@ public class TestUtils {
         return read(stm, commit(stm, item));
     }
 
+    public static <T> Handle<T> commit(T item) {
+        return commit(SharedStmInstance.getInstance(), item);
+    }
+
     public static <T> Handle<T> commit(Stm stm, T item) {
         Transaction t = stm.startTransaction();
         Handle<T> handle = t.attach(item);

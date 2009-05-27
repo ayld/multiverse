@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class Method_NextInChainTest {
+public class TmEntityClassTransformer_Method_NextInChainTest {
     private MultiversionedStm stm;
 
     @Before
@@ -14,6 +14,6 @@ public class Method_NextInChainTest {
 
     @Test
     public void test() {
-
+        //todo
     }
 }

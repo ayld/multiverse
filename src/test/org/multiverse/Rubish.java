@@ -23,8 +23,28 @@ public class Rubish extends TransactionTemplate {
         System.out.println(item.getClass());
     }
 
-    public boolean equals(float l1, float l2) {
+    public boolean equalsObject(Object l1, Object l2) {
+        if (l1 != l2)
+            return true;
+
+        return false;
+    }
+
+
+    public boolean equals(boolean l1, boolean l2) {
         return l1 == l2;
+    }
+
+    public boolean equals(int l1, int l2) {
+        return l1 == l2;
+    }
+
+    public boolean equalsFloat(float l1, float l2) {
+        return l1 != l2;
+    }
+
+    public boolean equalsDouble(double l1, double l2) {
+        return l1 != l2;
     }
 
     public static void main(String[] args) throws IOException {

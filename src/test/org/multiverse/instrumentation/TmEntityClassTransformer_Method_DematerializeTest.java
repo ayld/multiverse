@@ -10,7 +10,7 @@ import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class Method_DematerializeTest {
+public class TmEntityClassTransformer_Method_DematerializeTest {
     private MultiversionedStm stm;
 
     @Before

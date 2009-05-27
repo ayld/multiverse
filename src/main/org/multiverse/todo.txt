@@ -1,5 +1,11 @@
 TODO
 
+- atomic: static methods
+
+- atomic: abstract methods
+
+- atomic: override method.
+
 - atomic: check what happens when a normal exception is thrown
 
 - atomic: check what happens when a retryerror is thrown
@@ -8,13 +14,10 @@ TODO
 
 - atomic: which object is used to execute the xxx$atomic method on
 
-- atomic: conflicts with name of method
-
-- atomic: conflicts with name of class.
+- atomic: conflicts with name of class & class delegate.
+    - the delegate classes should be an internal class.
 
 - atomic: checked exceptions testen
-
-- atomic: retry testen
 
 - track number of starvation problems: transaction
 

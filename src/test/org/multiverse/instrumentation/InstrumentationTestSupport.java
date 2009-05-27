@@ -32,7 +32,15 @@ public class InstrumentationTestSupport {
         classLoader.defineClass(classname, newBytecode);
     }
 
-    public static void assertIsDirty(Object object, boolean expected) {
+    public static void assertDirty(Object object) {
+        assertDirty(object, true);
+    }
+
+    public static void assertNotDirty(Object object) {
+        assertDirty(object, false);
+    }
+
+    public static void assertDirty(Object object, boolean expected) {
         assertTrue(object instanceof MaterializedObject);
         assertEquals(expected, ((MaterializedObject) object).isDirty());
     }

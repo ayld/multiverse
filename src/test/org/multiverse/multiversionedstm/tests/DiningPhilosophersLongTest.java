@@ -14,13 +14,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * The cause of the dining philosopers problem is that the take of the left and right fork are not atomic. So it
+ * The cause of the dining philosophers problem is that the take of the left and right fork are not atomic. So it
  * could happen that all philosopers have their left fork, but won't get the right for because the philosopher sitting
  * right to them has that fork.
  * <p/>
  * Within the MultiversionedStm both forks are aquired atomically (so a philosopher gets them both, or won't
- * get them at all). The fork is simulated by a IntegerValue (0 indicates no fork, 1 indicates fork available).
- * The forks are retrieved in 1 transaction, and are returned in another.
+ * get them at all).
  *
  * @author Peter Veentjer.
  */
@@ -61,13 +60,13 @@ public class DiningPhilosophersLongTest {
         countDown.set(attemptCount);
         createForks();
 
-        PhilosoperThread[] philosoperThreads = createPhilosoperThreads();
+        PhilosopherThread[] philosoperThreads = createPhilosoperThreads();
         startAll(philosoperThreads);
         joinAll(philosoperThreads);
 
         assertAllForksHaveReturned();
 
-        for (PhilosoperThread thread : philosoperThreads)
+        for (PhilosopherThread thread : philosoperThreads)
             System.out.println("count: " + thread.successCount);
     }
 
@@ -79,12 +78,12 @@ public class DiningPhilosophersLongTest {
         }
     }
 
-    public PhilosoperThread[] createPhilosoperThreads() {
-        PhilosoperThread[] threads = new PhilosoperThread[forkCount];
+    public PhilosopherThread[] createPhilosoperThreads() {
+        PhilosopherThread[] threads = new PhilosopherThread[forkCount];
         for (int k = 0; k < forkCount; k++) {
             Handle<Fork> leftForkHandle = forkHandles[k];
             Handle<Fork> rightForkHandle = k == forkCount - 1 ? forkHandles[0] : forkHandles[k + 1];
-            threads[k] = new PhilosoperThread(leftForkHandle, rightForkHandle);
+            threads[k] = new PhilosopherThread(leftForkHandle, rightForkHandle);
         }
         return threads;
     }
@@ -99,13 +98,13 @@ public class DiningPhilosophersLongTest {
 
     static AtomicInteger philosoperThreadIdGenerator = new AtomicInteger();
 
-    class PhilosoperThread extends TestThread {
+    class PhilosopherThread extends TestThread {
         private final Handle<Fork> leftForkHandle;
         private final Handle<Fork> rightForkHandle;
         private volatile long successCount = 0;
 
-        PhilosoperThread(Handle<Fork> leftForkHandle, Handle<Fork> rightForkHandle) {
-            super("PhilosoperThread-" + philosoperThreadIdGenerator.incrementAndGet());
+        PhilosopherThread(Handle<Fork> leftForkHandle, Handle<Fork> rightForkHandle) {
+            super("PhilosopherThread-" + philosoperThreadIdGenerator.incrementAndGet());
             this.leftForkHandle = leftForkHandle;
             this.rightForkHandle = rightForkHandle;
         }

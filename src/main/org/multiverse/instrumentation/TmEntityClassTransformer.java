@@ -8,10 +8,7 @@ import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.multiverse.instrumentation.utils.ClassNodeBuilder;
 import org.multiverse.instrumentation.utils.InstructionsBuilder;
 import org.multiverse.instrumentation.utils.MethodBuilder;
-import org.multiverse.multiversionedstm.DefaultMultiversionedHandle;
-import org.multiverse.multiversionedstm.MaterializedObject;
-import org.multiverse.multiversionedstm.MemberWalker;
-import org.multiverse.multiversionedstm.MultiversionedHandle;
+import org.multiverse.multiversionedstm.*;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
@@ -204,7 +201,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
                         ALOAD(1);
                         GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
 
-                        if (isSelfManaged(field)) {
+                        if (isNonEscaping(field)) {
                             INVOKEINTERFACE(READ_LAZY_AND_SELF_MANAGED_METHOD);
                         } else {
                             INVOKEINTERFACE(READ_LAZY_METHOD);
@@ -279,52 +276,94 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
 
             String dematerializedDesc = internalFormToDescriptor(dematerializedClassNode.name);
 
-            ICONST_TRUE();
-            IRETURN();
-
-            /*
+            //adds the code for the check if the materializedClassNode has been set.
+            //if this is not set, the object is dirty by default.
             ALOAD(0);
-
             GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
             LabelNode nonNullLastMaterialized = new LabelNode();
             IFNONNULL(nonNullLastMaterialized);
             ICONST_TRUE();
             IRETURN();
 
-            
             placeLabelNode(nonNullLastMaterialized);
 
             for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isSynthetic(field) && !isStatic(field)) {
-
-                    ALOAD(0);
+                if (!isExcluded(field)) {
+                    Type type = Type.getType(field.desc);
                     LabelNode equalsLabel = new LabelNode();
-                    GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
-                    GETFIELD(dematerializedClassNode, field.name, dematerializedDesc);
-                    ALOAD(0);
-                    GETFIELD(materializedClassNode, field.name, field.desc);
 
-                    String type = field.desc;
-                    if (isPrimitive(type)) {
-                        IF_ICMPEQ(equalsLabel);
-                    } else if (isTmEntity(type, classLoader)) {
-                        IF_ICMPEQ(equalsLabel);//todo
-                    } else {
+                    if (isTmEntity(type.getDescriptor(), classLoader)) {
+
+                        //load the value of the dematerialized object field on the stack.
+                        ALOAD(0);
+                        GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
+                        GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
+                        //[..., dematerialized-handle]
+
+                        //load the value of the materialized object field on the stack.
+                        ALOAD(0);
+                        GETFIELD(materializedClassNode, field.name + "$Ref", LazyReference.class);
+                        ALOAD(0);
+                        GETFIELD(materializedClassNode, field.name, type);
+                        //[..., dematerialized-handle, field-ref, field]
+
+                        Method getHandleMethod = getMethod(
+                                MultiversionedStmUtils.class,
+                                "getHandle",
+                                LazyReference.class, Object.class
+                        );
+                        INVOKESTATIC(getHandleMethod);
+                        //[... dematerialized-handle, handle]
+                        //do a comparison on those fields.. if they are the same, continue to the
+                        //next field. If they are not the same, the function can exit with a true.
                         IF_ACMPEQ(equalsLabel);
-                    }
+                        //[..]
+                        ICONST_TRUE();
+                        IRETURN();
+                    } else {
+                        ALOAD(0);
+                        GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
+                        GETFIELD(dematerializedClassNode, field);
 
-                    ICONST_TRUE();
-                    IRETURN();
+                        ALOAD(0);
+                        GETFIELD(materializedClassNode, field);
+
+                        switch (type.getSort()) {
+                            case Type.OBJECT:
+                                IF_ACMPEQ(equalsLabel);
+                                break;
+                            case Type.BOOLEAN:
+                            case Type.BYTE:
+                            case Type.CHAR:
+                            case Type.SHORT:
+                            case Type.INT:
+                                IF_ICMPEQ(equalsLabel);
+                                break;
+                            case Type.FLOAT:
+                                FCMPL();
+                                IFEQ(equalsLabel);
+                                break;
+                            case Type.LONG:
+                                LCMP();
+                                IFEQ(equalsLabel);
+                                break;
+                            case Type.DOUBLE:
+                                DCMPL();
+                                IFEQ(equalsLabel);
+                                break;
+                            default:
+                                throw new RuntimeException("Unhandeled type: " + type);
+                        }
+
+                        ICONST_TRUE();
+                        IRETURN();
+                    }
                     placeLabelNode(equalsLabel);
                 }
             }
 
             ICONST_FALSE();
-            IRETURN();*/
-        }
-
-        private boolean isPrimitive(String type) {
-            return false;  //To change body of created methods use File | Settings | File Templates.
+            IRETURN();
         }
     }
 

@@ -29,7 +29,8 @@ public class AtomicTransformer implements Opcodes {
         this.classNode = classNode;
         this.classLoader = classLoader;
 
-        for (MethodNode method : (List<MethodNode>) new LinkedList(classNode.methods)) {
+        List<MethodNode> originalMethods = new LinkedList<MethodNode>(classNode.methods);
+        for (MethodNode method : originalMethods) {
             if (hasVisibleAnnotation(method, Atomic.class)) {
                 MethodNode methodDelegate = addAtomicMethodDelegate(method);
                 ClassNode templateClass = addNewTemplateClass(method, methodDelegate);
@@ -47,10 +48,9 @@ public class AtomicTransformer implements Opcodes {
 
     private MethodNode addAtomicMethodDelegate(MethodNode method) {
         MethodNode delegateMethod = new MethodNode();
-        delegateMethod.access = method.access;//todo: moet nog synthetic gemaakt worden
+        delegateMethod.access = ACC_PUBLIC + ACC_SYNTHETIC;
         delegateMethod.desc = method.desc;
-        delegateMethod.name = method.name + "1";//todo: name clash
-        //delegateMethod.signature = method.signature;
+        delegateMethod.name = method.name + "$delegate";
         delegateMethod.tryCatchBlocks = method.tryCatchBlocks;
         delegateMethod.exceptions = method.exceptions;
         delegateMethod.instructions = method.instructions;
@@ -75,9 +75,11 @@ public class AtomicTransformer implements Opcodes {
         //[.., template, template, this]
 
         //place all the method arguments on the heap.
+        int loadIndex = 1;
         for (int k = 0; k < argTypes.length; k++) {
-            Type type = argTypes[k];
-            builder.LOAD(type, k + 1);
+            Type argType = argTypes[k];
+            builder.LOAD(argType, loadIndex);
+            loadIndex += argType.getSize();
         }
         //[.., template, template, this, arg1, arg2, arg3]
 
@@ -123,10 +125,6 @@ public class AtomicTransformer implements Opcodes {
 
         builder.RETURN(returnType);
         originalMethod.instructions = builder.createInstructions();
-    }
-
-    public static long value() {
-        return 100;
     }
 
     private String getConstructorDescriptor(MethodNode originalMethod) {
@@ -202,15 +200,20 @@ public class AtomicTransformer implements Opcodes {
 
             //place the other arguments on the stack.
             Type[] argTypes = getArgumentTypes(originalMethod.desc);
+            //the first argument is this, the second argument is the 'owner'. So to get real arguments,
+            //we need to jump to the third argument (so the one with loadIndex = 2).
+            int loadIndex = 2;
             for (int k = 0; k < argTypes.length; k++) {
                 Type argType = argTypes[k];
 
                 i.ALOAD(0);
                 //[.., this]
-                i.LOAD(argType, 2 + k);
+                i.LOAD(argType, loadIndex);
                 //[.., this, argk]
                 i.PUTFIELD(classNode, "arg" + k, argType);
                 //[..]
+
+                loadIndex += argType.getSize();
             }
 
             //we are done, lets return

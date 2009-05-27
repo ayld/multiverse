@@ -373,6 +373,26 @@ public class InstructionsBuilder implements Opcodes {
         instructions.add(new JumpInsnNode(IF_ACMPEQ, success));
     }
 
+    public void LCMP() {
+        instructions.add(new InsnNode(LCMP));
+    }
+
+    public void DCMPL() {
+        instructions.add(new InsnNode(DCMPL));
+    }
+
+    public void FCMPL() {
+        instructions.add(new InsnNode(FCMPL));
+    }
+
+    public void IFEQ(LabelNode success) {
+        instructions.add(new JumpInsnNode(IFEQ, success));
+    }
+
+    public void IFNE(LabelNode success) {
+        instructions.add(new JumpInsnNode(IFNE, success));
+    }
+
     public void placeLabelNode(LabelNode labelNode) {
         instructions.add(labelNode);
     }

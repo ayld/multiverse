@@ -14,7 +14,7 @@ import static java.util.Arrays.asList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Method_WalkMaterializedMembersTest {
+public class TmEntityClassTransformer_Method_WalkMaterializedMembersTest {
 
     private MultiversionedStm stm;
 
@@ -111,8 +111,8 @@ public class Method_WalkMaterializedMembersTest {
         protected static NoMembers noMembers;
     }
 
-    //todo: @Test
-    public void ignoredMembersAreIgnored() {
+    @Test
+    public void membersWithExcludedAnnotationAreIgnored() {
         IgnoredMember ignoredMember = new IgnoredMember();
         ignoredMember.members = new NoMembers();
         assertWalkedMembers(ignoredMember);

@@ -11,7 +11,7 @@ import org.multiverse.multiversionedstm.DefaultMultiversionedHandle;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class Method_GetHandleTest {
+public class TmEntityClassTransformer_Method_GetHandleTest {
     private MultiversionedStm stm;
 
     @Before
