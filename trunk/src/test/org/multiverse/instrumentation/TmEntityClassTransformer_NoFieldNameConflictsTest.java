@@ -15,7 +15,7 @@ import org.multiverse.multiversionedstm.MultiversionedStm;
  *
  * @author Peter Veentjer.
  */
-public class NoFieldNameConflictsTest {
+public class TmEntityClassTransformer_NoFieldNameConflictsTest {
     private MultiversionedStm stm;
 
     @Before

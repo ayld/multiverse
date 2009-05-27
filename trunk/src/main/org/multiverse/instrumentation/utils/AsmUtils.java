@@ -130,7 +130,7 @@ public final class AsmUtils {
         return hasVisibleAnnotation(fieldNode, Exclude.class);
     }
 
-    public static boolean isSelfManaged(FieldNode fieldNode) {
+    public static boolean isNonEscaping(FieldNode fieldNode) {
         return hasVisibleAnnotation(fieldNode, NonEscaping.class);
     }
 

@@ -9,7 +9,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class AccessModifiersTest {
+public class TmEntityClassTransformer_AccessModifiersTest {
     private MultiversionedStm stm;
 
     @Before

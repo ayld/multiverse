@@ -11,11 +11,8 @@ import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MaterializedObject;
-import org.multiverse.multiversionedstm.MultiversionedStm;
 
 public class SleepingBarberTest {
-    private MultiversionedStm stm;
-
     private int cutsCount = 100000000;
 
     private Handle<BarberShop> barberShopHandle;
@@ -26,12 +23,12 @@ public class SleepingBarberTest {
         barberShop.chair1 = new Chair();
         barberShop.chair2 = new Chair();
         barberShop.chair3 = new Chair();
-        barberShopHandle = commit(stm, barberShop);
+        barberShopHandle = commit(barberShop);
     }
 
     @After
     public void tearDown() {
-        System.out.println(stm.getStatistics());
+        //System.out.println(stm.getStatistics());
     }
 
     @Test
@@ -98,6 +95,7 @@ public class SleepingBarberTest {
         @Atomic
         public Handle<Customer> takeCustomer() {
             BarberShop barberShop = getTransaction().read(barberShopHandle);
+            //ugly
             return ((MaterializedObject) barberShop.removeCustomerFromOneOfTheChairs()).getHandle();
         }
 
@@ -162,18 +160,6 @@ public class SleepingBarberTest {
             Customer oldCustomer = customer;
             customer = null;
             return oldCustomer;
-        }
-
-        public void place(Customer newCustomer) {
-            if (newCustomer == null) {
-                throw new NullPointerException();
-            }
-
-            if (customer != null) {
-                throw new IllegalStateException();
-            }
-
-            customer = newCustomer;
         }
 
         public boolean isFree() {
