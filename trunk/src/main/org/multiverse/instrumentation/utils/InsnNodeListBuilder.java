@@ -177,6 +177,15 @@ public class InsnNodeListBuilder implements Opcodes {
         instructions.add(instr);
     }
 
+    public void INVOKESTATIC(String owner, String name, String descriptor) {
+        MethodInsnNode instr = new MethodInsnNode(
+                INVOKESTATIC,
+                owner,
+                name,
+                descriptor);
+        instructions.add(instr);
+    }
+
     public void INVOKESTATIC(Method method) {
         MethodInsnNode instr = new MethodInsnNode(
                 INVOKESTATIC,
