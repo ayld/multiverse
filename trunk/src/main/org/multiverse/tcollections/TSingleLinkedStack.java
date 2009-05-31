@@ -1,4 +1,4 @@
-package org.multiverse.collections;
+package org.multiverse.tcollections;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.NonEscaping;
@@ -8,20 +8,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TmEntity
-public final class Stack<E> {
+public final class TSingleLinkedStack<E> implements TStack<E> {
 
     @NonEscaping
     private StackNode<E> head;
     private int size;
 
+    @Override
     public E peek() {
         return head == null ? null : head.value;
     }
 
+    @Override
+    public void clear() {
+        size = 0;
+        head = null;
+    }
+
+    @Override
     public boolean isEmpty() {
         return head == null;
     }
 
+    @Override
     public void push(E item) {
         if (item == null) {
             throw new NullPointerException();
@@ -31,6 +40,7 @@ public final class Stack<E> {
         size++;
     }
 
+    @Override
     public E pop() {
         if (head == null) {
             retry();
@@ -39,6 +49,7 @@ public final class Stack<E> {
         return removeTopItem();
     }
 
+    @Override
     public E tryPop() {
         if (head == null) {
             return null;
@@ -54,6 +65,7 @@ public final class Stack<E> {
         return oldHead.value;
     }
 
+    @Override
     public int size() {
         return size;
     }
@@ -63,6 +75,7 @@ public final class Stack<E> {
      *
      * @return the List representation of stack
      */
+    @Override
     public List<E> asList() {
         List<E> result = new ArrayList<E>(size());
         StackNode<E> node = head;
@@ -89,11 +102,11 @@ public final class Stack<E> {
             return true;
         }
 
-        if (!(thatObj instanceof Stack)) {
+        if (!(thatObj instanceof TSingleLinkedStack)) {
             return false;
         }
 
-        Stack that = (Stack) thatObj;
+        TSingleLinkedStack that = (TSingleLinkedStack) thatObj;
         if (that.size != this.size) {
             return false;
         }

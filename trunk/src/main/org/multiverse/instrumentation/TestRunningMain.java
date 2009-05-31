@@ -2,8 +2,8 @@ package org.multiverse.instrumentation;
 
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.collections.*;
 import org.multiverse.multiversionedstm.MultiversionedStm;
+import org.multiverse.tcollections.Latch;
 
 /**
  * A Main that runs some tests.
@@ -14,48 +14,6 @@ public class TestRunningMain {
 
     public static void main(String[] args) {
         System.out.println("Main called");
-
-        Account foo = new Account();
-        foo.transferTo();
-        foo.method2();
-        foo.method3("banana");
-        foo.method4(10);
-        System.out.println("method5 returned: " + foo.method5());
-    }
-
-    private static void testLinkedList() {
-        LinkedList tree = new LinkedList();
-        tree.add("a");
-        tree.add("b");
-        tree.add("c");
-
-        MultiversionedStm stm = new MultiversionedStm();
-        Transaction t = stm.startTransaction();
-        Handle<LinkedList> handle = t.attach(tree);
-        t.commit();
-
-        Transaction t2 = stm.startTransaction();
-        LinkedList found = t2.read(handle);
-        System.out.println("found: " + found);
-        found.clear();
-        t2.commit();
-
-        Transaction t3 = stm.startTransaction();
-    }
-
-
-    private static void testBTree() {
-        BTree tree = new BTree();
-
-        MultiversionedStm stm = new MultiversionedStm();
-        Transaction t = stm.startTransaction();
-        Handle<BTree> handle = t.attach(tree);
-        t.commit();
-
-        Transaction t2 = stm.startTransaction();
-        BTree found = t2.read(handle);
-        System.out.println("found: " + found);
-        t2.commit();
     }
 
     private static void testLatch() {
@@ -71,39 +29,6 @@ public class TestRunningMain {
         Transaction t2 = stm.startTransaction();
         Latch found = t2.read(handle);
         System.out.println("found: " + found);
-        t2.commit();
-    }
-
-    private static void testQueue() {
-        Queue queue = new Queue();
-
-        MultiversionedStm stm = new MultiversionedStm();
-        Transaction t = stm.startTransaction();
-        Handle<Queue> handle = t.attach(queue);
-        t.commit();
-    }
-
-    private static void testStack() {
-        Stack stack = new Stack();
-
-        MultiversionedStm stm = new MultiversionedStm();
-        Transaction t = stm.startTransaction();
-        Handle<Stack> handle = t.attach(stack);
-        stack.push("item1");
-        stack.push("item2");
-
-        System.out.println("stack.size: " + stack.size());
-        t.commit();
-
-        Transaction t2 = stm.startTransaction();
-        Stack foundStack = t2.read(handle);
-
-        System.out.println("foundStack.size: " + foundStack.size());
-
-        while (!foundStack.isEmpty()) {
-            System.out.println("popped item: " + foundStack.pop() + " size = " + foundStack.size());
-        }
-
         t2.commit();
     }
 }

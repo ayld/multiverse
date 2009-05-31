@@ -1,4 +1,4 @@
-package org.multiverse.collections;
+package org.multiverse.tcollections;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.TmEntity;
@@ -6,7 +6,7 @@ import org.multiverse.api.annotations.TmEntity;
 import java.util.*;
 
 @TmEntity
-public class LinkedList<E> extends AbstractSequentialList<E>
+public class TLinkedList<E> extends AbstractSequentialList<E>
         implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
 
     private Entry<E> header = new Entry<E>(null, null, null);
@@ -15,7 +15,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
     /**
      * Constructs an empty list.
      */
-    public LinkedList() {
+    public TLinkedList() {
         header.next = header.previous = header;
     }
 
@@ -27,7 +27,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @param c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
      */
-    public LinkedList(Collection<? extends E> c) {
+    public TLinkedList(Collection<? extends E> c) {
         header.next = header.previous = header;
         addAll(c);
     }
@@ -627,9 +627,11 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @see List#listIterator(int)
      */
     public ListIterator<E> listIterator(int index) {
-        return new ListItr(index);
+        //    return new ListItr(index);
+        throw new RuntimeException();
     }
 
+    /*
     private class ListItr implements ListIterator<E> {
         private Entry<E> lastReturned = header;
         private Entry<E> next;
@@ -732,7 +734,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
                 throw new ConcurrentModificationException();
             }
         }
-    }
+    }*/
 
     @TmEntity
     protected static class Entry<E> {
@@ -790,13 +792,16 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @since 1.6
      */
     public Iterator<E> descendingIterator() {
-        return new DescendingIterator();
+        //  return new DescendingIterator();
+        //todo
+        throw new RuntimeException();
     }
 
     /**
      * Adapter to provide descending iterators via ListItr.previous
      */
-    @TmEntity
+    //@TmEntity
+    /*
     protected class DescendingIterator implements Iterator {
         protected ListItr itr = new ListItr(size());
 
@@ -811,7 +816,7 @@ public class LinkedList<E> extends AbstractSequentialList<E>
         public void remove() {
             itr.remove();
         }
-    }
+    } */
 
     /**
      * Returns a shallow copy of this <tt>LinkedList</tt>. (The elements
@@ -820,9 +825,9 @@ public class LinkedList<E> extends AbstractSequentialList<E>
      * @return a shallow copy of this <tt>LinkedList</tt> instance
      */
     public Object clone() {
-        LinkedList<E> clone;
+        TLinkedList<E> clone;
         try {
-            clone = (LinkedList<E>) super.clone();
+            clone = (TLinkedList<E>) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new InternalError();
         }

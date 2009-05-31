@@ -2,10 +2,7 @@ package org.multiverse;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
-import org.multiverse.api.Handle;
-import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.TransactionState;
+import org.multiverse.api.*;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MultiversionedStm;
@@ -19,6 +16,16 @@ import java.io.IOException;
 import java.util.*;
 
 public class TestUtils {
+
+    public static void assertHasHandle(Object item, Handle handle) {
+        if (item == null) {
+            assertNull(handle);
+            return;
+        }
+
+        assertTrue(item instanceof MaterializedObject);
+        assertSame(handle, ((MaterializedObject) item).getHandle());
+    }
 
     public static void assertSameHandle(Object item1, Object item2) {
         if (item1 == null) {
@@ -106,7 +113,7 @@ public class TestUtils {
     }
 
     public static <T> Handle<T> commit(T item) {
-        return commit(SharedStmInstance.getInstance(), item);
+        return commit(GlobalStmInstance.getInstance(), item);
     }
 
     public static <T> Handle<T> commit(Stm stm, T item) {

@@ -48,6 +48,7 @@ public class Transaction_ReadLazyTest {
     @Test
     public void readLazyAttachedObject() {
         ExampleIntegerValue value = new ExampleIntegerValue(1);
+
         Transaction t1 = stm.startTransaction();
         Handle<ExampleIntegerValue> handle = t1.attach(value);
 
@@ -56,7 +57,7 @@ public class Transaction_ReadLazyTest {
     }
 
     @Test
-    public void readLazyAlreadyRematerializedStmObject() {
+    public void readLazyAlreadyRematerializedObject() {
         ExampleIntegerValue value = new ExampleIntegerValue(10);
 
         Transaction t1 = stm.startTransaction();
@@ -141,8 +142,30 @@ public class Transaction_ReadLazyTest {
         assertMaterializedCount(stm, rematerializedCount);
     }
 
+
+    // ================== other states ===================================
+
     @Test
-    public void getFailsIfTransactionIsCommitted() {
+    public void getFailsIfTransactionIsAbortedAfterTheReadLazy() {
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+
+        Transaction t = stm.startTransaction();
+        LazyReference<ExampleIntegerValue> found = t.readLazy(handle);
+        t.commit();
+
+        try {
+            found.get();
+            fail();
+        } catch (IllegalStateException ex) {
+
+        }
+
+        assertIsCommitted(t);
+    }
+
+
+    @Test
+    public void getFailsIfTransactionIsCommittedAfterTheReadLazy() {
         Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
 
         Transaction t = stm.startTransaction();
@@ -159,23 +182,6 @@ public class Transaction_ReadLazyTest {
         assertIsAborted(t);
     }
 
-    @Test
-    public void getFailsIfTransactionIsAborted() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
-
-        Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> found = t.readLazy(handle);
-        t.commit();
-
-        try {
-            found.get();
-            fail();
-        } catch (IllegalStateException ex) {
-
-        }
-
-        assertIsCommitted(t);
-    }
 
     @Test
     public void readLazyFailsIfCommitted() {
@@ -193,6 +199,7 @@ public class Transaction_ReadLazyTest {
 
         assertIsCommitted(t);
     }
+
 
     @Test
     public void readLazyFailsIfAborted() {

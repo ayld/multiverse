@@ -2,27 +2,29 @@ package org.multiverse.instrumentation;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.SharedStmInstance;
 import static org.multiverse.TestUtils.commit;
+import org.multiverse.api.GlobalStmInstance;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
+import org.multiverse.api.annotations.Exclude;
 import org.multiverse.api.annotations.TmEntity;
-import org.multiverse.collections.Stack;
 import static org.multiverse.instrumentation.InstrumentationTestSupport.assertDirty;
 import static org.multiverse.instrumentation.InstrumentationTestSupport.assertNotDirty;
+import org.multiverse.tcollections.TSingleLinkedStack;
+import org.multiverse.tcollections.TStack;
 
 public class TmEntityClassTransformer_Method_IsDirtyTest {
     private Stm stm;
 
     @Before
     public void setUp() {
-        stm = SharedStmInstance.getInstance();
+        stm = GlobalStmInstance.getInstance();
     }
 
     @Test
     public void initialObjectIsDirty() {
-        Stack stack = new Stack();
+        TStack stack = new TSingleLinkedStack();
         assertDirty(stack, true);
     }
 
@@ -191,7 +193,34 @@ public class TmEntityClassTransformer_Method_IsDirtyTest {
 
     @Test
     public void multipleLongMembers() {
-        //todo
+        MultipleLongMembers original = new MultipleLongMembers();
+        original.member1 = 10;
+        original.member2 = 20;
+        assertDirty(original);
+
+        Handle<MultipleLongMembers> handle = commit(original);
+        Transaction t = stm.startTransaction();
+
+        MultipleLongMembers found = t.read(handle);
+        assertNotDirty(found);
+
+        found.member1 = 11;
+        assertDirty(found);
+
+        found.member1 = 10;
+        assertNotDirty(found);
+
+        found.member2 = 21;
+        assertDirty(found);
+
+        found.member2 = 20;
+        assertNotDirty(found);
+    }
+
+    @TmEntity
+    public static class MultipleLongMembers {
+        long member1;
+        long member2;
     }
 
     //================= float =====================
@@ -223,8 +252,10 @@ public class TmEntityClassTransformer_Method_IsDirtyTest {
 
     @Test
     public void doubleMember() {
+        double old = 10d;
+
         DoubleMember original = new DoubleMember();
-        original.member = 10;
+        original.member = old;
         assertDirty(original);
 
         Handle<DoubleMember> handle = commit(original);
@@ -232,10 +263,13 @@ public class TmEntityClassTransformer_Method_IsDirtyTest {
         DoubleMember found = t.read(handle);
         assertNotDirty(found);
 
-        found.member = 11;
+        System.out.println("member.double: " + found.member);
+
+        found.member = 50d;
         assertDirty(found);
 
-        //todo: set back to 10.
+        found.member = old;
+        assertNotDirty(found);
     }
 
     @TmEntity
@@ -245,39 +279,117 @@ public class TmEntityClassTransformer_Method_IsDirtyTest {
 
     @Test
     public void multipleDoubleMembers() {
-        //todo
+        MultipleDoubleMembers original = new MultipleDoubleMembers();
+        original.member1 = 10;
+        original.member2 = 20;
+        assertDirty(original);
+
+        Handle<MultipleDoubleMembers> handle = commit(original);
+        Transaction t = stm.startTransaction();
+        MultipleDoubleMembers found = t.read(handle);
+        assertNotDirty(found);
+
+        found.member1 = 11;
+        assertDirty(found);
+
+        found.member1 = 10;
+        assertNotDirty(found);
+
+        found.member2 = 21;
+        assertDirty(found);
+
+        found.member2 = 20;
+        assertNotDirty(found);
     }
 
+    @TmEntity
     public static class MultipleDoubleMembers {
-        //todo
+        double member1;
+        double member2;
     }
 
     //================= static =====================
 
     @Test
     public void staticMembersAreIgnored() {
-        //todo
+        StaticMember original = new StaticMember();
+        original.member = 10;
+        assertDirty(original);
+
+        Handle<StaticMember> handle = commit(original);
+        Transaction t = stm.startTransaction();
+        StaticMember found = t.read(handle);
+        assertNotDirty(found);
+
+        found.member = 20;
+        assertNotDirty(found);
     }
 
     @TmEntity
     public static class StaticMember {
-        static NoMembers member;
+        static int member;
     }
 
     @Test
     public void membersWithExcludedAnnotationAreIgnored() {
-        //todo
+        ExcludedMember original = new ExcludedMember();
+        original.excludedMember = 10;
+        original.nonExcludedMember = 20;
+        assertDirty(original);
+
+        Handle<ExcludedMember> handle = commit(original);
+        Transaction t = stm.startTransaction();
+        ExcludedMember found = t.read(handle);
+        assertNotDirty(found);
+
+        found.nonExcludedMember = 10000;
+        assertDirty(found);
+
+        found.nonExcludedMember = 20;
+        assertNotDirty(found);
+
+        found.excludedMember = 11;
+        assertNotDirty(found);
+    }
+
+    @TmEntity
+    public static class ExcludedMember {
+        @Exclude
+        int excludedMember;
+        int nonExcludedMember;
     }
 
     @Test
     public void normalObjectMember() {
-        //todo
+        String old = "foo";
+
+        ObjectMember original = new ObjectMember();
+        original.member = old;
+        assertDirty(original);
+
+        Handle<ObjectMember> handle = commit(original);
+        Transaction t = stm.startTransaction();
+        ObjectMember found = t.read(handle);
+        assertNotDirty(found);
+
+        found.member = "bar";
+        assertDirty(found);
+
+        found.member = old;
+        assertNotDirty(found);
+
+        //the dirty check should be on == and not on equals, so a equal string still indicates dirtyness
+        found.member = new String("foo");
+        assertDirty(found);
     }
 
-    //todo: instance == and equals 
+    @TmEntity
+    public static class ObjectMember {
+        Object member;
+    }
 
     @Test
-    public void tmEntityMember() {
+    public void tmEntityMemberWithNullValue() {
         TmEntityMember original = new TmEntityMember();
         assertDirty(original);
 
@@ -297,7 +409,44 @@ public class TmEntityClassTransformer_Method_IsDirtyTest {
         assertNotDirty(found);
     }
 
-    //todo: references.
+    @Test
+    public void tmEntityMemberWithNonValue() {
+        TmEntityMember original = new TmEntityMember();
+        original.member = new IntValue(10);
+        assertDirty(original);
+
+        Transaction t1 = stm.startTransaction();
+        Handle<TmEntityMember> handle = t1.attach(original);
+        Handle<IntValue> memberHandle = t1.attach(original.member);
+        t1.commit();
+
+        Transaction t2 = stm.startTransaction();
+
+        TmEntityMember found = t2.read(handle);
+        assertNotDirty(found);
+
+        found.setMember(new IntValue(10));
+        assertDirty(found);
+
+        found.setMember(t2.read(memberHandle));
+        assertNotDirty(found);
+    }
+
+    @Test
+    public void memberDoesNotCountForDirtyness() {
+        TmEntityMember original = new TmEntityMember();
+        original.member = new IntValue(10);
+        assertDirty(original);
+
+        Handle<TmEntityMember> handle = commit(original);
+
+        Transaction t = stm.startTransaction();
+        TmEntityMember found = t.read(handle);
+
+        found.getMember().inc();
+        assertNotDirty(found);
+        assertDirty(found.member);
+    }
 
     @TmEntity
     public class TmEntityMember {

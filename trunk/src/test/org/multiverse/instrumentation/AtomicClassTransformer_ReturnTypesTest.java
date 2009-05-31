@@ -3,8 +3,8 @@ package org.multiverse.instrumentation;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.SharedStmInstance;
 import static org.multiverse.TestUtils.commit;
+import org.multiverse.api.GlobalStmInstance;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
@@ -13,14 +13,14 @@ import org.multiverse.api.annotations.TmEntity;
 /**
  * todo: array types moeten er nog bij
  */
-public class AtomicTransformer_ReturnTypesTest {
+public class AtomicClassTransformer_ReturnTypesTest {
 
     private static int value = 123456;
     private static Handle<IntValue> testHandle;
 
     @Before
     public void setUp() {
-        testHandle = commit(SharedStmInstance.getInstance(), new IntValue(value));
+        testHandle = commit(GlobalStmInstance.getInstance(), new IntValue(value));
     }
 
     @TmEntity

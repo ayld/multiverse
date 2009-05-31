@@ -1,6 +1,5 @@
 package org.multiverse.api;
 
-import org.multiverse.SharedStmInstance;
 import org.multiverse.api.exceptions.*;
 
 /**
@@ -30,7 +29,7 @@ public abstract class TransactionTemplate<E> {
     }
 
     public TransactionTemplate() {
-        this(SharedStmInstance.getInstance());
+        this(GlobalStmInstance.getInstance());
     }
 
 
@@ -122,10 +121,10 @@ public abstract class TransactionTemplate<E> {
             throw ex;
         } catch (InterruptedException ex) {
             Thread.interrupted();
-            throw new RuntimeException(ex);
+            throw new InvisibleCheckedException(ex);
         } catch (Exception ex) {
             //wrap the checked exception in an unchecked one.
-            throw new RuntimeException(ex);
+            throw new InvisibleCheckedException(ex);
         }
     }
 
@@ -134,5 +133,16 @@ public abstract class TransactionTemplate<E> {
             return stm.startTransaction();
         else
             return predecessor.abortAndRetry();
+    }
+
+    public static class InvisibleCheckedException extends RuntimeException {
+        public InvisibleCheckedException(Exception cause) {
+            super(cause);
+        }
+
+        @Override
+        public Exception getCause() {
+            return (Exception) super.getCause();
+        }
     }
 }

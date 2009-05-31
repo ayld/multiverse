@@ -36,7 +36,7 @@ public final class InternalFormClassnameUtil {
     /**
      * Returns the name of the class without the package.
      * <p/>
-     * todo: it it is an internal class, it will return the name of theinternal class.
+     * todo: if it is an internal class, it will return the name of theinternal class.
      *
      * @param classname the fully qualified classname
      * @return the name of the class without the package.

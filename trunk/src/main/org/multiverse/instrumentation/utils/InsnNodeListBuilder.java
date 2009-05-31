@@ -10,11 +10,15 @@ import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-public class InstructionsBuilder implements Opcodes {
+public class InsnNodeListBuilder implements Opcodes {
 
     private final InsnList instructions = new InsnList();
 
-    public InstructionsBuilder() {
+    public InsnNodeListBuilder() {
+    }
+
+    public void add(InsnList insnList) {
+        instructions.add(insnList);
     }
 
     public void codeForThrowRuntimeException() {
@@ -38,6 +42,11 @@ public class InstructionsBuilder implements Opcodes {
         Method printlnMethod = AsmUtils.getMethod(PrintStream.class, "println", Object.class);
         INVOKEVIRTUAL(getInternalName(PrintStream.class), printlnMethod.getName(), getMethodDescriptor(printlnMethod));
         //[.., ref]        
+    }
+
+    public void ASTORE(int index) {
+        VarInsnNode instr = new VarInsnNode(ASTORE, index);
+        instructions.add(instr);
     }
 
     public void ALOAD(int index) {
@@ -147,6 +156,15 @@ public class InstructionsBuilder implements Opcodes {
                 owner,
                 name,
                 descriptor);
+        instructions.add(instr);
+    }
+
+    public void INVOKEVIRTUAL(Method method) {
+        MethodInsnNode instr = new MethodInsnNode(
+                INVOKEVIRTUAL,
+                getInternalName(method.getDeclaringClass()),
+                method.getName(),
+                getMethodDescriptor(method));
         instructions.add(instr);
     }
 
@@ -393,7 +411,7 @@ public class InstructionsBuilder implements Opcodes {
         instructions.add(new JumpInsnNode(IFNE, success));
     }
 
-    public void placeLabelNode(LabelNode labelNode) {
+    public void add(LabelNode labelNode) {
         instructions.add(labelNode);
     }
 

@@ -8,7 +8,7 @@ import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
 
-public class AtomicTransformer_MiscTest {
+public class AtomicClassTransformer_MiscTest {
 
     private static int originalValue;
     private static Handle<IntValue> handle;
@@ -24,6 +24,30 @@ public class AtomicTransformer_MiscTest {
         assertEquals(originalValue, value.getValue());
     }
 
+    public void abstractMethodIsIgnored() {
+        //    AbstractMethod abstractMethod = new AbstractMethod();
+    }
+
+    public static abstract class AbstractMethod {
+
+        @Atomic
+        abstract void doIt();
+    }
+
+    //@Test
+    public void nativeMethodIsIgnored() {
+        NativeMethod nativeMethod = new NativeMethod();
+        nativeMethod.doIt();
+    }
+
+    public static class NativeMethod {
+        native void doIt();
+    }
+
+    /**
+     * Tests if the system is able to deal with method that have the same name, but different
+     * signatures.
+     */
     @Test
     public void clashingAtomicMethodNames() {
         ClashingAtomicMethodNames clashingMethodNames = new ClashingAtomicMethodNames();

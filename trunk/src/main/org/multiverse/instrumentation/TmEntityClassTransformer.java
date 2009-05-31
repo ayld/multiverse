@@ -6,7 +6,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.multiverse.instrumentation.utils.ClassNodeBuilder;
-import org.multiverse.instrumentation.utils.InstructionsBuilder;
+import org.multiverse.instrumentation.utils.InsnNodeListBuilder;
 import org.multiverse.instrumentation.utils.MethodBuilder;
 import org.multiverse.multiversionedstm.*;
 import org.objectweb.asm.Type;
@@ -74,18 +74,20 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
         addLastMaterializedField();
         createAdditionalLazyReferenceFields();
         transformConstructors();
-        addMethod(new RematerializeConstructorBuilder());
-        addMethod(new WalkMaterializedMembersMethodBuilder());
-        addMethod(new SetNextInChainMethodBuilder());
-        addMethod(new GetNextInChainMethodBuilder());
-        addMethod(new DematerializeMethodBuilder());
-        addMethod(new IsDirtyMethodBuilder());
-        addMethod(new GetHandleMethodBuilder());
+        addMethod(buildRematerializeConstructor());
+        addMethod(buildWalkMaterializedMembersMethod());
+        addMethod(buildSetNextInChainMethod());
+        addMethod(buildGetNextInChainMethod());
+        addMethod(buildDematerializedMethod());
+        addMethod(buildIsDirtyMethod());
+        addMethod(buildGetHandleMethod());
         addDematerializedInnerClass();
     }
 
     private void addLastMaterializedField() {
-        FieldNode field = addPublicSyntheticField(VARNAME_LASTMATERIALIZED, internalFormToDescriptor(dematerializedClassNode.name));
+        FieldNode field = addPublicSyntheticField(
+                VARNAME_LASTMATERIALIZED,
+                internalFormToDescriptor(dematerializedClassNode.name));
         exclude(field);
     }
 
@@ -122,7 +124,7 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
         }
     }
 
-    private void removeAccess(FieldNode field, int removed) {
+    public static void removeAccess(FieldNode field, int removed) {
         int access = field.access;
         field.access = (access & removed) != 0 ? access - removed : access;
     }
@@ -130,13 +132,19 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
     private void transformConstructors() {
         for (MethodNode methodNode : (List<MethodNode>) materializedClassNode.methods) {
             if (methodNode.name.equals("<init>")) {
+                //    if (!doesSelfCall(methodNode)) {
                 transformConstructor(methodNode);
+                //    }
             }
         }
     }
 
+    private boolean doesSelfCall(MethodNode methodNode) {
+        return false;
+    }
+
     private void transformConstructor(MethodNode methodNode) {
-        InstructionsBuilder codeBuilder = new InstructionsBuilder();
+        InsnNodeListBuilder codeBuilder = new InsnNodeListBuilder();
         //[..]
         codeBuilder.ALOAD(0);
         //[.., this]
@@ -177,220 +185,224 @@ public class TmEntityClassTransformer extends ClassNodeBuilder {
         classNode.innerClasses.add(node);
     }
 
-    private class RematerializeConstructorBuilder extends MethodBuilder {
-        RematerializeConstructorBuilder() {
-            methodNode.access = ACC_PUBLIC;
-            methodNode.name = "<init>";
-            methodNode.desc = format("(L%s;L%s;)V", dematerializedClassNode.name, Type.getInternalName(Transaction.class));
+    public MethodNode buildRematerializeConstructor() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.setAccess(ACC_PUBLIC);
+        builder.setName("<init>");
+        builder.setDescriptor(format("(L%s;L%s;)V", dematerializedClassNode.name, Type.getInternalName(Transaction.class)));
 
-            ALOAD(0);
-            INVOKESPECIAL(OBJECT_CONSTRUCTOR);
-            ALOAD(0);
-            ALOAD(1);
-            GETFIELD(dematerializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
-            PUTFIELD(materializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
-            ALOAD(0);
-            ALOAD(1);
-            PUTFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedClassNode);
+        builder.ALOAD(0);
+        builder.INVOKESPECIAL(OBJECT_CONSTRUCTOR);
+        builder.ALOAD(0);
+        builder.ALOAD(1);
+        builder.GETFIELD(dematerializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
+        builder.PUTFIELD(materializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
+        builder.ALOAD(0);
+        builder.ALOAD(1);
+        builder.PUTFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedClassNode);
 
-            for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isExcluded(field)) {
-                    if (isTmEntity(field.desc, classLoader)) {
-                        ALOAD(0);
-                        ALOAD(2);
-                        ALOAD(1);
-                        GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
+        for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
+            if (!isExcluded(field)) {
+                if (isTmEntity(field.desc, classLoader)) {
+                    builder.ALOAD(0);
+                    builder.ALOAD(2);
+                    builder.ALOAD(1);
+                    builder.GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
 
-                        if (isNonEscaping(field)) {
-                            INVOKEINTERFACE(READ_LAZY_AND_SELF_MANAGED_METHOD);
-                        } else {
-                            INVOKEINTERFACE(READ_LAZY_METHOD);
-                        }
-
-                        CHECKCAST(LazyReference.class);
-                        PUTFIELD(materializedClassNode, field.name + "$Ref", LazyReference.class);
+                    if (isNonEscaping(field)) {
+                        builder.INVOKEINTERFACE(READ_LAZY_AND_SELF_MANAGED_METHOD);
                     } else {
-                        ALOAD(0);
-                        ALOAD(1);
-                        GETFIELD(dematerializedClassNode, field.name, field.desc);
-                        PUTFIELD(materializedClassNode, field.name, field.desc);
+                        builder.INVOKEINTERFACE(READ_LAZY_METHOD);
                     }
+
+                    builder.CHECKCAST(LazyReference.class);
+                    builder.PUTFIELD(materializedClassNode, field.name + "$Ref", LazyReference.class);
+                } else {
+                    builder.ALOAD(0);
+                    builder.ALOAD(1);
+                    builder.GETFIELD(dematerializedClassNode, field.name, field.desc);
+                    builder.PUTFIELD(materializedClassNode, field.name, field.desc);
                 }
             }
-            RETURN();
         }
+        builder.RETURN();
+
+        return builder.createMethod();
     }
 
-    private class SetNextInChainMethodBuilder extends MethodBuilder {
-        SetNextInChainMethodBuilder() {
-            initWithInterfaceMethod(SET_NEXT_IN_CHAIN_METHOD);
+    private MethodNode buildSetNextInChainMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(SET_NEXT_IN_CHAIN_METHOD);
 
-            ALOAD(0);
-            ALOAD(1);
-            PUTFIELD(materializedClassNode, VARNAME_NEXTINCHAIN, MaterializedObject.class);
-            RETURN();
-        }
+        builder.ALOAD(0);
+        builder.ALOAD(1);
+        builder.PUTFIELD(materializedClassNode, VARNAME_NEXTINCHAIN, MaterializedObject.class);
+        builder.RETURN();
+
+        return builder.createMethod();
     }
 
-    private class GetNextInChainMethodBuilder extends MethodBuilder {
-        GetNextInChainMethodBuilder() {
-            initWithInterfaceMethod(GET_NEXT_IN_CHAIN_METHOD);
+    private MethodNode buildGetNextInChainMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(GET_NEXT_IN_CHAIN_METHOD);
 
-            ALOAD(0);
-            GETFIELD(materializedClassNode, VARNAME_NEXTINCHAIN, MaterializedObject.class);
-            ARETURN();
-        }
+        builder.ALOAD(0);
+        builder.GETFIELD(materializedClassNode, VARNAME_NEXTINCHAIN, MaterializedObject.class);
+        builder.ARETURN();
+
+        return builder.createMethod();
     }
 
-    private class DematerializeMethodBuilder extends MethodBuilder {
-        DematerializeMethodBuilder() {
-            initWithInterfaceMethod(DEMATERIALIZE_METHOD);
+    private MethodNode buildDematerializedMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(DEMATERIALIZE_METHOD);
 
-            ALOAD(0);
-            NEW(dematerializedClassNode);
-            DUP();
-            ALOAD(0);
-            ACONST_NULL();
-            INVOKESPECIAL(dematerializedClassNode, "<init>", format("(L%s;L%s;)V", materializedClassNode.name, Type.getInternalName(Transaction.class)));
-            DUP_X1();
-            PUTFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedClassNode);
-            ARETURN();
-        }
+        builder.ALOAD(0);
+        builder.NEW(dematerializedClassNode);
+        builder.DUP();
+        builder.ALOAD(0);
+        builder.ACONST_NULL();
+        builder.INVOKESPECIAL(dematerializedClassNode, "<init>", format("(L%s;L%s;)V", materializedClassNode.name, Type.getInternalName(Transaction.class)));
+        builder.DUP_X1();
+        builder.PUTFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedClassNode);
+        builder.ARETURN();
+
+        return builder.createMethod();
     }
 
-    private class GetHandleMethodBuilder extends MethodBuilder {
+    private MethodNode buildGetHandleMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(GET_HANDLE_METHOD);
 
-        GetHandleMethodBuilder() {
-            initWithInterfaceMethod(GET_HANDLE_METHOD);
+        builder.ALOAD(0);
+        builder.GETFIELD(materializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
+        builder.ARETURN();
 
-            ALOAD(0);
-            GETFIELD(materializedClassNode, VARNAME_HANDLE, MultiversionedHandle.class);
-            ARETURN();
-        }
+        return builder.createMethod();
     }
 
-    private class IsDirtyMethodBuilder extends MethodBuilder {
 
-        IsDirtyMethodBuilder() {
-            initWithInterfaceMethod(IS_DIRTY_METHOD);
+    private MethodNode buildWalkMaterializedMembersMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(WALK_MATERIALIZED_MEMBERS_METHOD);
 
-            String dematerializedDesc = internalFormToDescriptor(dematerializedClassNode.name);
-
-            //adds the code for the check if the materializedClassNode has been set.
-            //if this is not set, the object is dirty by default.
-            ALOAD(0);
-            GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
-            LabelNode nonNullLastMaterialized = new LabelNode();
-            IFNONNULL(nonNullLastMaterialized);
-            ICONST_TRUE();
-            IRETURN();
-
-            placeLabelNode(nonNullLastMaterialized);
-
-            for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isExcluded(field)) {
-                    Type type = Type.getType(field.desc);
-                    LabelNode equalsLabel = new LabelNode();
-
-                    if (isTmEntity(type.getDescriptor(), classLoader)) {
-
-                        //load the value of the dematerialized object field on the stack.
-                        ALOAD(0);
-                        GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
-                        GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
-                        //[..., dematerialized-handle]
-
-                        //load the value of the materialized object field on the stack.
-                        ALOAD(0);
-                        GETFIELD(materializedClassNode, field.name + "$Ref", LazyReference.class);
-                        ALOAD(0);
-                        GETFIELD(materializedClassNode, field.name, type);
-                        //[..., dematerialized-handle, field-ref, field]
-
-                        Method getHandleMethod = getMethod(
-                                MultiversionedStmUtils.class,
-                                "getHandle",
-                                LazyReference.class, Object.class
-                        );
-                        INVOKESTATIC(getHandleMethod);
-                        //[... dematerialized-handle, handle]
-                        //do a comparison on those fields.. if they are the same, continue to the
-                        //next field. If they are not the same, the function can exit with a true.
-                        IF_ACMPEQ(equalsLabel);
-                        //[..]
-                        ICONST_TRUE();
-                        IRETURN();
-                    } else {
-                        ALOAD(0);
-                        GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
-                        GETFIELD(dematerializedClassNode, field);
-
-                        ALOAD(0);
-                        GETFIELD(materializedClassNode, field);
-
-                        switch (type.getSort()) {
-                            case Type.OBJECT:
-                                IF_ACMPEQ(equalsLabel);
-                                break;
-                            case Type.BOOLEAN:
-                            case Type.BYTE:
-                            case Type.CHAR:
-                            case Type.SHORT:
-                            case Type.INT:
-                                IF_ICMPEQ(equalsLabel);
-                                break;
-                            case Type.FLOAT:
-                                FCMPL();
-                                IFEQ(equalsLabel);
-                                break;
-                            case Type.LONG:
-                                LCMP();
-                                IFEQ(equalsLabel);
-                                break;
-                            case Type.DOUBLE:
-                                DCMPL();
-                                IFEQ(equalsLabel);
-                                break;
-                            default:
-                                throw new RuntimeException("Unhandeled type: " + type);
-                        }
-
-                        ICONST_TRUE();
-                        IRETURN();
-                    }
-                    placeLabelNode(equalsLabel);
+        LabelNode next = new LabelNode();
+        for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
+            if (!isExcluded(field)) {
+                if (isTmEntity(field.desc, classLoader)) {
+                    builder.ALOAD(0);
+                    builder.GETFIELD(materializedClassNode, field);
+                    builder.IFNULL(next);
+                    builder.ALOAD(1);
+                    builder.ALOAD(0);
+                    builder.GETFIELD(materializedClassNode, field);
+                    builder.CHECKCAST(MaterializedObject.class);
+                    builder.INVOKEINTERFACE(ON_MEMBER_METHOD);
+                    builder.add(next);
+                    next = new LabelNode();
                 }
             }
-
-            ICONST_FALSE();
-            IRETURN();
         }
+        builder.RETURN();
+
+        return builder.createMethod();
     }
 
-    private class WalkMaterializedMembersMethodBuilder extends MethodBuilder {
+    private MethodNode buildIsDirtyMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(IS_DIRTY_METHOD);
 
-        WalkMaterializedMembersMethodBuilder() {
-            initWithInterfaceMethod(WALK_MATERIALIZED_MEMBERS_METHOD);
+        String dematerializedDesc = internalFormToDescriptor(dematerializedClassNode.name);
 
-            LabelNode next = new LabelNode();
-            for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
-                if (!isExcluded(field)) {
-                    if (isTmEntity(field.desc, classLoader)) {
-                        ALOAD(0);
-                        GETFIELD(materializedClassNode, field);
-                        IFNULL(next);
-                        ALOAD(1);
-                        ALOAD(0);
-                        GETFIELD(materializedClassNode, field);
-                        CHECKCAST(MaterializedObject.class);
-                        INVOKEINTERFACE(ON_MEMBER_METHOD);
-                        placeLabelNode(next);
-                        next = new LabelNode();
+        //adds the code for the check if the materializedClassNode has been set.
+        //if this is not set, the object is dirty by default.
+        builder.ALOAD(0);
+        builder.GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
+        LabelNode nonNullLastMaterialized = new LabelNode();
+        builder.IFNONNULL(nonNullLastMaterialized);
+        builder.ICONST_TRUE();
+        builder.IRETURN();
+
+        builder.add(nonNullLastMaterialized);
+
+        for (FieldNode field : (List<FieldNode>) materializedClassNode.fields) {
+            if (!isExcluded(field)) {
+                Type type = Type.getType(field.desc);
+                LabelNode equalsLabel = new LabelNode();
+
+                if (isTmEntity(type.getDescriptor(), classLoader)) {
+
+                    //load the value of the dematerialized object field on the stack.
+                    builder.ALOAD(0);
+                    builder.GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
+                    builder.GETFIELD(dematerializedClassNode, field.name, MultiversionedHandle.class);
+                    //[..., dematerialized-handle]
+
+                    //load the value of the materialized object field on the stack.
+                    builder.ALOAD(0);
+                    builder.GETFIELD(materializedClassNode, field.name + "$Ref", LazyReference.class);
+                    builder.ALOAD(0);
+                    builder.GETFIELD(materializedClassNode, field.name, type);
+                    //[..., dematerialized-handle, field-ref, field]
+
+                    Method getHandleMethod = getMethod(
+                            MultiversionedStmUtils.class,
+                            "getHandle",
+                            LazyReference.class, Object.class
+                    );
+                    builder.INVOKESTATIC(getHandleMethod);
+                    //[... dematerialized-handle, handle]
+                    //do a comparison on those fields.. if they are the same, continue to the
+                    //next field. If they are not the same, the function can exit with a true.
+                    builder.IF_ACMPEQ(equalsLabel);
+                    //[..]
+                    builder.ICONST_TRUE();
+                    builder.IRETURN();
+                } else {
+                    builder.ALOAD(0);
+                    builder.GETFIELD(materializedClassNode, VARNAME_LASTMATERIALIZED, dematerializedDesc);
+                    builder.GETFIELD(dematerializedClassNode, field);
+
+                    builder.ALOAD(0);
+                    builder.GETFIELD(materializedClassNode, field);
+
+                    switch (type.getSort()) {
+                        case Type.OBJECT:
+                            builder.IF_ACMPEQ(equalsLabel);
+                            break;
+                        case Type.BOOLEAN:
+                        case Type.BYTE:
+                        case Type.CHAR:
+                        case Type.SHORT:
+                        case Type.INT:
+                            builder.IF_ICMPEQ(equalsLabel);
+                            break;
+                        case Type.FLOAT:
+                            builder.FCMPL();
+                            builder.IFEQ(equalsLabel);
+                            break;
+                        case Type.LONG:
+                            builder.LCMP();
+                            builder.IFEQ(equalsLabel);
+                            break;
+                        case Type.DOUBLE:
+                            builder.DCMPL();
+                            builder.IFEQ(equalsLabel);
+                            break;
+                        default:
+                            throw new RuntimeException("Unhandled type: " + type);
                     }
-                }
-            }
 
-            RETURN();
+                    builder.ICONST_TRUE();
+                    builder.IRETURN();
+                }
+                builder.add(equalsLabel);
+            }
         }
+        builder.ICONST_FALSE();
+        builder.IRETURN();
+
+        return builder.createMethod();
     }
+
 }

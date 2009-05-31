@@ -1,4 +1,4 @@
-package org.multiverse.collections;
+package org.multiverse.tcollections;
 
 import static org.junit.Assert.*;
 import org.junit.Before;

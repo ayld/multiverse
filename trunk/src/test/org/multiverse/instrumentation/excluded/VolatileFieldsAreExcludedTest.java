@@ -1,4 +1,4 @@
-package org.multiverse.instrumentation.exclude;
+package org.multiverse.instrumentation.excluded;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

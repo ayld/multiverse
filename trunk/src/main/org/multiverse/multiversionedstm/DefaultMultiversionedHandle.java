@@ -36,7 +36,7 @@ public final class DefaultMultiversionedHandle<T> implements MultiversionedHandl
     }
 
     @Override
-    public void tryToAcquireLockForWritingAndDetectForConflicts(TransactionId lockOwner, long expectedVersion, RetryCounter retryCounter) {
+    public void tryAcquireWriteLockAndDetectForConflicts(TransactionId lockOwner, long expectedVersion, RetryCounter retryCounter) {
         assert lockOwner != null && retryCounter != null;
 
         do {
@@ -64,8 +64,8 @@ public final class DefaultMultiversionedHandle<T> implements MultiversionedHandl
     }
 
     @Override
-    public ListenerNode writeAndReleaseLock(TransactionId lockOwner, DematerializedObject dematerialized,
-                                            long dematerializedVersion) {
+    public ListenerNode writeAndReleaseWriteLock(TransactionId lockOwner, DematerializedObject dematerialized,
+                                                 long dematerializedVersion) {
         assert lockOwner != null;
 
         State currentState;

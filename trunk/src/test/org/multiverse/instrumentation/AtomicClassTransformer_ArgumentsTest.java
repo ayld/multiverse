@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.SharedStmInstance;
 import static org.multiverse.TestUtils.commit;
+import org.multiverse.api.GlobalStmInstance;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
@@ -16,14 +16,14 @@ import org.multiverse.api.annotations.Atomic;
  *
  * @author Peter Veentjer.
  */
-public class AtomicTransformer_ArgumentsTest {
+public class AtomicClassTransformer_ArgumentsTest {
     private static Handle<IntValue> handle;
     private static int originalValue;
 
     @Before
     public void setUp() {
         originalValue = 10000;
-        handle = commit(SharedStmInstance.getInstance(), new IntValue(originalValue));
+        handle = commit(GlobalStmInstance.getInstance(), new IntValue(originalValue));
     }
 
     public static void assertTransactionWorking() {

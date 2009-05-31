@@ -3,7 +3,6 @@ package org.multiverse.instrumentation.utils;
 import org.multiverse.api.annotations.Exclude;
 import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
-import org.multiverse.collections.LinkedList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -17,6 +16,7 @@ import static java.lang.String.format;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -104,6 +104,18 @@ public final class AsmUtils {
 
     public static String internalFormToDescriptor(String internalForm) {
         return format("L%s;", internalForm);
+    }
+
+    public static boolean isNative(MethodNode methodNode) {
+        return (methodNode.access & Opcodes.ACC_NATIVE) != 0;
+    }
+
+    public static boolean isAbstract(MethodNode methodNode) {
+        return (methodNode.access & Opcodes.ACC_ABSTRACT) != 0;
+    }
+
+    public static boolean isStatic(MethodNode methodNode) {
+        return (methodNode.access & Opcodes.ACC_STATIC) != 0;
     }
 
     public static boolean isSynthetic(FieldNode fieldNode) {

@@ -7,9 +7,9 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
-import static org.multiverse.instrumentation.AtomicTransformer_AccessModifierTest.assertTransactionWorking;
+import static org.multiverse.instrumentation.AtomicClassTransformer_AccessModifierTest.assertTransactionWorking;
 
-public class AtomicTransformer_AccessModifierTest {
+public class AtomicClassTransformer_AccessModifierTest {
     private static int originalValue;
     private static Handle<IntValue> handle;
 
