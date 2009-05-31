@@ -7,7 +7,6 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
-import static org.multiverse.instrumentation.AtomicClassTransformer_AccessModifierTest.assertTransactionWorking;
 
 public class AtomicClassTransformer_AccessModifierTest {
     private static int originalValue;
@@ -98,19 +97,5 @@ public class AtomicClassTransformer_AccessModifierTest {
             assertTransactionWorking();
         }
     }
-
-    //todo @Test
-    public void staticMethodFails() {
-        StaticMethod.doIt();
-    }
 }
-
-
-class StaticMethod {
-    @Atomic
-    public static void doIt() {
-        assertTransactionWorking();
-    }
-}
-
 

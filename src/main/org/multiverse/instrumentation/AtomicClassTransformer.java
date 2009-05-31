@@ -4,8 +4,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.api.TransactionTemplate.InvisibleCheckedException;
 import org.multiverse.api.annotations.Atomic;
-import static org.multiverse.instrumentation.utils.AsmUtils.getMethod;
-import static org.multiverse.instrumentation.utils.AsmUtils.hasVisibleAnnotation;
+import static org.multiverse.instrumentation.utils.AsmUtils.*;
 import org.multiverse.instrumentation.utils.ClassNodeBuilder;
 import org.multiverse.instrumentation.utils.InsnNodeListBuilder;
 import org.objectweb.asm.Opcodes;
@@ -42,7 +41,6 @@ public class AtomicClassTransformer implements Opcodes {
         List<MethodNode> originalMethods = new LinkedList<MethodNode>(classNode.methods);
 
         for (MethodNode originalMethod : originalMethods) {
-
             if (hasVisibleAnnotation(originalMethod, Atomic.class)) {
 
                 String methodFullname = classNode.name + "." + originalMethod.name + originalMethod.desc;
@@ -57,11 +55,6 @@ public class AtomicClassTransformer implements Opcodes {
                 //    break;
                 //}
 
-                //if (isStatic(originalMethod)) {
-                //    System.err.printf("Annotation on method %s is ignored because method is static\n",methodFullname);
-                //    break;
-                //}
-
                 MethodNode delegateMethod = createDelegateMethod(originalMethod);
                 ClassNode templateClass = addNewTemplateClass(originalMethod, delegateMethod);
                 transformOriginalMethod(originalMethod, templateClass);
@@ -70,7 +63,7 @@ public class AtomicClassTransformer implements Opcodes {
     }
 
     private ClassNode addNewTemplateClass(MethodNode method, MethodNode atomicMethod) {
-        TransactionTemplateClassNodeBuilder innerClassNodeBuilder = new TransactionTemplateClassNodeBuilder(method, atomicMethod);
+        TransactionTemplateBuilder innerClassNodeBuilder = new TransactionTemplateBuilder(method, atomicMethod);
         ClassNode transactionTemplateClassNode = innerClassNodeBuilder.create();
         registerInnerClass(transactionTemplateClassNode);
         return transactionTemplateClassNode;
@@ -78,7 +71,13 @@ public class AtomicClassTransformer implements Opcodes {
 
     private MethodNode createDelegateMethod(MethodNode originalMethod) {
         MethodNode delegateMethod = new MethodNode();
-        delegateMethod.access = ACC_PUBLIC + ACC_SYNTHETIC;
+
+        if (isStatic(originalMethod)) {
+            delegateMethod.access = ACC_PUBLIC + ACC_SYNTHETIC + ACC_STATIC;
+        } else {
+            delegateMethod.access = ACC_PUBLIC + ACC_SYNTHETIC;
+        }
+
         delegateMethod.desc = originalMethod.desc;
         delegateMethod.name = originalMethod.name + "$delegate";
         delegateMethod.tryCatchBlocks = originalMethod.tryCatchBlocks;
@@ -100,17 +99,20 @@ public class AtomicClassTransformer implements Opcodes {
         //[.., template]
         builder.DUP();
         //[.., template, template]
-        builder.ALOAD(0);
-        //[.., template, template, this]
+
+        if (!isStatic(originalMethod)) {
+            builder.ALOAD(0);
+            //[.., template, template, this]
+        }
 
         //place all the method arguments on the heap.
-        int loadIndex = 1;
+        int loadIndex = isStatic(originalMethod) ? 0 : 1;
         for (int k = 0; k < argTypes.length; k++) {
             Type argType = argTypes[k];
             builder.LOAD(argType, loadIndex);
             loadIndex += argType.getSize();
         }
-        //[.., template, template, this, arg1, arg2, arg3]
+        //[.., template, template, this?, arg1, arg2, arg3]
 
         String constructorDescriptor = getConstructorDescriptor(originalMethod);
         builder.INVOKESPECIAL(transactionTemplateClass, "<init>", constructorDescriptor);
@@ -202,12 +204,18 @@ public class AtomicClassTransformer implements Opcodes {
     }
 
     private String getConstructorDescriptor(MethodNode originalMethod) {
-        Type[] methodArgTypes = getArgumentTypes(originalMethod.desc);
-        Type[] constructorArgTypes = new Type[methodArgTypes.length + 1];
+        Type[] constructorArgTypes;
+        if (isStatic(originalMethod)) {
+            constructorArgTypes = getArgumentTypes(originalMethod.desc);
+        } else {
+            Type[] methodArgTypes = getArgumentTypes(originalMethod.desc);
+            constructorArgTypes = new Type[methodArgTypes.length + 1];
 
-        constructorArgTypes[0] = Type.getObjectType(classNode.name);
-        for (int k = 0; k < methodArgTypes.length; k++) {
-            constructorArgTypes[k + 1] = methodArgTypes[k];
+            constructorArgTypes[0] = Type.getObjectType(classNode.name);
+
+            for (int k = 0; k < methodArgTypes.length; k++) {
+                constructorArgTypes[k + 1] = methodArgTypes[k];
+            }
         }
 
         return getMethodDescriptor(Type.VOID_TYPE, constructorArgTypes);
@@ -217,11 +225,11 @@ public class AtomicClassTransformer implements Opcodes {
         innerClasses.add(transactionTemplateClassNode);
     }
 
-    public class TransactionTemplateClassNodeBuilder extends ClassNodeBuilder {
+    public class TransactionTemplateBuilder extends ClassNodeBuilder {
         private MethodNode originalMethod;
         private MethodNode delegateMethod;
 
-        TransactionTemplateClassNodeBuilder(MethodNode originalMethod, MethodNode delegateMethod) {
+        TransactionTemplateBuilder(MethodNode originalMethod, MethodNode delegateMethod) {
             this.delegateMethod = delegateMethod;
             this.originalMethod = originalMethod;
             this.classNode.version = V1_5;
@@ -230,7 +238,9 @@ public class AtomicClassTransformer implements Opcodes {
             setAccess(ACC_PUBLIC | ACC_FINAL);
             setSuperclass(TransactionTemplate.class);
 
-            addPublicFinalSyntheticField(CALLEE, AtomicClassTransformer.this.classNode);
+            if (!isStatic(originalMethod)) {
+                addPublicFinalSyntheticField(CALLEE, AtomicClassTransformer.this.classNode);
+            }
 
             Type[] argTypes = getArgumentTypes(originalMethod.desc);
             for (int k = 0; k < argTypes.length; k++) {
@@ -263,19 +273,20 @@ public class AtomicClassTransformer implements Opcodes {
             builder.INVOKESPECIAL(TransactionTemplate.class, "<init>", "()V");
             //[..]
 
-            //place the callee on the stack
-            builder.ALOAD(0);
-            //[.., this]
-            builder.ALOAD(1);
-            //[.., this, callee]
-            builder.PUTFIELD(classNode, CALLEE, AtomicClassTransformer.this.classNode);
-            //[..]
+            if (!isStatic(originalMethod)) {
+                //place the callee on the stack
+                builder.ALOAD(0);
+                //[.., this]
+                builder.ALOAD(1);
+                //[.., this, callee]
+                builder.PUTFIELD(classNode, CALLEE, AtomicClassTransformer.this.classNode);
+                //[..]
+            }
 
             //place the other arguments on the stack.
             Type[] argTypes = getArgumentTypes(originalMethod.desc);
-            //the first argument is this, the second argument is the 'callee'. So to get real arguments,
-            //we need to jump to the third argument (so the one with loadIndex = 2).
-            int loadIndex = 2;
+            //the first argument is template and if the method is non static, the callee was placed
+            int loadIndex = isStatic(originalMethod) ? 1 : 2;
             for (int k = 0; k < argTypes.length; k++) {
                 Type argType = argTypes[k];
 
@@ -309,19 +320,31 @@ public class AtomicClassTransformer implements Opcodes {
 
             InsnNodeListBuilder builder = new InsnNodeListBuilder();
 
-            //place the callee on the stack
-            builder.ALOAD(0);
-            builder.GETFIELD(classNode, CALLEE, AtomicClassTransformer.this.classNode);
+            if (isStatic(originalMethod)) {
+                loadArgumentsOnStack(builder);
 
-            Type[] argTypes = getArgumentTypes(originalMethod.desc);
-            //set up all the arguments for the call.
-            for (int k = 0; k < argTypes.length; k++) {
+                //[..,arg1, arg2, arg3]
+                builder.INVOKESTATIC(
+                        AtomicClassTransformer.this.classNode.name,
+                        delegateMethod.name,
+                        delegateMethod.desc
+                );
+                //[.., result]
+            } else {
+                //load the callee on the stack
                 builder.ALOAD(0);
-                builder.GETFIELD(classNode, "arg" + k, argTypes[k]);
-            }
+                builder.GETFIELD(classNode, CALLEE, AtomicClassTransformer.this.classNode);
 
-            //[.., callee, arg0, arg1, arg2]
-            builder.INVOKEVIRTUAL(AtomicClassTransformer.this.classNode.name, delegateMethod.name, delegateMethod.desc);
+                //load the rest of the arguments on the stack
+                loadArgumentsOnStack(builder);
+
+                //[.., callee, arg1, arg2, arg3]
+                builder.INVOKEVIRTUAL(
+                        AtomicClassTransformer.this.classNode.name,
+                        delegateMethod.name,
+                        delegateMethod.desc);
+                //[.., result]
+            }
 
             //prepare the result.
             switch (returnType.getSort()) {
@@ -357,6 +380,15 @@ public class AtomicClassTransformer implements Opcodes {
 
             executeMethod.instructions = builder.createInstructions();
             addMethod(executeMethod);
+        }
+
+        private void loadArgumentsOnStack(InsnNodeListBuilder builder) {
+            Type[] argTypes = getArgumentTypes(originalMethod.desc);
+
+            for (int k = 0; k < argTypes.length; k++) {
+                builder.ALOAD(0);
+                builder.GETFIELD(classNode, "arg" + k, argTypes[k]);
+            }
         }
     }
 
