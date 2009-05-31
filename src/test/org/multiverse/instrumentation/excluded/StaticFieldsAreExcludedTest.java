@@ -1,4 +1,4 @@
-package org.multiverse.instrumentation.exclude;
+package org.multiverse.instrumentation.excluded;
 
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;

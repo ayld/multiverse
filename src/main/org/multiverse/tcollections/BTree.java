@@ -1,4 +1,4 @@
-package org.multiverse.collections;
+package org.multiverse.tcollections;
 
 import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;

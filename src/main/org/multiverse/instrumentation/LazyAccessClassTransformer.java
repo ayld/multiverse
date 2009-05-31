@@ -4,7 +4,7 @@ import org.multiverse.api.LazyReference;
 import org.multiverse.instrumentation.utils.AsmUtils;
 import static org.multiverse.instrumentation.utils.AsmUtils.getMethod;
 import static org.multiverse.instrumentation.utils.AsmUtils.isTmEntity;
-import org.multiverse.instrumentation.utils.InstructionsBuilder;
+import org.multiverse.instrumentation.utils.InsnNodeListBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
@@ -20,14 +20,14 @@ import java.util.List;
  *
  * @author Peter Veentjer.
  */
-public class LazyAccessTransformer implements Opcodes {
+public class LazyAccessClassTransformer implements Opcodes {
 
     public final Method getMethod = getMethod(LazyReference.class, "get");
 
     private final ClassNode materializedClassNode;
     private final ClassLoader classLoader;
 
-    public LazyAccessTransformer(ClassNode materializedClassNode, ClassLoader classLoader) {
+    public LazyAccessClassTransformer(ClassNode materializedClassNode, ClassLoader classLoader) {
         this.materializedClassNode = materializedClassNode;
         this.classLoader = classLoader;
 
@@ -47,7 +47,7 @@ public class LazyAccessTransformer implements Opcodes {
 
             if (isPutOnStmEntityField(instruction)) {
                 FieldInsnNode putInstruction = (FieldInsnNode) instruction;
-                InstructionsBuilder b = new InstructionsBuilder();
+                InsnNodeListBuilder b = new InsnNodeListBuilder();
 
                 //[.., materialized, value]
                 b.DUP2();
@@ -62,7 +62,7 @@ public class LazyAccessTransformer implements Opcodes {
                 modifiedInstructions.insertBefore(putInstruction, b.createInstructions());
             } else if (isGetOnStmEntityField(instruction)) {
                 FieldInsnNode getInstruction = (FieldInsnNode) instruction;
-                InstructionsBuilder b = new InstructionsBuilder();
+                InsnNodeListBuilder b = new InsnNodeListBuilder();
 
                 //[.., materialized]
                 b.DUP();
@@ -90,7 +90,7 @@ public class LazyAccessTransformer implements Opcodes {
                 //[.., materialized, materialized, null]
                 b.PUTFIELD(getInstruction.owner, getInstruction.name + "$Ref", LazyReference.class);
                 //[.., materialized]*/
-                b.placeLabelNode(refIsNullLabel);
+                b.add(refIsNullLabel);
 
                 modifiedInstructions.insertBefore(getInstruction, b.createInstructions());
             }

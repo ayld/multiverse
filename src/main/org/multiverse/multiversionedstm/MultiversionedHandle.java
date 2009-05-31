@@ -23,7 +23,7 @@ public interface MultiversionedHandle<T> extends Handle<T> {
      * @throws org.multiverse.api.exceptions.StarvationException
      *          if the transaction was starved for acquiring the lock.
      */
-    void tryToAcquireLockForWritingAndDetectForConflicts(TransactionId committingTransactionId, long maximumVersion, RetryCounter retryCounter);
+    void tryAcquireWriteLockAndDetectForConflicts(TransactionId committingTransactionId, long maximumVersion, RetryCounter retryCounter);
 
     /**
      * Writes the stuff and releases the lock. A write only should be done when the lock for writing has
@@ -34,8 +34,8 @@ public interface MultiversionedHandle<T> extends Handle<T> {
      * @param dematerialized          the stuff to write.
      * @return the head ListenerNode ofthe listeners to notify, could be null.
      */
-    ListenerNode writeAndReleaseLock(TransactionId committingTransactionId, DematerializedObject dematerialized,
-                                     long dematerializedVersion);
+    ListenerNode writeAndReleaseWriteLock(TransactionId committingTransactionId, DematerializedObject dematerialized,
+                                          long dematerializedVersion);
 
     /**
      * Releases the lock for writing. If a transaction can't acquire all locks it needs for writing,

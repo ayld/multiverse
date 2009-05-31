@@ -10,6 +10,7 @@ import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
 public class Transaction_ReadTest {
+
     private MultiversionedStm stm;
 
     @Before
@@ -93,6 +94,7 @@ public class Transaction_ReadTest {
         assertMaterializedCount(stm, materializedCount);
     }
 
+    //=================== other transaction states ===============
 
     @Test
     public void readFailsIfTransactionAlreadyIsAborted() {

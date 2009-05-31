@@ -348,7 +348,7 @@ public final class MultiversionedStm implements Stm {
                     MaterializedObject obj = writeSet[k];
                     MultiversionedHandle handle = obj.getHandle();
 
-                    handle.tryToAcquireLockForWritingAndDetectForConflicts(transactionId, readVersion, retryCounter);
+                    handle.tryAcquireWriteLockAndDetectForConflicts(transactionId, readVersion, retryCounter);
                     count++;
                 }
             } catch (WriteConflictException e) {
@@ -368,7 +368,7 @@ public final class MultiversionedStm implements Stm {
 
             for (int k = 0; k < writeSet.length; k++) {
                 DematerializedObject dirtyObject = writeSet[k];
-                ListenerNode listenerHead = dirtyObject.getHandle().writeAndReleaseLock(
+                ListenerNode listenerHead = dirtyObject.getHandle().writeAndReleaseWriteLock(
                         transactionId,
                         dirtyObject,
                         writeVersion);
@@ -419,6 +419,7 @@ public final class MultiversionedStm implements Stm {
             }
 
             LazyReferenceImpl(S materializedObject) {
+                assert materializedObject != null;
                 this.ref = materializedObject;
                 this.handle = materializedObject.getHandle();
             }

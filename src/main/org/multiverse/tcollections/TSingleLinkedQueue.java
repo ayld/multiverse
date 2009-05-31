@@ -1,4 +1,4 @@
-package org.multiverse.collections;
+package org.multiverse.tcollections;
 
 import org.multiverse.api.StmUtils;
 import org.multiverse.api.annotations.NonEscaping;
@@ -9,33 +9,41 @@ import static java.util.Collections.reverse;
 import java.util.List;
 
 @TmEntity
-public final class Queue<E> {
+public final class TSingleLinkedQueue<E> implements TQueue<E> {
 
     @NonEscaping
-    private final Stack<E> readyToPopStack;
+    private final TSingleLinkedStack<E> readyToPopStack;
     @NonEscaping
-    private final Stack<E> pushedStack;
+    private final TSingleLinkedStack<E> pushedStack;
     private final int maxCapacity;
 
-    public Queue() {
+    public TSingleLinkedQueue() {
         this(Integer.MAX_VALUE);
     }
 
-    public Queue(int maximumCapacity) {
+    public TSingleLinkedQueue(int maximumCapacity) {
         if (maximumCapacity < 1) {
             throw new IllegalArgumentException();
         }
         this.maxCapacity = maximumCapacity;
 
         //moved into the constructor.
-        this.readyToPopStack = new Stack<E>();
-        this.pushedStack = new Stack<E>();
+        this.readyToPopStack = new TSingleLinkedStack<E>();
+        this.pushedStack = new TSingleLinkedStack<E>();
     }
 
+
+    public void clear() {
+        readyToPopStack.clear();
+        pushedStack.clear();
+    }
+
+    @Override
     public int getMaxCapacity() {
         return maxCapacity;
     }
 
+    @Override
     public E tryPop() {
         E result = readyToPopStack.tryPop();
         if (result != null) {
@@ -46,6 +54,7 @@ public final class Queue<E> {
         return readyToPopStack.tryPop();
     }
 
+    @Override
     public E pop() {
         if (!readyToPopStack.isEmpty()) {
             return readyToPopStack.pop();
@@ -62,6 +71,7 @@ public final class Queue<E> {
         }
     }
 
+    @Override
     public void push(E value) {
         if (size() == maxCapacity) {
             StmUtils.retry();
@@ -70,14 +80,17 @@ public final class Queue<E> {
         pushedStack.push(value);
     }
 
+    @Override
     public boolean isEmpty() {
         return readyToPopStack.isEmpty() && pushedStack.isEmpty();
     }
 
+    @Override
     public int size() {
         return readyToPopStack.size() + pushedStack.size();
     }
 
+    @Override
     public List<E> asList() {
         List<E> result = pushedStack.asList();
         List<E> popped = readyToPopStack.asList();
@@ -106,11 +119,11 @@ public final class Queue<E> {
             return true;
         }
 
-        if (!(thatObj instanceof Queue)) {
+        if (!(thatObj instanceof TSingleLinkedQueue)) {
             return false;
         }
 
-        Queue<E> that = (Queue<E>) thatObj;
+        TQueue<E> that = (TQueue<E>) thatObj;
         if (that.size() != this.size())
             return false;
 

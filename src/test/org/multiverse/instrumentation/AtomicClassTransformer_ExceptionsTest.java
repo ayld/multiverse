@@ -7,7 +7,7 @@ import org.multiverse.api.annotations.Atomic;
 
 import java.io.FileNotFoundException;
 
-public class AtomicTransformer_ExceptionsTest {
+public class AtomicClassTransformer_ExceptionsTest {
 
     //@Test
     public void checkedExceptionIsPropagated() {
@@ -51,7 +51,7 @@ public class AtomicTransformer_ExceptionsTest {
             assertSame(ex, found);
         }
 
-        //todo: inhoudelijke controles over aantal transacties etc.
+        //todo: inhoudelijke controles over aantal transacties etc. 
     }
 
     public static class RuntimeExceptionIsPropagated {

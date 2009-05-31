@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
-import static org.multiverse.TestUtils.commit;
+import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.StmUtils.retry;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
@@ -12,8 +12,9 @@ import org.multiverse.api.annotations.Atomic;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MaterializedObject;
 
+
 public class SleepingBarberTest {
-    private int cutsCount = 100000000;
+    private int cutsCount = 10000;
 
     private Handle<BarberShop> barberShopHandle;
 
@@ -34,13 +35,25 @@ public class SleepingBarberTest {
     @Test
     public void test() {
         BarberThread barberThread = new BarberThread();
+        CustomerSpawnThread spawnThread = new CustomerSpawnThread();
 
-        //startAll(barberThread);
-        //joinAll(barberThread);
+        startAll(barberThread, spawnThread);
+        joinAll(barberThread, spawnThread);
     }
 
     class CustomerSpawnThread extends TestThread {
+        CustomerSpawnThread() {
+            super("CustomerSpawnThread");
+        }
 
+        @Override
+        public void run() {
+            while (cutsCount > 0) {
+                sleepRandomMs(5);
+                new CustomerThread(cutsCount).start();
+                cutsCount--;
+            }
+        }
     }
 
     class CustomerThread extends TestThread {
@@ -55,7 +68,11 @@ public class SleepingBarberTest {
             createCustomer();
 
             if (tryEnterBarberShop()) {
+                //    System.out.println("Customer entered the barber");
                 waitForCompletion();
+                //    System.out.println("Customer was cut");
+            } else {
+                //    System.out.println("Customer failed to enter the barber");
             }
         }
 
@@ -88,7 +105,9 @@ public class SleepingBarberTest {
         public void run() {
             for (int k = 0; k < cutsCount; k++) {
                 Handle<Customer> customerHandle = takeCustomer();
+                //    System.out.println("Customer taken");
                 cutCustomer(customerHandle);
+                //    System.out.println("Customer cut");
             }
         }
 
@@ -103,17 +122,18 @@ public class SleepingBarberTest {
         public void cutCustomer(Handle<Customer> customerHandle) {
             BarberShop barberShop = getTransaction().read(barberShopHandle);
             Customer customer = getTransaction().read(customerHandle);
+
             barberShop.cut(customer);
+            sleepRandomMs(2);
         }
     }
 
     @TmEntity
-    static class BarberShop {
+    public static class BarberShop {
         private Chair chair1;
         private Chair chair2;
         private Chair chair3;
 
-        @Atomic
         public void cut(Customer customer) {
             customer.cut();
         }

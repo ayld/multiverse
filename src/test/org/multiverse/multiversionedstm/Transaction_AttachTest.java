@@ -32,26 +32,6 @@ public class Transaction_AttachTest {
     }
 
     @Test
-    public void attachOfReadObject() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
-
-        Transaction t = stm.startTransaction();
-        ExampleIntegerValue foundValue = t.read(handle);
-        Handle<ExampleIntegerValue> foundHandle = t.attach(foundValue);
-        assertSame(handle, foundHandle);
-    }
-
-    @Test
-    public void attachAlreadyAttachedObjectReturnsTheSameHandle() {
-        ExampleIntegerValue value = new ExampleIntegerValue(1);
-
-        Transaction t = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle1 = t.attach(value);
-        Handle<ExampleIntegerValue> handle2 = t.attach(value);
-        assertSame(handle1, handle2);
-    }
-
-    @Test
     public void attachFailsIfObjectIsNotInstanceOfMaterializedObject() {
         Transaction t = stm.startTransaction();
 
@@ -63,6 +43,47 @@ public class Transaction_AttachTest {
 
         assertIsActive(t);
     }
+
+    @Test
+    public void attachOfFreshEntity() {
+        ExampleIntegerValue value = new ExampleIntegerValue(1);
+
+        Transaction t = stm.startTransaction();
+        Handle<ExampleIntegerValue> handle = t.attach(value);
+        assertHasHandle(value, handle);
+    }
+
+    @Test
+    public void attachOfPreviouslyReadEntity() {
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+
+        Transaction t = stm.startTransaction();
+        ExampleIntegerValue found = t.read(handle);
+        Handle<ExampleIntegerValue> foundHandle = t.attach(found);
+        assertSame(handle, foundHandle);
+    }
+
+    @Test
+    public void multipleAttachOfFreshEntity() {
+        ExampleIntegerValue value = new ExampleIntegerValue(1);
+
+        Transaction t = stm.startTransaction();
+        Handle<ExampleIntegerValue> handle1 = t.attach(value);
+        Handle<ExampleIntegerValue> handle2 = t.attach(value);
+        assertSame(handle1, handle2);
+    }
+
+    @Test
+    public void multipleAttachOfPreviouslyReadEntity() {
+        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+
+        Transaction t = stm.startTransaction();
+        ExampleIntegerValue foundValue = t.read(handle);
+        Handle<ExampleIntegerValue> handle1 = t.attach(foundValue);
+        Handle<ExampleIntegerValue> handle2 = t.attach(foundValue);
+        assertSame(handle1, handle2);
+    }
+
 
     // =============== other states ==============
 

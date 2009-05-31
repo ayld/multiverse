@@ -1,4 +1,4 @@
-package org.multiverse.collections;
+package org.multiverse.tcollections;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.TmEntity;

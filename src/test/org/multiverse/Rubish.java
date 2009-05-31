@@ -1,26 +1,27 @@
 package org.multiverse;
 
-import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.TransactionTemplate;
+import org.multiverse.api.TransactionTemplate.InvisibleCheckedException;
 import org.multiverse.instrumentation.utils.AsmUtils;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.IOException;
 
-public class Rubish extends TransactionTemplate {
+public class Rubish {
 
-    public Rubish(Stm stm) {
-        super(stm);
+    public Rubish() {
+        this(1);
     }
 
-    @Override
-    protected Object execute(Transaction t) throws Exception {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public Rubish(int i) {
+
     }
 
-    public static void foo(Object item) {
-        System.out.println(item.getClass());
+    public static void foobar(Object item) throws Exception {
+        try {
+            throw new InvisibleCheckedException(new Exception());
+        } catch (InvisibleCheckedException ex) {
+            throw ex.getCause();
+        }
     }
 
     public boolean equalsObject(Object l1, Object l2) {

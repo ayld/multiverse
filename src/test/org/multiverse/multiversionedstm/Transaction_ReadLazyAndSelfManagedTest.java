@@ -10,7 +10,7 @@ import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
 
-public class Transaction_ReadLazyAndUnmanagedTest {
+public class Transaction_ReadLazyAndSelfManagedTest {
     private MultiversionedStm stm;
 
     @Before

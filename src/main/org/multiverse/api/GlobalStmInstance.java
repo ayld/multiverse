@@ -1,12 +1,11 @@
-package org.multiverse;
+package org.multiverse.api;
 
-import org.multiverse.api.Stm;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
 /**
  * @author Peter Veentjer.
  */
-public final class SharedStmInstance {
+public final class GlobalStmInstance {
 
     private static volatile Stm instance = new MultiversionedStm();
 
@@ -14,11 +13,14 @@ public final class SharedStmInstance {
         return instance;
     }
 
-    public static void setInstance(Stm instance) {
-        SharedStmInstance.instance = instance;
+    public static void setInstance(Stm newInstance) {
+        if (newInstance == null) {
+            throw new NullPointerException();
+        }
+        instance = newInstance;
     }
 
     //we don't want instances
-    private SharedStmInstance() {
+    private GlobalStmInstance() {
     }
 }

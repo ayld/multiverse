@@ -5,7 +5,7 @@ import org.objectweb.asm.tree.ClassNode;
 
 public class MultiverseClassLoader extends TestLoader {
 
-    public static MultiverseClassLoader INSTANCE = new MultiverseClassLoader();
+    public static final MultiverseClassLoader INSTANCE = new MultiverseClassLoader();
 
     public MultiverseClassLoader() {
         super(MultiverseClassLoader.class.getClassLoader());

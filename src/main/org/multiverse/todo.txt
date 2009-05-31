@@ -12,12 +12,8 @@ TODO
 
 - atomic: check what happens when an abortexception is thrown
 
-- atomic: which object is used to execute the xxx$atomic method on
-
 - atomic: conflicts with name of class & class delegate.
     - the delegate classes should be an internal class.
-
-- atomic: checked exceptions testen
 
 - track number of starvation problems: transaction
 

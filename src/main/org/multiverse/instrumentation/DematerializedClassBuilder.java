@@ -13,6 +13,7 @@ import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import static java.lang.String.format;
 import java.lang.reflect.Constructor;
@@ -26,7 +27,6 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
             MultiversionedStmUtils.class, "getHandle", LazyReference.class, Object.class);
 
     public final static Constructor objectConstructor = AsmUtils.getConstructor(Object.class);
-
 
     private static final String VARNAME_HANDLE = "$handle";
 
@@ -47,9 +47,9 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
         setAccess(ACC_PUBLIC | ACC_FINAL);
         addInterface(DematerializedObject.class);
         addFields();
-        addMethod(new ConstructorBuilder());
-        addMethod(new GetHandleMethodBuilder());
-        addMethod(new RematerializeMethodBuilder());
+        addMethod(buildConstructor());
+        addMethod(buildGetHandleMethod());
+        addMethod(buildRematerializeMethod());
     }
 
     private void addFields() {
@@ -67,63 +67,62 @@ public class DematerializedClassBuilder extends ClassNodeBuilder {
         }
     }
 
-    private class ConstructorBuilder extends MethodBuilder {
+    private MethodNode buildConstructor() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.setName("<init>");
+        builder.setDescriptor(format("(L%s;L%s;)V", materializedClass.name, getInternalName(Transaction.class)));
 
-        private ConstructorBuilder() {
-            setName("<init>");
-            setDescriptor(format("(L%s;L%s;)V", materializedClass.name, getInternalName(Transaction.class)));
+        builder.ALOAD(0);
+        builder.INVOKESPECIAL(objectConstructor);
+        builder.ALOAD(0);
+        builder.ALOAD(1);
+        builder.GETFIELD(materializedClass, VARNAME_HANDLE, MultiversionedHandle.class);
+        builder.PUTFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
 
-            ALOAD(0);
-            INVOKESPECIAL(objectConstructor);
-            ALOAD(0);
-            ALOAD(1);
-            GETFIELD(materializedClass, VARNAME_HANDLE, MultiversionedHandle.class);
-            PUTFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
-
-            for (FieldNode field : (List<FieldNode>) materializedClass.fields) {
-                if (!isExcluded(field)) {
-                    if (isTmEntity(field.desc, classLoader)) {
-                        ALOAD(0);
-                        ALOAD(1);
-                        GETFIELD(materializedClass, field.name + "$Ref", LazyReference.class);
-                        ALOAD(1);
-                        GETFIELD(materializedClass, field);
-                        INVOKESTATIC(getHandleMethod);
-                        PUTFIELD(getClassInternalName(), field.name, MultiversionedHandle.class);
-                    } else {
-                        ALOAD(0);
-                        ALOAD(1);
-                        GETFIELD(materializedClass, field);
-                        PUTFIELD(getClassInternalName(), field.name, field.desc);
-                    }
+        for (FieldNode field : (List<FieldNode>) materializedClass.fields) {
+            if (!isExcluded(field)) {
+                if (isTmEntity(field.desc, classLoader)) {
+                    builder.ALOAD(0);
+                    builder.ALOAD(1);
+                    builder.GETFIELD(materializedClass, field.name + "$Ref", LazyReference.class);
+                    builder.ALOAD(1);
+                    builder.GETFIELD(materializedClass, field);
+                    builder.INVOKESTATIC(getHandleMethod);
+                    builder.PUTFIELD(getClassInternalName(), field.name, MultiversionedHandle.class);
+                } else {
+                    builder.ALOAD(0);
+                    builder.ALOAD(1);
+                    builder.GETFIELD(materializedClass, field);
+                    builder.PUTFIELD(getClassInternalName(), field.name, field.desc);
                 }
             }
-            RETURN();
         }
+        builder.RETURN();
+        return builder.createMethod();
     }
 
-    private class GetHandleMethodBuilder extends MethodBuilder {
-        private GetHandleMethodBuilder() {
-            initWithInterfaceMethod(getMethod(DematerializedObject.class, "getHandle"));
+    private MethodNode buildGetHandleMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(getMethod(DematerializedObject.class, "getHandle"));
 
-            ALOAD(0);
-            GETFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
-            ARETURN();
-        }
+        builder.ALOAD(0);
+        builder.GETFIELD(getClassInternalName(), VARNAME_HANDLE, MultiversionedHandle.class);
+        builder.ARETURN();
+
+        return builder.createMethod();
     }
 
-    private class RematerializeMethodBuilder extends MethodBuilder {
+    private MethodNode buildRematerializeMethod() {
+        MethodBuilder builder = new MethodBuilder();
+        builder.initWithInterfaceMethod(getMethod(DematerializedObject.class, "rematerialize", Transaction.class));
 
-        private RematerializeMethodBuilder() {
-            initWithInterfaceMethod(getMethod(DematerializedObject.class, "rematerialize", Transaction.class));
-
-            NEW(materializedClass);
-            DUP();
-            ALOAD(0);
-            ALOAD(1);
-            String constructorDescriptor = format("(L%s;%s)V", getClassInternalName(), getDescriptor(Transaction.class));
-            INVOKESPECIAL(materializedClass, "<init>", constructorDescriptor);
-            ARETURN();
-        }
+        builder.NEW(materializedClass);
+        builder.DUP();
+        builder.ALOAD(0);
+        builder.ALOAD(1);
+        String constructorDescriptor = format("(L%s;%s)V", getClassInternalName(), getDescriptor(Transaction.class));
+        builder.INVOKESPECIAL(materializedClass, "<init>", constructorDescriptor);
+        builder.ARETURN();
+        return builder.createMethod();
     }
 }

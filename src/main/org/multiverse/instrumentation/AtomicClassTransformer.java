@@ -2,39 +2,69 @@ package org.multiverse.instrumentation;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
+import org.multiverse.api.TransactionTemplate.InvisibleCheckedException;
 import org.multiverse.api.annotations.Atomic;
 import static org.multiverse.instrumentation.utils.AsmUtils.getMethod;
 import static org.multiverse.instrumentation.utils.AsmUtils.hasVisibleAnnotation;
 import org.multiverse.instrumentation.utils.ClassNodeBuilder;
-import org.multiverse.instrumentation.utils.InstructionsBuilder;
+import org.multiverse.instrumentation.utils.InsnNodeListBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TryCatchBlockNode;
 
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Responsible for transforming all classes with @atomic methods so that the logic is added.
+ * Responsible for transforming all classes with @atomic methods so that the transaction logic is added.
+ * The actual logic is executed by the {@link TransactionTemplate}.  The instructions of the original
+ * method are placed to the delegate method.
  */
-public class AtomicTransformer implements Opcodes {
+public class AtomicClassTransformer implements Opcodes {
+
+    private static final String CALLEE = "callee";
+
+    private static final Method GET_CAUSE_METHOD = getMethod(
+            InvisibleCheckedException.class, "getCause");
 
     private final ClassNode classNode;
-    private final ClassLoader classLoader;
     private final List<ClassNode> innerClasses = new LinkedList<ClassNode>();
 
-    public AtomicTransformer(ClassNode classNode, ClassLoader classLoader) {
+    public AtomicClassTransformer(ClassNode classNode) {
         this.classNode = classNode;
-        this.classLoader = classLoader;
 
+        //a copy of the list is made, because new methods are added.
         List<MethodNode> originalMethods = new LinkedList<MethodNode>(classNode.methods);
-        for (MethodNode method : originalMethods) {
-            if (hasVisibleAnnotation(method, Atomic.class)) {
-                MethodNode methodDelegate = addAtomicMethodDelegate(method);
-                ClassNode templateClass = addNewTemplateClass(method, methodDelegate);
-                transform(method, templateClass);
+
+        for (MethodNode originalMethod : originalMethods) {
+
+            if (hasVisibleAnnotation(originalMethod, Atomic.class)) {
+
+                String methodFullname = classNode.name + "." + originalMethod.name + originalMethod.desc;
+
+                //if (isAbstract(originalMethod)) {
+                //    System.err.printf("Annotation on method %s is ignored because method is abstract\n",methodFullname);
+                //    break;
+                //}
+
+                //if (isNative(originalMethod)) {
+                //    System.err.printf("Annotation on method %s is ignored because method is native\n",methodFullname);
+                //    break;
+                //}
+
+                //if (isStatic(originalMethod)) {
+                //    System.err.printf("Annotation on method %s is ignored because method is static\n",methodFullname);
+                //    break;
+                //}
+
+                MethodNode delegateMethod = createDelegateMethod(originalMethod);
+                ClassNode templateClass = addNewTemplateClass(originalMethod, delegateMethod);
+                transformOriginalMethod(originalMethod, templateClass);
             }
         }
     }
@@ -46,28 +76,27 @@ public class AtomicTransformer implements Opcodes {
         return transactionTemplateClassNode;
     }
 
-    private MethodNode addAtomicMethodDelegate(MethodNode method) {
+    private MethodNode createDelegateMethod(MethodNode originalMethod) {
         MethodNode delegateMethod = new MethodNode();
         delegateMethod.access = ACC_PUBLIC + ACC_SYNTHETIC;
-        delegateMethod.desc = method.desc;
-        delegateMethod.name = method.name + "$delegate";
-        delegateMethod.tryCatchBlocks = method.tryCatchBlocks;
-        delegateMethod.exceptions = method.exceptions;
-        delegateMethod.instructions = method.instructions;
-
+        delegateMethod.desc = originalMethod.desc;
+        delegateMethod.name = originalMethod.name + "$delegate";
+        delegateMethod.tryCatchBlocks = originalMethod.tryCatchBlocks;
+        delegateMethod.exceptions = originalMethod.exceptions;
+        delegateMethod.instructions = originalMethod.instructions;
         classNode.methods.add(delegateMethod);
         return delegateMethod;
     }
 
-    private void transform(MethodNode originalMethod, ClassNode transactionTemplateClassNode) {
-        InstructionsBuilder builder = new InstructionsBuilder();
+    private void transformOriginalMethod(MethodNode originalMethod, ClassNode transactionTemplateClass) {
+        InsnNodeListBuilder builder = new InsnNodeListBuilder();
 
         Type returnType = getReturnType(originalMethod.desc);
 
         Type[] argTypes = getArgumentTypes(originalMethod.desc);
 
         //[..]
-        builder.NEW(transactionTemplateClassNode);
+        builder.NEW(transactionTemplateClass);
         //[.., template]
         builder.DUP();
         //[.., template, template]
@@ -84,10 +113,10 @@ public class AtomicTransformer implements Opcodes {
         //[.., template, template, this, arg1, arg2, arg3]
 
         String constructorDescriptor = getConstructorDescriptor(originalMethod);
-        builder.INVOKESPECIAL(transactionTemplateClassNode, "<init>", constructorDescriptor);
+        builder.INVOKESPECIAL(transactionTemplateClass, "<init>", constructorDescriptor);
 
         //[.., template]
-        builder.INVOKEVIRTUAL(transactionTemplateClassNode.name, "execute", "()Ljava/lang/Object;");
+        builder.INVOKEVIRTUAL(transactionTemplateClass.name, "execute", "()Ljava/lang/Object;");
         //[.., result]
 
         switch (returnType.getSort()) {
@@ -125,6 +154,51 @@ public class AtomicTransformer implements Opcodes {
 
         builder.RETURN(returnType);
         originalMethod.instructions = builder.createInstructions();
+        //    addUnwrapExceptionHandlerIfNeeded(originalMethod);
+    }
+
+    public void addUnwrapExceptionHandlerIfNeeded(MethodNode method) {
+        LabelNode startTry = new LabelNode();
+        LabelNode endTry = new LabelNode();
+        LabelNode startHandler = new LabelNode();
+        //LabelNode endHandler = new LabelNode();
+
+        Class exceptionClass = InvisibleCheckedException.class;
+
+        //creation of the tryCatch
+        TryCatchBlockNode tryCatchLabelNode = new TryCatchBlockNode(
+                startTry,
+                endTry,
+                startHandler,
+                getInternalName(exceptionClass));
+
+        method.tryCatchBlocks.add(tryCatchLabelNode);
+
+        //creation of the exceptionvariable in the exception handler.
+        //LocalVariableNode exceptionVar = new LocalVariableNode(
+        //        "$exception",//name
+        //        getDescriptor(exceptionClass),// desc
+        //        null,//signature
+        //        startHandler,//start scope
+        //        endHandler,//end scope
+        //        0//index   todo
+        //);
+        //method.localVariables.add(exceptionVar);
+
+        InsnNodeListBuilder builder = new InsnNodeListBuilder();
+        builder.add(startTry);
+        builder.add(method.instructions);
+        builder.add(endTry);
+        builder.add(startHandler);
+        builder.ACONST_NULL();
+        builder.ARETURN();
+        //builder.ASTORE(1);
+        //builder.ALOAD(1);
+        //builder.INVOKEVIRTUAL(GET_CAUSE_METHOD);
+        //builder.ATHROW();
+        //builder.add(endHandler);
+
+        method.instructions = builder.createInstructions();
     }
 
     private String getConstructorDescriptor(MethodNode originalMethod) {
@@ -156,7 +230,7 @@ public class AtomicTransformer implements Opcodes {
             setAccess(ACC_PUBLIC | ACC_FINAL);
             setSuperclass(TransactionTemplate.class);
 
-            addPublicFinalSyntheticField("owner", AtomicTransformer.this.classNode);
+            addPublicFinalSyntheticField(CALLEE, AtomicClassTransformer.this.classNode);
 
             Type[] argTypes = getArgumentTypes(originalMethod.desc);
             for (int k = 0; k < argTypes.length; k++) {
@@ -169,7 +243,7 @@ public class AtomicTransformer implements Opcodes {
         }
 
         private String generateClassname() {
-            return AtomicTransformer.this.classNode.name + "TransactionTemplate" + innerClasses.size();
+            return AtomicClassTransformer.this.classNode.name + "TransactionTemplate" + innerClasses.size();
         }
 
         void addConstructor() {
@@ -177,49 +251,48 @@ public class AtomicTransformer implements Opcodes {
 
             constructor.name = "<init>";
             constructor.desc = getConstructorDescriptor(originalMethod);
-            System.out.println("constructor.desc: " + constructor.desc);
             constructor.access = ACC_PUBLIC;
             constructor.exceptions = new LinkedList();
             constructor.tryCatchBlocks = new LinkedList();
 
-            InstructionsBuilder i = new InstructionsBuilder();
+            InsnNodeListBuilder builder = new InsnNodeListBuilder();
 
             //initialize super
-            i.ALOAD(0);
+            builder.ALOAD(0);
             //[.., this]
-            i.INVOKESPECIAL(TransactionTemplate.class, "<init>", "()V");
+            builder.INVOKESPECIAL(TransactionTemplate.class, "<init>", "()V");
             //[..]
 
-            //place the owner on the stack
-            i.ALOAD(0);
+            //place the callee on the stack
+            builder.ALOAD(0);
             //[.., this]
-            i.ALOAD(1);
-            //[.., this, owner]
-            i.PUTFIELD(classNode, "owner", AtomicTransformer.this.classNode);
+            builder.ALOAD(1);
+            //[.., this, callee]
+            builder.PUTFIELD(classNode, CALLEE, AtomicClassTransformer.this.classNode);
             //[..]
 
             //place the other arguments on the stack.
             Type[] argTypes = getArgumentTypes(originalMethod.desc);
-            //the first argument is this, the second argument is the 'owner'. So to get real arguments,
+            //the first argument is this, the second argument is the 'callee'. So to get real arguments,
             //we need to jump to the third argument (so the one with loadIndex = 2).
             int loadIndex = 2;
             for (int k = 0; k < argTypes.length; k++) {
                 Type argType = argTypes[k];
 
-                i.ALOAD(0);
+                builder.ALOAD(0);
                 //[.., this]
-                i.LOAD(argType, loadIndex);
+                builder.LOAD(argType, loadIndex);
                 //[.., this, argk]
-                i.PUTFIELD(classNode, "arg" + k, argType);
+                builder.PUTFIELD(classNode, "arg" + k, argType);
                 //[..]
 
                 loadIndex += argType.getSize();
             }
 
             //we are done, lets return
-            i.RETURN();
+            builder.RETURN();
 
-            constructor.instructions = i.createInstructions();
+            constructor.instructions = builder.createInstructions();
 
             addMethod(constructor);
         }
@@ -232,53 +305,57 @@ public class AtomicTransformer implements Opcodes {
             executeMethod.exceptions = originalMethod.exceptions;
             executeMethod.tryCatchBlocks = new LinkedList();
 
-            Type returnType = Type.getReturnType(delegateMethod.desc);
+            Type returnType = getReturnType(delegateMethod.desc);
 
-            InstructionsBuilder i = new InstructionsBuilder();
-            i.ALOAD(0);
-            i.GETFIELD(classNode, "owner", AtomicTransformer.this.classNode);
+            InsnNodeListBuilder builder = new InsnNodeListBuilder();
+
+            //place the callee on the stack
+            builder.ALOAD(0);
+            builder.GETFIELD(classNode, CALLEE, AtomicClassTransformer.this.classNode);
 
             Type[] argTypes = getArgumentTypes(originalMethod.desc);
+            //set up all the arguments for the call.
             for (int k = 0; k < argTypes.length; k++) {
-                i.ALOAD(0);
-                i.GETFIELD(classNode, "arg" + k, argTypes[k]);
+                builder.ALOAD(0);
+                builder.GETFIELD(classNode, "arg" + k, argTypes[k]);
             }
 
-            //[.., owner, arg0, arg1, arg2]
-            i.INVOKEVIRTUAL(AtomicTransformer.this.classNode.name, delegateMethod.name, delegateMethod.desc);
+            //[.., callee, arg0, arg1, arg2]
+            builder.INVOKEVIRTUAL(AtomicClassTransformer.this.classNode.name, delegateMethod.name, delegateMethod.desc);
 
+            //prepare the result.
             switch (returnType.getSort()) {
                 case Type.BOOLEAN:
                 case Type.BYTE:
                 case Type.CHAR:
                 case Type.SHORT:
                 case Type.INT:
-                    i.INVOKESTATIC(getMethod(Integer.class, "valueOf", Integer.TYPE));
+                    builder.INVOKESTATIC(getMethod(Integer.class, "valueOf", Integer.TYPE));
                     break;
                 case Type.LONG:
-                    i.INVOKESTATIC(getMethod(Long.class, "valueOf", Long.TYPE));
+                    builder.INVOKESTATIC(getMethod(Long.class, "valueOf", Long.TYPE));
                     break;
                 case Type.FLOAT:
-                    i.INVOKESTATIC(getMethod(Float.class, "valueOf", Float.TYPE));
+                    builder.INVOKESTATIC(getMethod(Float.class, "valueOf", Float.TYPE));
                     break;
                 case Type.DOUBLE:
-                    i.INVOKESTATIC(getMethod(Double.class, "valueOf", Double.TYPE));
+                    builder.INVOKESTATIC(getMethod(Double.class, "valueOf", Double.TYPE));
                     break;
                 case Type.ARRAY:
                     break;
                 case Type.OBJECT:
                     break;
                 case Type.VOID:
-                    i.ACONST_NULL();
+                    builder.ACONST_NULL();
                     break;
                 default:
                     throw new RuntimeException("Unhandled type: " + returnType);
             }
 
             //[.., result]
-            i.ARETURN();
+            builder.ARETURN();
 
-            executeMethod.instructions = i.createInstructions();
+            executeMethod.instructions = builder.createInstructions();
             addMethod(executeMethod);
         }
     }

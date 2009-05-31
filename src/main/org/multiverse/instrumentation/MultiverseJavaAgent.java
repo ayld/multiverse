@@ -53,7 +53,7 @@ public class MultiverseJavaAgent {
                             field.name);
                     exclude(field);
                 } else if (isSynthetic(field)) {
-                    //exclude all syntethic fields
+                    //excluded all syntethic fields
                     exclude(field);
                 } else if (isStatic(field)) {
                     System.err.printf(
@@ -96,7 +96,7 @@ public class MultiverseJavaAgent {
                     return null;
                 }
 
-                LazyAccessTransformer transformer = new LazyAccessTransformer(classNode, loader);
+                LazyAccessClassTransformer transformer = new LazyAccessClassTransformer(classNode, loader);
                 ClassNode transformedClassNode = transformer.create();
                 return toBytecode(transformedClassNode);
             } catch (RuntimeException ex) {
@@ -162,7 +162,7 @@ public class MultiverseJavaAgent {
 
                 ClassNode classNode = toClassNode(classfileBuffer);
 
-                AtomicTransformer transformer = new AtomicTransformer(classNode, loader);
+                AtomicClassTransformer transformer = new AtomicClassTransformer(classNode);
                 ClassNode transformedClassNode = transformer.create();
 
                 for (ClassNode inner : transformer.getInnerClasses()) {
@@ -180,4 +180,4 @@ public class MultiverseJavaAgent {
             }
         }
     }
-}
+}    
