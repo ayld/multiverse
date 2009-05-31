@@ -1,4 +1,4 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import org.multiverse.api.StmUtils;
 import org.multiverse.api.annotations.NonEscaping;
@@ -9,27 +9,27 @@ import static java.util.Collections.reverse;
 import java.util.List;
 
 @TmEntity
-public final class TSingleLinkedQueue<E> implements TQueue<E> {
+public final class TmSingleLinkedQueue<E> implements TmQueue<E> {
 
     @NonEscaping
-    private final TSingleLinkedStack<E> readyToPopStack;
+    private final TmSingleLinkedStack<E> readyToPopStack;
     @NonEscaping
-    private final TSingleLinkedStack<E> pushedStack;
+    private final TmSingleLinkedStack<E> pushedStack;
     private final int maxCapacity;
 
-    public TSingleLinkedQueue() {
+    public TmSingleLinkedQueue() {
         this(Integer.MAX_VALUE);
     }
 
-    public TSingleLinkedQueue(int maximumCapacity) {
+    public TmSingleLinkedQueue(int maximumCapacity) {
         if (maximumCapacity < 1) {
             throw new IllegalArgumentException();
         }
         this.maxCapacity = maximumCapacity;
 
         //moved into the constructor.
-        this.readyToPopStack = new TSingleLinkedStack<E>();
-        this.pushedStack = new TSingleLinkedStack<E>();
+        this.readyToPopStack = new TmSingleLinkedStack<E>();
+        this.pushedStack = new TmSingleLinkedStack<E>();
     }
 
 
@@ -119,11 +119,11 @@ public final class TSingleLinkedQueue<E> implements TQueue<E> {
             return true;
         }
 
-        if (!(thatObj instanceof TSingleLinkedQueue)) {
+        if (!(thatObj instanceof TmSingleLinkedQueue)) {
             return false;
         }
 
-        TQueue<E> that = (TQueue<E>) thatObj;
+        TmQueue<E> that = (TmQueue<E>) thatObj;
         if (that.size() != this.size())
             return false;
 

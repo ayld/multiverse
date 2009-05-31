@@ -1,4 +1,4 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -10,7 +10,7 @@ import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.instrumentation.IntValue;
 
-public class TLinkedListTest {
+public class TmLinkedListTest {
     private Stm stm;
 
     @Before
@@ -31,14 +31,14 @@ public class TLinkedListTest {
 
     // @Test
     public void persistanceOfNonEmptyLinkedList() {
-        TLinkedList<String> original = new TLinkedList<String>();
+        TmLinkedList<String> original = new TmLinkedList<String>();
         original.add("1");
         original.add("2");
 
-        Handle<TLinkedList<String>> handle = commit(original);
+        Handle<TmLinkedList<String>> handle = commit(original);
 
         Transaction t = stm.startTransaction();
-        TLinkedList<String> found = t.read(handle);
+        TmLinkedList<String> found = t.read(handle);
         assertEquals(original, found);
     }
 
@@ -46,14 +46,14 @@ public class TLinkedListTest {
     public void persistanceOfDepending() {
         IntValue value1 = new IntValue(1);
         IntValue value2 = new IntValue(2);
-        TLinkedList<IntValue> original = new TLinkedList<IntValue>();
+        TmLinkedList<IntValue> original = new TmLinkedList<IntValue>();
         original.add(value1);
         original.add(value2);
 
-        Handle<TLinkedList<IntValue>> handle = commit(original);
+        Handle<TmLinkedList<IntValue>> handle = commit(original);
 
         Transaction t = stm.startTransaction();
-        TLinkedList<IntValue> found = t.read(handle);
+        TmLinkedList<IntValue> found = t.read(handle);
         assertEquals(original, found);
     }
 }

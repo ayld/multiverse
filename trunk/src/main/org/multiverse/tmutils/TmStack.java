@@ -1,4 +1,4 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
  * @author Peter Veentjer.
  * @param <E>
  */
-public interface TStack<E> {
+public interface TmStack<E> {
 
     /**
      * Clears the stack.

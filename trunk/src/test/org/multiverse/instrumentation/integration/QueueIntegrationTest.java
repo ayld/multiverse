@@ -10,8 +10,8 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
-import org.multiverse.tcollections.TQueue;
-import org.multiverse.tcollections.TSingleLinkedQueue;
+import org.multiverse.tmutils.TmQueue;
+import org.multiverse.tmutils.TmSingleLinkedQueue;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class QueueIntegrationTest {
 
-    private Handle<? extends TQueue<String>> queueHandle;
+    private Handle<? extends TmQueue<String>> queueHandle;
     private AtomicLong produceCountDown = new AtomicLong();
     private AtomicLong consumeCountDown = new AtomicLong();
     private List<String> producedList;
@@ -27,7 +27,7 @@ public class QueueIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        queueHandle = commit(new TSingleLinkedQueue<String>(100));
+        queueHandle = commit(new TmSingleLinkedQueue<String>(100));
         producedList = new LinkedList<String>();
         consumedList = new LinkedList<String>();
     }
@@ -54,7 +54,7 @@ public class QueueIntegrationTest {
     @Atomic
     public void assertQueueIsEmpty() {
         Transaction t = getTransaction();
-        TQueue queue = t.read(queueHandle);
+        TmQueue queue = t.read(queueHandle);
         assertTrue(queue.isEmpty());
         t.commit();
     }
@@ -82,7 +82,7 @@ public class QueueIntegrationTest {
 
         @Atomic
         public void produce(String item) {
-            TQueue queue = getTransaction().read(queueHandle);
+            TmQueue queue = getTransaction().read(queueHandle);
             queue.push(item);
         }
     }
@@ -110,7 +110,7 @@ public class QueueIntegrationTest {
 
         @Atomic
         public String consume() {
-            TQueue<String> queue = getTransaction().read(queueHandle);
+            TmQueue<String> queue = getTransaction().read(queueHandle);
             return queue.pop();
         }
     }

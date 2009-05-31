@@ -1,11 +1,13 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import java.util.List;
 
 /**
+ * A Transactional queue.
+ *
  * @param <E>
  */
-public interface TQueue<E> {
+public interface TmQueue<E> {
 
     /**
      * Removes all items from the queue.

@@ -1,4 +1,4 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
@@ -6,7 +6,7 @@ import org.multiverse.api.annotations.TmEntity;
 import static java.lang.Math.max;
 
 @TmEntity
-public final class BTree<K extends Comparable, V> {
+public final class TmBTree<K extends Comparable, V> {
 
     public enum BTreeDirection {
         goLeft, goRight, spotOn
@@ -70,10 +70,10 @@ public final class BTree<K extends Comparable, V> {
         if (thatObj == this)
             return true;
 
-        if (!(thatObj instanceof BTree))
+        if (!(thatObj instanceof TmBTree))
             return false;
 
-        BTree<K, V> that = (BTree<K, V>) thatObj;
+        TmBTree<K, V> that = (TmBTree<K, V>) thatObj;
         if (that.root == this.root)
             return true;
 

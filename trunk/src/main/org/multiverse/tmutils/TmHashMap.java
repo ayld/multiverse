@@ -1,9 +1,9 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import java.util.AbstractMap;
 import java.util.Set;
 
-public class THashMap<K, V> extends AbstractMap<K, V> {
+public class TmHashMap<K, V> extends AbstractMap<K, V> {
 
     //private MultiverseLinkedList< >
 

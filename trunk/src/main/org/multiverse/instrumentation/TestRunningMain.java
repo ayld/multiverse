@@ -3,7 +3,7 @@ package org.multiverse.instrumentation;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.tcollections.Latch;
+import org.multiverse.tmutils.TmLatch;
 
 /**
  * A Main that runs some tests.
@@ -17,17 +17,17 @@ public class TestRunningMain {
     }
 
     private static void testLatch() {
-        Latch latch = new Latch();
+        TmLatch latch = new TmLatch();
         latch.open();
         System.out.println("original " + latch);
 
         MultiversionedStm stm = new MultiversionedStm();
         Transaction t = stm.startTransaction();
-        Handle<Latch> handle = t.attach(latch);
+        Handle<TmLatch> handle = t.attach(latch);
         t.commit();
 
         Transaction t2 = stm.startTransaction();
-        Latch found = t2.read(handle);
+        TmLatch found = t2.read(handle);
         System.out.println("found: " + found);
         t2.commit();
     }

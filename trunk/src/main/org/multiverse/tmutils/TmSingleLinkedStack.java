@@ -1,4 +1,4 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.NonEscaping;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TmEntity
-public final class TSingleLinkedStack<E> implements TStack<E> {
+public final class TmSingleLinkedStack<E> implements TmStack<E> {
 
     @NonEscaping
     private StackNode<E> head;
@@ -102,11 +102,11 @@ public final class TSingleLinkedStack<E> implements TStack<E> {
             return true;
         }
 
-        if (!(thatObj instanceof TSingleLinkedStack)) {
+        if (!(thatObj instanceof TmSingleLinkedStack)) {
             return false;
         }
 
-        TSingleLinkedStack that = (TSingleLinkedStack) thatObj;
+        TmSingleLinkedStack that = (TmSingleLinkedStack) thatObj;
         if (that.size != this.size) {
             return false;
         }
