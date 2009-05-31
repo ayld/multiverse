@@ -4,19 +4,20 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.commit;
+import org.multiverse.api.GlobalStmInstance;
 import org.multiverse.api.Handle;
+import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.DefaultMultiversionedHandle;
 import org.multiverse.multiversionedstm.MaterializedObject;
-import org.multiverse.multiversionedstm.MultiversionedStm;
 
 public class TmEntityClassTransformer_Method_GetHandleTest {
-    private MultiversionedStm stm;
+    private Stm stm;
 
     @Before
     public void setUp() {
-        stm = new MultiversionedStm();
+        stm = GlobalStmInstance.getInstance();
     }
 
     @Test

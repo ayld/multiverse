@@ -10,8 +10,8 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
+import org.multiverse.tmutils.DoubleEndedTmQueue;
 import org.multiverse.tmutils.TmQueue;
-import org.multiverse.tmutils.TmSingleLinkedQueue;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class QueueIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        queueHandle = commit(new TmSingleLinkedQueue<String>(100));
+        queueHandle = commit(new DoubleEndedTmQueue<String>(100));
         producedList = new LinkedList<String>();
         consumedList = new LinkedList<String>();
     }

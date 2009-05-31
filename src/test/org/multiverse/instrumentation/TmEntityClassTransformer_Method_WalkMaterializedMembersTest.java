@@ -2,26 +2,17 @@ package org.multiverse.instrumentation;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.annotations.Exclude;
 import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MaterializedObject;
 import org.multiverse.multiversionedstm.MemberWalker;
-import org.multiverse.multiversionedstm.MultiversionedStm;
 
 import static java.util.Arrays.asList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class TmEntityClassTransformer_Method_WalkMaterializedMembersTest {
-
-    private MultiversionedStm stm;
-
-    @Before
-    public void setUp() {
-        stm = new MultiversionedStm();
-    }
 
     @Test
     public void objectWithoutMembers() {

@@ -1,11 +1,5 @@
 TODO
 
-- atomic: static methods
-
-- atomic: abstract methods
-
-- atomic: override method.
-
 - atomic: check what happens when a normal exception is thrown
 
 - atomic: check what happens when a retryerror is thrown

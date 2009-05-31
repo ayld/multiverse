@@ -70,7 +70,7 @@ public class DiningPhilosophersLongTest {
             System.out.println("count: " + thread.successCount);
     }
 
-    @Atomic
+    @Atomic(name = "assertForksHaveReturned")
     public void assertAllForksHaveReturned() {
         for (Handle<Fork> handle : forkHandles) {
             Fork fork = getTransaction().read(handle);
@@ -88,7 +88,7 @@ public class DiningPhilosophersLongTest {
         return threads;
     }
 
-    @Atomic
+    @Atomic(name = "createForks")
     public void createForks() {
         forkHandles = new Handle[forkCount];
         for (int k = 0; k < forkHandles.length; k++) {
@@ -128,7 +128,7 @@ public class DiningPhilosophersLongTest {
             sleepRandomMs(50);
         }
 
-        @Atomic
+        @Atomic(name = "ReleaseForks")
         public void releaseForks() {
             Fork leftFork = getTransaction().read(leftForkHandle);
             leftFork.release();
@@ -137,7 +137,7 @@ public class DiningPhilosophersLongTest {
             rightFork.release();
         }
 
-        @Atomic
+        @Atomic(name = "takeForks")
         public void takeForks() {
             Fork leftFork = getTransaction().read(leftForkHandle);
             leftFork.take();
