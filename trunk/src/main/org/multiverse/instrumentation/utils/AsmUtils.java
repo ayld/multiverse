@@ -154,7 +154,15 @@ public final class AsmUtils {
     }
 
     private static boolean hasVisibleAnnotation(String typeDescriptor, Class annotationClass, ClassLoader classLoader) {
-        if (typeDescriptor == null || annotationClass == null || classLoader == null) {
+        if (typeDescriptor == null) {
+            throw new NullPointerException();
+        }
+
+        if (annotationClass == null) {
+            throw new NullPointerException();
+        }
+
+        if (classLoader == null) {
             throw new NullPointerException();
         }
 

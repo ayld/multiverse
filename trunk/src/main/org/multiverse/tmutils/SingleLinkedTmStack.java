@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TmEntity
-public final class TmSingleLinkedStack<E> implements TmStack<E> {
+public final class SingleLinkedTmStack<E> implements TmStack<E> {
 
     @NonEscaping
     private StackNode<E> head;
@@ -102,11 +102,11 @@ public final class TmSingleLinkedStack<E> implements TmStack<E> {
             return true;
         }
 
-        if (!(thatObj instanceof TmSingleLinkedStack)) {
+        if (!(thatObj instanceof SingleLinkedTmStack)) {
             return false;
         }
 
-        TmSingleLinkedStack that = (TmSingleLinkedStack) thatObj;
+        SingleLinkedTmStack that = (SingleLinkedTmStack) thatObj;
         if (that.size != this.size) {
             return false;
         }

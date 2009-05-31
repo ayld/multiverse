@@ -9,27 +9,27 @@ import static java.util.Collections.reverse;
 import java.util.List;
 
 @TmEntity
-public final class TmSingleLinkedQueue<E> implements TmQueue<E> {
+public final class DoubleEndedTmQueue<E> implements TmQueue<E> {
 
     @NonEscaping
-    private final TmSingleLinkedStack<E> readyToPopStack;
+    private final SingleLinkedTmStack<E> readyToPopStack;
     @NonEscaping
-    private final TmSingleLinkedStack<E> pushedStack;
+    private final SingleLinkedTmStack<E> pushedStack;
     private final int maxCapacity;
 
-    public TmSingleLinkedQueue() {
+    public DoubleEndedTmQueue() {
         this(Integer.MAX_VALUE);
     }
 
-    public TmSingleLinkedQueue(int maximumCapacity) {
+    public DoubleEndedTmQueue(int maximumCapacity) {
         if (maximumCapacity < 1) {
             throw new IllegalArgumentException();
         }
         this.maxCapacity = maximumCapacity;
 
         //moved into the constructor.
-        this.readyToPopStack = new TmSingleLinkedStack<E>();
-        this.pushedStack = new TmSingleLinkedStack<E>();
+        this.readyToPopStack = new SingleLinkedTmStack<E>();
+        this.pushedStack = new SingleLinkedTmStack<E>();
     }
 
 
@@ -119,7 +119,7 @@ public final class TmSingleLinkedQueue<E> implements TmQueue<E> {
             return true;
         }
 
-        if (!(thatObj instanceof TmSingleLinkedQueue)) {
+        if (!(thatObj instanceof DoubleEndedTmQueue)) {
             return false;
         }
 

@@ -52,9 +52,6 @@ public class MultiverseJavaAgent {
                             className,
                             field.name);
                     exclude(field);
-                } else if (isSynthetic(field)) {
-                    //excluded all syntethic fields
-                    exclude(field);
                 } else if (isStatic(field)) {
                     System.err.printf(
                             "Warning: field '%s.%s' is static and is excluded from Multiverse." +

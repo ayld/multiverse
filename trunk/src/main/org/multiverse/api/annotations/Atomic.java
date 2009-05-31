@@ -13,4 +13,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Atomic {
+
+    /**
+     * The name that should be used on the transaction. This is not used for identification
+     * purposes.
+     *
+     * @return
+     */
+    String name() default "";
 }
