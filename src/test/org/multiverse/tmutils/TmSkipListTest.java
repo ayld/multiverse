@@ -1,11 +1,11 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.GlobalStmInstance;
 import org.multiverse.api.Stm;
 
-public class TSkipListTest {
+public class TmSkipListTest {
     private Stm stm;
 
     @Before

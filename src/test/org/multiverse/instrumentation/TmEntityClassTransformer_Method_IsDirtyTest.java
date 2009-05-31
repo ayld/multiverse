@@ -11,8 +11,8 @@ import org.multiverse.api.annotations.Exclude;
 import org.multiverse.api.annotations.TmEntity;
 import static org.multiverse.instrumentation.InstrumentationTestSupport.assertDirty;
 import static org.multiverse.instrumentation.InstrumentationTestSupport.assertNotDirty;
-import org.multiverse.tcollections.TSingleLinkedStack;
-import org.multiverse.tcollections.TStack;
+import org.multiverse.tmutils.TmSingleLinkedStack;
+import org.multiverse.tmutils.TmStack;
 
 public class TmEntityClassTransformer_Method_IsDirtyTest {
     private Stm stm;
@@ -24,7 +24,7 @@ public class TmEntityClassTransformer_Method_IsDirtyTest {
 
     @Test
     public void initialObjectIsDirty() {
-        TStack stack = new TSingleLinkedStack();
+        TmStack stack = new TmSingleLinkedStack();
         assertDirty(stack, true);
     }
 

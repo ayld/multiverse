@@ -1,4 +1,4 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.TmEntity;
@@ -6,15 +6,15 @@ import org.multiverse.api.annotations.TmEntity;
 import static java.lang.String.format;
 
 @TmEntity
-public final class Latch {
+public final class TmLatch {
 
     private boolean isOpen;
 
-    public Latch() {
+    public TmLatch() {
         this.isOpen = false;
     }
 
-    public Latch(boolean isOpen) {
+    public TmLatch(boolean isOpen) {
         this.isOpen = isOpen;
     }
 

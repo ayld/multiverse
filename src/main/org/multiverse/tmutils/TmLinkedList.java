@@ -1,4 +1,4 @@
-package org.multiverse.tcollections;
+package org.multiverse.tmutils;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.TmEntity;
@@ -6,7 +6,7 @@ import org.multiverse.api.annotations.TmEntity;
 import java.util.*;
 
 @TmEntity
-public class TLinkedList<E> extends AbstractSequentialList<E>
+public class TmLinkedList<E> extends AbstractSequentialList<E>
         implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
 
     private Entry<E> header = new Entry<E>(null, null, null);
@@ -15,7 +15,7 @@ public class TLinkedList<E> extends AbstractSequentialList<E>
     /**
      * Constructs an empty list.
      */
-    public TLinkedList() {
+    public TmLinkedList() {
         header.next = header.previous = header;
     }
 
@@ -27,7 +27,7 @@ public class TLinkedList<E> extends AbstractSequentialList<E>
      * @param c the collection whose elements are to be placed into this list
      * @throws NullPointerException if the specified collection is null
      */
-    public TLinkedList(Collection<? extends E> c) {
+    public TmLinkedList(Collection<? extends E> c) {
         header.next = header.previous = header;
         addAll(c);
     }
@@ -825,9 +825,9 @@ public class TLinkedList<E> extends AbstractSequentialList<E>
      * @return a shallow copy of this <tt>LinkedList</tt> instance
      */
     public Object clone() {
-        TLinkedList<E> clone;
+        TmLinkedList<E> clone;
         try {
-            clone = (TLinkedList<E>) super.clone();
+            clone = (TmLinkedList<E>) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new InternalError();
         }
