@@ -7,8 +7,14 @@ import org.multiverse.api.annotations.TmEntity;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Standard {@link TmStack} implementation that uses a single linked list to store the
+ * content.
+ *
+ * @param <E>
+ */
 @TmEntity
-public final class SingleLinkedTmStack<E> implements TmStack<E> {
+public final class LinkedTmStack<E> implements TmStack<E> {
 
     @NonEscaping
     private StackNode<E> head;
@@ -102,11 +108,11 @@ public final class SingleLinkedTmStack<E> implements TmStack<E> {
             return true;
         }
 
-        if (!(thatObj instanceof SingleLinkedTmStack)) {
+        if (!(thatObj instanceof LinkedTmStack)) {
             return false;
         }
 
-        SingleLinkedTmStack that = (SingleLinkedTmStack) thatObj;
+        LinkedTmStack that = (LinkedTmStack) thatObj;
         if (that.size != this.size) {
             return false;
         }

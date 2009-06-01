@@ -1,38 +1,61 @@
 package org.multiverse.tmutils;
 
-import org.multiverse.api.StmUtils;
+import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.NonEscaping;
 import org.multiverse.api.annotations.TmEntity;
 
 import static java.lang.String.format;
+import java.util.Collections;
 import static java.util.Collections.reverse;
 import java.util.List;
 
+/**
+ * A {@link TmQueue} implementation that uses 2 stacks to allow concurrent takes and puts;
+ * just like the {@link java.util.concurrent.LinkedBlockingQueue}.
+ * <p/>
+ * From a concurrency perspective it has some issues:
+ * - doesn't allow concurrent takes
+ * - doesn't allow concurrent puts
+ * - starvation problems when flipping (so a taking transaction could starve because the flip
+ * never succeeds) that increase because the amount of work to do the flip, increases.
+ *
+ * @author Peter Veentjer.
+ * @param <E>
+ */
 @TmEntity
-public final class DoubleEndedTmQueue<E> implements TmQueue<E> {
+public final class LinkedTmQueue<E> implements TmQueue<E> {
 
     @NonEscaping
-    private final SingleLinkedTmStack<E> readyToPopStack;
+    private final TmStack<E> readyToPopStack;
     @NonEscaping
-    private final SingleLinkedTmStack<E> pushedStack;
+    private final TmStack<E> pushedStack;
     private final int maxCapacity;
 
-    public DoubleEndedTmQueue() {
+    /**
+     * Creates a new DoubleEndedTmQueue with a maximum capacity of Integer.MAX_VALUE.
+     */
+    public LinkedTmQueue() {
         this(Integer.MAX_VALUE);
     }
 
-    public DoubleEndedTmQueue(int maximumCapacity) {
-        if (maximumCapacity < 1) {
+    /**
+     * Creates a new DoubleEndedTmQueue with the provided maximumCapacity.
+     *
+     * @param maximumCapacity the maximum number of items in the queue.
+     * @throws IllegalArgumentException if maximumCapacity  smaller than 0.
+     */
+    public LinkedTmQueue(int maximumCapacity) {
+        if (maximumCapacity < 0) {
             throw new IllegalArgumentException();
         }
         this.maxCapacity = maximumCapacity;
 
-        //moved into the constructor.
-        this.readyToPopStack = new SingleLinkedTmStack<E>();
-        this.pushedStack = new SingleLinkedTmStack<E>();
+        //moved into the constructor to bypass instrumentation issues; will be solved in the future.
+        this.readyToPopStack = new LinkedTmStack<E>();
+        this.pushedStack = new LinkedTmStack<E>();
     }
 
-
+    @Override
     public void clear() {
         readyToPopStack.clear();
         pushedStack.clear();
@@ -64,6 +87,9 @@ public final class DoubleEndedTmQueue<E> implements TmQueue<E> {
         return readyToPopStack.pop();
     }
 
+    /**
+     * Moves all items from the pushedStack to the readyToPopStack.
+     */
     private void flip() {
         while (!pushedStack.isEmpty()) {
             E item = pushedStack.pop();
@@ -74,7 +100,7 @@ public final class DoubleEndedTmQueue<E> implements TmQueue<E> {
     @Override
     public void push(E value) {
         if (size() == maxCapacity) {
-            StmUtils.retry();
+            retry();
         }
 
         pushedStack.push(value);
@@ -90,8 +116,12 @@ public final class DoubleEndedTmQueue<E> implements TmQueue<E> {
         return readyToPopStack.size() + pushedStack.size();
     }
 
-    @Override
+    //@Override
     public List<E> asList() {
+        if (isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
         List<E> result = pushedStack.asList();
         List<E> popped = readyToPopStack.asList();
         reverse(popped);
@@ -119,13 +149,14 @@ public final class DoubleEndedTmQueue<E> implements TmQueue<E> {
             return true;
         }
 
-        if (!(thatObj instanceof DoubleEndedTmQueue)) {
+        if (!(thatObj instanceof LinkedTmQueue)) {
             return false;
         }
 
-        TmQueue<E> that = (TmQueue<E>) thatObj;
-        if (that.size() != this.size())
+        LinkedTmQueue<E> that = (LinkedTmQueue<E>) thatObj;
+        if (that.size() != this.size()) {
             return false;
+        }
 
         List<E> thatList = that.asList();
         List<E> thisList = this.asList();

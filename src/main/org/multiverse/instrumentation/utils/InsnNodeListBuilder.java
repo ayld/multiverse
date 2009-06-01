@@ -420,6 +420,10 @@ public class InsnNodeListBuilder implements Opcodes {
         instructions.add(new JumpInsnNode(IFNE, success));
     }
 
+    public void addBeforeLast(LabelNode labelNode) {
+        instructions.insertBefore(instructions.getLast(), labelNode);
+    }
+
     public void add(LabelNode labelNode) {
         instructions.add(labelNode);
     }

@@ -20,16 +20,16 @@ public class TmLinkedListTest {
 
     @Test
     public void persistanceOfEmptyLinkedList() {
-        //    MLinkedList<String> original = new MLinkedList<String>();
+        TmLinkedList<String> original = new TmLinkedList<String>();
 
-        //     Handle<MLinkedList<String>> handle = commit(original);
+        Handle<TmLinkedList<String>> handle = commit(original);
 
-        //   Transaction t = stm.startTransaction();
-        //   MLinkedList<String> found = t.read(handle);
-        //   assertEquals(original, found);
+        Transaction t = stm.startTransaction();
+        TmLinkedList<String> found = t.read(handle);
+        assertEquals(original, found);
     }
 
-    // @Test
+    @Test
     public void persistanceOfNonEmptyLinkedList() {
         TmLinkedList<String> original = new TmLinkedList<String>();
         original.add("1");
