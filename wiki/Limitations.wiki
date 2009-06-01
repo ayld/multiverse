@@ -6,6 +6,5 @@ A list of limitations that exist in the current instrumentation:
   * No superclasses containing state with a @TmEntity
   * No constructors calling self constructors with a @TmEntity
   * No direct field initialization in @TmEntities (do everything in constructor)
-  * No @atomic and checked exceptions
   * No @atomic abstract methods
   * No @atomic native methods
