@@ -5,7 +5,7 @@ import org.multiverse.util.latches.Latch;
 /**
  * A immutable single-linked list for storing listener-latches.
  * <p/>
- * Structure is threadsafe and designed to be used in a CAS-loop.
+ * Structure is thread-safe and designed to be used in a CAS-loop.
  *
  * @author Peter Veentjer.
  */

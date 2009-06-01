@@ -1,5 +1,7 @@
 package org.multiverse.tmutils;
 
+import org.multiverse.api.annotations.TmEntity;
+
 import java.util.List;
 
 /**
@@ -10,6 +12,7 @@ import java.util.List;
  * @author Peter Veentjer.
  * @param <E>
  */
+@TmEntity
 public interface TmStack<E> {
 
     /**

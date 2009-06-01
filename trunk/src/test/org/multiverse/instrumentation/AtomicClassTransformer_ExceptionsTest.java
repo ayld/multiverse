@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 
 public class AtomicClassTransformer_ExceptionsTest {
 
-    //@Test
+    @Test
     public void checkedExceptionIsPropagated() {
         Exception ex = new FileNotFoundException();
 

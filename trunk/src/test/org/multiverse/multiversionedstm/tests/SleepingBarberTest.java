@@ -68,11 +68,7 @@ public class SleepingBarberTest {
             createCustomer();
 
             if (tryEnterBarberShop()) {
-                //    System.out.println("Customer entered the barber");
                 waitForCompletion();
-                //    System.out.println("Customer was cut");
-            } else {
-                //    System.out.println("Customer failed to enter the barber");
             }
         }
 
@@ -105,9 +101,7 @@ public class SleepingBarberTest {
         public void run() {
             for (int k = 0; k < cutsCount; k++) {
                 Handle<Customer> customerHandle = takeCustomer();
-                //    System.out.println("Customer taken");
                 cutCustomer(customerHandle);
-                //    System.out.println("Customer cut");
             }
         }
 

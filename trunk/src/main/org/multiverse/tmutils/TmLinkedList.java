@@ -7,15 +7,16 @@ import java.util.*;
 
 @TmEntity
 public class TmLinkedList<E> extends AbstractSequentialList<E>
-        implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
+        implements List<E>, TmDeque<E>, TmQueue<E> {
 
-    private Entry<E> header = new Entry<E>(null, null, null);
+    private Entry<E> header;
     private int size = 0;
 
     /**
      * Constructs an empty list.
      */
     public TmLinkedList() {
+        header = new Entry<E>(null, null, null);
         header.next = header.previous = header;
     }
 
@@ -28,6 +29,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @throws NullPointerException if the specified collection is null
      */
     public TmLinkedList(Collection<? extends E> c) {
+        header = new Entry<E>(null, null, null);
         header.next = header.previous = header;
         addAll(c);
     }
@@ -39,6 +41,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @throws java.util.NoSuchElementException
      *          if this list is empty
      */
+    @Override
     public E getFirst() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -52,6 +55,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the last element in this list
      * @throws NoSuchElementException if this list is empty
      */
+    @Override
     public E getLast() {
         if (size == 0) {
             throw new NoSuchElementException();
@@ -66,10 +70,12 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the first element from this list
      * @throws NoSuchElementException if this list is empty
      */
+    @Override
     public E removeFirst() {
         return remove(header.next);
     }
 
+    @Override
     public E takeFirst() {
         return take(header.next);
     }
@@ -80,20 +86,59 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the last element from this list
      * @throws NoSuchElementException if this list is empty
      */
+    @Override
     public E removeLast() {
         return remove(header.previous);
     }
 
+    @Override
     public E takeLast() {
         return take(header.previous);
     }
 
+    @Override
+    public void putFirst(E e) {
+        addFirst(e);
+    }
+
+    @Override
+    public void putLast(E e) {
+        addLast(e);
+    }
+
+    @Override
+    public void put(E e) {
+        addLast(e);
+    }
+
+    @Override
+    public int getMaxCapacity() {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public E tryPop() {
+        if (isEmpty()) {
+            return null;
+        }
+        return takeFirst();
+    }
+
+    @Override
+    public E take() {
+        if (isEmpty()) {
+            retry();
+        }
+
+        return takeFirst();
+    }
 
     /**
      * Inserts the specified element at the beginning of this list.
      *
      * @param e the element to add
      */
+    @Override
     public void addFirst(E e) {
         addBefore(e, header.next);
     }
@@ -105,6 +150,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @param e the element to add
      */
+    @Override
     public void addLast(E e) {
         addBefore(e, header);
     }
@@ -118,6 +164,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @param o element whose presence in this list is to be tested
      * @return <tt>true</tt> if this list contains the specified element
      */
+    @Override
     public boolean contains(Object o) {
         return indexOf(o) != -1;
     }
@@ -127,6 +174,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @return the number of elements in this list
      */
+    @Override
     public int size() {
         return size;
     }
@@ -139,6 +187,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @param e element to be appended to this list
      * @return <tt>true</tt> (as specified by {@link Collection#add})
      */
+    @Override
     public boolean add(E e) {
         addBefore(e, header);
         return true;
@@ -157,6 +206,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @param o element to be removed from this list, if present
      * @return <tt>true</tt> if this list contained the specified element
      */
+    @Override
     public boolean remove(Object o) {
         if (o == null) {
             for (Entry<E> e = header.next; e != header; e = e.next) {
@@ -188,6 +238,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified collection is null
      */
+    @Override
     public boolean addAll(Collection<? extends E> c) {
         return addAll(size, c);
     }
@@ -207,6 +258,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      * @throws NullPointerException      if the specified collection is null
      */
+    @Override
     public boolean addAll(int index, Collection<? extends E> c) {
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("Index: " + index +
@@ -235,6 +287,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
     /**
      * Removes all of the elements from this list.
      */
+    @Override
     public void clear() {
         Entry<E> e = header.next;
         while (e != header) {
@@ -258,6 +311,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the element at the specified position in this list
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
+    @Override
     public E get(int index) {
         return entry(index).element;
     }
@@ -271,6 +325,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
+    @Override
     public E set(int index, E element) {
         Entry<E> e = entry(index);
         E oldVal = e.element;
@@ -287,6 +342,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @param element element to be inserted
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
+    @Override
     public void add(int index, E element) {
         addBefore(element, (index == size ? header : entry(index)));
     }
@@ -300,6 +356,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the element previously at the specified position
      * @throws IndexOutOfBoundsException {@inheritDoc}
      */
+    @Override
     public E remove(int index) {
         return remove(entry(index));
     }
@@ -339,6 +396,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the index of the first occurrence of the specified element in
      *         this list, or -1 if this list does not contain the element
      */
+    @Override
     public int indexOf(Object o) {
         int index = 0;
         if (o == null) {
@@ -370,6 +428,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the index of the last occurrence of the specified element in
      *         this list, or -1 if this list does not contain the element
      */
+    @Override
     public int lastIndexOf(Object o) {
         int index = size;
         if (o == null) {
@@ -396,8 +455,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * Retrieves, but does not remove, the head (first element) of this list.
      *
      * @return the head of this list, or <tt>null</tt> if this list is empty
-     * @since 1.5
      */
+    @Override
     public E peek() {
         if (size == 0) {
             return null;
@@ -410,8 +469,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @return the head of this list
      * @throws NoSuchElementException if this list is empty
-     * @since 1.5
      */
+    @Override
     public E element() {
         return getFirst();
     }
@@ -420,8 +479,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * Retrieves and removes the head (first element) of this list
      *
      * @return the head of this list, or <tt>null</tt> if this list is empty
-     * @since 1.5
      */
+    @Override
     public E poll() {
         if (size == 0) {
             return null;
@@ -434,8 +493,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @return the head of this list
      * @throws NoSuchElementException if this list is empty
-     * @since 1.5
      */
+    @Override
     public E remove() {
         return removeFirst();
     }
@@ -445,8 +504,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @param e the element to add
      * @return <tt>true</tt> (as specified by {@link java.util.Queue#offer})
-     * @since 1.5
      */
+    @Override
     public boolean offer(E e) {
         return add(e);
     }
@@ -457,8 +516,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @param e the element to insert
      * @return <tt>true</tt> (as specified by {@link Deque#offerFirst})
-     * @since 1.6
      */
+    @Override
     public boolean offerFirst(E e) {
         addFirst(e);
         return true;
@@ -469,8 +528,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @param e the element to insert
      * @return <tt>true</tt> (as specified by {@link Deque#offerLast})
-     * @since 1.6
      */
+    @Override
     public boolean offerLast(E e) {
         addLast(e);
         return true;
@@ -482,8 +541,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @return the first element of this list, or <tt>null</tt>
      *         if this list is empty
-     * @since 1.6
      */
+    @Override
     public E peekFirst() {
         if (size == 0) {
             return null;
@@ -497,8 +556,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @return the last element of this list, or <tt>null</tt>
      *         if this list is empty
-     * @since 1.6
      */
+    @Override
     public E peekLast() {
         if (size == 0) {
             return null;
@@ -512,8 +571,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @return the first element of this list, or <tt>null</tt> if
      *         this list is empty
-     * @since 1.6
      */
+    @Override
     public E pollFirst() {
         if (size == 0) {
             return null;
@@ -527,8 +586,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @return the last element of this list, or <tt>null</tt> if
      *         this list is empty
-     * @since 1.6
      */
+    @Override
     public E pollLast() {
         if (size == 0) {
             return null;
@@ -543,8 +602,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * <p>This method is equivalent to {@link #addFirst}.
      *
      * @param e the element to push
-     * @since 1.6
      */
+    @Override
     public void push(E e) {
         addFirst(e);
     }
@@ -558,8 +617,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return the element at the front of this list (which is the top
      *         of the stack represented by this list)
      * @throws NoSuchElementException if this list is empty
-     * @since 1.6
      */
+    @Override
     public E pop() {
         return removeFirst();
     }
@@ -571,8 +630,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @param o element to be removed from this list, if present
      * @return <tt>true</tt> if the list contained the specified element
-     * @since 1.6
      */
+    @Override
     public boolean removeFirstOccurrence(Object o) {
         return remove(o);
     }
@@ -584,8 +643,8 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *
      * @param o element to be removed from this list, if present
      * @return <tt>true</tt> if the list contained the specified element
-     * @since 1.6
      */
+    @Override
     public boolean removeLastOccurrence(Object o) {
         if (o == null) {
             for (Entry<E> e = header.previous; e != header; e = e.previous) {
@@ -626,12 +685,12 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @throws IndexOutOfBoundsException {@inheritDoc}
      * @see List#listIterator(int)
      */
+    @Override
     public ListIterator<E> listIterator(int index) {
-        //    return new ListItr(index);
-        throw new RuntimeException();
+        return new ListItr(index);
     }
 
-    /*
+    @TmEntity
     private class ListItr implements ListIterator<E> {
         private Entry<E> lastReturned = header;
         private Entry<E> next;
@@ -699,7 +758,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
             checkForComodification();
             Entry<E> lastNext = lastReturned.next;
             try {
-                LinkedList.this.remove(lastReturned);
+                TmLinkedList.this.remove(lastReturned);
             } catch (NoSuchElementException e) {
                 throw new IllegalStateException();
             }
@@ -734,7 +793,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
                 throw new ConcurrentModificationException();
             }
         }
-    }*/
+    }
 
     @TmEntity
     protected static class Entry<E> {
@@ -788,20 +847,14 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
         return result;
     }
 
-    /**
-     * @since 1.6
-     */
+    @Override
     public Iterator<E> descendingIterator() {
-        //  return new DescendingIterator();
-        //todo
-        throw new RuntimeException();
+        return new DescendingIterator();
     }
 
     /**
      * Adapter to provide descending iterators via ListItr.previous
      */
-    //@TmEntity
-    /*
     protected class DescendingIterator implements Iterator {
         protected ListItr itr = new ListItr(size());
 
@@ -816,34 +869,6 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
         public void remove() {
             itr.remove();
         }
-    } */
-
-    /**
-     * Returns a shallow copy of this <tt>LinkedList</tt>. (The elements
-     * themselves are not cloned.)
-     *
-     * @return a shallow copy of this <tt>LinkedList</tt> instance
-     */
-    public Object clone() {
-        TmLinkedList<E> clone;
-        try {
-            clone = (TmLinkedList<E>) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new InternalError();
-        }
-
-        // Put clone into "virgin" state
-        clone.header = new Entry<E>(null, null, null);
-        clone.header.next = clone.header.previous = clone.header;
-        clone.size = 0;
-        clone.modCount = 0;
-
-        // Initialize clone with our elements
-        for (Entry<E> e = header.next; e != header; e = e.next) {
-            clone.add(e.element);
-        }
-
-        return clone;
     }
 
     /**
@@ -860,6 +885,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      * @return an array containing all of the elements in this list
      *         in proper sequence
      */
+    @Override
     public Object[] toArray() {
         Object[] result = new Object[size];
         int i = 0;
@@ -907,6 +933,7 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
      *                              this list
      * @throws NullPointerException if the specified array is null
      */
+    @Override
     public <T> T[] toArray(T[] a) {
         if (a.length < size) {
             a = (T[]) java.lang.reflect.Array.newInstance(
@@ -923,51 +950,5 @@ public class TmLinkedList<E> extends AbstractSequentialList<E>
         }
 
         return a;
-    }
-
-    //private static final long serialVersionUID = 876323262645176354L;
-
-    /**
-     * Save the state of this <tt>LinkedList</tt> instance to a stream (that
-     * is, serialize it).
-     *
-     * @serialData The size of the list (the number of elements it
-     * contains) is emitted (int), followed by all of its
-     * elements (each an Object) in the proper order.
-     */
-    private void writeObject(java.io.ObjectOutputStream s)
-            throws java.io.IOException {
-        // Write out any hidden serialization magic
-        s.defaultWriteObject();
-
-        // Write out size
-        s.writeInt(size);
-
-        // Write out all elements in the proper order.
-        for (Entry e = header.next; e != header; e = e.next) {
-            s.writeObject(e.element);
-        }
-    }
-
-    /**
-     * Reconstitute this <tt>LinkedList</tt> instance from a stream (that is
-     * deserialize it).
-     */
-    private void readObject(java.io.ObjectInputStream s)
-            throws java.io.IOException, ClassNotFoundException {
-        // Read in any hidden serialization magic
-        s.defaultReadObject();
-
-        // Read in size
-        int size = s.readInt();
-
-        // Initialize header
-        header = new Entry<E>(null, null, null);
-        header.next = header.previous = header;
-
-        // Read in all elements in the proper order.
-        for (int i = 0; i < size; i++) {
-            addBefore((E) s.readObject(), header);
-        }
     }
 }

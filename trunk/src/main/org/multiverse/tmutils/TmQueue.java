@@ -1,12 +1,14 @@
 package org.multiverse.tmutils;
 
-import java.util.List;
+import org.multiverse.api.annotations.TmEntity;
 
 /**
  * A Transactional queue.
  *
+ * @author Peter Veentjer.
  * @param <E>
  */
+@TmEntity
 public interface TmQueue<E> {
 
     /**
@@ -23,7 +25,7 @@ public interface TmQueue<E> {
     int getMaxCapacity();
 
     /**
-     * Tries to pop an item of the queue. If no item is availble, null is returned.
+     * Tries to pop an item of the queue. If no item is available, null is returned.
      *
      * @return the item popped, or null if no item is available.
      */
@@ -37,7 +39,7 @@ public interface TmQueue<E> {
     E pop();
 
     /**
-     * Pushes an item on the queue. If the queue has reached its capacity, the queue does a retry.
+     * Pushes an item on the queue. If the queue has reached its maximum capacity, the queue does a retry.
      *
      * @param item the item to push.
      * @throws NullPointerException if item is null.
@@ -57,11 +59,4 @@ public interface TmQueue<E> {
      * @return the size of the queue.
      */
     int size();
-
-    /**
-     * Returns the content of the queue as list. The content of the queue is not altered.
-     *
-     * @return the content of the queue as list.
-     */
-    List<E> asList();
 }

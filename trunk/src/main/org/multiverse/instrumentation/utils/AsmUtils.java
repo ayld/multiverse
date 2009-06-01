@@ -106,6 +106,10 @@ public final class AsmUtils {
         return format("L%s;", internalForm);
     }
 
+    public static boolean isInterface(ClassNode classNode) {
+        return (classNode.access & Opcodes.ACC_INTERFACE) != 0;
+    }
+
     public static boolean isNative(MethodNode methodNode) {
         return (methodNode.access & Opcodes.ACC_NATIVE) != 0;
     }
@@ -360,12 +364,17 @@ public final class AsmUtils {
         return writer.toByteArray();
     }
 
-    public static void writeToFixedTmpFile(Class clazz) throws IOException {
+    public static void writeToFixedTmpFile(Class clazz) {
         byte[] bytecode = toBytecode(loadAsClassNode(clazz));
         writeToFixedTmpFile(bytecode);
     }
 
-    public static void writeToFixedTmpFile(byte[] bytecode) throws IOException {
+    public static void writeToFixedTmpFile(ClassNode clazz) {
+        byte[] bytecode = toBytecode(clazz);
+        writeToFixedTmpFile(bytecode);
+    }
+
+    public static void writeToFixedTmpFile(byte[] bytecode) {
         File file = new File(getTmpDir(), "debug.class");
         writeToFile(file, bytecode);
     }
@@ -385,18 +394,22 @@ public final class AsmUtils {
         writeToFile(file, bytecode);
     }
 
-    public static void writeToFile(File file, byte[] bytecode) throws IOException {
+    public static void writeToFile(File file, byte[] bytecode) {
         if (file == null || bytecode == null) {
             throw new NullPointerException();
         }
 
-        ensureExistingParent(file);
-
-        OutputStream writer = new FileOutputStream(file);
         try {
-            writer.write(bytecode);
-        } finally {
-            writer.close();
+            ensureExistingParent(file);
+
+            OutputStream writer = new FileOutputStream(file);
+            try {
+                writer.write(bytecode);
+            } finally {
+                writer.close();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

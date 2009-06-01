@@ -11,7 +11,7 @@ import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.instrumentation.integration.Outer.Inner;
 
-public class InnerClassTest {
+public class NonStaticInnerClassTest {
     private Stm stm;
 
     @Before
@@ -20,7 +20,7 @@ public class InnerClassTest {
     }
 
     @Test
-    public void test() {
+    public void testAttachmentOfOuter() {
         int outer = 24;
         int inner = 1004;
 

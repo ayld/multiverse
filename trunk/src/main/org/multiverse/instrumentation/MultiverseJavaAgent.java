@@ -36,6 +36,10 @@ public class MultiverseJavaAgent {
 
             ClassNode classNode = toClassNode(classfileBuffer);
 
+            if (isInterface(classNode)) {
+                return null;
+            }
+
             //a hack for performance.. atm we only check tmentities.. but object that change fields
             //on tm entities need to be changed in the future as well.
             if (!hasVisibleAnnotation(classNode, TmEntity.class)) {
@@ -47,15 +51,15 @@ public class MultiverseJavaAgent {
                     //excluded fields are completely ignored.
                 } else if (isVolatile(field)) {
                     System.err.printf(
-                            "Warning: field '%s.%s' is volatile and is excluded from Multiverse." +
-                                    " volatile fields don't make sense to use in an STM.\n",
+                            "Warning: field '%s.%s' is volatile and is excluded from Multiverse. " +
+                                    "Volatile fields don't make sense to use in a STM.\n",
                             className,
                             field.name);
                     exclude(field);
                 } else if (isStatic(field)) {
                     System.err.printf(
-                            "Warning: field '%s.%s' is static and is excluded from Multiverse." +
-                                    " static fields are not supported yet.\n",
+                            "Warning: field '%s.%s' is static and is excluded from Multiverse. " +
+                                    "Static fields are not supported yet.\n",
                             className,
                             field.name);
                     exclude(field);
@@ -86,6 +90,10 @@ public class MultiverseJavaAgent {
                 }
 
                 ClassNode classNode = toClassNode(classfileBuffer);
+
+                if (isInterface(classNode)) {
+                    return null;
+                }
 
                 //a hack for performance.. atm we only check tmentities.. but object that change fields
                 //on tm entities need to be changed in the future as well.
@@ -120,19 +128,23 @@ public class MultiverseJavaAgent {
 
                 ClassNode classNode = toClassNode(classfileBuffer);
 
+                if (isInterface(classNode)) {
+                    return null;
+                }
+
                 if (!hasVisibleAnnotation(classNode, TmEntity.class)) {
                     return null;
                 }
 
                 System.out.printf("Transforming class %s\n", className);
 
-                DematerializedClassBuilder dematerializedClassBuilder = new DematerializedClassBuilder(classNode, loader);
-                ClassNode dematerialized = dematerializedClassBuilder.create();
+                DematerializedClassBuilder dematerializedBuilder = new DematerializedClassBuilder(classNode, loader);
+                ClassNode dematerialized = dematerializedBuilder.create();
 
                 MultiverseClassLoader.INSTANCE.defineClass(dematerialized);
 
-                TmEntityClassTransformer t = new TmEntityClassTransformer(classNode, dematerialized, loader);
-                ClassNode materialized = t.create();
+                TmEntityClassTransformer entityTransformer = new TmEntityClassTransformer(classNode, dematerialized, loader);
+                ClassNode materialized = entityTransformer.create();
 
                 return toBytecode(materialized);
             } catch (RuntimeException ex) {
@@ -158,6 +170,10 @@ public class MultiverseJavaAgent {
                 }
 
                 ClassNode classNode = toClassNode(classfileBuffer);
+
+                if (isInterface(classNode)) {
+                    return null;
+                }
 
                 AtomicClassTransformer transformer = new AtomicClassTransformer(classNode);
                 ClassNode transformedClassNode = transformer.create();

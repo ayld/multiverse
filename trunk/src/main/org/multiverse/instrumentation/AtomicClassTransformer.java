@@ -118,7 +118,7 @@ public class AtomicClassTransformer implements Opcodes {
         builder.INVOKESPECIAL(transactionTemplateClass, "<init>", constructorDescriptor);
 
         //[.., template]
-        builder.INVOKEVIRTUAL(transactionTemplateClass.name, "execute", "()Ljava/lang/Object;");
+        builder.INVOKEVIRTUAL(transactionTemplateClass.name, "executeChecked", "()Ljava/lang/Object;");
         //[.., result]
 
         switch (returnType.getSort()) {
@@ -156,7 +156,7 @@ public class AtomicClassTransformer implements Opcodes {
 
         builder.RETURN(returnType);
         originalMethod.instructions = builder.createInstructions();
-        //    addUnwrapExceptionHandlerIfNeeded(originalMethod);
+        //addUnwrapExceptionHandlerIfNeeded(originalMethod);
     }
 
     public void addUnwrapExceptionHandlerIfNeeded(MethodNode method) {
@@ -190,10 +190,14 @@ public class AtomicClassTransformer implements Opcodes {
         InsnNodeListBuilder builder = new InsnNodeListBuilder();
         builder.add(startTry);
         builder.add(method.instructions);
-        builder.add(endTry);
+        builder.addBeforeLast(endTry);
+
         builder.add(startHandler);
-        builder.ACONST_NULL();
-        builder.ARETURN();
+        //builder.ACONST_NULL();
+        //builder.ACONST_NULL();
+        //builder.POP();
+        //builder.POP();
+        //builder.RETURN();
         //builder.ASTORE(1);
         //builder.ALOAD(1);
         //builder.INVOKEVIRTUAL(GET_CAUSE_METHOD);

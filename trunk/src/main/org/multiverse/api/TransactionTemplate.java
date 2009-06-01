@@ -66,6 +66,14 @@ public abstract class TransactionTemplate<E> {
 
     abstract protected E execute(Transaction t) throws Exception;
 
+    public final E executeChecked() throws Exception {
+        try {
+            return execute();
+        } catch (InvisibleCheckedException ex) {
+            throw ex.getCause();
+        }
+    }
+
     public final E execute() {
         try {
             Transaction predecessor = null;

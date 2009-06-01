@@ -18,10 +18,14 @@ public class Rubish {
 
     public static void foobar(Object item) throws Exception {
         try {
-            throw new InvisibleCheckedException(new Exception());
+            foo();
+            return;
         } catch (InvisibleCheckedException ex) {
             throw ex.getCause();
         }
+    }
+
+    public static void foo() {
     }
 
     public boolean equalsObject(Object l1, Object l2) {
