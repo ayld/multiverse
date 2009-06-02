@@ -25,6 +25,10 @@ Use the following snippet to run an application using Multiverse and ANT:
    <java classname="your.Main" fork="true">
       <jvmarg value="-Xbootclasspath/a:/to/multiverse/boot.jar"/>
       <jvmarg value="-javaagent:/to/multiverse/multiverse.jar"/>
+
+      <classpath>
+            ... your classpath
+      </classpath>
    </java>
 </target>
 }}}
