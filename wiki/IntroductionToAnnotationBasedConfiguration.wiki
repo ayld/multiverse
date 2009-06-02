@@ -12,7 +12,7 @@ import org.multiverse.tmutils.LinkedTmQueue;
 
 ...
 
-private Handle<TmQueue<String>> queueHandle;
+private Handle<? extends TmQueue<String>> queueHandle;
 
 @Atomic
 public void createQueue(){
