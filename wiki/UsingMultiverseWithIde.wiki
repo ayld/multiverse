@@ -7,7 +7,7 @@ Multiverse has 2 special needs because it relies on instrumentation (bytecode ma
   * the multiverse agent needs to be set as javaagent. 
 This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse and also how to set it up from the commandline and ANT.
 
-== commandline ==
+== Commandline ==
 
 Use the following snippet to run an application from the commandline:
 
