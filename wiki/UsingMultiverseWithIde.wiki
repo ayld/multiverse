@@ -9,6 +9,6 @@ This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse.
 
 == Multiverse on IntelliJ IDEA ==
 
-== Multiverse on IntelliJ Eclipse ==
+== Multiverse on Eclipse ==
 
-== Multiverse on IntelliJ Netbeans ==
+== Multiverse on Netbeans ==
