@@ -7,20 +7,20 @@
 If a method needs to be transactional, this can be done with the @Atomic annotation, example:
 
 {{{
-import org.multiverse.collections.Queue;
+import org.multiverse.tmutils.TmQueue;
 
 ...
 
-private Handle<Queue<String>> queueHandle;
+private Handle<TmQueue<String>> queueHandle;
 
 @Atomic
 public void createQueue(){
-    queueHandle = getTransaction().attach(new Queue<String>());
+    queueHandle = getTransaction().attach(new LinkedTmQueue<String>());
 }
 
 @Atomic
 public void storeItem(String item){
-    Queue<String> queue = getTransaction().read(queueHandle);
+    TmQueue<String> queue = getTransaction().read(queueHandle);
     queue.push(item);
 }
 
@@ -58,15 +58,15 @@ So there is no need to attach each object individually to a transaction.
 
 All changes made on objects attached/loaded directly/indirectly will be committed atomic, consistent and isolated. So just as with a database, a lot of responsibilities have shifted from the developer to the environment. And only in corner cases you need to influence the implementation.
 
-= Ignoring fields = 
+= Excluding fields = 
 
-Normally all fields of an object will be stored in STM space. But in some cases it is better to ignore a field. This can be done with the @Ignore annotation, example:
+Normally all fields of an object will be stored in STM space. But in some cases it is better to exclude a field. This can be done with the @Exclude annotation, example:
 
 {{{
 @TmEntity
 public class Person{
 
-   @Ignore
+   @Exclude
    private String firstname;
 
    private String lastname;
@@ -75,7 +75,7 @@ public class Person{
 }
 }}}
 
-In this case the firstname is completely ignored and the lastname is not ignored.
+In this case the firstname is ignored and the lastname is not ignored.
 
 = Preventing transaction overload =
 
@@ -105,7 +105,7 @@ public class Stack{
    }
 
    @TmEntity
-   private class Node{
+   private static class Node{
 
        private Node next;
 
@@ -143,7 +143,7 @@ public class Stack{
    }
 
    @TmEntity
-   private class Node{
+   private static class Node{
        
        @NonEscaping
        private Node next;
