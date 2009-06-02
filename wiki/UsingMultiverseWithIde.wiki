@@ -1,6 +1,6 @@
 #summary Using Multiverse inside an IDE
 #sidebar TableOfContents
-<wiki:toc max_depth="1" />
+<wiki:toc max_depth="2" />
 
 = Introduction =
 
@@ -9,7 +9,7 @@ Multiverse has 2 special needs because it relies on instrumentation (bytecode ma
   * the multiverse agent needs to be set as javaagent. 
 This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse and also how to set it up from the commandline and ANT.
 
-= Commandline =
+== Commandline ==
 
 Use the following snippet to run an application from the commandline:
 
@@ -19,7 +19,7 @@ java -Xbootclasspath/a:/to/multiverse/boot.jar -javaagent:/to/multiverse/multive
 
 For more information about the parameters, check the [http://java.sun.com/javase/6/docs/technotes/tools/windows/java.html the Java application launcher] page.
 
-= ANT =
+== ANT ==
 
 Use the following snippet to run an application using Multiverse and ANT: 
 {{{
@@ -35,14 +35,14 @@ Use the following snippet to run an application using Multiverse and ANT:
 </target>
 }}}
 
-= IntelliJ IDEA =
+== IntelliJ IDEA ==
 
 todo
 
-= Eclipse =
+== Eclipse ==
 
 todo
 
-= Netbeans =
+== Netbeans ==
 
 todo
