@@ -8,6 +8,7 @@ If a method needs to be transactional, this can be done with the @Atomic annotat
 
 {{{
 import org.multiverse.tmutils.TmQueue;
+import org.multiverse.tmutils.LinkedTmQueue;
 
 ...
 
