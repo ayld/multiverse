@@ -5,10 +5,24 @@
 Multiverse has 2 special needs because it relies on instrumentation (bytecode manipulation):
   * boot.jar need to be set on the bootclasspath. This jars only contains a special classloader that allows the addition of new classes.
   * the multiverse agent needs to be set as javaagent. 
-This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse.
+This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse and also how to set it up from the commandline.
 
-== Multiverse on IntelliJ IDEA ==
+== IntelliJ IDEA ==
 
-== Multiverse on Eclipse ==
+todo
 
-== Multiverse on Netbeans ==
+== Eclipse ==
+
+todo
+
+== Netbeans ==
+
+todo
+
+== commandline ==
+
+todo
+
+== ANT ==
+
+todo
