@@ -7,8 +7,8 @@ Multiverse has 2 special needs because it relies on instrumentation (bytecode ma
   * the multiverse agent needs to be set as javaagent. 
 This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse.
 
-= Multiverse on IntelliJ IDEA =
+== Multiverse on IntelliJ IDEA ==
 
-= Multiverse on IntelliJ Eclipse =
+== Multiverse on IntelliJ Eclipse ==
 
-= Multiverse on IntelliJ Netbeans =
+== Multiverse on IntelliJ Netbeans ==
