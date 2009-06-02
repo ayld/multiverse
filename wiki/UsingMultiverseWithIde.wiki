@@ -1,4 +1,6 @@
 #summary Using Multiverse inside an IDE
+#sidebar TableOfContents
+<wiki:toc max_depth="1" />
 
 = Introduction =
 
