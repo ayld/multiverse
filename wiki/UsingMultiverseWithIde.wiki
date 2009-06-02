@@ -21,7 +21,11 @@ todo
 
 == commandline ==
 
-todo
+Use the following snippet to run an application from the commandline:
+
+{{{
+java -Xbootclasspath/a:/to/multiverse/boot.jar -javaagent:/to/multiverse/multiverse.jar your.Main
+}}}
 
 == ANT ==
 
