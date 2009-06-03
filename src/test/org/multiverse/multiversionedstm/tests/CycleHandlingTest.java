@@ -182,11 +182,10 @@ public class CycleHandlingTest {
     }
 
     /**
-     * Create a complex graph that can contain cycles. The maximum amount of nodes
-     * allocated are controlled by the nodeCount parameter, but less could be allocated,
-     * depending on the random generation of the graph.
+     * Create a complex graph that can contain cycles. The amount of nodes
+     * allocated are controlled by the nodeCount parameter.
      *
-     * @param nodeCount The maximum amount of ComplexNode objects allocated.
+     * @param nodeCount The amount of ComplexNode objects allocated.
      * @return A graph of ComplexNodes that can contain cycles.
      */
     private ComplexNode createComplexGraphWithLoadsOfCycles(int nodeCount) {
@@ -246,6 +245,25 @@ public class CycleHandlingTest {
         // After the loop, it could be that the workList is not empty and still many ComplexNodes would
         // like to get processed. We can safely ignore these nodes, as their children are initialized to null
         // (terminator node) by default.
+        // Another option is that the workList is empty, but not enough nodes are generated. This could happen
+        // if the null probability is set high and a lot of terminators are generated. In that case, we choose to
+        // pad the tree's rightmost child that has a null child right child with a tree that has only 
+        // right children. We continue this process until we end up with the correct amount of nodes.
+        if (nodeCount > 0) {
+        	ComplexNode rightMost = root;
+        	while (rightMost.getEdge3() != null) {
+        		rightMost = rightMost.getEdge3();
+        	}
+        	
+        	ComplexNode parent = rightMost;
+        	while (nodeCount > 0) {
+        		ComplexNode child = new ComplexNode();
+        		--nodeCount;
+        		parent.setEdge3(child);
+        		parent = child;
+        	}
+        }
+        
         return root;
     }
 
