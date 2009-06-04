@@ -78,6 +78,8 @@ public class Person{
 
 In this case the firstname is ignored and the lastname is not ignored.
 
+The @Exclude annotation can be compared to the @Transient annotation from JPA.
+
 = Preventing transaction overload =
 
 Normally all objects that are loaded from a transaction, are stored in the transaction. This is done for 2 reasons:
