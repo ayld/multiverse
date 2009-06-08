@@ -1,0 +1,10 @@
+
+TODO
+
+- the errors of the test
+
+DONE
+
+- the content of the test
+
+- the directory needs to be created consistent
