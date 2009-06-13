@@ -11,7 +11,7 @@ STM literature:
 General purpose concurrency literature:
   * [http://www.amazon.com/Concurrent-Programming-Java-TM-Principles/dp/0201310090/ref=sr_1_1?ie=UTF8&s=books&qid=1244896138&sr=8-1 Concurrent Programming in Java(TM): Design Principles and Pattern (2nd Edition)]
   * [http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/ref=sr_1_1?ie=UTF8&s=books&qid=1242680643&sr=1-1 Java Concurrency in Practice]
-* [http://www.amazon.com/Art-Multiprocessor-Programming-Maurice-Herlihy/dp/0123705916 The Art of Multiprocessor Programming]
+  * [http://www.amazon.com/Art-Multiprocessor-Programming-Maurice-Herlihy/dp/0123705916 The Art of Multiprocessor Programming]
 
 MVCC Literature:
  * [http://www.amazon.com/Expert-Oracle-Database-Architecture-Programming/dp/1590595300/ref=sr_1_1?ie=UTF8&s=books&qid=1244887499&sr=8-1 Expert Oracle Database Architecture: 9i and 10g Programming Techniques and Solutions] or one of the other books of Thomas Kyte.
