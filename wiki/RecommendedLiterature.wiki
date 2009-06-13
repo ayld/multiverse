@@ -2,14 +2,16 @@
 
 = Recommended literature =
 
-Recommended literature if you are going to work on Multiverse:
+STM literature:
   * [https://urresearch.rochester.edu/handle/1802/4051 What Really Makes Transactions Faster?]
   * [http://research.sun.com/scalable/pubs/DISC2006.pdf Transactional Locking 2]
   * [http://www.amazon.com/Transactional-Synthesis-Lectures-Computer-Architecture/dp/1598291246/ref=sr_1_1?ie=UTF8&s=books&qid=1242680680&sr=1-1 Transactional Memory (Synthesis Lectures on Computer Architecture)]
   * [http://www.amazon.com/Art-Multiprocessor-Programming-Maurice-Herlihy/dp/0123705916 The Art of Multiprocessor Programming]
+
+General purpose concurrency literature:
   * [http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/ref=sr_1_1?ie=UTF8&s=books&qid=1242680643&sr=1-1 Java Concurrency in Practice]
 
-Literature for MVCC:
+MVCC Literature:
  * [http://www.amazon.com/Expert-Oracle-Database-Architecture-Programming/dp/1590595300/ref=sr_1_1?ie=UTF8&s=books&qid=1244887499&sr=8-1 Expert Oracle Database Architecture: 9i and 10g Programming Techniques and Solutions] or one of the other books of Thomas Kyte.
 
 Literature for writing microbenchmarks:
