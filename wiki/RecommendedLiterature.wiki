@@ -9,6 +9,7 @@ STM literature:
   * [http://www.amazon.com/Art-Multiprocessor-Programming-Maurice-Herlihy/dp/0123705916 The Art of Multiprocessor Programming]
 
 General purpose concurrency literature:
+  * [http://www.amazon.com/Concurrent-Programming-Java-TM-Principles/dp/0201310090/ref=sr_1_1?ie=UTF8&s=books&qid=1244896138&sr=8-1 Concurrent Programming in Java(TM): Design Principles and Pattern (2nd Edition)]
   * [http://www.amazon.com/Java-Concurrency-Practice-Brian-Goetz/dp/0321349601/ref=sr_1_1?ie=UTF8&s=books&qid=1242680643&sr=1-1 Java Concurrency in Practice]
 
 MVCC Literature:
