@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 import org.multiverse.multiversionedstm.examples.ExampleStack;
 
 public class Transaction_AttachTest {
@@ -46,41 +46,41 @@ public class Transaction_AttachTest {
 
     @Test
     public void attachOfFreshEntity() {
-        ExampleIntegerValue value = new ExampleIntegerValue(1);
+        ExampleIntValue value = new ExampleIntValue(1);
 
         Transaction t = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle = t.attach(value);
+        Handle<ExampleIntValue> handle = t.attach(value);
         assertHasHandle(value, handle);
     }
 
     @Test
     public void attachOfPreviouslyReadEntity() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue found = t.read(handle);
-        Handle<ExampleIntegerValue> foundHandle = t.attach(found);
+        ExampleIntValue found = t.read(handle);
+        Handle<ExampleIntValue> foundHandle = t.attach(found);
         assertSame(handle, foundHandle);
     }
 
     @Test
     public void multipleAttachOfFreshEntity() {
-        ExampleIntegerValue value = new ExampleIntegerValue(1);
+        ExampleIntValue value = new ExampleIntValue(1);
 
         Transaction t = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle1 = t.attach(value);
-        Handle<ExampleIntegerValue> handle2 = t.attach(value);
+        Handle<ExampleIntValue> handle1 = t.attach(value);
+        Handle<ExampleIntValue> handle2 = t.attach(value);
         assertSame(handle1, handle2);
     }
 
     @Test
     public void multipleAttachOfPreviouslyReadEntity() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue foundValue = t.read(handle);
-        Handle<ExampleIntegerValue> handle1 = t.attach(foundValue);
-        Handle<ExampleIntegerValue> handle2 = t.attach(foundValue);
+        ExampleIntValue foundValue = t.read(handle);
+        Handle<ExampleIntValue> handle1 = t.attach(foundValue);
+        Handle<ExampleIntValue> handle2 = t.attach(foundValue);
         assertSame(handle1, handle2);
     }
 

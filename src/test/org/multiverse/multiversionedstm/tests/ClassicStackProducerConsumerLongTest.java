@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * the performance of STM concurrency with old school concurrency. Not a very good test btw since it doesn't
  * include a warm up time to give the JIT a chance to do its magic.
  *
+ * todo: this class should be transformed to a benchdriver (or deleted if already done).
+ *
  * @author Peter Veentjer.
  */
 @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})

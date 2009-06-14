@@ -31,7 +31,6 @@ public class AtomicClassTransformer_ArgumentsTest {
         assertEquals(originalValue, value.getValue());
     }
 
-
     // =================== tests =======================
 
     @Test

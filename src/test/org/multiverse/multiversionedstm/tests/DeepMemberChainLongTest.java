@@ -8,7 +8,7 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 import org.multiverse.multiversionedstm.examples.ExamplePair;
 
 /**
@@ -89,13 +89,13 @@ public class DeepMemberChainLongTest {
 
         ExamplePair pair = t.read(handle);
         do {
-            ((ExampleIntegerValue) pair.getLeft()).inc();
+            ((ExampleIntValue) pair.getLeft()).inc();
 
             Object right = pair.getRight();
             if (right instanceof ExamplePair) {
                 pair = (ExamplePair) right;
             } else {
-                ((ExampleIntegerValue) right).inc();
+                ((ExampleIntValue) right).inc();
                 pair = null;
             }
         } while (pair != null);
@@ -110,13 +110,13 @@ public class DeepMemberChainLongTest {
 
         ExamplePair pair = t.read(handle);
         do {
-            total += ((ExampleIntegerValue) pair.getLeft()).get();
+            total += ((ExampleIntValue) pair.getLeft()).get();
 
             Object right = pair.getRight();
             if (right instanceof ExamplePair) {
                 pair = (ExamplePair) right;
             } else {
-                total += ((ExampleIntegerValue) right).get();
+                total += ((ExampleIntValue) right).get();
                 pair = null;
             }
         } while (pair != null);
@@ -129,10 +129,10 @@ public class DeepMemberChainLongTest {
     public ExamplePair createValueChain(int length) {
         if (length <= 0) throw new IllegalArgumentException();
 
-        ExamplePair pair = new ExamplePair(new ExampleIntegerValue(0), new ExampleIntegerValue(0));
+        ExamplePair pair = new ExamplePair(new ExampleIntValue(0), new ExampleIntValue(0));
 
         for (int k = 0; k < length - 1; k++) {
-            pair = new ExamplePair(new ExampleIntegerValue(0), pair);
+            pair = new ExamplePair(new ExampleIntValue(0), pair);
         }
 
         return pair;

@@ -9,7 +9,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 
 public class IndependantScalabilityLongTest {
     private MultiversionedStm stm;
@@ -46,15 +46,15 @@ public class IndependantScalabilityLongTest {
     public MyThread[] createThreads(int threadCount) {
         MyThread[] threads = new MyThread[threadCount];
         for (int k = 0; k < threads.length; k++) {
-            threads[k] = new MyThread(k, commit(stm, new ExampleIntegerValue()));
+            threads[k] = new MyThread(k, commit(stm, new ExampleIntValue()));
         }
         return threads;
     }
 
     class MyThread extends TestThread {
-        private Handle<ExampleIntegerValue> handle;
+        private Handle<ExampleIntValue> handle;
 
-        public MyThread(int id, Handle<ExampleIntegerValue> handle) {
+        public MyThread(int id, Handle<ExampleIntValue> handle) {
             super("Thread-" + id);
             this.handle = handle;
         }
@@ -65,7 +65,7 @@ public class IndependantScalabilityLongTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleIntegerValue value = t.read(handle);
+                        ExampleIntValue value = t.read(handle);
                         value.inc();
                         return null;
                     }

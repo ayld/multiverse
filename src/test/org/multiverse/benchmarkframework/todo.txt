@@ -1,0 +1,44 @@
+
+TODO
+
+- system should be able to do something with multiple measures
+
+- system should be able to easily combine multiple graphs
+
+- system should be able to place error information in the output
+
+- system is only able to deal with 1 line on the graph
+
+- system should be able to deal with different types than just integers
+
+- user should be able to benchmark from the command line
+
+- user should be able to create diagrams from the benchmark
+
+- user should be able to set the title from the command line
+
+- user should be able to set the name of the output png from the commandline
+
+- user should be able to create the complete benchmark in ant? groovy? Not having to program
+
+- user should be able to start different jvm's for executing the tests so that different parameters
+can be used. For example g1 garbage collector or pointer compression.
+
+- at the moment each driver need to extract the testcase parameters, this can
+be automated using reflection.
+
+- during execution you want to see where you are.. current testcase index/total testcases.
+
+- atm it is not possible to see which testresults belong to each other and which not.
+    - you can't see if attempts belong to each other
+    - you can't see of testresults for differenttestcases but the same benchmark
+    belong to each other.
+
+
+DONE
+
+- 2 lines should be drawn in the diagram
+
+- the content of the test
+
+- the directory needs to be created consistent

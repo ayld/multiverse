@@ -7,6 +7,10 @@ public final class IntValue {
 
     private int value;
 
+    public IntValue(){
+        this.value = 0;
+    }
+
     public IntValue(int value) {
         this.value = value;
     }

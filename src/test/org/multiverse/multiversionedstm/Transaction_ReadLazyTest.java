@@ -9,7 +9,7 @@ import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoCommittedDataFoundException;
 import org.multiverse.api.exceptions.SnapshotTooOldException;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 
 public class Transaction_ReadLazyTest {
     private MultiversionedStm stm;
@@ -28,18 +28,18 @@ public class Transaction_ReadLazyTest {
 
     @Test
     public void readLazyLoaded() {
-        ExampleIntegerValue value = new ExampleIntegerValue(10);
-        Handle<ExampleIntegerValue> handle = commit(stm, value);
+        ExampleIntValue value = new ExampleIntValue(10);
+        Handle<ExampleIntValue> handle = commit(stm, value);
         long rematerializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> lazyReference = t.readLazy(handle);
+        LazyReference<ExampleIntValue> lazyReference = t.readLazy(handle);
 
         assertSame(value.getHandle(), lazyReference.getHandle());
         assertFalse(lazyReference.isLoaded());
         assertMaterializedCount(stm, rematerializedCount);
 
-        ExampleIntegerValue found = lazyReference.get();
+        ExampleIntValue found = lazyReference.get();
         assertEquals(value, lazyReference.get());
         assertMaterializedCount(stm, rematerializedCount + 1);
         assertIsActive(t);
@@ -47,28 +47,28 @@ public class Transaction_ReadLazyTest {
 
     @Test
     public void readLazyAttachedObject() {
-        ExampleIntegerValue value = new ExampleIntegerValue(1);
+        ExampleIntValue value = new ExampleIntValue(1);
 
         Transaction t1 = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle = t1.attach(value);
+        Handle<ExampleIntValue> handle = t1.attach(value);
 
-        ExampleIntegerValue foundValue = t1.read(handle);
+        ExampleIntValue foundValue = t1.read(handle);
         assertSame(value, foundValue);
     }
 
     @Test
     public void readLazyAlreadyRematerializedObject() {
-        ExampleIntegerValue value = new ExampleIntegerValue(10);
+        ExampleIntValue value = new ExampleIntValue(10);
 
         Transaction t1 = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle = t1.attach(value);
+        Handle<ExampleIntValue> handle = t1.attach(value);
         t1.commit();
 
         Transaction t2 = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> found1 = t2.readLazy(handle);
+        LazyReference<ExampleIntValue> found1 = t2.readLazy(handle);
         assertFalse(found1.isLoaded());
 
-        LazyReference<ExampleIntegerValue> found2 = t2.readLazy(handle);
+        LazyReference<ExampleIntValue> found2 = t2.readLazy(handle);
         assertFalse(found2.isLoaded());
 
         assertSame(found1, found2);
@@ -78,15 +78,15 @@ public class Transaction_ReadLazyTest {
 
     @Test
     public void readTooOldVersion() {
-        ExampleIntegerValue value = new ExampleIntegerValue(10);
+        ExampleIntValue value = new ExampleIntValue(10);
 
         Transaction t1 = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle = t1.attach(value);
+        Handle<ExampleIntValue> handle = t1.attach(value);
         t1.commit();
 
         Transaction t2 = stm.startTransaction();
         Transaction t3 = stm.startTransaction();
-        ExampleIntegerValue value3 = t3.readLazy(handle).get();
+        ExampleIntValue value3 = t3.readLazy(handle).get();
         value3.set(value3.get() + 1);
         t3.commit();
 
@@ -105,8 +105,8 @@ public class Transaction_ReadLazyTest {
     @Test
     public void readLazyAttachedStmObject() {
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue newValue = new ExampleIntegerValue();
-        Handle<ExampleIntegerValue> handle = t.attach(newValue);
+        ExampleIntValue newValue = new ExampleIntValue();
+        Handle<ExampleIntValue> handle = t.attach(newValue);
 
         long rematerializedCount = stm.getStatistics().getMaterializedCount();
 
@@ -147,10 +147,10 @@ public class Transaction_ReadLazyTest {
 
     @Test
     public void getFailsIfTransactionIsAbortedAfterTheReadLazy() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> found = t.readLazy(handle);
+        LazyReference<ExampleIntValue> found = t.readLazy(handle);
         t.commit();
 
         try {
@@ -166,10 +166,10 @@ public class Transaction_ReadLazyTest {
 
     @Test
     public void getFailsIfTransactionIsCommittedAfterTheReadLazy() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> found = t.readLazy(handle);
+        LazyReference<ExampleIntValue> found = t.readLazy(handle);
         t.abort();
 
         try {
@@ -185,7 +185,7 @@ public class Transaction_ReadLazyTest {
 
     @Test
     public void readLazyFailsIfCommitted() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
         t.commit();

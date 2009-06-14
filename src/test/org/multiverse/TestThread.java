@@ -11,6 +11,12 @@ public class TestThread extends Thread {
         setName(name);
     }
 
+    @Override
+    public void run(){
+
+        super.run();
+    }
+
     public TestThread() {
         setUncaughtExceptionHandler(
                 new UncaughtExceptionHandler() {

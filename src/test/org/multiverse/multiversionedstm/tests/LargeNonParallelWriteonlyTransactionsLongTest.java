@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 
 public class LargeNonParallelWriteonlyTransactionsLongTest {
     private MultiversionedStm stm;
@@ -59,7 +59,7 @@ public class LargeNonParallelWriteonlyTransactionsLongTest {
     public void test(int x) {
         Transaction t = stm.startTransaction();
         for (int k = 0; k < x; k++) {
-            ExampleIntegerValue value = new ExampleIntegerValue();
+            ExampleIntValue value = new ExampleIntValue();
             t.attach(value);
         }
         t.commit();

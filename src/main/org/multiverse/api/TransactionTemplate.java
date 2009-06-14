@@ -14,6 +14,7 @@ public abstract class TransactionTemplate<E> {
 
     private final Stm stm;
     private int maximumRetryCount = 0;
+    private boolean isThreadLocalActivated = true;
 
     /**
      * Creates a new TransactionTemplate.
@@ -26,6 +27,14 @@ public abstract class TransactionTemplate<E> {
         //    throw new NullPointerException();
         //}
         this.stm = stm;
+    }
+
+    public TransactionTemplate(Stm stm, boolean isThreadLocalActivated) {
+        if (stm == null) {
+            throw new NullPointerException();
+        }
+        this.stm = stm;
+        this.isThreadLocalActivated = isThreadLocalActivated;
     }
 
     public TransactionTemplate() {
@@ -85,7 +94,11 @@ public abstract class TransactionTemplate<E> {
                 Transaction transaction = startTransaction(predecessor);
                 predecessor = null;
                 boolean abort = true;
-                TransactionThreadLocal.set(transaction);
+
+                if (isThreadLocalActivated) {
+                    TransactionThreadLocal.set(transaction);
+                }
+
                 try {
                     E result = execute(transaction);
                     if (transaction.getState().equals(TransactionState.aborted)) {
@@ -116,10 +129,13 @@ public abstract class TransactionTemplate<E> {
                     retryCount++;
                 }
                 finally {
-                    TransactionThreadLocal.remove();
+                    if (isThreadLocalActivated) {
+                        TransactionThreadLocal.remove();
+                    }
 
-                    if (abort)
+                    if (abort) {
                         transaction.abort();
+                    }
                 }
             } while (retryCount < maximumRetryCount || maximumRetryCount == 0);
 
