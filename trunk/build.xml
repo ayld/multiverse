@@ -17,9 +17,9 @@
 
     <property name="target" value="target"/>
     <property name="dist" value="${target}/dist"/>
-    <property name="classes.main" value="${target}/classes.main"/>
-    <property name="classes.test" value="${target}/classes.test"/>
-    <property name="classes.boot" value="${target}/classes.boot"/>
+    <property name="classes.main" value="${target}/classes/production"/>
+    <property name="classes.test" value="${target}/classes/test"/>
+    <property name="classes.boot" value="${target}/classes/boot"/>
 
     <property name="javadoc" value="${target}/javadoc"/>
     <property name="unit.reports" value="${target}/junit-reports"/>
@@ -147,6 +147,7 @@
         <unzip dest="${classes.main}">
             <fileset dir="${lib.provided}">
                 <include name="*.jar"/>
+                <exclude name="boot.jar"/>
             </fileset>
         </unzip>
 
@@ -298,6 +299,43 @@
                   projectName="${application.name}-${application.version}">
             <class location="${classes.main}"/>
         </findbugs>
+    </target>
+
+    <target name="create-diagrams"
+            description="Creates the diagrams"
+            depends="compile.test">
+
+        <java classname="org.multiverse.benchmarks.DiagramMain" fork="true">
+            <arg value="/tmp/benchmarks"/>
+            <arg value="/tmp/graph.dat"/>
+            <arg value="NoSharedStmNoSharedDataAndManualBenchmark;SharedStmNoSharedDataAndManualBenchmark;SharedStmNoSharedDataBenchmark;SharedStmSharedDataBenchmark"/>
+            <arg value="threadCount"/>
+            <arg value="transactions/second"/>
+
+            <classpath>
+                <pathelement location="${classes.test}"/>
+                <pathelement location="${classes.main}"/>
+                <path refid="classpath.provided"/>
+                <path refid="classpath.support"/>
+            </classpath>
+
+            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
+            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
+        </java>
+
+        <exec executable="gnuplot" failonerror="true">
+            <arg value="diagram.gnuplot"/>
+        </exec>
+<!--"aaa set title \'\'
+set xlabel \'threads\'
+set ylabel \'transactions/second\'
+set grid
+set terminal png
+set output \'/tmp/diagram.png\'
+plot /tmp/graph.dat' using 1:2 with linespoint, \\
+    '/tmp/graph.dat' using 1:3 with linespoint, \\
+    '/tmp/graph.dat' using 1:4 with linespoint, \\
+    '/tmp/graph.dat' using 1:5 with linespoint"/ -->
     </target>
 
 </project>

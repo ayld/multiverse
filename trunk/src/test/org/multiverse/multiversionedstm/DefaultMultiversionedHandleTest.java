@@ -8,7 +8,7 @@ import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.StarvationException;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.multiversionedstm.DefaultMultiversionedHandle.State;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 import org.multiverse.multiversionedstm.examples.ExampleStack;
 import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
@@ -158,7 +158,7 @@ public class DefaultMultiversionedHandleTest {
     public void writeAndReleaseLockOnFreshObject() {
         long version = 10;
 
-        ExampleIntegerValue value = new ExampleIntegerValue();
+        ExampleIntValue value = new ExampleIntValue();
         DematerializedObject dematerializedObject = value.dematerialize();
         DefaultMultiversionedHandle handle = (DefaultMultiversionedHandle) value.getHandle();
         TransactionId lockOwner = new TransactionId();
@@ -242,7 +242,7 @@ public class DefaultMultiversionedHandleTest {
     }
 
     public void getDehydrated(long materializeVersion, long searchVersion) {
-        MaterializedObject object = new ExampleIntegerValue();
+        MaterializedObject object = new ExampleIntValue();
         MultiversionedHandle handle = object.getHandle();
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
@@ -260,7 +260,7 @@ public class DefaultMultiversionedHandleTest {
         long searchVersion = 2;
 
         TransactionId owner = new TransactionId();
-        MaterializedObject materializedObject = new ExampleIntegerValue();
+        MaterializedObject materializedObject = new ExampleIntValue();
         MultiversionedHandle handle = materializedObject.getHandle();
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
@@ -280,7 +280,7 @@ public class DefaultMultiversionedHandleTest {
     //@Test
 
     public void getLastCommited() {
-        MaterializedObject object = new ExampleIntegerValue(45);
+        MaterializedObject object = new ExampleIntValue(45);
         MultiversionedHandle handle = object.getHandle();
         TransactionId id = new TransactionId();
         handle.tryAcquireWriteLockAndDetectForConflicts(id, 0, new RetryCounter(1));

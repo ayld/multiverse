@@ -11,14 +11,14 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConflictingWritesDontBreakSystemLongTest {
     private MultiversionedStm stm;
     private AtomicInteger transactionCountDown = new AtomicInteger();
-    private Handle<ExampleIntegerValue>[] handles;
+    private Handle<ExampleIntValue>[] handles;
 
     private int structureCount = 100;
     private int writerThreadCount = 10;
@@ -50,9 +50,9 @@ public class ConflictingWritesDontBreakSystemLongTest {
 
     private void assertValues(int value) {
         Transaction t = stm.startTransaction();
-        for (Handle<ExampleIntegerValue> handle : handles) {
-            ExampleIntegerValue integerValue = t.read(handle);
-            assertEquals(value, integerValue.get());
+        for (Handle<ExampleIntValue> handle : handles) {
+            ExampleIntValue intValue = t.read(handle);
+            assertEquals(value, intValue.get());
         }
         t.commit();
     }
@@ -61,7 +61,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
         Transaction t = stm.startTransaction();
         handles = new Handle[structureCount];
         for (int k = 0; k < handles.length; k++) {
-            handles[k] = t.attach(new ExampleIntegerValue());
+            handles[k] = t.attach(new ExampleIntValue());
         }
         t.commit();
     }
@@ -90,7 +90,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
                 @Override
                 protected Object execute(Transaction t) {
                     for (int k = 0; k < handles.length; k++) {
-                        ExampleIntegerValue value = t.read(handles[k]);
+                        ExampleIntValue value = t.read(handles[k]);
                         sleepRandomMs(5);
                         value.inc();
                     }

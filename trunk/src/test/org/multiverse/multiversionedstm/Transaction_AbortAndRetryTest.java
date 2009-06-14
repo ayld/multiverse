@@ -8,7 +8,7 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 import org.multiverse.multiversionedstm.examples.ExampleQueue;
 import org.multiverse.multiversionedstm.examples.ExampleStack;
 
@@ -23,7 +23,7 @@ public class Transaction_AbortAndRetryTest {
 
     @Test
     public void abortAndRetryWithSingleRead() throws InterruptedException {
-        final Handle<ExampleQueue<ExampleIntegerValue>> handle = commit(stm, new ExampleQueue<ExampleIntegerValue>());
+        final Handle<ExampleQueue<ExampleIntValue>> handle = commit(stm, new ExampleQueue<ExampleIntValue>());
 
         TestThread waiter = new TestThread() {
             public void run() {
@@ -43,8 +43,8 @@ public class Transaction_AbortAndRetryTest {
         TestThread thread = new TestThread() {
             public void run() {
                 Transaction t = stm.startTransaction();
-                ExampleQueue<ExampleIntegerValue> stack = t.read(handle);
-                stack.push(new ExampleIntegerValue());
+                ExampleQueue<ExampleIntValue> stack = t.read(handle);
+                stack.push(new ExampleIntValue());
                 t.commit();
             }
         };

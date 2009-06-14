@@ -7,7 +7,7 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.WriteConflictException;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 
 public class Transaction_CommitTest {
     private MultiversionedStm stm;
@@ -19,17 +19,17 @@ public class Transaction_CommitTest {
 
     @Test
     public void writeConflict() {
-        ExampleIntegerValue integerValue = new ExampleIntegerValue(10);
+        ExampleIntValue intValue = new ExampleIntValue(10);
 
         Transaction t1 = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle = t1.attach(integerValue);
+        Handle<ExampleIntValue> handle = t1.attach(intValue);
         t1.commit();
 
         Transaction t2 = stm.startTransaction();
-        ExampleIntegerValue v2 = t2.readLazy(handle).get();
+        ExampleIntValue v2 = t2.readLazy(handle).get();
 
         Transaction t3 = stm.startTransaction();
-        ExampleIntegerValue v3 = t3.readLazy(handle).get();
+        ExampleIntValue v3 = t3.readLazy(handle).get();
         v3.inc();
         t3.commit();
 
@@ -52,14 +52,14 @@ public class Transaction_CommitTest {
 
     @Test
     public void freshObject() {
-        ExampleIntegerValue integerValue = new ExampleIntegerValue(10);
+        ExampleIntValue intValue = new ExampleIntValue(10);
 
         long globalVersion = stm.getGlobalVersion();
         long commitCount = stm.getStatistics().getTransactionCommittedCount();
         long readonlyCount = stm.getStatistics().getTransactionReadonlyCount();
 
         Transaction t = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle = t.attach(integerValue);
+        Handle<ExampleIntValue> handle = t.attach(intValue);
         t.commit();
 
         assertIsCommitted(t);
@@ -71,18 +71,18 @@ public class Transaction_CommitTest {
 
     @Test
     public void multipleAttachedFreshObjects() {
-        ExampleIntegerValue item1 = new ExampleIntegerValue(1);
-        ExampleIntegerValue item2 = new ExampleIntegerValue(2);
-        ExampleIntegerValue item3 = new ExampleIntegerValue(3);
+        ExampleIntValue item1 = new ExampleIntValue(1);
+        ExampleIntValue item2 = new ExampleIntValue(2);
+        ExampleIntValue item3 = new ExampleIntValue(3);
 
         long globalVersion = stm.getGlobalVersion();
         long commitCount = stm.getStatistics().getTransactionCommittedCount();
         long readonlyCount = stm.getStatistics().getTransactionReadonlyCount();
 
         Transaction t = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle1 = t.attach(item1);
-        Handle<ExampleIntegerValue> handle2 = t.attach(item2);
-        Handle<ExampleIntegerValue> handle3 = t.attach(item3);
+        Handle<ExampleIntValue> handle1 = t.attach(item1);
+        Handle<ExampleIntValue> handle2 = t.attach(item2);
+        Handle<ExampleIntValue> handle3 = t.attach(item3);
         t.commit();
 
         assertIsCommitted(t);
@@ -96,14 +96,14 @@ public class Transaction_CommitTest {
 
     @Test
     public void multipleDirtyObjects() {
-        ExampleIntegerValue item1 = new ExampleIntegerValue(1);
-        ExampleIntegerValue item2 = new ExampleIntegerValue(1);
-        ExampleIntegerValue item3 = new ExampleIntegerValue(1);
+        ExampleIntValue item1 = new ExampleIntValue(1);
+        ExampleIntValue item2 = new ExampleIntValue(1);
+        ExampleIntValue item3 = new ExampleIntValue(1);
 
         Transaction t = stm.startTransaction();
-        Handle<ExampleIntegerValue> handle1 = t.attach(item1);
-        Handle<ExampleIntegerValue> handle2 = t.attach(item2);
-        Handle<ExampleIntegerValue> handle3 = t.attach(item3);
+        Handle<ExampleIntValue> handle1 = t.attach(item1);
+        Handle<ExampleIntValue> handle2 = t.attach(item2);
+        Handle<ExampleIntValue> handle3 = t.attach(item3);
         t.commit();
 
         long globalVersion = stm.getGlobalVersion();
@@ -124,14 +124,14 @@ public class Transaction_CommitTest {
 
     @Test
     public void commitOfReadonlyTransactionDoesntLeadToChanges() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         long globalVersion = stm.getGlobalVersion();
         long commitCount = stm.getStatistics().getTransactionCommittedCount();
         long readonlyCount = stm.getStatistics().getTransactionReadonlyCount();
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue integerValue = t.read(handle);
+        ExampleIntValue intValue = t.read(handle);
         t.commit();
 
         assertGlobalVersion(stm, globalVersion);

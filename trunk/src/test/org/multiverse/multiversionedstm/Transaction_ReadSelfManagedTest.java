@@ -9,7 +9,7 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 import org.multiverse.multiversionedstm.examples.ExamplePair;
 
 public class Transaction_ReadSelfManagedTest {
@@ -35,13 +35,13 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void repeatedReadSelfManagedDoesNotReturnSameValue() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue v1 = t.readSelfManaged(handle);
-        ExampleIntegerValue v2 = t.readSelfManaged(handle);
+        ExampleIntValue v1 = t.readSelfManaged(handle);
+        ExampleIntValue v2 = t.readSelfManaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -53,11 +53,11 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void readSelfManagedIgnoresPreviousReadObject() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue v1 = t.read(handle);
-        ExampleIntegerValue v2 = t.readSelfManaged(handle);
+        ExampleIntValue v1 = t.read(handle);
+        ExampleIntValue v2 = t.readSelfManaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -68,12 +68,12 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void readSelfManagedIgnoresAttachedObject() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue v1 = t.read(handle);
+        ExampleIntValue v1 = t.read(handle);
         t.attach(v1);
-        ExampleIntegerValue v2 = t.readSelfManaged(handle);
+        ExampleIntValue v2 = t.readSelfManaged(handle);
 
         assertNotNull(v1);
         assertNotNull(v2);
@@ -84,13 +84,13 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void changeOnReadSelfManagedWontBeCommittedIfThereIsNoReferenceToIt() {
-        ExampleIntegerValue original = new ExampleIntegerValue(29);
-        Handle<ExampleIntegerValue> handle = commit(stm, original);
+        ExampleIntValue original = new ExampleIntValue(29);
+        Handle<ExampleIntValue> handle = commit(stm, original);
 
         long writes = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue changed = t.readSelfManaged(handle);
+        ExampleIntValue changed = t.readSelfManaged(handle);
         changed.inc();
         t.commit();
 
@@ -100,14 +100,14 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void changeOnReadSelfManagedWillBeCommittedIfThereIsSomeReferenceToIt() {
-        ExampleIntegerValue original = new ExampleIntegerValue(29);
+        ExampleIntValue original = new ExampleIntValue(29);
 
-        Handle<ExampleIntegerValue> handle = commit(stm, original);
+        Handle<ExampleIntValue> handle = commit(stm, original);
         long writeCount = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue changed = t.readSelfManaged(handle);
-        ExamplePair<ExampleIntegerValue, Object> pair = new ExamplePair<ExampleIntegerValue, Object>(changed, null);
+        ExampleIntValue changed = t.readSelfManaged(handle);
+        ExamplePair<ExampleIntValue, Object> pair = new ExamplePair<ExampleIntValue, Object>(changed, null);
         t.attach(pair);
         changed.inc();
         t.commit();
@@ -118,10 +118,10 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void readSelfManagedNotUsedInListeningIfThereIsNoOtherReferenceToIt() throws InterruptedException {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue found = t.readSelfManaged(handle);
+        ExampleIntValue found = t.readSelfManaged(handle);
 
         try {
             t.abortAndRetry();
@@ -134,7 +134,7 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void readSelfManagedFailsIfTransactionAborted() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
         t.abort();
@@ -150,7 +150,7 @@ public class Transaction_ReadSelfManagedTest {
 
     @Test
     public void readSelfManagedFailsIfTransactionCommitted() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
         t.commit();

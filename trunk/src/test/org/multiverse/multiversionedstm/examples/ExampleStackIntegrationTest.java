@@ -98,15 +98,15 @@ public class ExampleStackIntegrationTest {
 
     @Test
     public void testReferencesWithinStackArePersisted() {
-        ExampleStack<ExampleIntegerValue> stack = new ExampleStack<ExampleIntegerValue>();
-        stack.push(new ExampleIntegerValue(10));
+        ExampleStack<ExampleIntValue> stack = new ExampleStack<ExampleIntValue>();
+        stack.push(new ExampleIntValue(10));
 
-        Handle<ExampleStack<ExampleIntegerValue>> handle = commit(stm, stack);
+        Handle<ExampleStack<ExampleIntValue>> handle = commit(stm, stack);
 
         Transaction t = stm.startTransaction();
-        ExampleStack<ExampleIntegerValue> foundStack = t.read(handle);
+        ExampleStack<ExampleIntValue> foundStack = t.read(handle);
         assertStackSize(foundStack, 1);
-        ExampleIntegerValue foundValue = foundStack.peek();
+        ExampleIntValue foundValue = foundStack.peek();
         assertIntegerValue(10, foundValue);
         foundValue.inc();
         t.commit();
@@ -119,7 +119,7 @@ public class ExampleStackIntegrationTest {
         t.commit();
     }
 
-    private void assertIntegerValue(int expected, ExampleIntegerValue value) {
+    private void assertIntegerValue(int expected, ExampleIntValue value) {
         assertNotNull(value);
         assertEquals(expected, value.get());
     }

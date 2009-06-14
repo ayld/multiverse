@@ -39,13 +39,13 @@ public class ExamplePairTest {
 
     @Test
     public void testPersistSimpleMaterializedMembers() {
-        ExampleIntegerValue left = new ExampleIntegerValue(10);
-        ExampleIntegerValue right = new ExampleIntegerValue(20);
-        ExamplePair<ExampleIntegerValue, ExampleIntegerValue> pair = new ExamplePair<ExampleIntegerValue, ExampleIntegerValue>(left, right);
-        Handle<ExamplePair<ExampleIntegerValue, ExampleIntegerValue>> handle = commit(stm, pair);
+        ExampleIntValue left = new ExampleIntValue(10);
+        ExampleIntValue right = new ExampleIntValue(20);
+        ExamplePair<ExampleIntValue, ExampleIntValue> pair = new ExamplePair<ExampleIntValue, ExampleIntValue>(left, right);
+        Handle<ExamplePair<ExampleIntValue, ExampleIntValue>> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        ExamplePair<ExampleIntegerValue, ExampleIntegerValue> found = t.read(handle);
+        ExamplePair<ExampleIntValue, ExampleIntValue> found = t.read(handle);
         assertNotNull(found);
         assertEquals(left, found.getLeft());
         assertEquals(right, found.getRight());

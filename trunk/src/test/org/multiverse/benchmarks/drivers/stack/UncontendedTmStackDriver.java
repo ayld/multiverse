@@ -1,48 +1,48 @@
-package org.multiverse.benchmark;
+package org.multiverse.benchmarks.drivers.stack;
 
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
+import org.multiverse.benchmarkframework.executor.AbstractDriver;
+import org.multiverse.benchmarkframework.executor.TestCase;
 import org.multiverse.tmutils.LinkedTmStack;
 import org.multiverse.tmutils.TmStack;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class StackStressTestDriver extends AbstractDriver {
+public class UncontendedTmStackDriver extends AbstractDriver {
 
+    //todo: this shared counter should be removed.
     private final AtomicLong toProduceCounter = new AtomicLong();
-    private Handle<? extends TmStack<String>> handle;
     private ProduceThread[] producers;
 
-    @Override
-    public void setUp() {
-        handle = commit(new LinkedTmStack<String>());
-    }
 
     @Override
-    public void initRun(TestCase testCase) {
-        int producerCount = testCase.getIntProperty("producercount");
+    public void preRun(TestCase testCase) {
+        int producerCount = testCase.getIntProperty("producerCount");
         producers = new ProduceThread[producerCount];
-        for(int k=0;k<producerCount;k++){
-           producers[k]=new ProduceThread(k);
+        for (int k = 0; k < producerCount; k++) {
+            producers[k] = new ProduceThread(k);
         }
 
-        handle = commit(new LinkedTmStack<String>());
-        toProduceCounter.set(testCase.getIntProperty("itemcount"));
+        toProduceCounter.set(testCase.getIntProperty("itemCount"));
     }
 
     @Override
-    public void run(TestResult testResult) {
+    public void run() {
         startAll(producers);
         joinAll(producers);
     }
 
     public class ProduceThread extends TestThread {
+        private Handle<? extends TmStack<String>> handle;
 
         public ProduceThread(int id) {
             super("Producer-" + id);
+
+            handle = commit(new LinkedTmStack<String>());
         }
 
         @Override

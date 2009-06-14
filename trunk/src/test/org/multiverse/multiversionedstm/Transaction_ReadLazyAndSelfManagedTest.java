@@ -8,7 +8,7 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.examples.ExampleIntegerValue;
+import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 
 public class Transaction_ReadLazyAndSelfManagedTest {
     private MultiversionedStm stm;
@@ -36,15 +36,15 @@ public class Transaction_ReadLazyAndSelfManagedTest {
 
     @Test
     public void readLazyAndUnmanaged() {
-        ExampleIntegerValue original = new ExampleIntegerValue();
-        Handle<ExampleIntegerValue> handle = commit(stm, original);
+        ExampleIntValue original = new ExampleIntValue();
+        Handle<ExampleIntValue> handle = commit(stm, original);
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
+        LazyReference<ExampleIntValue> ref = t.readLazyAndSelfManaged(handle);
 
         assertFalse(ref.isLoaded());
-        ExampleIntegerValue value = ref.get();
+        ExampleIntValue value = ref.get();
 
         assertSame(handle, ref.getHandle());
         assertEquals(original, value);
@@ -53,16 +53,16 @@ public class Transaction_ReadLazyAndSelfManagedTest {
 
     @Test
     public void readLazyAndUnmanagedDoesntSeeNormalReads() {
-        ExampleIntegerValue original = new ExampleIntegerValue();
-        Handle<ExampleIntegerValue> handle = commit(stm, original);
+        ExampleIntValue original = new ExampleIntValue();
+        Handle<ExampleIntValue> handle = commit(stm, original);
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue found = t.read(handle);
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
+        ExampleIntValue found = t.read(handle);
+        LazyReference<ExampleIntValue> ref = t.readLazyAndSelfManaged(handle);
 
         assertFalse(ref.isLoaded());
-        ExampleIntegerValue value = ref.get();
+        ExampleIntValue value = ref.get();
 
         assertEquals(handle, ref.getHandle());
         assertEquals(original, value);
@@ -72,13 +72,13 @@ public class Transaction_ReadLazyAndSelfManagedTest {
 
     @Test
     public void readLazyAndUnmanagedDoesNoSaveChanges() {
-        ExampleIntegerValue original = new ExampleIntegerValue();
-        Handle<ExampleIntegerValue> handle = commit(stm, original);
+        ExampleIntValue original = new ExampleIntValue();
+        Handle<ExampleIntValue> handle = commit(stm, original);
 
         long writeCount = stm.getStatistics().getWriteCount();
 
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
+        LazyReference<ExampleIntValue> ref = t.readLazyAndSelfManaged(handle);
         ref.get().inc();
         t.commit();
 
@@ -88,11 +88,11 @@ public class Transaction_ReadLazyAndSelfManagedTest {
 
     @Test
     public void readLazyFailsIfGetIsDoneAfterAbort() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
+        LazyReference<ExampleIntValue> ref = t.readLazyAndSelfManaged(handle);
         t.abort();
 
         try {
@@ -106,11 +106,11 @@ public class Transaction_ReadLazyAndSelfManagedTest {
 
     @Test
     public void readLazyFailsIfGetIsDoneAfterCommit() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         long materializedCount = stm.getStatistics().getMaterializedCount();
         Transaction t = stm.startTransaction();
-        LazyReference<ExampleIntegerValue> ref = t.readLazyAndSelfManaged(handle);
+        LazyReference<ExampleIntValue> ref = t.readLazyAndSelfManaged(handle);
         t.commit();
 
         try {
@@ -124,7 +124,7 @@ public class Transaction_ReadLazyAndSelfManagedTest {
 
     @Test
     public void readLazyAndUnmanagedFailsIfTransactionIsAborted() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
         t.abort();
@@ -140,7 +140,7 @@ public class Transaction_ReadLazyAndSelfManagedTest {
 
     @Test
     public void readLazyAndUnmanagedFailsIfTransactionIsCommitted() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue());
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue());
 
         Transaction t = stm.startTransaction();
         t.commit();

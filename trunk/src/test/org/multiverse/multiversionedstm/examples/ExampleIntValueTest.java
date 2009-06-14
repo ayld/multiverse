@@ -9,7 +9,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class ExampleIntegerValueTest {
+public class ExampleIntValueTest {
     private MultiversionedStm stm;
 
     @Before
@@ -19,14 +19,14 @@ public class ExampleIntegerValueTest {
 
     @Test
     public void testFreshObjectIsDirty() {
-        ExampleIntegerValue value = new ExampleIntegerValue();
+        ExampleIntValue value = new ExampleIntValue();
         assertTrue(value.isDirty());
     }
 
     @Test
     public void testFreshCommitedObjectIsNotDirty() {
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue value = new ExampleIntegerValue(10);
+        ExampleIntValue value = new ExampleIntValue(10);
         t.attach(value);
         t.commit();
 
@@ -35,19 +35,19 @@ public class ExampleIntegerValueTest {
 
     @Test
     public void testLoadedObjectIsNotDirty() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue(10));
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue(10));
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue value = t.read(handle);
+        ExampleIntValue value = t.read(handle);
         assertFalse(value.isDirty());
     }
 
     @Test
     public void testLoadedObjectThatIsUpdatedIsDirty() {
-        Handle<ExampleIntegerValue> handle = commit(stm, new ExampleIntegerValue(10));
+        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue(10));
 
         Transaction t = stm.startTransaction();
-        ExampleIntegerValue value = t.read(handle);
+        ExampleIntValue value = t.read(handle);
         value.inc();
         assertTrue(value.isDirty());
     }
