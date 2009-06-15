@@ -13,7 +13,7 @@ import org.multiverse.api.annotations.TmEntity;
 import org.multiverse.multiversionedstm.MaterializedObject;
 
 
-public class SleepingBarberTest {
+public class SleepingBarberLongTest {
     private int cutsCount = 10000;
 
     private Handle<BarberShop> barberShopHandle;
