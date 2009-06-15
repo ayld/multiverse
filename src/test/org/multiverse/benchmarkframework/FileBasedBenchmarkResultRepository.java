@@ -15,22 +15,22 @@ import java.util.Properties;
  */
 public class FileBasedBenchmarkResultRepository implements BenchmarkResultRepository {
 
-    private File benchmarksRootDir;
+    private File rootDir;
 
-    public FileBasedBenchmarkResultRepository(File benchmarksRootDir) {
-        if (benchmarksRootDir == null) {
+    public FileBasedBenchmarkResultRepository(File rootDir) {
+        if (rootDir == null) {
             throw new NullPointerException();
         }
 
-        if (!benchmarksRootDir.isDirectory()) {
-            if (!benchmarksRootDir.exists()) {
-                benchmarksRootDir.mkdirs();
+        if (!rootDir.isDirectory()) {
+            if (!rootDir.exists()) {
+                rootDir.mkdirs();
             } else {
                 throw new IllegalArgumentException();
             }
         }
 
-        this.benchmarksRootDir = benchmarksRootDir;
+        this.rootDir = rootDir;
     }
 
     @Override
@@ -73,8 +73,10 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
             throw new NullPointerException();
         }
 
-        File file = createOutputFile(benchmarkResult);
-        writeOutputToFile(benchmarkResult, file);
+        for (TestCaseResult result : benchmarkResult.getTestCaseResultList()) {
+            File file = createOutputFile(result);
+            writeOutputToFile(result, file);
+        }
     }
 
     private void writeOutputToFile(TestCaseResult testCaseResult, File file) {
@@ -110,7 +112,7 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
 
     private File getDateDir(Date date) {
         SimpleDateFormat format = new SimpleDateFormat("y-M-d");
-        File dateDir = new File(benchmarksRootDir, format.format(date));
+        File dateDir = new File(rootDir, format.format(date));
         dateDir.mkdirs();
         return dateDir;
     }

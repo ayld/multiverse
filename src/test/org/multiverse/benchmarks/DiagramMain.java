@@ -37,7 +37,7 @@ public class DiagramMain {
     public void addToModel(Date date, String benchmarkName) {
         BenchmarkResult benchmarkResult = resultRepository.load(date, benchmarkName);
 
-        for (TestCaseResult caseResult : benchmarkResult) {
+        for (TestCaseResult caseResult : benchmarkResult.getTestCaseResultList()) {
             model.add(benchmarkName, caseResult);
         }
     }
