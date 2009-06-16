@@ -32,6 +32,8 @@ public class SleepingBarberLongTest {
         //System.out.println(stm.getStatistics());
     }
 
+    //todo: test is not correct, it should stop after all the customer threads have
+    //finished as well.
     @Test
     public void test() {
         BarberThread barberThread = new BarberThread();

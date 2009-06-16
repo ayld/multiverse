@@ -7,32 +7,29 @@ import java.util.Properties;
 /**
  * A TestCase is one of the cases that needs to be executed to create a benchmark.
  * It contains all the specific parameters and the {@link Driver}.
- *
- * The same testcase can execute multiple times. 
+ * <p/>
+ * The same testcase can execute multiple times.
  *
  * @author Peter Veentjer.
  */
 public class TestCase {
 
-    private String benchmarkname;
+    private final String benchmarkname;
     private final Properties properties = new Properties();
     private int warmupRunCount = 0;
     private int runCount = 1;
     private Driver driver;
 
-    public TestCase(Driver driver){
-        if(driver == null){
+    public TestCase(Benchmark benchmark, Driver driver) {
+        if (driver == null) {
             throw new NullPointerException();
         }
+        this.benchmarkname = benchmark.getBenchmarkName();
         this.driver = driver;
     }
 
     public Driver getDriver() {
         return driver;
-    }
-
-    public void setBenchmarkname(String benchmarkname) {
-        this.benchmarkname = benchmarkname;
     }
 
     public String getBenchmarkName() {

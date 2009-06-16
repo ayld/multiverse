@@ -4,31 +4,34 @@ import java.io.*;
 import static java.lang.String.format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * A {@link BenchmarkResultRepository} that persist on file system.
+ * <p/>
+ * Implementation is not threadsafe.
  *
  * @author Peter Veentjer.
  */
 public class FileBasedBenchmarkResultRepository implements BenchmarkResultRepository {
 
-    private File rootDir;
-
-    public FileBasedBenchmarkResultRepository(File rootDir) {
-        if (rootDir == null) {
+    private static void ensureExistingDirectory(File dir) {
+        if (dir == null) {
             throw new NullPointerException();
         }
 
-        if (!rootDir.isDirectory()) {
-            if (!rootDir.exists()) {
-                rootDir.mkdirs();
-            } else {
-                throw new IllegalArgumentException();
+        if (!dir.isDirectory()) {
+            if (!dir.mkdirs()) {
+                String msg = format("Unable to create directory %s", dir);
+                throw new RuntimeException(msg);
             }
         }
+    }
+
+    private File rootDir;
+
+    public FileBasedBenchmarkResultRepository(File rootDir) {
+        ensureExistingDirectory(rootDir);
 
         this.rootDir = rootDir;
     }
@@ -45,12 +48,13 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
 
     @Override
     public BenchmarkResult load(Date date, String benchmarkName) {
+        /*
         if (date == null || benchmarkName == null) {
             throw new NullPointerException();
         }
 
-        File dir = getDateDir(date);
-        File benchmarkDir = new File(dir, benchmarkName);
+        //File dir = toDateSeperator(date);
+        //File benchmarkDir = new File(dir, benchmarkName);
 
         List<TestCaseResult> caseResults = new LinkedList<TestCaseResult>();
         for (File file : benchmarkDir.listFiles(new ResultFileFilter())) {
@@ -66,6 +70,8 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
         }
 
         return new BenchmarkResult(caseResults);
+        */
+        throw new RuntimeException("Not implemented yet");
     }
 
     public void store(BenchmarkResult benchmarkResult) {
@@ -73,15 +79,19 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
             throw new NullPointerException();
         }
 
+        File targetDir = createTargetDir(benchmarkResult);
+
+        int k = 1;
         for (TestCaseResult result : benchmarkResult.getTestCaseResultList()) {
-            File file = createOutputFile(result);
-            writeOutputToFile(result, file);
+            File outputFile = new File(targetDir, k + ".txt");
+            writeOutputToFile(result, outputFile);
+            k++;
         }
     }
 
-    private void writeOutputToFile(TestCaseResult testCaseResult, File file) {
+    private void writeOutputToFile(TestCaseResult testCaseResult, File target) {
         try {
-            Writer output = new BufferedWriter(new FileWriter(file));
+            Writer output = new BufferedWriter(new FileWriter(target));
             try {
                 testCaseResult.getProperties().store(output, "");
             } finally {
@@ -92,29 +102,52 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
         }
     }
 
-    private File createOutputFile(TestCaseResult testCaseResult) {
-        File dir = getDestinationDir(testCaseResult);
-        return new File(dir, System.currentTimeMillis() + ".txt");
+    private File createTargetDir(BenchmarkResult benchmarkResult) {
+        File benchmarkDirectory = getBenchmarkDirectory(benchmarkResult.getBenchmarkName());
+
+        File todaysMeasurementsDir = new File(
+                benchmarkDirectory,
+                toDateSeperator(new Date()));
+
+        ensureExistingDirectory(todaysMeasurementsDir);
+        return createRunDir(todaysMeasurementsDir);
     }
 
-    private File getDestinationDir(TestCaseResult testCaseResult) {
-        File destinationDir = new File(getDateDir(new Date()), testCaseResult.getBenchmarkName());
-        if (destinationDir.isDirectory()) {
-            return destinationDir;
-        } else if (destinationDir.exists()) {
-            String msg = format("DestinationDir %s is not a directory", destinationDir.getAbsolutePath());
-            throw new IllegalStateException(msg);
+    /**
+     * Creates a directory that points to all files from a run of a single Benchmark.
+     */
+    private File createRunDir(File todaysBenchmarksDir) {
+        int max = 0;
+        for (File file : todaysBenchmarksDir.listFiles()) {
+            try {
+                String name = file.getName();
+                int value = Integer.parseInt(name);
+                if (value > max) {
+                    max = value;
+                }
+            } catch (NumberFormatException ex) {
+                //ignore, go to the next file.
+            }
         }
 
-        destinationDir.mkdirs();
-        return destinationDir;
+        File runDir = new File(todaysBenchmarksDir, "" + (max + 1));
+        ensureExistingDirectory(runDir);
+        return runDir;
     }
 
-    private File getDateDir(Date date) {
+    private File getBenchmarkDirectory(String benchmarkName) {
+        File result = rootDir;
+        StringTokenizer tokenizer = new StringTokenizer(benchmarkName);
+        while (tokenizer.hasMoreElements()) {
+            result = new File(result, tokenizer.nextToken());
+        }
+        return result;
+    }
+
+
+    private String toDateSeperator(Date date) {
         SimpleDateFormat format = new SimpleDateFormat("y-M-d");
-        File dateDir = new File(rootDir, format.format(date));
-        dateDir.mkdirs();
-        return dateDir;
+        return format.format(date);
     }
 
     private static class ResultFileFilter implements FileFilter {

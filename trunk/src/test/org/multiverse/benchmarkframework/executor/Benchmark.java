@@ -17,4 +17,5 @@ public interface Benchmark {
      */
     List<TestCase> testCases();
 
+    String getBenchmarkName();
 }

@@ -1,7 +1,7 @@
 package org.multiverse.benchmarks;
 
-import org.multiverse.benchmarkframework.FileBasedBenchmarkResultRepository;
 import org.multiverse.benchmarkframework.BenchmarkResultRepository;
+import org.multiverse.benchmarkframework.FileBasedBenchmarkResultRepository;
 import org.multiverse.benchmarkframework.executor.Benchmark;
 import org.multiverse.benchmarkframework.executor.BenchmarkExecutor;
 import org.multiverse.benchmarkframework.executor.Driver;
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @author Peter Veentjer
  */
-public class Main {
+public class BenchmarkMain {
 
     public static void main(String[] args) {
         File benchmarkDir = new File(args[0]);
@@ -33,7 +33,7 @@ public class Main {
         executor.execute(new SharedStmSharedDataBenchmark());
         executor.execute(new SharedStmNoSharedDataAndManualBenchmark());
         executor.execute(new NoSharedStmNoSharedDataAndManualBenchmark());
-        //executor.execute(new ContendedCasBenchmark());
+        executor.execute(new ContendedCasBenchmark());
         //executor.execute(new ContendedTmStackBenchmark());
         //executor.execute(new UncontendedTmStackBenchmark());
     }
@@ -42,18 +42,22 @@ public class Main {
 class UncontendedTmStackBenchmark implements Benchmark {
 
     @Override
+    public String getBenchmarkName() {
+        return "baseline/UncontendedTmStackBenchmark";
+    }
+
+    @Override
     public List<TestCase> testCases() {
         Driver driver = new UncontendedTmStackDriver();
         List<TestCase> cases = new LinkedList<TestCase>();
         for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
             //for (int l = 0; l < 10; l+=2) {
-                TestCase testCase = new TestCase(driver);
-                testCase.setBenchmarkname("UncontendedTmStackBenchmark");
-                testCase.setWarmupRunCount(1);
-                testCase.setRunCount(1);
-                testCase.setProperty("itemCount", 2*1000*1000);
-                testCase.setProperty("producerCount",k);
-                cases.add(testCase);
+            TestCase testCase = new TestCase(this, driver);
+            testCase.setWarmupRunCount(1);
+            testCase.setRunCount(1);
+            testCase.setProperty("itemCount", 2 * 1000 * 1000);
+            testCase.setProperty("producerCount", k);
+            cases.add(testCase);
             //}
         }
 
@@ -64,18 +68,24 @@ class UncontendedTmStackBenchmark implements Benchmark {
 class ContendedTmStackBenchmark implements Benchmark {
 
     @Override
+    public String getBenchmarkName() {
+        return "baseline/ContendedTmStackBenchmark";
+
+    }
+
+    @Override
     public List<TestCase> testCases() {
         Driver driver = new ContendedTmStackDriver();
         List<TestCase> cases = new LinkedList<TestCase>();
         for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
             //for (int l = 0; l < 10; l+=2) {
-                TestCase testCase = new TestCase(driver);
-                testCase.setBenchmarkname("ContendedTmStackBenchmark");
-                testCase.setWarmupRunCount(1);
-                testCase.setRunCount(1);
-                testCase.setProperty("itemCount", 2*1000*1000);
-                testCase.setProperty("producerCount",k);
-                cases.add(testCase);
+            TestCase testCase = new TestCase(this, driver);
+            testCase.setWarmupRunCount(1);
+            testCase.setRunCount(1);
+            testCase.setProperty("itemCount", 2 * 1000 * 1000);
+            testCase.setProperty("producerCount", k);
+            testCase.setProperty("consumerCount", k);
+            cases.add(testCase);
             //}
         }
 
@@ -86,13 +96,17 @@ class ContendedTmStackBenchmark implements Benchmark {
 class ContendedCasBenchmark implements Benchmark {
 
     @Override
+    public String getBenchmarkName() {
+        return "baseline/ContendedCasBenchmark";
+    }
+
+    @Override
     public List<TestCase> testCases() {
         Driver driver = new ContendedCasDriver();
 
         List<TestCase> cases = new LinkedList<TestCase>();
         for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(driver);
-            testCase.setBenchmarkname("ContendedCasBenchmark");
+            TestCase testCase = new TestCase(this, driver);
             testCase.setWarmupRunCount(1);
             testCase.setRunCount(1);
             testCase.setProperty("count", 1000 * 1000);
@@ -106,15 +120,18 @@ class ContendedCasBenchmark implements Benchmark {
 
 
 class SharedStmSharedDataBenchmark implements Benchmark {
+    @Override
+    public String getBenchmarkName() {
+        return "baseline/SharedStmSharedDataBenchmark";
+    }
 
     @Override
     public List<TestCase> testCases() {
-        Driver driver = new   SharedStmSharedDataDriver();
+        Driver driver = new SharedStmSharedDataDriver();
 
         List<TestCase> cases = new LinkedList<TestCase>();
         for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(driver);
-            testCase.setBenchmarkname("SharedStmSharedDataBenchmark");
+            TestCase testCase = new TestCase(this, driver);
             testCase.setWarmupRunCount(1);
             testCase.setRunCount(1);
             testCase.setProperty("incCount", 1000 * 1000);
@@ -130,13 +147,17 @@ class SharedStmSharedDataBenchmark implements Benchmark {
 class SharedStmNoSharedDataBenchmark implements Benchmark {
 
     @Override
+    public String getBenchmarkName() {
+        return "baseline/SharedStmNoSharedDataBenchmark";
+    }
+
+    @Override
     public List<TestCase> testCases() {
         Driver driver = new SharedStmNoSharedDataDriver();
 
         List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors();k++) {
-            TestCase testCase = new TestCase(driver);
-            testCase.setBenchmarkname("SharedStmNoSharedDataBenchmark");
+        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
+            TestCase testCase = new TestCase(this, driver);
             testCase.setWarmupRunCount(1);
             testCase.setRunCount(1);
             testCase.setProperty("incCount", 1000 * 1000);
@@ -151,13 +172,17 @@ class SharedStmNoSharedDataBenchmark implements Benchmark {
 class NoSharedStmNoSharedDataAndManualBenchmark implements Benchmark {
 
     @Override
+    public String getBenchmarkName() {
+        return "baseline/NoSharedStmNoSharedDataAndManualBenchmark";
+    }
+
+    @Override
     public List<TestCase> testCases() {
         Driver driver = new NoSharedStmNoSharedDataAndManualDriver();
 
         List<TestCase> cases = new LinkedList<TestCase>();
         for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(driver);
-            testCase.setBenchmarkname("NoSharedStmNoSharedDataAndManualBenchmark");
+            TestCase testCase = new TestCase(this, driver);
             testCase.setWarmupRunCount(1);
             testCase.setRunCount(1);
             testCase.setProperty("incCount", 1000 * 1000);
@@ -173,13 +198,17 @@ class NoSharedStmNoSharedDataAndManualBenchmark implements Benchmark {
 class SharedStmNoSharedDataAndManualBenchmark implements Benchmark {
 
     @Override
+    public String getBenchmarkName() {
+        return "baseline/SharedStmNoSharedDataAndManualBenchmark";
+    }
+
+    @Override
     public List<TestCase> testCases() {
         Driver driver = new SharedStmNoSharedDataAndManualDriver();
 
         List<TestCase> cases = new LinkedList<TestCase>();
         for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(driver);
-            testCase.setBenchmarkname("SharedStmNoSharedDataAndManualBenchmark");
+            TestCase testCase = new TestCase(this, driver);
             testCase.setWarmupRunCount(1);
             testCase.setRunCount(1);
             testCase.setProperty("incCount", 1000 * 1000);
