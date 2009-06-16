@@ -9,18 +9,24 @@ import java.util.List;
  */
 public class BenchmarkResult {
 
+    private final String benchmarkName;
     private final List<TestCaseResult> testCaseResultList;
 
-    public BenchmarkResult(){
-        this(new LinkedList<TestCaseResult>());
+    public BenchmarkResult(String benchmarkName) {
+        this(benchmarkName, new LinkedList<TestCaseResult>());
     }
 
-    public BenchmarkResult(List<TestCaseResult> testCaseResultList){
-        if(testCaseResultList == null){
+    public BenchmarkResult(String benchmarkName, List<TestCaseResult> testCaseResultList) {
+        if (testCaseResultList == null) {
             throw new NullPointerException();
         }
 
         this.testCaseResultList = testCaseResultList;
+        this.benchmarkName = benchmarkName;
+    }
+
+    public String getBenchmarkName() {
+        return benchmarkName;
     }
 
     public void add(TestCaseResult result) {
@@ -30,7 +36,7 @@ public class BenchmarkResult {
         testCaseResultList.add(result);
     }
 
-    public List<TestCaseResult> getTestCaseResultList(){
+    public List<TestCaseResult> getTestCaseResultList() {
         return Collections.unmodifiableList(testCaseResultList);
     }
 }

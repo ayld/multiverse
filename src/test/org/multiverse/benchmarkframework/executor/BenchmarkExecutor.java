@@ -1,9 +1,10 @@
 package org.multiverse.benchmarkframework.executor;
 
 import org.multiverse.benchmarkframework.BenchmarkResult;
-import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.benchmarkframework.BenchmarkResultRepository;
+import org.multiverse.benchmarkframework.TestCaseResult;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -28,32 +29,19 @@ public class BenchmarkExecutor {
 
     public void execute(Benchmark... benchmarks) {
         for (Benchmark benchmark : benchmarks) {
-            for (TestCase testCase: benchmark.testCases()) {
-                doRun(testCase);
+            List<TestCaseResult> resultList = new LinkedList<TestCaseResult>();
+
+            for (TestCase testCase : benchmark.testCases()) {
+                warmup(testCase);
+                for (int attempt = 1; attempt <= testCase.getRunCount(); attempt++) {
+                    TestCaseResult testCaseResult = run(testCase, attempt);
+                    resultList.add(testCaseResult);
+                }
             }
+
+            BenchmarkResult benchmarkResult = new BenchmarkResult(benchmark.getBenchmarkName(), resultList);
+            resultRepository.store(benchmarkResult);
         }
-    }
-
-    //todo: the name to determine the testcase is very ugly
-    private void doRun(TestCase testCase) {
-        warmup(testCase);
-        benchmark(testCase);
-    }
-
-    //todo: in the loop you also want to see the specific attempt.        
-    private void benchmark(TestCase testCase) {
-        System.out.println("Starting testcases for: " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());
-
-        BenchmarkResult benchmarkResult = new BenchmarkResult();
-
-        for (int k = 0; k < testCase.getRunCount(); k++) {
-            TestCaseResult testCaseResult = run(testCase, k + 1);
-            benchmarkResult.add(testCaseResult);
-        }
-
-        resultRepository.store(benchmarkResult);
-
-        System.out.println("Finished all testcases for " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());
     }
 
     private TestCaseResult run(TestCase testCase, int attempt) {
@@ -83,7 +71,7 @@ public class BenchmarkExecutor {
         System.out.println("Starting warmup runs for testcase: " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());
 
         for (int k = 0; k < testCase.getWarmupRunCount(); k++) {
-            run(testCase, k);
+            run(testCase, k + 1);
         }
 
         System.out.println("Finished warmup runs for testcase: " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());

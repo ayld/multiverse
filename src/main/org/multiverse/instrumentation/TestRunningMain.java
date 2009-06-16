@@ -13,7 +13,7 @@ import org.multiverse.tmutils.TmLatch;
 public class TestRunningMain {
 
     public static void main(String[] args) {
-        System.out.println("Main called");
+        System.out.println("BenchmarkMain called");
     }
 
     private static void testLatch() {
