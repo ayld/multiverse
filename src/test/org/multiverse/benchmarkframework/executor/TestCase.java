@@ -5,35 +5,30 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * A TestCase is one of the cases that needs to be executed to create a benchmark.
- * It contains all the specific parameters and the {@link Driver}.
+ * A testcase contains all the variable parameters for a benchmark.
  * <p/>
- * The same testcase can execute multiple times.
+ * The same testcase can be used under different benchmarks.
  *
  * @author Peter Veentjer.
  */
 public class TestCase {
 
-    private final String benchmarkname;
     private final Properties properties = new Properties();
-    private int warmupRunCount = 0;
-    private int runCount = 1;
-    private Driver driver;
 
-    public TestCase(Benchmark benchmark, Driver driver) {
-        if (driver == null) {
-            throw new NullPointerException();
-        }
-        this.benchmarkname = benchmark.getBenchmarkName();
-        this.driver = driver;
+    public int getRunCount() {
+        return getIntProperty("runCount");
     }
 
-    public Driver getDriver() {
-        return driver;
+    public void setRunCount(int runCount) {
+        setProperty("runCount", runCount);
     }
 
-    public String getBenchmarkName() {
-        return benchmarkname;
+    public int getWarmupRunCount() {
+        return getIntProperty("warmupRunCount");
+    }
+
+    public void setWarmupRunCount(int warmupRunCount) {
+        setProperty("warmupRunCount", warmupRunCount);
     }
 
     public Properties getProperties() {
@@ -46,6 +41,10 @@ public class TestCase {
 
     public void setProperty(String name, int value) {
         properties.put(name, "" + value);
+    }
+
+    public String getProperty(String name) {
+        return (String) properties.get(name);
     }
 
     public String getPropertiesDescription() {
@@ -86,21 +85,5 @@ public class TestCase {
         }
 
         return Boolean.parseBoolean(value);
-    }
-
-    public int getRunCount() {
-        return runCount;
-    }
-
-    public void setRunCount(int runCount) {
-        this.runCount = runCount;
-    }
-
-    public int getWarmupRunCount() {
-        return warmupRunCount;
-    }
-
-    public void setWarmupRunCount(int warmupRunCount) {
-        this.warmupRunCount = warmupRunCount;
     }
 }

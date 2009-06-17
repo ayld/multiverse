@@ -5,9 +5,9 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
+import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.benchmarkframework.executor.AbstractDriver;
 import org.multiverse.benchmarkframework.executor.TestCase;
-import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.instrumentation.IntValue;
 
 import java.util.concurrent.TimeUnit;
@@ -28,7 +28,7 @@ public class SharedStmNoSharedDataDriver extends AbstractDriver {
         }
     }
 
-   @Override
+    @Override
     public void run() {
         startAll(threads);
         joinAll(threads);
@@ -39,7 +39,7 @@ public class SharedStmNoSharedDataDriver extends AbstractDriver {
         long transactions = incCount * threadCount;
         long durationNs = caseResult.getLongProperty("duration(ns)");
         double transactionSec = (TimeUnit.SECONDS.toNanos(1) * transactions / durationNs);
-        caseResult.put("transactions/second",transactionSec);
+        caseResult.put("transactions/second", transactionSec);
     }
 
     public class IncThread extends TestThread {

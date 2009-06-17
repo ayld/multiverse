@@ -1,17 +1,17 @@
 package org.multiverse.benchmarks.drivers.oldschool.cas;
 
+import org.junit.Test;
+import org.multiverse.TestThread;
+import static org.multiverse.TestUtils.joinAll;
+import static org.multiverse.TestUtils.startAll;
 import org.multiverse.benchmarkframework.executor.AbstractDriver;
 import org.multiverse.benchmarkframework.executor.TestCase;
-import static org.multiverse.TestUtils.startAll;
-import static org.multiverse.TestUtils.joinAll;
-import org.multiverse.TestThread;
-import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A Driver for uncontended cas.
- *
+ * <p/>
  * todo:
  * quality of test is questionable since it could be that the jit removes the cas
  * and replaces it by ordinary reads and writes.
@@ -48,10 +48,10 @@ public class UncontendedCasDriver extends AbstractDriver {
         }
 
         @Test
-        public void run(){
-             for(long k=0;k<count;k++){
-                 cas.incrementAndGet();
-             }
+        public void run() {
+            for (long k = 0; k < count; k++) {
+                cas.incrementAndGet();
+            }
         }
     }
 }

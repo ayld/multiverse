@@ -1,5 +1,6 @@
 package org.multiverse.benchmarkframework;
 
+import org.multiverse.benchmarkframework.executor.Benchmark;
 import org.multiverse.benchmarkframework.executor.TestCase;
 
 import java.util.Properties;
@@ -26,8 +27,8 @@ public class TestCaseResult {
      * @throws NullPointerException     if testCase is null.
      * @throws IllegalArgumentException if attempt smaller than 1.
      */
-    public TestCaseResult(TestCase testCase, int attempt) {
-        if (testCase == null) {
+    public TestCaseResult(Benchmark benchmark, TestCase testCase, int attempt) {
+        if (benchmark == null || testCase == null) {
             throw new NullPointerException();
         }
 
@@ -36,8 +37,10 @@ public class TestCaseResult {
         }
 
         properties = new Properties();
+
         copyPropertiesFromTestCase(testCase);
-        put("benchmarkName", testCase.getBenchmarkName());
+        copyPropertiesFromBenchmark(benchmark);
+
         put("attempt", attempt);
     }
 
@@ -54,6 +57,11 @@ public class TestCaseResult {
             String value = testCaseProps.getProperty(name);
             properties.put(name, value);
         }
+    }
+
+    private void copyPropertiesFromBenchmark(Benchmark benchmark) {
+        put("benchmarkName", benchmark.benchmarkName);
+        put("driverClass", benchmark.getDriver().getClass().getName());
     }
 
     public String get(String key) {

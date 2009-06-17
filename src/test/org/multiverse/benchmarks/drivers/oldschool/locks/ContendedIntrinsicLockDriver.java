@@ -9,7 +9,7 @@ import org.multiverse.benchmarkframework.executor.TestCase;
 /**
  * A {@link org.multiverse.benchmarkframework.executor.Driver} for benchmarking the a contended intrinsic
  * lock.
- *
+ * <p/>
  * todo:
  * could the empty synchronized block be removed by the JIT?
  *

@@ -1,21 +1,27 @@
 package org.multiverse.benchmarkframework.executor;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A {@link Benchmark} contains a List of testCases.
+ * A {@link Benchmark} contains a List of testCases and the driver to use for those
+ * testcases. So the driver is fixed, the arguments are flexibile.
  *
  * @author Peter Veentjer.
  */
-public interface Benchmark {
+public class Benchmark {
 
-    /**
-     * Returns an Iterator containing all the TestCases that should be executed
-     * for this Benchmark.
-     *
-     * @return Iterator containing the testcases to execute.
-     */
-    List<TestCase> testCases();
+    public List<TestCase> testCaseList = new LinkedList<TestCase>();
+    public String benchmarkName;
+    public String driverClass;
 
-    String getBenchmarkName();
+    public Driver getDriver() {
+        try {
+            Class driverClass = Thread.currentThread().getContextClassLoader().loadClass(this.driverClass);
+            return (Driver) driverClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize driver " + driverClass, e);
+        }
+    }
+
 }

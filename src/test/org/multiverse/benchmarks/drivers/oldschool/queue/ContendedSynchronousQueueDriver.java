@@ -17,7 +17,7 @@ public class ContendedSynchronousQueueDriver extends AbstractDriver {
     private int producerCount;
 
     @Override
-    public void preRun(TestCase testCase){
+    public void preRun(TestCase testCase) {
         queue = new SynchronousQueue();
         producerCount = testCase.getIntProperty("producerCount");
         consumerCounter = testCase.getIntProperty("consumerCount");
