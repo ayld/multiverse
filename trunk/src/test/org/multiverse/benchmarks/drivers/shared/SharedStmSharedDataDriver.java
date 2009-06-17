@@ -5,9 +5,9 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
+import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.benchmarkframework.executor.AbstractDriver;
 import org.multiverse.benchmarkframework.executor.TestCase;
-import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.instrumentation.IntValue;
 
 import java.util.concurrent.TimeUnit;
@@ -30,7 +30,6 @@ public class SharedStmSharedDataDriver extends AbstractDriver {
 
         handle = commit(new IntValue());
     }
-
 
     @Override
     public void postRun(TestCaseResult caseResult) {

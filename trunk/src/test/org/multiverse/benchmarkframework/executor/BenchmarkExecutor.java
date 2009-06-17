@@ -31,25 +31,28 @@ public class BenchmarkExecutor {
         for (Benchmark benchmark : benchmarks) {
             List<TestCaseResult> resultList = new LinkedList<TestCaseResult>();
 
-            for (TestCase testCase : benchmark.testCases()) {
-                warmup(testCase);
+            System.out.println("Starting with benchmark: " + benchmark.benchmarkName);
+
+            for (TestCase testCase : benchmark.testCaseList) {
+                warmup(benchmark, testCase);
                 for (int attempt = 1; attempt <= testCase.getRunCount(); attempt++) {
-                    TestCaseResult testCaseResult = run(testCase, attempt);
+                    TestCaseResult testCaseResult = run(benchmark, testCase, attempt);
                     resultList.add(testCaseResult);
                 }
             }
 
-            BenchmarkResult benchmarkResult = new BenchmarkResult(benchmark.getBenchmarkName(), resultList);
+            BenchmarkResult benchmarkResult = new BenchmarkResult(benchmark.benchmarkName, resultList);
             resultRepository.store(benchmarkResult);
+            System.out.println("Finished with benchmark: " + benchmark.benchmarkName + ", result was stored");
         }
     }
 
-    private TestCaseResult run(TestCase testCase, int attempt) {
-        Driver driver = testCase.getDriver();
+    private TestCaseResult run(Benchmark benchmark, TestCase testCase, int attempt) {
+        Driver driver = benchmark.getDriver();
 
         driver.preRun(testCase);
-        TestCaseResult caseResult = new TestCaseResult(testCase, attempt);
-        System.out.println("Starting executing testcase: " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());
+        TestCaseResult caseResult = new TestCaseResult(benchmark, testCase, attempt);
+        System.out.println("Starting executing testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
 
         long startMs = System.currentTimeMillis();
         long startNs = System.nanoTime();
@@ -63,17 +66,17 @@ public class BenchmarkExecutor {
         caseResult.put("end(ms)", endMs);
         driver.postRun(caseResult);
 
-        System.out.println("Finished testcase: " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());
+        System.out.println("Finished testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
         return caseResult;
     }
 
-    private void warmup(TestCase testCase) {
-        System.out.println("Starting warmup runs for testcase: " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());
+    private void warmup(Benchmark benchmark, TestCase testCase) {
+        System.out.println("Starting warmup runs for testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
 
         for (int k = 0; k < testCase.getWarmupRunCount(); k++) {
-            run(testCase, k + 1);
+            run(benchmark, testCase, k + 1);
         }
 
-        System.out.println("Finished warmup runs for testcase: " + testCase.getBenchmarkName() + " " + testCase.getPropertiesDescription());
+        System.out.println("Finished warmup runs for testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
     }
 }

@@ -6,9 +6,9 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
+import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.benchmarkframework.executor.AbstractDriver;
 import org.multiverse.benchmarkframework.executor.TestCase;
-import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 

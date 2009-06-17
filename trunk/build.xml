@@ -301,6 +301,26 @@
         </findbugs>
     </target>
 
+    <target name="benchmarks"
+            description="Runs the benchmarks"
+            depends="compile.test">
+
+        <java classname="org.multiverse.benchmarks.BenchmarkMain" fork="true">
+            <arg value="/tmp/benchmarks"/>
+            <arg value='{"benchmarkName":"baselineContendedTmStackBenchmrk","driverClass":"UncontendedTmStackDriver","testcases":[{"runCount":"1","warmupRunCount":"1"}]}'/>
+
+            <classpath>
+                <pathelement location="${classes.test}"/>
+                <pathelement location="${classes.main}"/>
+                <path refid="classpath.provided"/>
+                <path refid="classpath.support"/>
+            </classpath>
+
+            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
+            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
+        </java>
+    </target>
+
     <target name="create-diagrams"
             description="Creates the diagrams"
             depends="compile.test">

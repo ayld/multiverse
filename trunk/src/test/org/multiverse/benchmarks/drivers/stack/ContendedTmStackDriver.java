@@ -11,7 +11,6 @@ import org.multiverse.tmutils.LinkedTmStack;
 import org.multiverse.tmutils.TmStack;
 
 /**
- *
  * todo: itemCount & producers/consumers.. if there is a difference between
  * the number of producers and consumers, the test breaks.
  *

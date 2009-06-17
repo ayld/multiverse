@@ -1,18 +1,16 @@
 package org.multiverse.benchmarks.drivers.shared;
 
+import org.multiverse.TestThread;
+import static org.multiverse.TestUtils.*;
+import org.multiverse.api.Handle;
+import org.multiverse.api.Stm;
+import org.multiverse.api.Transaction;
+import org.multiverse.api.TransactionTemplate;
+import org.multiverse.benchmarkframework.TestCaseResult;
 import org.multiverse.benchmarkframework.executor.AbstractDriver;
 import org.multiverse.benchmarkframework.executor.TestCase;
-import org.multiverse.benchmarkframework.TestCaseResult;
-import org.multiverse.api.Stm;
-import org.multiverse.api.Handle;
-import org.multiverse.api.TransactionTemplate;
-import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntValue;
-import static org.multiverse.TestUtils.startAll;
-import static org.multiverse.TestUtils.joinAll;
-import static org.multiverse.TestUtils.commit;
-import org.multiverse.TestThread;
 
 import java.util.concurrent.TimeUnit;
 

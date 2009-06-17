@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * A {@link org.multiverse.benchmarkframework.executor.Driver} for benchmarking a contended
  * {@link ReentrantLock}.
- *
+ * <p/>
  * todo:
  * could the lock/unlock be removed by the jit since it does not provide any value?
  *

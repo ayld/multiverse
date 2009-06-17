@@ -1,223 +1,93 @@
 package org.multiverse.benchmarks;
 
+import com.google.gson.*;
 import org.multiverse.benchmarkframework.BenchmarkResultRepository;
 import org.multiverse.benchmarkframework.FileBasedBenchmarkResultRepository;
 import org.multiverse.benchmarkframework.executor.Benchmark;
 import org.multiverse.benchmarkframework.executor.BenchmarkExecutor;
-import org.multiverse.benchmarkframework.executor.Driver;
 import org.multiverse.benchmarkframework.executor.TestCase;
-import org.multiverse.benchmarks.drivers.oldschool.cas.ContendedCasDriver;
-import org.multiverse.benchmarks.drivers.shared.NoSharedStmNoSharedDataAndManualDriver;
-import org.multiverse.benchmarks.drivers.shared.SharedStmNoSharedDataAndManualDriver;
-import org.multiverse.benchmarks.drivers.shared.SharedStmNoSharedDataDriver;
-import org.multiverse.benchmarks.drivers.shared.SharedStmSharedDataDriver;
-import org.multiverse.benchmarks.drivers.stack.ContendedTmStackDriver;
-import org.multiverse.benchmarks.drivers.stack.UncontendedTmStackDriver;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * @author Peter Veentjer
  */
 public class BenchmarkMain {
 
-    public static void main(String[] args) {
-        File benchmarkDir = new File(args[0]);
+    public static void main(String[] args) throws Exception {
+        System.out.println("Starting executing Benchmarks");
+        BenchmarkResultRepository repository = loadRepository(args[0]);
 
-        BenchmarkResultRepository resultRepository = new FileBasedBenchmarkResultRepository(benchmarkDir);
+        Benchmark benchmark = loadBenchmark(readbenchmarkJson());
 
-        BenchmarkExecutor executor = new BenchmarkExecutor(resultRepository);
-        executor.execute(new SharedStmNoSharedDataBenchmark());
-        executor.execute(new SharedStmSharedDataBenchmark());
-        executor.execute(new SharedStmNoSharedDataAndManualBenchmark());
-        executor.execute(new NoSharedStmNoSharedDataAndManualBenchmark());
-        executor.execute(new ContendedCasBenchmark());
-        //executor.execute(new ContendedTmStackBenchmark());
-        //executor.execute(new UncontendedTmStackBenchmark());
-    }
-}
+        BenchmarkExecutor executor = new BenchmarkExecutor(repository);
+        executor.execute(benchmark);
 
-class UncontendedTmStackBenchmark implements Benchmark {
-
-    @Override
-    public String getBenchmarkName() {
-        return "baseline/UncontendedTmStackBenchmark";
+        System.out.println("Finished executing benchmarks");
     }
 
-    @Override
-    public List<TestCase> testCases() {
-        Driver driver = new UncontendedTmStackDriver();
-        List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            //for (int l = 0; l < 10; l+=2) {
-            TestCase testCase = new TestCase(this, driver);
-            testCase.setWarmupRunCount(1);
-            testCase.setRunCount(1);
-            testCase.setProperty("itemCount", 2 * 1000 * 1000);
-            testCase.setProperty("producerCount", k);
-            cases.add(testCase);
-            //}
+    private static String readbenchmarkJson() throws IOException {
+        // Defines the standard input stream
+        BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+
+        String line;
+        StringBuffer sb = new StringBuffer();
+        while ((line = stdin.readLine()) != null) {
+            sb.append(line);
         }
 
-        return cases;
-    }
-}
-
-class ContendedTmStackBenchmark implements Benchmark {
-
-    @Override
-    public String getBenchmarkName() {
-        return "baseline/ContendedTmStackBenchmark";
-
+        return sb.toString();
     }
 
-    @Override
-    public List<TestCase> testCases() {
-        Driver driver = new ContendedTmStackDriver();
-        List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            //for (int l = 0; l < 10; l+=2) {
-            TestCase testCase = new TestCase(this, driver);
-            testCase.setWarmupRunCount(1);
-            testCase.setRunCount(1);
-            testCase.setProperty("itemCount", 2 * 1000 * 1000);
-            testCase.setProperty("producerCount", k);
-            testCase.setProperty("consumerCount", k);
-            cases.add(testCase);
-            //}
+    private static BenchmarkResultRepository loadRepository(String path) {
+        File storedResultsRootDir = new File(path);
+        return new FileBasedBenchmarkResultRepository(storedResultsRootDir);
+    }
+
+    private static Benchmark loadBenchmark(String benchmarkJson) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Benchmark.class, new BenchmarkDeserializer());
+        builder.registerTypeAdapter(TestCase.class, new TestCaseDeserializer());
+        Gson gson = builder.create();
+        return gson.fromJson(benchmarkJson, Benchmark.class);
+    }
+
+    static class BenchmarkDeserializer implements JsonDeserializer {
+
+        @Override
+        public Object deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+            Benchmark benchmark = new Benchmark();
+
+            JsonObject obj = (JsonObject) json;
+            benchmark.benchmarkName = obj.get("benchmarkName").getAsString();
+            benchmark.driverClass = obj.get("driverClass").getAsString();
+
+            JsonArray testCaseJsonArray = obj.get("testcases").getAsJsonArray();
+            for (JsonElement element : testCaseJsonArray) {
+                JsonObject o = (JsonObject) element;
+                TestCase testCase = context.deserialize(o, TestCase.class);
+                benchmark.testCaseList.add(testCase);
+            }
+
+            return benchmark;
         }
-
-        return cases;
-    }
-}
-
-class ContendedCasBenchmark implements Benchmark {
-
-    @Override
-    public String getBenchmarkName() {
-        return "baseline/ContendedCasBenchmark";
     }
 
-    @Override
-    public List<TestCase> testCases() {
-        Driver driver = new ContendedCasDriver();
+    static class TestCaseDeserializer implements JsonDeserializer {
+        @Override
+        public Object deserialize(JsonElement json, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+            JsonObject obj = (JsonObject) json;
 
-        List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(this, driver);
-            testCase.setWarmupRunCount(1);
-            testCase.setRunCount(1);
-            testCase.setProperty("count", 1000 * 1000);
-            testCase.setProperty("threadCount", k);
-            cases.add(testCase);
+            TestCase testCase = new TestCase();
+            for (Map.Entry<String, JsonElement> s : obj.entrySet()) {
+                testCase.setProperty(s.getKey(), s.getValue().getAsString());
+            }
+            return testCase;
         }
-
-        return cases;
     }
 }
-
-
-class SharedStmSharedDataBenchmark implements Benchmark {
-    @Override
-    public String getBenchmarkName() {
-        return "baseline/SharedStmSharedDataBenchmark";
-    }
-
-    @Override
-    public List<TestCase> testCases() {
-        Driver driver = new SharedStmSharedDataDriver();
-
-        List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(this, driver);
-            testCase.setWarmupRunCount(1);
-            testCase.setRunCount(1);
-            testCase.setProperty("incCount", 1000 * 1000);
-            testCase.setProperty("threadCount", k);
-            cases.add(testCase);
-        }
-
-        return cases;
-    }
-}
-
-
-class SharedStmNoSharedDataBenchmark implements Benchmark {
-
-    @Override
-    public String getBenchmarkName() {
-        return "baseline/SharedStmNoSharedDataBenchmark";
-    }
-
-    @Override
-    public List<TestCase> testCases() {
-        Driver driver = new SharedStmNoSharedDataDriver();
-
-        List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(this, driver);
-            testCase.setWarmupRunCount(1);
-            testCase.setRunCount(1);
-            testCase.setProperty("incCount", 1000 * 1000);
-            testCase.setProperty("threadCount", k);
-            cases.add(testCase);
-        }
-
-        return cases;
-    }
-}
-
-class NoSharedStmNoSharedDataAndManualBenchmark implements Benchmark {
-
-    @Override
-    public String getBenchmarkName() {
-        return "baseline/NoSharedStmNoSharedDataAndManualBenchmark";
-    }
-
-    @Override
-    public List<TestCase> testCases() {
-        Driver driver = new NoSharedStmNoSharedDataAndManualDriver();
-
-        List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(this, driver);
-            testCase.setWarmupRunCount(1);
-            testCase.setRunCount(1);
-            testCase.setProperty("incCount", 1000 * 1000);
-            testCase.setProperty("threadCount", k);
-            cases.add(testCase);
-        }
-
-        return cases;
-    }
-}
-
-
-class SharedStmNoSharedDataAndManualBenchmark implements Benchmark {
-
-    @Override
-    public String getBenchmarkName() {
-        return "baseline/SharedStmNoSharedDataAndManualBenchmark";
-    }
-
-    @Override
-    public List<TestCase> testCases() {
-        Driver driver = new SharedStmNoSharedDataAndManualDriver();
-
-        List<TestCase> cases = new LinkedList<TestCase>();
-        for (int k = 1; k <= Runtime.getRuntime().availableProcessors(); k++) {
-            TestCase testCase = new TestCase(this, driver);
-            testCase.setWarmupRunCount(1);
-            testCase.setRunCount(1);
-            testCase.setProperty("incCount", 1000 * 1000);
-            testCase.setProperty("threadCount", k);
-            cases.add(testCase);
-        }
-
-        return cases;
-    }
-}
-
-
