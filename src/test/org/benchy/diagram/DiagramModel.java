@@ -1,6 +1,6 @@
-package org.multiverse.benchmarkframework.diagram;
+package org.benchy.diagram;
 
-import org.multiverse.benchmarkframework.TestCaseResult;
+import org.benchy.TestCaseResult;
 
 import java.util.*;
 

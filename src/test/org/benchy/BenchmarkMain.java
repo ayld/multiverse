@@ -1,11 +1,9 @@
-package org.multiverse.benchmarks;
+package org.benchy;
 
 import com.google.gson.*;
-import org.multiverse.benchmarkframework.BenchmarkResultRepository;
-import org.multiverse.benchmarkframework.FileBasedBenchmarkResultRepository;
-import org.multiverse.benchmarkframework.executor.Benchmark;
-import org.multiverse.benchmarkframework.executor.BenchmarkExecutor;
-import org.multiverse.benchmarkframework.executor.TestCase;
+import org.benchy.executor.Benchmark;
+import org.benchy.executor.BenchmarkExecutor;
+import org.benchy.executor.TestCase;
 
 import java.io.BufferedReader;
 import java.io.File;

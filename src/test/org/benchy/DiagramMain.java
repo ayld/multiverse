@@ -1,12 +1,8 @@
-package org.multiverse.benchmarks;
+package org.benchy;
 
-import org.multiverse.benchmarkframework.BenchmarkResult;
-import org.multiverse.benchmarkframework.BenchmarkResultRepository;
-import org.multiverse.benchmarkframework.FileBasedBenchmarkResultRepository;
-import org.multiverse.benchmarkframework.TestCaseResult;
-import org.multiverse.benchmarkframework.diagram.DiagramModel;
-import org.multiverse.benchmarkframework.diagram.DiagramWriter;
-import org.multiverse.benchmarkframework.diagram.GnuPlotDiagramWriter;
+import org.benchy.diagram.DiagramModel;
+import org.benchy.diagram.DiagramWriter;
+import org.benchy.diagram.GnuPlotDiagramWriter;
 
 import java.io.File;
 import java.util.Date;
@@ -43,6 +39,8 @@ public class DiagramMain {
     }
 
     public static void main(String[] args) {
+        System.out.println("Diagram creator");
+
         File benchmarkDir = new File(args[0]);
         File outputFile = new File(args[1]);
         List<String> names = getBenchmarks(args[2]);
@@ -51,6 +49,8 @@ public class DiagramMain {
 
         DiagramMain diagramMain = new DiagramMain(benchmarkDir);
         diagramMain.doIt(outputFile, names, x, y);
+
+        System.out.println("Exiting Diagram Creator");
     }
 
     private static List<String> getBenchmarks(String s) {

@@ -1,13 +1,12 @@
-package org.multiverse.benchmarkframework;
+package org.benchy;
 
 import java.io.*;
 import static java.lang.String.format;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
- * A {@link BenchmarkResultRepository} that persist on file system.
+ * A {@link org.benchy.BenchmarkResultRepository} that persist on file system.
  * <p/>
  * Implementation is not threadsafe.
  *
@@ -48,30 +47,33 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
 
     @Override
     public BenchmarkResult load(Date date, String benchmarkName) {
-        /*
         if (date == null || benchmarkName == null) {
             throw new NullPointerException();
         }
 
-        //File dir = toDateSeperator(date);
-        //File benchmarkDir = new File(dir, benchmarkName);
+        File benchmarkDirectory = getBenchmarkDirectory(benchmarkName);
 
+        File todaysMeasurementsDir = new File(
+                benchmarkDirectory,
+                toDateSeperator(date));
+
+        File resultsDir = findLastRun(todaysMeasurementsDir);
         List<TestCaseResult> caseResults = new LinkedList<TestCaseResult>();
-        for (File file : benchmarkDir.listFiles(new ResultFileFilter())) {
 
-            Properties properties = new Properties();
-            try {
-                properties.load(new FileReader(file));
-                TestCaseResult caseResult = new TestCaseResult(properties);
-                caseResults.add(caseResult);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        if (resultsDir.isDirectory()) {
+            for (File file : resultsDir.listFiles(new ResultFileFilter())) {
+
+                Properties properties = new Properties();
+                try {
+                    properties.load(new FileReader(file));
+                    TestCaseResult caseResult = new TestCaseResult(properties);
+                    caseResults.add(caseResult);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
-
-        return new BenchmarkResult(caseResults);
-        */
-        throw new RuntimeException("Not implemented yet");
+        return new BenchmarkResult(benchmarkName, caseResults);
     }
 
     public void store(BenchmarkResult benchmarkResult) {
@@ -79,7 +81,7 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
             throw new NullPointerException();
         }
 
-        File targetDir = createTargetDir(benchmarkResult);
+        File targetDir = createTargetDir(benchmarkResult.getBenchmarkName());
 
         int k = 1;
         for (TestCaseResult result : benchmarkResult.getTestCaseResultList()) {
@@ -102,8 +104,8 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
         }
     }
 
-    private File createTargetDir(BenchmarkResult benchmarkResult) {
-        File benchmarkDirectory = getBenchmarkDirectory(benchmarkResult.getBenchmarkName());
+    private File createTargetDir(String benchmarkName) {
+        File benchmarkDirectory = getBenchmarkDirectory(benchmarkName);
 
         File todaysMeasurementsDir = new File(
                 benchmarkDirectory,
@@ -133,6 +135,25 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
         File runDir = new File(todaysBenchmarksDir, "" + (max + 1));
         ensureExistingDirectory(runDir);
         return runDir;
+    }
+
+    private File findLastRun(File todaysBenchmarksDir) {
+        int max = -1;
+        File result = null;
+        for (File file : todaysBenchmarksDir.listFiles()) {
+            try {
+                String name = file.getName();
+                int value = Integer.parseInt(name);
+                if (value > max) {
+                    max = value;
+                    result = file;
+                }
+            } catch (NumberFormatException ex) {
+                //ignore, go to the next file.
+            }
+        }
+
+        return result;
     }
 
     private File getBenchmarkDirectory(String benchmarkName) {

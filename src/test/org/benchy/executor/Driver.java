@@ -1,6 +1,6 @@
-package org.multiverse.benchmarkframework.executor;
+package org.benchy.executor;
 
-import org.multiverse.benchmarkframework.TestCaseResult;
+import org.benchy.TestCaseResult;
 
 /**
  * Contains the unparametrized algorithm you want to benchmark. All the variable parameters

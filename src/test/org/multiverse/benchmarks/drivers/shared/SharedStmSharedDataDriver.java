@@ -1,13 +1,13 @@
 package org.multiverse.benchmarks.drivers.shared;
 
+import org.benchy.TestCaseResult;
+import org.benchy.executor.AbstractDriver;
+import org.benchy.executor.TestCase;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import static org.multiverse.api.TransactionThreadLocal.getTransaction;
 import org.multiverse.api.annotations.Atomic;
-import org.multiverse.benchmarkframework.TestCaseResult;
-import org.multiverse.benchmarkframework.executor.AbstractDriver;
-import org.multiverse.benchmarkframework.executor.TestCase;
 import org.multiverse.instrumentation.IntValue;
 
 import java.util.concurrent.TimeUnit;

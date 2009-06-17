@@ -1,6 +1,6 @@
-package org.multiverse.benchmarkframework.executor;
+package org.benchy.executor;
 
-import org.multiverse.benchmarkframework.TestCaseResult;
+import org.benchy.TestCaseResult;
 
 /**
  * A convenience {@link Driver} implementation that doesn't force one to implement optional
@@ -8,7 +8,7 @@ import org.multiverse.benchmarkframework.TestCaseResult;
  *
  * @author Peter Veentjer.
  */
-public abstract class AbstractDriver implements Driver{
+public abstract class AbstractDriver implements Driver {
 
     @Override
     public void preRun(TestCase testCase) {

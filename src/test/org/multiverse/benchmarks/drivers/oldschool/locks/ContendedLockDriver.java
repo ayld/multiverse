@@ -1,15 +1,15 @@
 package org.multiverse.benchmarks.drivers.oldschool.locks;
 
+import org.benchy.executor.AbstractDriver;
+import org.benchy.executor.TestCase;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
-import org.multiverse.benchmarkframework.executor.AbstractDriver;
-import org.multiverse.benchmarkframework.executor.TestCase;
 
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * A {@link org.multiverse.benchmarkframework.executor.Driver} for benchmarking a contended
+ * A {@link org.benchy.executor.Driver} for benchmarking a contended
  * {@link ReentrantLock}.
  * <p/>
  * todo:

@@ -1,8 +1,8 @@
-package org.multiverse.benchmarkframework.executor;
+package org.benchy.executor;
 
-import org.multiverse.benchmarkframework.BenchmarkResult;
-import org.multiverse.benchmarkframework.BenchmarkResultRepository;
-import org.multiverse.benchmarkframework.TestCaseResult;
+import org.benchy.BenchmarkResult;
+import org.benchy.BenchmarkResultRepository;
+import org.benchy.TestCaseResult;
 
 import java.util.LinkedList;
 import java.util.List;

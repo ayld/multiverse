@@ -1,6 +1,6 @@
 package org.multiverse.benchmarks.drivers.oldschool.queue;
 
-import org.multiverse.benchmarkframework.executor.AbstractDriver;
+import org.benchy.executor.AbstractDriver;
 
 /**
  * @author Peter Veentjer

@@ -1,107 +1,71 @@
 #!/bin/bash
 
-function runbenchmark(){
-java -Xbootclasspath/a:lib/provided/boot.jar -javaagent:target/multiverse-0.1.jar -classpath target/classes/test:lib/support/* org.multiverse.benchmarks.BenchmarkMain /tmp/benchmarks <<< $1 EOF
+function createDiagram(){
+java -classpath target/classes/test:lib/support/* org.benchy.DiagramMain ~/benchmarks /tmp/out.dat $1 $2 $3
 }
 
-runbenchmark '{"benchmarkName":"baseline/ContendedCasBenchmark","driverClass":"org.multiverse.benchmarks.drivers.oldschool.cas.ContendedCasDriver",
-	"testcases":[
-		{"runCount":"1","threadCount":"1","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"2","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"3","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"4","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"5","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"6","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"7","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"8","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"9","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"10","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"11","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"12","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"13","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"14","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"15","count":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"16","count":"1000000","warmupRunCount":"1"}
-	]}'
 
-runbenchmark '{"benchmarkName":"baseline/NoSharedStmNoSharedDataAndManualBenchmark","driverClass":"org.multiverse.benchmarks.drivers.shared.NoSharedStmNoSharedDataAndManualDriver",
-	"testcases":[
-		{"runCount":"1","threadCount":"1","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"2","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"3","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"4","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"5","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"6","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"7","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"8","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"9","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"10","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"11","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"12","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"13","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"14","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"15","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"16","incCount":"1000000","warmupRunCount":"1"}
-	]}'
+# ================= diagrams =======================
 
-runbenchmark '{"benchmarkName":"baseline/SharedStmNoSharedDataAndManualDriver","driverClass":"org.multiverse.benchmarks.drivers.shared.SharedStmNoSharedDataAndManualDriver",
-	"testcases":[
-		{"runCount":"1","threadCount":"1","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"2","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"3","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"4","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"5","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"6","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"7","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"8","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"9","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"10","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"11","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"12","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"13","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"14","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"15","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"16","incCount":"1000000","warmupRunCount":"1"}
-	]}'
+createDiagram 'baseline/locks/FairJucLock;baseline/locks/UnfairJucLock;baseline/locks/IntrinsicLock' 'threadCount' 'duration(ns)'
+gnuplot <<< '
+set title ''
+set xlabel "threads"
+set ylabel "duration(ns)"
+set grid
+set terminal png
+set output "/tmp/locks.png"
+plot "/tmp/out.dat" using 1:2 title "fair juc Lock" with linespoint, \
+     "/tmp/out.dat" using 1:3 title "unfair juc lock" with linespoint, \
+     "/tmp/out.dat" using 1:4 title "intrinsic lock" with linespoint'
 
-runbenchmark '{"benchmarkName":"baseline/SharedStmNoSharedDataDriver","driverClass":"org.multiverse.benchmarks.drivers.shared.SharedStmNoSharedDataDriver",
-	"testcases":[
-		{"runCount":"1","threadCount":"1","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"2","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"3","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"4","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"5","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"6","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"7","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"8","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"9","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"10","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"11","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"12","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"13","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"14","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"15","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"16","incCount":"1000000","warmupRunCount":"1"}
-	]}'
+createDiagram 'baseline/stack/LinkedBlockingQueue;baseline/stack/LinkedBlockingQueue' 'threadCount' 'duration(ns)'
+gnuplot <<< '
+set title ''
+set xlabel "producerCount"
+set ylabel "duration(ns)"
+set grid
+set terminal png
+set output "/tmp/arrayblockingqueues.png"
+plot "/tmp/out.dat" using 1:2 title "unfair juc lock" with linespoint, \
+     "/tmp/out.dat" using 1:3 title "intrinsic lock" with linespoint'
 
-runbenchmark '{"benchmarkName":"baseline/SharedStmSharedDataDriver","driverClass":"org.multiverse.benchmarks.drivers.shared.SharedStmSharedDataDriver",
-	"testcases":[
-		{"runCount":"1","threadCount":"1","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"2","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"3","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"4","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"5","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"6","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"7","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"8","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"9","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"10","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"11","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"12","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"13","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"14","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"15","incCount":"1000000","warmupRunCount":"1"},
-		{"runCount":"1","threadCount":"16","incCount":"1000000","warmupRunCount":"1"}
-	]}'
+# ================= diagrams =======================
 
+createDiagram 'baseline/locks/UnfairJucLock;baseline/locks/IntrinsicLock' 'threadCount' 'duration(ns)'
+gnuplot <<< '
+set title ''
+set xlabel "threads"
+set ylabel "duration(ns)"
+set grid
+set terminal png
+set output "/tmp/locks2.png"
+plot "/tmp/out.dat" using 1:2 title "unfair juc lock" with linespoint, \
+     "/tmp/out.dat" using 1:3 title "intrinsic lock" with linespoint'
 
+# ================= diagrams =======================
+
+createDiagram 'baseline/NoSharedStmNoSharedDataAndManualBenchmark;baseline/SharedStmNoSharedDataAndManualBenchmark;baseline/SharedStmNoSharedDataBenchmark;baseline/SharedStmSharedBenchmark' 'threadCount' 'transactions/second'
+gnuplot <<< '
+set title ''
+set xlabel "threads"
+set ylabel "transactions/second"
+set grid
+set terminal png
+set output "/tmp/plot1.png"
+plot "/tmp/out.dat" using 1:2 title "nothing shared & manual" with linespoint, \
+     "/tmp/out.dat" using 1:3 title "shared stm no shared state & manual" with linespoint, \
+     "/tmp/out.dat" using 1:4 title "shared stm no shared state" with linespoint, \
+     "/tmp/out.dat" using 1:5 title "shared stm, shared data" with linespoint'
+
+# ================= diagrams =======================
+
+createDiagram 'baseline/ContendedCasBenchmark' 'threadCount' 'duration(ns)'
+gnuplot <<< '
+set title ''
+set xlabel "threads"
+set ylabel "transactions/second"
+set grid
+set terminal png
+set output "/tmp/plot2.png"
+plot "/tmp/out.dat" using 1:2 with linespoint'
