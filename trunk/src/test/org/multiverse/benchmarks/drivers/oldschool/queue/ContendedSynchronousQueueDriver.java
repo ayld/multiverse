@@ -1,30 +1,21 @@
 package org.multiverse.benchmarks.drivers.oldschool.queue;
 
-import org.multiverse.benchmarkframework.executor.AbstractDriver;
-import org.multiverse.benchmarkframework.executor.TestCase;
+import org.benchy.executor.TestCase;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
-/**
- * A {@link org.multiverse.benchmarkframework.executor.Driver} for benchmarking a {@link java.util.concurrent.SynchronousQueue}.
- *
- * @author Peter Veentjer
- */
-public class ContendedSynchronousQueueDriver extends AbstractDriver {
-
-    private SynchronousQueue queue;
-    private int consumerCounter;
-    private int producerCount;
+public class ContendedSynchronousQueueDriver extends AbstractBlockingQueueDriver {
+    private boolean fair;
 
     @Override
-    public void preRun(TestCase testCase) {
-        queue = new SynchronousQueue();
-        producerCount = testCase.getIntProperty("producerCount");
-        consumerCounter = testCase.getIntProperty("consumerCount");
+    public BlockingQueue createQueue() {
+        return new SynchronousQueue(fair);
     }
 
     @Override
-    public void run() {
-        //todo
+    public void preRun(TestCase testCase) {
+        fair = testCase.getBooleanProperty("fair");
+        super.preRun(testCase);
     }
 }

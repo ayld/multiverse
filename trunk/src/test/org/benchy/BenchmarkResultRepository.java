@@ -1,4 +1,4 @@
-package org.multiverse.benchmarkframework;
+package org.benchy;
 
 import java.util.Date;
 

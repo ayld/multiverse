@@ -1,4 +1,4 @@
-package org.multiverse.benchmarkframework.diagram;
+package org.benchy.diagram;
 
 public interface DiagramWriter {
 

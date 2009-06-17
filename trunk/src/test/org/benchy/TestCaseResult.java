@@ -1,16 +1,16 @@
-package org.multiverse.benchmarkframework;
+package org.benchy;
 
-import org.multiverse.benchmarkframework.executor.Benchmark;
-import org.multiverse.benchmarkframework.executor.TestCase;
+import org.benchy.executor.Benchmark;
+import org.benchy.executor.TestCase;
 
 import java.util.Properties;
 
 /**
- * The result of executing a {@link org.multiverse.benchmarkframework.executor.TestCase}.
+ * The result of executing a {@link org.benchy.executor.TestCase}.
  * <p/>
  * todo:
  * Properties should be replaced by a map. Properties is a leaky abstraction from the
- * {@link FileBasedBenchmarkResultRepository}.
+ * {@link org.benchy.FileBasedBenchmarkResultRepository}.
  *
  * @author Peter Veentjer.
  */

@@ -1,11 +1,11 @@
 package org.multiverse.benchmarks.drivers.oldschool.queue;
 
-import org.multiverse.benchmarkframework.executor.AbstractDriver;
+import org.benchy.executor.AbstractDriver;
 
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
- * A {@link org.multiverse.benchmarkframework.executor.Driver} for benchmarking a
+ * A {@link org.benchy.executor.Driver} for benchmarking a
  * {@link LinkedBlockingDeque}.
  *
  * @author Peter Veentjer

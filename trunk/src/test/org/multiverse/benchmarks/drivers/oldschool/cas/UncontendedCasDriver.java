@@ -1,11 +1,11 @@
 package org.multiverse.benchmarks.drivers.oldschool.cas;
 
+import org.benchy.executor.AbstractDriver;
+import org.benchy.executor.TestCase;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
-import org.multiverse.benchmarkframework.executor.AbstractDriver;
-import org.multiverse.benchmarkframework.executor.TestCase;
 
 import java.util.concurrent.atomic.AtomicLong;
 

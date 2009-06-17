@@ -1,30 +1,27 @@
 
 TODO
 
-- it should be easy to create short, medium and long tests.
-
-- system should be able to do something with multiple measures
+- system should be able to do something with multiple attempts.
 
 - system should be able to place error information in the output
 
 - system should be able to deal with different types than just integers
 
-- user should be able to benchmark from the command line
+- diagrammain needs a date parameter on occassion: atm it always uses the current date.
 
-- user should be able to create diagrams from the benchmark
+- improved error handling diagram main for arguments
 
-- user should be able to set the title from the command line
+- improved error handling for the benchmark main
 
-- user should be able to set the name of the output png from the commandline
+- the benchy framework should be placed in a seperate src directory and create a seperate jar.
 
-- user should be able to create the complete benchmark in ant? groovy? Not having to program
+- the order in which the result in the output file are placed are arbitrary
 
-- user should be able to start different jvm's for executing the tests so that different parameters
-can be used. For example g1 garbage collector or pointer compression.
-
-- de inhoud van de testcase json wordt nog niet de testcase gezet
+- 
 
 NICE TO HAVES
+
+- it should be easy to create short, medium and long tests.
 
 - central repository where all information from different machines can be collected
 
@@ -38,11 +35,27 @@ be automated using reflection.
 - it would be nice if the testcaseresult was written as soon as it is completed,
 not after the completion of the complete benchmark.
 
+DONE
+
+- whole benchmark framework should be placed under org/benchy
+
+- benchmark main should be moved to different package
+
+- diagram main should be moved to the benchmarkframework package
+
+- user should be able to start different jvm's for executing the tests so that different parameters
+can be used. For example g1 garbage collector or pointer compression.
+
+- de inhoud van de testcase json wordt nog niet de testcase gezet
+
 - it would be nice if a single benchmark can be run, instead of all the benchmarks.
 
+- user should be able to create diagrams from the benchmark
 
+- user should be able to set the title from the command line
 
-DONE
+- user should be able to set the name of the output png from the commandline
+
 
 - system should be able to easily combine multiple graphs
 

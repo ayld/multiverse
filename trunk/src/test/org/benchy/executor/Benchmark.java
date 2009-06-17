@@ -1,4 +1,4 @@
-package org.multiverse.benchmarkframework.executor;
+package org.benchy.executor;
 
 import java.util.LinkedList;
 import java.util.List;

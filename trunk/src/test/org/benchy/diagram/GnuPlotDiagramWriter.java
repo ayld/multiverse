@@ -1,6 +1,6 @@
-package org.multiverse.benchmarkframework.diagram;
+package org.benchy.diagram;
 
-import org.multiverse.benchmarkframework.TestCaseResult;
+import org.benchy.TestCaseResult;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,7 +31,7 @@ public class GnuPlotDiagramWriter implements DiagramWriter {
             List<TestCaseResult> propertyList = diagramModel.get(lineId);
             for (TestCaseResult properies : propertyList) {
 
-                String x =  properies.get(keyName);
+                String x = properies.get(keyName);
                 String y = properies.get(valueName);
 
                 List<Pair> valueList = treeMap.get(new Integer(x));
@@ -51,12 +51,12 @@ public class GnuPlotDiagramWriter implements DiagramWriter {
             for (String lineId : diagramModel.getLineIds()) {
                 String result = "";
                 for (Pair pair : treeMap.get(x)) {
-                    if(pair.getLineId().equals(lineId)){
+                    if (pair.getLineId().equals(lineId)) {
                         result = pair.getValue();
                     }
                 }
 
-                sb.append(" "+result);
+                sb.append(" " + result);
             }
             sb.append("\n");
         }

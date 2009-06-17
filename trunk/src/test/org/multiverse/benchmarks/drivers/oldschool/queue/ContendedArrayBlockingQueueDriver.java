@@ -1,29 +1,29 @@
 package org.multiverse.benchmarks.drivers.oldschool.queue;
 
-import org.multiverse.benchmarkframework.executor.AbstractDriver;
-import org.multiverse.benchmarkframework.executor.TestCase;
+import org.benchy.executor.TestCase;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
- * A {@link org.multiverse.benchmarkframework.executor.Driver} for benchmarking the  {@link ArrayBlockingQueue}.
+ * A {@link org.benchy.executor.Driver} for benchmarking the  {@link ArrayBlockingQueue}.
  *
  * @author Peter Veentjer
  */
-public class ContendedArrayBlockingQueueDriver extends AbstractDriver {
+public class ContendedArrayBlockingQueueDriver extends AbstractBlockingQueueDriver {
 
-    private ArrayBlockingQueue queue;
-    private int producerCount;
-    private int consumerCount;
+    private int capacity;
+    private boolean fair;
 
     @Override
-    public void preRun(TestCase testCase) {
-        producerCount = testCase.getIntProperty("producerCount");
-        consumerCount = testCase.getIntProperty("consumerCount");
+    public BlockingQueue createQueue() {
+        return new ArrayBlockingQueue(capacity, fair);
     }
 
     @Override
-    public void run() {
-        //todo
+    public void preRun(TestCase testCase) {
+        capacity = testCase.getIntProperty("capacity");
+        fair = testCase.getBooleanProperty("fair");
+        super.preRun(testCase);
     }
 }
