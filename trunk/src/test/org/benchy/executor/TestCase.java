@@ -47,6 +47,11 @@ public class TestCase {
         return (String) properties.get(name);
     }
 
+    public String getProperty(String name, String defaultValue) {
+        String result = (String) properties.get(name);
+        return result == null ? defaultValue : name;
+    }
+
     public String getPropertiesDescription() {
         Map<String, String> map = new HashMap<String, String>();
 
@@ -65,6 +70,21 @@ public class TestCase {
         }
 
         return Integer.parseInt(value);
+    }
+
+    public int getIntProperty(String name, int defaultValue) {
+        String value = properties.getProperty(name, "" + defaultValue);
+        return Integer.parseInt(value);
+    }
+
+    public boolean getBooleanProperty(String name, boolean defaultValue) {
+        String value = properties.getProperty(name, "" + defaultValue);
+        return Boolean.parseBoolean(value);
+    }
+
+    public long getLongProperty(String name, long defaultValue) {
+        String value = properties.getProperty(name, "" + defaultValue);
+        return Long.parseLong(value);
     }
 
     public long getLongProperty(String name) {

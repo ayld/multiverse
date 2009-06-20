@@ -5,54 +5,18 @@ java -classpath target/classes/test:lib/support/* org.benchy.DiagramMain ~/bench
 }
 
 
-# ================= diagrams =======================
 
-createDiagram 'baseline/locks/FairJucLock;baseline/locks/UnfairJucLock;baseline/locks/IntrinsicLock' 'threadCount' 'duration(ns)'
-gnuplot <<< '
-set title ''
-set xlabel "threads"
-set ylabel "duration(ns)"
-set grid
-set terminal png
-set output "/tmp/locks.png"
-plot "/tmp/out.dat" using 1:2 title "fair juc Lock" with linespoint, \
-     "/tmp/out.dat" using 1:3 title "unfair juc lock" with linespoint, \
-     "/tmp/out.dat" using 1:4 title "intrinsic lock" with linespoint'
-
-createDiagram 'baseline/stack/LinkedBlockingQueue;baseline/stack/LinkedBlockingQueue' 'threadCount' 'duration(ns)'
-gnuplot <<< '
-set title ''
-set xlabel "producerCount"
-set ylabel "duration(ns)"
-set grid
-set terminal png
-set output "/tmp/arrayblockingqueues.png"
-plot "/tmp/out.dat" using 1:2 title "unfair juc lock" with linespoint, \
-     "/tmp/out.dat" using 1:3 title "intrinsic lock" with linespoint'
 
 # ================= diagrams =======================
 
-createDiagram 'baseline/locks/UnfairJucLock;baseline/locks/IntrinsicLock' 'threadCount' 'duration(ns)'
-gnuplot <<< '
-set title ''
-set xlabel "threads"
-set ylabel "duration(ns)"
-set grid
-set terminal png
-set output "/tmp/locks2.png"
-plot "/tmp/out.dat" using 1:2 title "unfair juc lock" with linespoint, \
-     "/tmp/out.dat" using 1:3 title "intrinsic lock" with linespoint'
-
-# ================= diagrams =======================
-
-createDiagram 'baseline/NoSharedStmNoSharedDataAndManualBenchmark;baseline/SharedStmNoSharedDataAndManualBenchmark;baseline/SharedStmNoSharedDataBenchmark;baseline/SharedStmSharedBenchmark' 'threadCount' 'transactions/second'
+createDiagram 'baseline/stm/NoSharedStmNoSharedDataAndManualBenchmark;baseline/stm/SharedStmNoSharedDataAndManualBenchmark;baseline/stm/SharedStmNoSharedDataBenchmark;baseline/stm/SharedStmSharedBenchmark' 'threadCount' 'transactions/second'
 gnuplot <<< '
 set title ''
 set xlabel "threads"
 set ylabel "transactions/second"
 set grid
 set terminal png
-set output "/tmp/plot1.png"
+set output "/tmp/stm_completerangeofsharedandunshared.png"
 plot "/tmp/out.dat" using 1:2 title "nothing shared & manual" with linespoint, \
      "/tmp/out.dat" using 1:3 title "shared stm no shared state & manual" with linespoint, \
      "/tmp/out.dat" using 1:4 title "shared stm no shared state" with linespoint, \
@@ -60,7 +24,7 @@ plot "/tmp/out.dat" using 1:2 title "nothing shared & manual" with linespoint, \
 
 # ================= diagrams =======================
 
-createDiagram 'baseline/ContendedCasBenchmark' 'threadCount' 'duration(ns)'
+createDiagram 'baseline/cas/ContendedCasBenchmark' 'threadCount' 'duration(ns)'
 gnuplot <<< '
 set title ''
 set xlabel "threads"

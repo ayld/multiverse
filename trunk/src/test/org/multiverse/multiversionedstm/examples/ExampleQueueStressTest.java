@@ -138,7 +138,7 @@ public class ExampleQueueStressTest {
     private class ConsumerThread extends TestThread {
 
         public ConsumerThread(long id) {
-            super("ConsumerThread-" + id);
+            super("QueueThread-" + id);
         }
 
         public void run() {

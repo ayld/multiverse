@@ -11,13 +11,9 @@ TODO
 
 - improved error handling diagram main for arguments
 
-- improved error handling for the benchmark main
-
 - the benchy framework should be placed in a seperate src directory and create a seperate jar.
 
-- the order in which the result in the output file are placed are arbitrary
-
-- 
+- the shared stm drivers should have option with or without statistics.
 
 NICE TO HAVES
 
@@ -36,6 +32,10 @@ be automated using reflection.
 not after the completion of the complete benchmark.
 
 DONE
+
+- improved error handling for the benchmark main for arguments
+
+- the order in which the result in the output file are placed are arbitrary
 
 - whole benchmark framework should be placed under org/benchy
 

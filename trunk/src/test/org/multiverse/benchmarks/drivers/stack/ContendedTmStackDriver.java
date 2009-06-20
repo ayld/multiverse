@@ -73,7 +73,7 @@ public class ContendedTmStackDriver extends AbstractDriver {
     public class ConsumerThread extends TestThread {
 
         public ConsumerThread(int id) {
-            super("ConsumerThread-" + id);
+            super("QueueThread-" + id);
         }
 
         @Override

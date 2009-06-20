@@ -154,7 +154,7 @@ public class ExampleStackIntegrationTest {
     private class ConsumerThread extends TestThread {
 
         public ConsumerThread() {
-            super("ConsumerThread");
+            super("QueueThread");
         }
 
         public void run() {

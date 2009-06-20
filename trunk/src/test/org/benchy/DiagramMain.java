@@ -41,13 +41,14 @@ public class DiagramMain {
     public static void main(String[] args) {
         System.out.println("Diagram creator");
 
-        File benchmarkDir = new File(args[0]);
+        File storageDirectory = new File(args[0]);
+
         File outputFile = new File(args[1]);
         List<String> names = getBenchmarks(args[2]);
         String x = args[3];
         String y = args[4];
 
-        DiagramMain diagramMain = new DiagramMain(benchmarkDir);
+        DiagramMain diagramMain = new DiagramMain(storageDirectory);
         diagramMain.doIt(outputFile, names, x, y);
 
         System.out.println("Exiting Diagram Creator");

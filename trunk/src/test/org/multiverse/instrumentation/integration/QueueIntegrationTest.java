@@ -91,7 +91,7 @@ public class QueueIntegrationTest {
     private class ConsumerThread extends TestThread {
 
         public ConsumerThread() {
-            super("ConsumerThread");
+            super("QueueThread");
         }
 
         @Override

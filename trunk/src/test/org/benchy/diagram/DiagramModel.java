@@ -7,19 +7,21 @@ import java.util.*;
 public class DiagramModel {
 
     private Map<String, List<TestCaseResult>> map = new HashMap<String, List<TestCaseResult>>();
+    private List<String> lineIdList = new LinkedList<String>();
 
     public void add(String lineId, TestCaseResult testCaseResult) {
         List<TestCaseResult> list = map.get(lineId);
         if (list == null) {
             list = new LinkedList<TestCaseResult>();
             map.put(lineId, list);
+            lineIdList.add(lineId);
         }
 
         list.add(testCaseResult);
     }
 
-    public Set<String> getLineIds() {
-        return map.keySet();
+    public List<String> getLineIds() {
+        return Collections.unmodifiableList(lineIdList);
     }
 
     public List<TestCaseResult> get(String lineId) {

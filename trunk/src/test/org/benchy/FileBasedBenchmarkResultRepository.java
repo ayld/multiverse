@@ -57,19 +57,21 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
                 benchmarkDirectory,
                 toDateSeperator(date));
 
-        File resultsDir = findLastRun(todaysMeasurementsDir);
         List<TestCaseResult> caseResults = new LinkedList<TestCaseResult>();
+        if (todaysMeasurementsDir.isDirectory()) {
+            File resultsDir = findLastRun(todaysMeasurementsDir);
 
-        if (resultsDir.isDirectory()) {
-            for (File file : resultsDir.listFiles(new ResultFileFilter())) {
+            if (resultsDir.isDirectory()) {
+                for (File file : resultsDir.listFiles(new ResultFileFilter())) {
 
-                Properties properties = new Properties();
-                try {
-                    properties.load(new FileReader(file));
-                    TestCaseResult caseResult = new TestCaseResult(properties);
-                    caseResults.add(caseResult);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    Properties properties = new Properties();
+                    try {
+                        properties.load(new FileReader(file));
+                        TestCaseResult caseResult = new TestCaseResult(properties);
+                        caseResults.add(caseResult);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }

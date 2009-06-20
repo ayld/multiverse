@@ -5,10 +5,7 @@ import org.benchy.executor.AbstractDriver;
 import org.benchy.executor.TestCase;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Handle;
-import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.TransactionTemplate;
+import org.multiverse.api.*;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.examples.ExampleIntValue;
 
@@ -22,6 +19,7 @@ public class NoSharedStmNoSharedDataAndManualDriver extends AbstractDriver {
 
     @Override
     public void preRun(TestCase testCase) {
+        GlobalStmInstance.setInstance(new MultiversionedStm(null));
         incCount = testCase.getLongProperty("incCount");
         threadCount = testCase.getIntProperty("threadCount");
         threads = new IncThread[threadCount];
