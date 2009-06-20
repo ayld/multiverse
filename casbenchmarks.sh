@@ -48,7 +48,7 @@ runbenchmark '{"benchmarkName":"baseline/cas/AtomicInteger","driverClass":"org.m
 		{"runCount":"1","threadCount":"16","count":"10000000","warmupRunCount":"1"}
 	]}'
 
-runbenchmark '{"benchmarkName":"baseline/cas/AtomicInteger","driverClass":"org.multiverse.benchmarks.drivers.oldschool.cas.AtomicIntegerFieldUpdaterDriver",
+runbenchmark '{"benchmarkName":"baseline/cas/AtomicIntegerFieldUpdater","driverClass":"org.multiverse.benchmarks.drivers.oldschool.cas.AtomicIntegerFieldUpdaterDriver",
 	"testcases":[
 		{"runCount":"1","threadCount":"1","count":"10000000","warmupRunCount":"1"},
 		{"runCount":"1","threadCount":"2","count":"10000000","warmupRunCount":"1"},
@@ -68,7 +68,7 @@ runbenchmark '{"benchmarkName":"baseline/cas/AtomicInteger","driverClass":"org.m
 		{"runCount":"1","threadCount":"16","count":"10000000","warmupRunCount":"1"}
 	]}'
 
-runbenchmark '{"benchmarkName":"baseline/cas/AtomicInteger","driverClass":"org.multiverse.benchmarks.drivers.oldschool.cas.AtomicLongFieldUpdaterDriver",
+runbenchmark '{"benchmarkName":"baseline/cas/AtomicLongFieldUpdater","driverClass":"org.multiverse.benchmarks.drivers.oldschool.cas.AtomicLongFieldUpdaterDriver",
 	"testcases":[
 		{"runCount":"1","threadCount":"1","count":"10000000","warmupRunCount":"1"},
 		{"runCount":"1","threadCount":"2","count":"10000000","warmupRunCount":"1"},
