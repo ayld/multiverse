@@ -341,7 +341,7 @@ public final class MultiversionedStm implements Stm {
          */
         private void tryAcquireWriteLockAndDetectWriteConflicts(MaterializedObject[] writeSet) {
             int count = 0;
-            RetryCounter retryCounter = new RetryCounter(0);
+            RetryCounter retryCounter = new RetryCounter(1000);
 
             try {
                 for (int k = 0; k < writeSet.length; k++) {

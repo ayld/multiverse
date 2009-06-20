@@ -1,11 +1,13 @@
 package org.multiverse.benchmarks.drivers.oldschool.locks;
 
+import org.benchy.TestCaseResult;
 import org.benchy.executor.AbstractDriver;
 import org.benchy.executor.TestCase;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -42,6 +44,14 @@ public class ContendedLockDriver extends AbstractDriver {
     public void run() {
         startAll(threads);
         joinAll(threads);
+    }
+
+    @Override
+    public void postRun(TestCaseResult caseResult) {
+        long transactions = lockAndUnlockCount * threadCount;
+        long durationNs = caseResult.getLongProperty("duration(ns)");
+        double transactionSec = (TimeUnit.SECONDS.toNanos(1) * transactions / durationNs);
+        caseResult.put("transactions/second", transactionSec);
     }
 
     public class WorkerThread extends TestThread {

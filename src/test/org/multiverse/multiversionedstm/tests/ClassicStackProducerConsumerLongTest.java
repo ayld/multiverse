@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * A performance test that measures how fast a classic stack is (LinkedBlockingDeque). This helps to compare
  * the performance of STM concurrency with old school concurrency. Not a very good test btw since it doesn't
  * include a warm up time to give the JIT a chance to do its magic.
- *
+ * <p/>
  * todo: this class should be transformed to a benchdriver (or deleted if already done).
  *
  * @author Peter Veentjer.
@@ -82,7 +82,7 @@ public class ClassicStackProducerConsumerLongTest {
 
     class ConsumerThread extends TestThread {
         public ConsumerThread(int id) {
-            super("ConsumerThread-" + id);
+            super("QueueThread-" + id);
         }
 
         @Override

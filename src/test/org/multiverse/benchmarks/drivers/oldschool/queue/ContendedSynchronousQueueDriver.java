@@ -14,6 +14,16 @@ public class ContendedSynchronousQueueDriver extends AbstractBlockingQueueDriver
     }
 
     @Override
+    public boolean needsStartingTake() {
+        return true;
+    }
+
+    @Override
+    public int outputMod() {
+        return 1;
+    }
+
+    @Override
     public void preRun(TestCase testCase) {
         fair = testCase.getBooleanProperty("fair");
         super.preRun(testCase);

@@ -121,7 +121,7 @@ public class PipelineLongTest {
         private final List consumedList = new LinkedList();
 
         public ConsumerThread() {
-            setName("ConsumerThread");
+            setName("QueueThread");
         }
 
         public int consumeOneItem() {

@@ -9,23 +9,21 @@ import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
- * A Driver that tests how a contended AtomicLong behaves.
- *
  * @author Peter Veentjer
  */
-public class AtomicLongDriver extends AbstractDriver {
+public class AtomicReferenceFieldUpdaterDriver extends AbstractDriver {
 
     private IncrementAndGetThread[] threads;
-    private AtomicLong cas;
+    private AtomicReferenceFieldUpdater cas;
     private int threadCount;
     private long count;
 
     @Override
     public void preRun(TestCase testCase) {
-        cas = new AtomicLong();
+        cas = AtomicReferenceFieldUpdater.newUpdater(null, null, null);
         threadCount = testCase.getIntProperty("threadCount");
         count = testCase.getLongProperty("count");
 
@@ -58,7 +56,7 @@ public class AtomicLongDriver extends AbstractDriver {
         @Test
         public void run() {
             for (long k = 0; k < count; k++) {
-                cas.incrementAndGet();
+                // cas.compareAndSet();
             }
         }
     }

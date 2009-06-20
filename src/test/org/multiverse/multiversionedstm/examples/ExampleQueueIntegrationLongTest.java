@@ -150,7 +150,7 @@ public class ExampleQueueIntegrationLongTest {
         private int runCount = 0;
 
         public ConsumerThread() {
-            super("ConsumerThread");
+            super("QueueThread");
         }
 
         public void run() {

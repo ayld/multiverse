@@ -18,7 +18,8 @@ import java.util.Map;
 public class BenchmarkMain {
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Starting executing Benchmarks");
+        System.out.println("Starting Benchy the Benchmark Executor");
+
         BenchmarkResultRepository repository = loadRepository(args[0]);
 
         Benchmark benchmark = loadBenchmark(readbenchmarkJson());
@@ -26,7 +27,7 @@ public class BenchmarkMain {
         BenchmarkExecutor executor = new BenchmarkExecutor(repository);
         executor.execute(benchmark);
 
-        System.out.println("Finished executing benchmarks");
+        System.out.println("Finished");
     }
 
     private static String readbenchmarkJson() throws IOException {
