@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import static junit.framework.Assert.assertEquals;
 import org.junit.After;
@@ -10,7 +10,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class ExamplePairTest {
+public class ManualPairTest {
     private MultiversionedStm stm;
 
     @Before
@@ -27,11 +27,11 @@ public class ExamplePairTest {
     public void testPersistWithoutMaterializedMembers() {
         Integer left = 10;
         Integer right = 20;
-        ExamplePair<Integer, Integer> pair = new ExamplePair<Integer, Integer>(left, right);
-        Handle<ExamplePair<Integer, Integer>> handle = commit(stm, pair);
+        ManualPair<Integer, Integer> pair = new ManualPair<Integer, Integer>(left, right);
+        Handle<ManualPair<Integer, Integer>> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        ExamplePair<Integer, Integer> found = t.read(handle);
+        ManualPair<Integer, Integer> found = t.read(handle);
         assertNotNull(found);
         assertEquals(left, found.getLeft());
         assertEquals(right, found.getRight());
@@ -39,13 +39,13 @@ public class ExamplePairTest {
 
     @Test
     public void testPersistSimpleMaterializedMembers() {
-        ExampleIntValue left = new ExampleIntValue(10);
-        ExampleIntValue right = new ExampleIntValue(20);
-        ExamplePair<ExampleIntValue, ExampleIntValue> pair = new ExamplePair<ExampleIntValue, ExampleIntValue>(left, right);
-        Handle<ExamplePair<ExampleIntValue, ExampleIntValue>> handle = commit(stm, pair);
+        ManualIntValue left = new ManualIntValue(10);
+        ManualIntValue right = new ManualIntValue(20);
+        ManualPair<ManualIntValue, ManualIntValue> pair = new ManualPair<ManualIntValue, ManualIntValue>(left, right);
+        Handle<ManualPair<ManualIntValue, ManualIntValue>> handle = commit(stm, pair);
 
         Transaction t = stm.startTransaction();
-        ExamplePair<ExampleIntValue, ExampleIntValue> found = t.read(handle);
+        ManualPair<ManualIntValue, ManualIntValue> found = t.read(handle);
         assertNotNull(found);
         assertEquals(left, found.getLeft());
         assertEquals(right, found.getRight());

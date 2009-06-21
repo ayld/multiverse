@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
@@ -14,17 +14,17 @@ import static java.lang.String.format;
  *
  * @author Peter Veentjer.
  */
-public final class ExampleLatch implements MaterializedObject {
+public final class ManualLatch implements MaterializedObject {
 
     private boolean isOpen;
 
-    public ExampleLatch() {
+    public ManualLatch() {
         this(false);
     }
 
-    public ExampleLatch(boolean isOpen) {
+    public ManualLatch(boolean isOpen) {
         this.isOpen = isOpen;
-        this.handle = new DefaultMultiversionedHandle<ExampleLatch>();
+        this.handle = new DefaultMultiversionedHandle<ManualLatch>();
     }
 
     public void awaitOpen() {
@@ -47,17 +47,17 @@ public final class ExampleLatch implements MaterializedObject {
 
     // ================== generated ====================
 
-    private final MultiversionedHandle<ExampleLatch> handle;
+    private final MultiversionedHandle<ManualLatch> handle;
     private DematerializedLatch lastDematerialized;
 
-    public ExampleLatch(DematerializedLatch dematerializedLatch) {
+    public ManualLatch(DematerializedLatch dematerializedLatch) {
         this.handle = dematerializedLatch.handle;
         this.isOpen = dematerializedLatch.isOpen;
         this.lastDematerialized = dematerializedLatch;
     }
 
     @Override
-    public MultiversionedHandle<ExampleLatch> getHandle() {
+    public MultiversionedHandle<ManualLatch> getHandle() {
         return handle;
     }
 
@@ -96,22 +96,22 @@ public final class ExampleLatch implements MaterializedObject {
 
     static class DematerializedLatch implements DematerializedObject {
 
-        private final MultiversionedHandle<ExampleLatch> handle;
+        private final MultiversionedHandle<ManualLatch> handle;
         private final boolean isOpen;
 
-        DematerializedLatch(ExampleLatch latch) {
+        DematerializedLatch(ManualLatch latch) {
             this.handle = latch.handle;
             this.isOpen = latch.isOpen;
         }
 
         @Override
-        public MultiversionedHandle<ExampleLatch> getHandle() {
+        public MultiversionedHandle<ManualLatch> getHandle() {
             return handle;
         }
 
         @Override
         public MaterializedObject rematerialize(Transaction t) {
-            return new ExampleLatch(this);
+            return new ManualLatch(this);
         }
     }
 }

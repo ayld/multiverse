@@ -19,7 +19,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Peter Veentjer
  */
-public class ContendedLockDriver extends AbstractDriver {
+public class ContendedReentrantLockDriver extends AbstractDriver {
 
     private WorkerThread[] threads;
     private int threadCount;

@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"ClassExplicitlyExtendsThread"})
-public class ExampleQueueIntegrationLongTest {
+public class ManualQueueIntegrationLongTest {
 
     private List<String> producedList = new LinkedList<String>();
     private List<String> consumedList = new LinkedList<String>();
@@ -26,7 +26,7 @@ public class ExampleQueueIntegrationLongTest {
     private AtomicInteger consumeCountDown = new AtomicInteger();
 
     private MultiversionedStm stm;
-    private Handle<ExampleQueue<String>> queueHandle;
+    private Handle<ManualQueue<String>> queueHandle;
 
     private int consumeMaxSleepMs = 10;
     private int produceMaxSleepMs = 10;
@@ -34,7 +34,7 @@ public class ExampleQueueIntegrationLongTest {
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        queueHandle = commit(stm, new ExampleQueue<String>());
+        queueHandle = commit(stm, new ManualQueue<String>());
     }
 
     @After
@@ -45,7 +45,7 @@ public class ExampleQueueIntegrationLongTest {
     public void atomicPush(final String item) {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
-                ExampleQueue<String> queue = t.read(queueHandle);
+                ManualQueue<String> queue = t.read(queueHandle);
                 queue.push(item);
                 return null;
             }
@@ -55,7 +55,7 @@ public class ExampleQueueIntegrationLongTest {
     public String atomicPop() {
         return new TransactionTemplate<String>(stm) {
             protected String execute(Transaction t) throws Exception {
-                ExampleQueue<String> queue = t.read(queueHandle);
+                ManualQueue<String> queue = t.read(queueHandle);
                 return queue.pop();
             }
         }.execute();
@@ -64,7 +64,7 @@ public class ExampleQueueIntegrationLongTest {
     public int atomicSize() {
         return new TransactionTemplate<Integer>(stm) {
             protected Integer execute(Transaction t) throws Exception {
-                ExampleQueue<String> queue = t.read(queueHandle);
+                ManualQueue<String> queue = t.read(queueHandle);
                 return queue.size();
             }
         }.execute();
@@ -118,7 +118,7 @@ public class ExampleQueueIntegrationLongTest {
 
     public void assertQueueIsEmpty() {
         Transaction t = stm.startTransaction();
-        ExampleQueue<String> queue = t.read(queueHandle);
+        ManualQueue<String> queue = t.read(queueHandle);
         assertTrue(queue.isEmpty());
         t.commit();
     }

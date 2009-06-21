@@ -8,8 +8,8 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
-import org.multiverse.multiversionedstm.examples.ExamplePair;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualPair;
 
 /**
  * Checks if the system is able to deal with long chains of objects. If for example recursion uses
@@ -72,8 +72,8 @@ public class DeepMemberChainLongTest {
     //}
 
     public void test(int length) {
-        ExamplePair pair = createValueChain(length);
-        Handle<ExamplePair> handle = commit(stm, pair);
+        ManualPair pair = createValueChain(length);
+        Handle<ManualPair> handle = commit(stm, pair);
 
         int updateCount = 10;
         for (int k = 0; k < updateCount; k++) {
@@ -84,18 +84,18 @@ public class DeepMemberChainLongTest {
         assertEquals(updateCount * (length + 1), total);
     }
 
-    public void increaseAllValuesInChain(Handle<ExamplePair> handle) {
+    public void increaseAllValuesInChain(Handle<ManualPair> handle) {
         Transaction t = stm.startTransaction();
 
-        ExamplePair pair = t.read(handle);
+        ManualPair pair = t.read(handle);
         do {
-            ((ExampleIntValue) pair.getLeft()).inc();
+            ((ManualIntValue) pair.getLeft()).inc();
 
             Object right = pair.getRight();
-            if (right instanceof ExamplePair) {
-                pair = (ExamplePair) right;
+            if (right instanceof ManualPair) {
+                pair = (ManualPair) right;
             } else {
-                ((ExampleIntValue) right).inc();
+                ((ManualIntValue) right).inc();
                 pair = null;
             }
         } while (pair != null);
@@ -103,20 +103,20 @@ public class DeepMemberChainLongTest {
         t.commit();
     }
 
-    public int totalValuesInChain(Handle<ExamplePair> handle) {
+    public int totalValuesInChain(Handle<ManualPair> handle) {
         Transaction t = stm.startTransaction();
 
         int total = 0;
 
-        ExamplePair pair = t.read(handle);
+        ManualPair pair = t.read(handle);
         do {
-            total += ((ExampleIntValue) pair.getLeft()).get();
+            total += ((ManualIntValue) pair.getLeft()).get();
 
             Object right = pair.getRight();
-            if (right instanceof ExamplePair) {
-                pair = (ExamplePair) right;
+            if (right instanceof ManualPair) {
+                pair = (ManualPair) right;
             } else {
-                total += ((ExampleIntValue) right).get();
+                total += ((ManualIntValue) right).get();
                 pair = null;
             }
         } while (pair != null);
@@ -126,13 +126,13 @@ public class DeepMemberChainLongTest {
         return total;
     }
 
-    public ExamplePair createValueChain(int length) {
+    public ManualPair createValueChain(int length) {
         if (length <= 0) throw new IllegalArgumentException();
 
-        ExamplePair pair = new ExamplePair(new ExampleIntValue(0), new ExampleIntValue(0));
+        ManualPair pair = new ManualPair(new ManualIntValue(0), new ManualIntValue(0));
 
         for (int k = 0; k < length - 1; k++) {
-            pair = new ExamplePair(new ExampleIntValue(0), pair);
+            pair = new ManualPair(new ManualIntValue(0), pair);
         }
 
         return pair;

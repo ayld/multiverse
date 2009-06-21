@@ -8,7 +8,7 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleStack;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualStack;
 
 /**
  * MVCC suffers from a problem that serialized transactions are not completely serialized.
@@ -26,14 +26,14 @@ import org.multiverse.multiversionedstm.examples.ExampleStack;
  */
 public class BrokenSerializedTest {
     private MultiversionedStm stm;
-    private Handle<ExampleStack<Integer>> stackHandle1;
-    private Handle<ExampleStack<Integer>> stackHandle2;
+    private Handle<ManualStack<Integer>> stackHandle1;
+    private Handle<ManualStack<Integer>> stackHandle2;
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        stackHandle1 = commit(stm, new ExampleStack<Integer>());
-        stackHandle2 = commit(stm, new ExampleStack<Integer>());
+        stackHandle1 = commit(stm, new ManualStack<Integer>());
+        stackHandle2 = commit(stm, new ManualStack<Integer>());
     }
 
     @Test
@@ -41,12 +41,12 @@ public class BrokenSerializedTest {
         Transaction t1 = stm.startTransaction();
         Transaction t2 = stm.startTransaction();
 
-        ExampleStack<Integer> t1Stack1 = t1.read(stackHandle1);
-        ExampleStack<Integer> t1Stack2 = t1.read(stackHandle2);
+        ManualStack<Integer> t1Stack1 = t1.read(stackHandle1);
+        ManualStack<Integer> t1Stack2 = t1.read(stackHandle2);
         t1Stack1.push(t1Stack2.size());
 
-        ExampleStack<Integer> t2Stack1 = t2.read(stackHandle1);
-        ExampleStack<Integer> t2Stack2 = t2.read(stackHandle2);
+        ManualStack<Integer> t2Stack1 = t2.read(stackHandle1);
+        ManualStack<Integer> t2Stack2 = t2.read(stackHandle2);
         t2Stack2.push(t2Stack1.size());
 
         t1.commit();
@@ -56,9 +56,9 @@ public class BrokenSerializedTest {
         assertStackContainZero(stackHandle2);
     }
 
-    public void assertStackContainZero(Handle<ExampleStack<Integer>> stackHandle) {
+    public void assertStackContainZero(Handle<ManualStack<Integer>> stackHandle) {
         Transaction t = stm.startTransaction();
-        ExampleStack<Integer> stack = t.read(stackHandle);
+        ManualStack<Integer> stack = t.read(stackHandle);
         //only one element on the list
         assertEquals(1, stack.size());
         //the top element is zero

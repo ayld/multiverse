@@ -5,8 +5,8 @@ import static org.junit.Assert.assertSame;
 import org.junit.Test;
 import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
-import org.multiverse.multiversionedstm.examples.ExamplePair;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualPair;
 import org.multiverse.util.ArrayIterator;
 import org.multiverse.util.EmptyIterator;
 import org.multiverse.util.InstanceIterator;
@@ -21,7 +21,7 @@ public class MultiversionedStmUtilsTest {
 
     @Test
     public void testSingleElement() {
-        MaterializedObject obj = new ExampleIntValue();
+        MaterializedObject obj = new ManualIntValue();
         MaterializedObject first = MultiversionedStmUtils.initializeNextChain(
                 new InstanceIterator(new NonLazy(obj)));
 
@@ -31,9 +31,9 @@ public class MultiversionedStmUtilsTest {
 
     @Test
     public void testMultipleDirectElements() {
-        MaterializedObject obj1 = new ExampleIntValue();
-        MaterializedObject obj2 = new ExampleIntValue();
-        MaterializedObject obj3 = new ExampleIntValue();
+        MaterializedObject obj1 = new ManualIntValue();
+        MaterializedObject obj2 = new ManualIntValue();
+        MaterializedObject obj3 = new ManualIntValue();
 
         MaterializedObject first = MultiversionedStmUtils.initializeNextChain(
                 new ArrayIterator(new NonLazy(obj1), new NonLazy(obj2), new NonLazy(obj3)));
@@ -46,7 +46,7 @@ public class MultiversionedStmUtilsTest {
 
     @Test
     public void testIndirect() {
-        ExamplePair<ExampleIntValue, ExampleIntValue> pair = new ExamplePair(new ExampleIntValue(1), new ExampleIntValue(2));
+        ManualPair<ManualIntValue, ManualIntValue> pair = new ManualPair(new ManualIntValue(1), new ManualIntValue(2));
 
         MaterializedObject first = MultiversionedStmUtils.initializeNextChain(
                 new InstanceIterator(new NonLazy(pair)));

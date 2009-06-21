@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -7,7 +7,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class ExampleLatchIntegrationTest {
+public class ManualLatchIntegrationTest {
     private MultiversionedStm stm;
 
     @Before
@@ -17,14 +17,14 @@ public class ExampleLatchIntegrationTest {
 
     @Test
     public void testRematerialize() {
-        ExampleLatch latch = new ExampleLatch();
+        ManualLatch latch = new ManualLatch();
 
         Transaction t = stm.startTransaction();
-        Handle<ExampleLatch> handle = t.attach(latch);
+        Handle<ManualLatch> handle = t.attach(latch);
         t.commit();
 
         Transaction t2 = stm.startTransaction();
-        ExampleLatch found = t2.read(handle);
+        ManualLatch found = t2.read(handle);
         assertEquals(latch.isOpen(), found.isOpen());
     }
 }

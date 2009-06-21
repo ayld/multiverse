@@ -9,7 +9,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleStack;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualStack;
 
 public class RetryTest {
     private MultiversionedStm stm;
@@ -21,10 +21,10 @@ public class RetryTest {
 
     @Test
     public void testPopFromEmptyStack() {
-        Handle<ExampleStack> handle = commit(stm, new ExampleStack());
+        Handle<ManualStack> handle = commit(stm, new ManualStack());
 
         Transaction t = stm.startTransaction();
-        ExampleStack stack = t.read(handle);
+        ManualStack stack = t.read(handle);
 
         try {
             stack.pop();

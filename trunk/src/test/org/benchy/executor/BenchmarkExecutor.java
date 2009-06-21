@@ -6,6 +6,7 @@ import org.benchy.TestCaseResult;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The BenchmarkRunner is responsible for executing benchmarks.
@@ -29,30 +30,51 @@ public class BenchmarkExecutor {
 
     public void execute(Benchmark... benchmarks) {
         for (Benchmark benchmark : benchmarks) {
-            List<TestCaseResult> resultList = new LinkedList<TestCaseResult>();
-
-            System.out.println("Starting with benchmark: " + benchmark.benchmarkName);
-
-            for (TestCase testCase : benchmark.testCaseList) {
-                warmup(benchmark, testCase);
-                for (int attempt = 1; attempt <= testCase.getRunCount(); attempt++) {
-                    TestCaseResult testCaseResult = run(benchmark, testCase, attempt);
-                    resultList.add(testCaseResult);
-                }
-            }
-
-            BenchmarkResult benchmarkResult = new BenchmarkResult(benchmark.benchmarkName, resultList);
-            resultRepository.store(benchmarkResult);
-            System.out.println("Finished with benchmark: " + benchmark.benchmarkName + ", result was stored");
+            doExecute(benchmark);
         }
     }
 
+    private void doExecute(Benchmark benchmark) {
+        List<TestCaseResult> resultList = new LinkedList<TestCaseResult>();
+
+        printLine();
+        System.out.println("Starting benchmark: " + benchmark.benchmarkName);
+        printLine();
+
+        long beginNs = System.nanoTime();
+
+        for (TestCase testCase : benchmark.testCaseList) {
+            executeTestCase(benchmark, resultList, testCase);
+        }
+
+        long endNs = System.nanoTime();
+        long durationMs = TimeUnit.NANOSECONDS.toMillis(endNs - beginNs);
+
+        BenchmarkResult benchmarkResult = new BenchmarkResult(benchmark.benchmarkName, resultList);
+        resultRepository.store(benchmarkResult);
+        printLine();
+        System.out.printf("Finished benchmark: %s in %s ms, result of %s testcases stored\n", benchmark.benchmarkName, durationMs, benchmarkResult.getTestCaseResultList().size());
+        printLine();
+    }
+
+    private void executeTestCase(Benchmark benchmark, List<TestCaseResult> resultList, TestCase testCase) {
+        warmup(benchmark, testCase);
+        for (int attempt = 1; attempt <= testCase.getRunCount(); attempt++) {
+            TestCaseResult testCaseResult = run(benchmark, testCase, attempt);
+            resultList.add(testCaseResult);
+        }
+    }
+
+    private void printLine() {
+        System.out.println("----------------------------------------------------------------------");
+    }
+
     private TestCaseResult run(Benchmark benchmark, TestCase testCase, int attempt) {
-        Driver driver = benchmark.getDriver();
+        Driver driver = benchmark.loadDriver();
 
         driver.preRun(testCase);
         TestCaseResult caseResult = new TestCaseResult(benchmark, testCase, attempt);
-        System.out.println("Starting executing testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
+        System.out.printf("Starting executing attempt %s testcase: %s\n", attempt, benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
 
         long startMs = System.currentTimeMillis();
         long startNs = System.nanoTime();
@@ -66,17 +88,19 @@ public class BenchmarkExecutor {
         caseResult.put("end(ms)", endMs);
         driver.postRun(caseResult);
 
-        System.out.println("Finished testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
+        System.out.printf("Finished executing attempt %s of testcase: %s\n", attempt, benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
         return caseResult;
     }
 
     private void warmup(Benchmark benchmark, TestCase testCase) {
-        System.out.println("Starting warmup runs for testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
+        int warmupCount = testCase.getWarmupRunCount();
+
+        System.out.printf("Starting %s warmup runs for testcase: %s\n", warmupCount, benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
 
         for (int k = 0; k < testCase.getWarmupRunCount(); k++) {
             run(benchmark, testCase, k + 1);
         }
 
-        System.out.println("Finished warmup runs for testcase: " + benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
+        System.out.printf("Finished %s warmup runs for testcase: %s\n", warmupCount, benchmark.benchmarkName + " " + testCase.getPropertiesDescription());
     }
 }

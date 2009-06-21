@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.StmUtils;
@@ -9,25 +9,25 @@ import static java.lang.String.format;
 import static java.util.Collections.reverse;
 import java.util.List;
 
-public final class ExampleQueue<E> implements MaterializedObject {
+public final class ManualQueue<E> implements MaterializedObject {
 
-    private ExampleStack<E> readyToPopStack;
-    private ExampleStack<E> pushedStack;
+    private ManualStack<E> readyToPopStack;
+    private ManualStack<E> pushedStack;
     private final int maxCapacity;
 
-    public ExampleQueue() {
+    public ManualQueue() {
         this(Integer.MAX_VALUE);
     }
 
-    public ExampleQueue(int maximumCapacity) {
+    public ManualQueue(int maximumCapacity) {
         if (maximumCapacity < 1)
             throw new IllegalArgumentException();
         this.maxCapacity = maximumCapacity;
 
         //moved into the constructor.
-        this.readyToPopStack = new ExampleStack<E>();
-        this.pushedStack = new ExampleStack<E>();
-        this.handle = new DefaultMultiversionedHandle<ExampleQueue<E>>();
+        this.readyToPopStack = new ManualStack<E>();
+        this.pushedStack = new ManualStack<E>();
+        this.handle = new DefaultMultiversionedHandle<ManualQueue<E>>();
     }
 
     public int getMaxCapacity() {
@@ -119,10 +119,10 @@ public final class ExampleQueue<E> implements MaterializedObject {
         if (thatObj == this)
             return true;
 
-        if (!(thatObj instanceof ExampleQueue))
+        if (!(thatObj instanceof ManualQueue))
             return false;
 
-        ExampleQueue<E> that = (ExampleQueue<E>) thatObj;
+        ManualQueue<E> that = (ManualQueue<E>) thatObj;
         if (that.size() != this.size())
             return false;
 
@@ -134,11 +134,11 @@ public final class ExampleQueue<E> implements MaterializedObject {
     //================== generated =================
 
     private DematerializedQueue<E> lastDematerialized;
-    private final MultiversionedHandle<ExampleQueue<E>> handle;
-    private LazyReference<ExampleStack<E>> pushedStackRef;
-    private LazyReference<ExampleStack<E>> readyToPopStackRef;
+    private final MultiversionedHandle<ManualQueue<E>> handle;
+    private LazyReference<ManualStack<E>> pushedStackRef;
+    private LazyReference<ManualStack<E>> readyToPopStackRef;
 
-    public ExampleQueue(DematerializedQueue<E> dematerializedQueue, Transaction transaction) {
+    public ManualQueue(DematerializedQueue<E> dematerializedQueue, Transaction transaction) {
         this.lastDematerialized = dematerializedQueue;
         this.handle = dematerializedQueue.handle;
         this.readyToPopStackRef = transaction.readLazyAndSelfManaged(dematerializedQueue.readyToPopStackHandle);
@@ -179,7 +179,7 @@ public final class ExampleQueue<E> implements MaterializedObject {
     }
 
     @Override
-    public MultiversionedHandle<ExampleQueue<E>> getHandle() {
+    public MultiversionedHandle<ManualQueue<E>> getHandle() {
         return handle;
     }
 
@@ -196,12 +196,12 @@ public final class ExampleQueue<E> implements MaterializedObject {
     }
 
     public static class DematerializedQueue<E> implements DematerializedObject {
-        private final MultiversionedHandle<ExampleStack<E>> readyToPopStackHandle;
-        private final MultiversionedHandle<ExampleStack<E>> pushedStackHandle;
-        private final MultiversionedHandle<ExampleQueue<E>> handle;
+        private final MultiversionedHandle<ManualStack<E>> readyToPopStackHandle;
+        private final MultiversionedHandle<ManualStack<E>> pushedStackHandle;
+        private final MultiversionedHandle<ManualQueue<E>> handle;
         private final int maxCapacity;
 
-        DematerializedQueue(ExampleQueue<E> queue) {
+        DematerializedQueue(ManualQueue<E> queue) {
             this.handle = queue.handle;
             this.readyToPopStackHandle = MultiversionedStmUtils.getHandle(queue.readyToPopStackRef, queue.readyToPopStack);
             this.pushedStackHandle = MultiversionedStmUtils.getHandle(queue.pushedStackRef, queue.pushedStack);
@@ -209,13 +209,13 @@ public final class ExampleQueue<E> implements MaterializedObject {
         }
 
         @Override
-        public MultiversionedHandle<ExampleQueue<E>> getHandle() {
+        public MultiversionedHandle<ManualQueue<E>> getHandle() {
             return handle;
         }
 
         @Override
-        public ExampleQueue rematerialize(Transaction t) {
-            return new ExampleQueue<E>(this, t);
+        public ManualQueue rematerialize(Transaction t) {
+            return new ManualQueue<E>(this, t);
         }
     }
 }

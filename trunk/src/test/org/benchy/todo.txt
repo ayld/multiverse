@@ -5,6 +5,12 @@ TODO
 
 - system should be able to place error information in the output
 
+- System.out/System.err should be stored
+
+- if one testcase fails, the other testcases won't execute.
+
+- if one benchmark fails, the other benchmarks won't execute
+
 - system should be able to deal with different types than just integers
 
 - diagrammain needs a date parameter on occassion: atm it always uses the current date.
@@ -12,8 +18,6 @@ TODO
 - improved error handling diagram main for arguments
 
 - the benchy framework should be placed in a seperate src directory and create a seperate jar.
-
-- the shared stm drivers should have option with or without statistics.
 
 NICE TO HAVES
 
@@ -32,6 +36,8 @@ be automated using reflection.
 not after the completion of the complete benchmark.
 
 DONE
+
+- improved logging 
 
 - improved error handling for the benchmark main for arguments
 

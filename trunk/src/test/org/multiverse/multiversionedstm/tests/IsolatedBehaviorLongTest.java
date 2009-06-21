@@ -11,7 +11,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 import org.multiverse.multiversionedstm.PrintMultiversionedStmStatisticsThread;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IsolatedBehaviorLongTest {
 
     private MultiversionedStm stm;
-    private Handle<ExampleIntValue> handle;
+    private Handle<ManualIntValue> handle;
     private int modifyCount = 300;
 
     private AtomicInteger modifyCountDown = new AtomicInteger();
@@ -37,7 +37,7 @@ public class IsolatedBehaviorLongTest {
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        handle = commit(stm, new ExampleIntValue());
+        handle = commit(stm, new ManualIntValue());
         new PrintMultiversionedStmStatisticsThread(stm).start();
     }
 
@@ -68,7 +68,7 @@ public class IsolatedBehaviorLongTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleIntValue value = t.read(handle);
+                        ManualIntValue value = t.read(handle);
                         value.inc();
 
                         sleepRandomMs(50);
@@ -94,7 +94,7 @@ public class IsolatedBehaviorLongTest {
                 new TransactionTemplate(stm) {
                     @Override
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleIntValue value = t.read(handle);
+                        ManualIntValue value = t.read(handle);
                         if (value.get() % 2 != 0)
                             fail();
 

@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
@@ -17,19 +17,19 @@ import java.util.NoSuchElementException;
  * @author Peter Veentjer.
  * @param <E>
  */
-public final class ExampleLinkedList<E> extends AbstractSequentialList<E> implements MaterializedObject {
+public final class ManualLinkedList<E> extends AbstractSequentialList<E> implements MaterializedObject {
 
     private Entry<E> header;
     private int size;
 
-    public ExampleLinkedList() {
+    public ManualLinkedList() {
         size = 0;
         header = new Entry<E>(null, null, null);
         header.next = header.previous = header;
-        handle = new DefaultMultiversionedHandle<ExampleLinkedList<E>>();
+        handle = new DefaultMultiversionedHandle<ManualLinkedList<E>>();
     }
 
-    public ExampleLinkedList(Collection<? extends E> c) {
+    public ManualLinkedList(Collection<? extends E> c) {
         this();
         addAll(c);
     }
@@ -197,9 +197,9 @@ public final class ExampleLinkedList<E> extends AbstractSequentialList<E> implem
     // ============== generated ===================
 
     private DematerializedLinkedList<E> lastDematerialized;
-    private final MultiversionedHandle<ExampleLinkedList<E>> handle;
+    private final MultiversionedHandle<ManualLinkedList<E>> handle;
 
-    private ExampleLinkedList(DematerializedLinkedList<E> dematerializedLinkedList, Transaction t) {
+    private ManualLinkedList(DematerializedLinkedList<E> dematerializedLinkedList, Transaction t) {
         this.handle = dematerializedLinkedList.handle;
         this.lastDematerialized = dematerializedLinkedList;
         this.size = dematerializedLinkedList.size;
@@ -320,24 +320,24 @@ public final class ExampleLinkedList<E> extends AbstractSequentialList<E> implem
     }
 
     static class DematerializedLinkedList<E> implements DematerializedObject {
-        private final MultiversionedHandle<ExampleLinkedList<E>> handle;
+        private final MultiversionedHandle<ManualLinkedList<E>> handle;
         private final int size;
         private MultiversionedHandle<Entry<E>> header;
 
-        public DematerializedLinkedList(ExampleLinkedList<E> list) {
+        public DematerializedLinkedList(ManualLinkedList<E> list) {
             this.handle = list.handle;
             this.size = list.size;
             this.header = MultiversionedStmUtils.getHandle(list.header);
         }
 
         @Override
-        public MultiversionedHandle<ExampleLinkedList<E>> getHandle() {
+        public MultiversionedHandle<ManualLinkedList<E>> getHandle() {
             return handle;
         }
 
         @Override
-        public ExampleLinkedList<E> rematerialize(Transaction t) {
-            return new ExampleLinkedList<E>(this, t);
+        public ManualLinkedList<E> rematerialize(Transaction t) {
+            return new ManualLinkedList<E>(this, t);
         }
     }
 

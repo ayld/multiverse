@@ -61,7 +61,7 @@ public class TestCaseResult {
 
     private void copyPropertiesFromBenchmark(Benchmark benchmark) {
         put("benchmarkName", benchmark.benchmarkName);
-        put("driverClass", benchmark.getDriver().getClass().getName());
+        put("driverClass", benchmark.driverClass);
     }
 
     public String get(String key) {

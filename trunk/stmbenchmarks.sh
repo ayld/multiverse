@@ -1,28 +1,12 @@
 #!/bin/bash
 
 function runbenchmark(){
-java -Xbootclasspath/a:lib/provided/boot.jar -javaagent:target/multiverse-0.1.jar -classpath target/classes/test:lib/support/* org.benchy.BenchmarkMain ~/benchmarks <<< $1 EOF
+java -Xbootclasspath/a:lib/provided/boot.jar -javaagent:target/multiverse-0.1.jar -classpath target/classes/test:lib/support/* org.benchy.executor.BenchmarkMain ~/benchmarks <<< $1 EOF
 }
 
-#runbenchmark '{"benchmarkName":"baseline/cas/ContendedCasBenchmark","driverClass":"org.multiverse.benchmarks.drivers.oldschool.cas.ContendedCasDriver",
-#	"testcases":[
-#		{"runCount":"1","threadCount":"1","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"2","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"3","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"4","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"5","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"6","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"7","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"8","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"9","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"10","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"11","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"12","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"13","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"14","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"15","count":"1000000","warmupRunCount":"1"},
-#		{"runCount":"1","threadCount":"16","count":"1000000","warmupRunCount":"1"}
-#	]}'
+function createDiagram(){
+java -classpath target/classes/test:lib/support/* org.benchy.graph.GraphMain ~/benchmarks /tmp/out.dat $1 $2 $3
+}
 
 runbenchmark '{"benchmarkName":"baseline/stm/NoSharedStmNoSharedDataAndManualBenchmark","driverClass":"org.multiverse.benchmarks.drivers.shared.NoSharedStmNoSharedDataAndManualDriver",
 	"testcases":[
@@ -103,3 +87,17 @@ runbenchmark '{"benchmarkName":"baseline/stm/SharedStmSharedDataBenchmark","driv
 		{"runCount":"1","threadCount":"15","incCount":"1000000","warmupRunCount":"1"},
 		{"runCount":"1","threadCount":"16","incCount":"1000000","warmupRunCount":"1"}
 	]}'
+
+
+createDiagram 'baseline/stm/NoSharedStmNoSharedDataAndManualBenchmark;baseline/stm/SharedStmNoSharedDataAndManualBenchmark;baseline/stm/SharedStmNoSharedDataBenchmark;baseline/stm/SharedStmSharedBenchmark' 'threadCount' 'transactions/second'
+gnuplot <<< '
+set title ""
+set xlabel "threads"
+set ylabel "transactions/second"
+set grid
+set terminal png
+set output "/tmp/stm_completerangeofsharedandunshared.png"
+plot "/tmp/out.dat" using 1:2 title "nothing shared & manual" with linespoint, \
+     "/tmp/out.dat" using 1:3 title "shared stm no shared state & manual" with linespoint, \
+     "/tmp/out.dat" using 1:4 title "shared stm no shared state" with linespoint, \
+     "/tmp/out.dat" using 1:5 title "shared stm, shared data" with linespoint'

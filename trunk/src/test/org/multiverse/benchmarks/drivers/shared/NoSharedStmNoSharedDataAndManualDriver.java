@@ -7,7 +7,7 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.*;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,13 +44,13 @@ public class NoSharedStmNoSharedDataAndManualDriver extends AbstractDriver {
 
     public class IncThread extends TestThread {
         private final long incCount;
-        private Handle<ExampleIntValue> handle;
+        private Handle<ManualIntValue> handle;
         private final Stm stm = new MultiversionedStm(null);
 
         public IncThread(int id, long incCount) {
             super("IncThread-" + id);
             this.incCount = incCount;
-            this.handle = commit(stm, new ExampleIntValue());
+            this.handle = commit(stm, new ManualIntValue());
         }
 
         @Override
@@ -64,7 +64,7 @@ public class NoSharedStmNoSharedDataAndManualDriver extends AbstractDriver {
             new TransactionTemplate(stm, false) {
                 @Override
                 protected Object execute(Transaction t) throws Exception {
-                    ExampleIntValue intValue = t.read(handle);
+                    ManualIntValue intValue = t.read(handle);
                     intValue.inc();
                     return null;
                 }

@@ -1,10 +1,10 @@
-package org.benchy.diagram;
+package org.benchy.graph;
 
 import org.benchy.TestCaseResult;
 
 import java.util.*;
 
-public class DiagramModel {
+public class GraphModel {
 
     private Map<String, List<TestCaseResult>> map = new HashMap<String, List<TestCaseResult>>();
     private List<String> lineIdList = new LinkedList<String>();

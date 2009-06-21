@@ -77,8 +77,6 @@ public abstract class AbstractBlockingQueueDriver extends AbstractDriver {
         }
     }
 
-    //todo: transactions/second
-
     private class QueueThread extends TestThread {
         private final long count;
 

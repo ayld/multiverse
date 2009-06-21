@@ -11,14 +11,14 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionTemplate;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConflictingWritesDontBreakSystemLongTest {
     private MultiversionedStm stm;
     private AtomicInteger transactionCountDown = new AtomicInteger();
-    private Handle<ExampleIntValue>[] handles;
+    private Handle<ManualIntValue>[] handles;
 
     private int structureCount = 100;
     private int writerThreadCount = 10;
@@ -50,8 +50,8 @@ public class ConflictingWritesDontBreakSystemLongTest {
 
     private void assertValues(int value) {
         Transaction t = stm.startTransaction();
-        for (Handle<ExampleIntValue> handle : handles) {
-            ExampleIntValue intValue = t.read(handle);
+        for (Handle<ManualIntValue> handle : handles) {
+            ManualIntValue intValue = t.read(handle);
             assertEquals(value, intValue.get());
         }
         t.commit();
@@ -61,7 +61,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
         Transaction t = stm.startTransaction();
         handles = new Handle[structureCount];
         for (int k = 0; k < handles.length; k++) {
-            handles[k] = t.attach(new ExampleIntValue());
+            handles[k] = t.attach(new ManualIntValue());
         }
         t.commit();
     }
@@ -90,7 +90,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
                 @Override
                 protected Object execute(Transaction t) {
                     for (int k = 0; k < handles.length; k++) {
-                        ExampleIntValue value = t.read(handles[k]);
+                        ManualIntValue value = t.read(handles[k]);
                         sleepRandomMs(5);
                         value.inc();
                     }

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 function runbenchmark(){
-java -Xbootclasspath/a:lib/provided/boot.jar -javaagent:target/multiverse-0.1.jar -classpath target/classes/test:lib/support/* org.benchy.BenchmarkMain ~/benchmarks <<< $1 EOF
+java -Xbootclasspath/a:lib/provided/boot.jar -javaagent:target/multiverse-0.1.jar -classpath target/classes/test:lib/support/* org.benchy.executor.BenchmarkMain ~/benchmarks <<< $1 EOF
 }
 
 function createDiagram(){
-java -classpath target/classes/test:lib/support/* org.benchy.DiagramMain ~/benchmarks /tmp/out.dat $1 $2 $3
+java -classpath target/classes/test:lib/support/* org.benchy.graph.GraphMain ~/benchmarks /tmp/out.dat $1 $2 $3
 }
 
 runbenchmark '{"benchmarkName":"baseline/cas/AtomicLong","driverClass":"org.multiverse.benchmarks.drivers.oldschool.cas.AtomicLongDriver",

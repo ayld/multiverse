@@ -1,9 +1,8 @@
-package org.benchy;
+package org.benchy.executor;
 
 import com.google.gson.*;
-import org.benchy.executor.Benchmark;
-import org.benchy.executor.BenchmarkExecutor;
-import org.benchy.executor.TestCase;
+import org.benchy.BenchmarkResultRepository;
+import org.benchy.FileBasedBenchmarkResultRepository;
 
 import java.io.BufferedReader;
 import java.io.File;

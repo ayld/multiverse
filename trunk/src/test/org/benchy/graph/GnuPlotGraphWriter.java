@@ -1,4 +1,4 @@
-package org.benchy.diagram;
+package org.benchy.graph;
 
 import org.benchy.TestCaseResult;
 
@@ -10,25 +10,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
-public class GnuPlotDiagramWriter implements DiagramWriter {
+public class GnuPlotGraphWriter implements GraphWriter {
 
     private File outputFile;
     private String keyName;
     private String valueName;
 
-    public GnuPlotDiagramWriter(File outputFile, String keyName, String valueName) {
+    public GnuPlotGraphWriter(File outputFile, String keyName, String valueName) {
         this.outputFile = outputFile;
         this.keyName = keyName;
         this.valueName = valueName;
     }
 
     @Override
-    public void write(DiagramModel diagramModel) {
+    public void write(GraphModel graphModel) {
 
         TreeMap<Integer, List<Pair>> treeMap = new TreeMap<Integer, List<Pair>>();
 
-        for (String lineId : diagramModel.getLineIds()) {
-            List<TestCaseResult> propertyList = diagramModel.get(lineId);
+        for (String lineId : graphModel.getLineIds()) {
+            List<TestCaseResult> propertyList = graphModel.get(lineId);
             for (TestCaseResult properies : propertyList) {
 
                 String x = properies.get(keyName);
@@ -48,7 +48,7 @@ public class GnuPlotDiagramWriter implements DiagramWriter {
         for (Integer x : treeMap.descendingKeySet()) {
             sb.append(x);
 
-            for (String lineId : diagramModel.getLineIds()) {
+            for (String lineId : graphModel.getLineIds()) {
                 String result = "";
                 for (Pair pair : treeMap.get(x)) {
                     if (pair.getLineId().equals(lineId)) {

@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
@@ -13,7 +13,7 @@ import org.multiverse.multiversionedstm.MultiversionedStm;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ExampleQueueStressTest {
+public class ManualQueueStressTest {
 
     private String item = "foo";
 
@@ -34,7 +34,7 @@ public class ExampleQueueStressTest {
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        this.queueHandle = commit(stm, new ExampleQueue(100000));
+        this.queueHandle = commit(stm, new ManualQueue(100000));
 
         //    new PrintMultiversionedStmStatisticsThread(stm).start();
     }
@@ -91,7 +91,7 @@ public class ExampleQueueStressTest {
 
     public void assertQueueIsEmpty() {
         Transaction t = stm.startTransaction();
-        ExampleQueue queue = (ExampleQueue) t.read(queueHandle);
+        ManualQueue queue = (ManualQueue) t.read(queueHandle);
         assertTrue(queue.isEmpty());
         t.commit();
     }
@@ -122,7 +122,7 @@ public class ExampleQueueStressTest {
             while (produceCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleQueue queue = (ExampleQueue) t.read(queueHandle);
+                        ManualQueue queue = (ManualQueue) t.read(queueHandle);
                         queue.push(item);
                         return null;
                     }
@@ -147,7 +147,7 @@ public class ExampleQueueStressTest {
             while (consumeCountDown.getAndDecrement() > 0) {
                 new TransactionTemplate(stm) {
                     protected Object execute(Transaction t) throws Exception {
-                        ExampleQueue queue = (ExampleQueue) t.read(queueHandle);
+                        ManualQueue queue = (ManualQueue) t.read(queueHandle);
                         return queue.pop();
                     }
                 }.execute();
