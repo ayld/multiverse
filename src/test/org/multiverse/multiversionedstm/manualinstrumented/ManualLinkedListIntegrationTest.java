@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
@@ -10,7 +10,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
 
-public class ExampleLinkedListIntegrationTest {
+public class ManualLinkedListIntegrationTest {
     private MultiversionedStm stm;
 
     @Before
@@ -25,24 +25,24 @@ public class ExampleLinkedListIntegrationTest {
 
     @Test
     public void rematerializeEmptyList() {
-        ExampleLinkedList<String> list = new ExampleLinkedList<String>();
-        Handle<ExampleLinkedList<String>> handle = commit(stm, list);
+        ManualLinkedList<String> list = new ManualLinkedList<String>();
+        Handle<ManualLinkedList<String>> handle = commit(stm, list);
 
         Transaction t = stm.startTransaction();
-        ExampleLinkedList<String> found = t.read(handle);
+        ManualLinkedList<String> found = t.read(handle);
         assertTrue(found.isEmpty());
     }
 
     @Test
     public void rematerializeNonEmptyList() {
-        ExampleLinkedList<String> list = new ExampleLinkedList<String>();
+        ManualLinkedList<String> list = new ManualLinkedList<String>();
         list.add("1");
         list.add("2");
         list.add("3");
 
-        Handle<ExampleLinkedList<String>> handle = commit(stm, list);
+        Handle<ManualLinkedList<String>> handle = commit(stm, list);
         Transaction t = stm.startTransaction();
-        ExampleLinkedList<String> found = t.read(handle);
+        ManualLinkedList<String> found = t.read(handle);
         assertEquals(list.size(), found.size());
         assertEquals("1", found.get(0));
         assertEquals("2", found.get(1));

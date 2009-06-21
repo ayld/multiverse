@@ -7,7 +7,7 @@ import static org.multiverse.TestUtils.commit;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleStack;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualStack;
 
 public class TransactionOverheadStressLongTest {
     private MultiversionedStm stm;
@@ -33,12 +33,12 @@ public class TransactionOverheadStressLongTest {
 
     @Test
     public void testWithTransaction() {
-        Handle<ExampleStack> handle = commit(stm, new ExampleStack());
+        Handle<ManualStack> handle = commit(stm, new ManualStack());
 
         startMs = System.currentTimeMillis();
         for (int k = 0; k < itemCount; k++) {
             Transaction t1 = stm.startTransaction();
-            ExampleStack s1 = t1.read(handle);
+            ManualStack s1 = t1.read(handle);
             s1.push("item");
             s1.pop();
             t1.commit();
@@ -48,17 +48,17 @@ public class TransactionOverheadStressLongTest {
 
     @Test
     public void testWithAtomicPushAndPop() {
-        Handle<ExampleStack> handle = commit(stm, new ExampleStack());
+        Handle<ManualStack> handle = commit(stm, new ManualStack());
 
         startMs = System.currentTimeMillis();
         for (int k = 0; k < itemCount; k++) {
             Transaction t1 = stm.startTransaction();
-            ExampleStack s1 = t1.read(handle);
+            ManualStack s1 = t1.read(handle);
             s1.push("item");
             t1.commit();
 
             Transaction t2 = stm.startTransaction();
-            ExampleStack s2 = t2.read(handle);
+            ManualStack s2 = t2.read(handle);
             s2.pop();
             t2.commit();
         }
@@ -67,7 +67,7 @@ public class TransactionOverheadStressLongTest {
 
     @Test
     public void testWithoutTransaction() {
-        ExampleStack stack = new ExampleStack();
+        ManualStack stack = new ManualStack();
 
         startMs = System.currentTimeMillis();
         for (int k = 0; k < itemCount; k++) {

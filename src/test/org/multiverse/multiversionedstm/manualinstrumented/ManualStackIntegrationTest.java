@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.junit.After;
 import static org.junit.Assert.*;
@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings({"ClassExplicitlyExtendsThread"})
-public class ExampleStackIntegrationTest {
+public class ManualStackIntegrationTest {
     private Set<String> producedSet = new HashSet<String>();
     private Set<String> consumedSet = new HashSet<String>();
 
@@ -24,12 +24,12 @@ public class ExampleStackIntegrationTest {
     private final static AtomicInteger produceCountDown = new AtomicInteger();
 
     private MultiversionedStm stm;
-    private Handle<ExampleStack<String>> stackHandle;
+    private Handle<ManualStack<String>> stackHandle;
 
     @Before
     public void setUp() throws Exception {
         stm = new MultiversionedStm();
-        stackHandle = commit(stm, new ExampleStack<String>());
+        stackHandle = commit(stm, new ManualStack<String>());
         //    new PrintMultiversionedStmStatisticsThread(stm).start();
     }
 
@@ -43,7 +43,7 @@ public class ExampleStackIntegrationTest {
         new TransactionTemplate(stm) {
             protected Object execute(Transaction t) throws Exception {
                 t.setDescription("Push transaction");
-                ExampleStack<String> stack = t.read(stackHandle);
+                ManualStack<String> stack = t.read(stackHandle);
                 stack.push(item);
                 return null;
             }
@@ -54,7 +54,7 @@ public class ExampleStackIntegrationTest {
         return new TransactionTemplate<String>(stm) {
             protected String execute(Transaction t) throws Exception {
                 t.setDescription("Pop transaction");
-                ExampleStack<String> stack = t.read(stackHandle);
+                ManualStack<String> stack = t.read(stackHandle);
                 return stack.pop();
             }
         }.execute();
@@ -98,15 +98,15 @@ public class ExampleStackIntegrationTest {
 
     @Test
     public void testReferencesWithinStackArePersisted() {
-        ExampleStack<ExampleIntValue> stack = new ExampleStack<ExampleIntValue>();
-        stack.push(new ExampleIntValue(10));
+        ManualStack<ManualIntValue> stack = new ManualStack<ManualIntValue>();
+        stack.push(new ManualIntValue(10));
 
-        Handle<ExampleStack<ExampleIntValue>> handle = commit(stm, stack);
+        Handle<ManualStack<ManualIntValue>> handle = commit(stm, stack);
 
         Transaction t = stm.startTransaction();
-        ExampleStack<ExampleIntValue> foundStack = t.read(handle);
+        ManualStack<ManualIntValue> foundStack = t.read(handle);
         assertStackSize(foundStack, 1);
-        ExampleIntValue foundValue = foundStack.peek();
+        ManualIntValue foundValue = foundStack.peek();
         assertIntegerValue(10, foundValue);
         foundValue.inc();
         t.commit();
@@ -119,19 +119,19 @@ public class ExampleStackIntegrationTest {
         t.commit();
     }
 
-    private void assertIntegerValue(int expected, ExampleIntValue value) {
+    private void assertIntegerValue(int expected, ManualIntValue value) {
         assertNotNull(value);
         assertEquals(expected, value.get());
     }
 
-    private void assertStackSize(ExampleStack stack, int expected) {
+    private void assertStackSize(ManualStack stack, int expected) {
         assertNotNull(stack);
         assertEquals(expected, stack.size());
     }
 
     private void assertStackIsEmpty() {
         Transaction t = stm.startTransaction();
-        ExampleStack stack = t.read(stackHandle);
+        ManualStack stack = t.read(stackHandle);
         assertTrue(stack.isEmpty());
         t.commit();
     }

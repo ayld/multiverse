@@ -15,7 +15,7 @@ public class Benchmark {
     public String benchmarkName;
     public String driverClass;
 
-    public Driver getDriver() {
+    public Driver loadDriver() {
         try {
             Class driverClass = Thread.currentThread().getContextClassLoader().loadClass(this.driverClass);
             return (Driver) driverClass.newInstance();
@@ -23,5 +23,4 @@ public class Benchmark {
             throw new RuntimeException("Failed to initialize driver " + driverClass, e);
         }
     }
-
 }

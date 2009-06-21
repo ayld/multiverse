@@ -8,8 +8,8 @@ import org.multiverse.api.exceptions.SnapshotTooOldException;
 import org.multiverse.api.exceptions.StarvationException;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.multiversionedstm.DefaultMultiversionedHandle.State;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
-import org.multiverse.multiversionedstm.examples.ExampleStack;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualStack;
 import org.multiverse.util.ListenerNode;
 import org.multiverse.util.RetryCounter;
 import org.multiverse.util.latches.CheapLatch;
@@ -18,7 +18,7 @@ import org.multiverse.util.latches.Latch;
 public class DefaultMultiversionedHandleTest {
 
     private DefaultMultiversionedHandle createCommitted(long version) {
-        return createCommitted(new ExampleStack(), version);
+        return createCommitted(new ManualStack(), version);
     }
 
     private DefaultMultiversionedHandle createCommitted(MaterializedObject materializedObject, long version) {
@@ -158,7 +158,7 @@ public class DefaultMultiversionedHandleTest {
     public void writeAndReleaseLockOnFreshObject() {
         long version = 10;
 
-        ExampleIntValue value = new ExampleIntValue();
+        ManualIntValue value = new ManualIntValue();
         DematerializedObject dematerializedObject = value.dematerialize();
         DefaultMultiversionedHandle handle = (DefaultMultiversionedHandle) value.getHandle();
         TransactionId lockOwner = new TransactionId();
@@ -242,7 +242,7 @@ public class DefaultMultiversionedHandleTest {
     }
 
     public void getDehydrated(long materializeVersion, long searchVersion) {
-        MaterializedObject object = new ExampleIntValue();
+        MaterializedObject object = new ManualIntValue();
         MultiversionedHandle handle = object.getHandle();
         DematerializedObject dematerialized = object.dematerialize();
         TransactionId transactionId = new TransactionId();
@@ -260,7 +260,7 @@ public class DefaultMultiversionedHandleTest {
         long searchVersion = 2;
 
         TransactionId owner = new TransactionId();
-        MaterializedObject materializedObject = new ExampleIntValue();
+        MaterializedObject materializedObject = new ManualIntValue();
         MultiversionedHandle handle = materializedObject.getHandle();
         DematerializedObject dematerialized = materializedObject.dematerialize();
 
@@ -280,7 +280,7 @@ public class DefaultMultiversionedHandleTest {
     //@Test
 
     public void getLastCommited() {
-        MaterializedObject object = new ExampleIntValue(45);
+        MaterializedObject object = new ManualIntValue(45);
         MultiversionedHandle handle = object.getHandle();
         TransactionId id = new TransactionId();
         handle.tryAcquireWriteLockAndDetectForConflicts(id, 0, new RetryCounter(1));

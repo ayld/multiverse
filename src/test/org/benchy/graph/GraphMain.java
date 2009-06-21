@@ -1,8 +1,9 @@
-package org.benchy;
+package org.benchy.graph;
 
-import org.benchy.diagram.DiagramModel;
-import org.benchy.diagram.DiagramWriter;
-import org.benchy.diagram.GnuPlotDiagramWriter;
+import org.benchy.BenchmarkResult;
+import org.benchy.BenchmarkResultRepository;
+import org.benchy.FileBasedBenchmarkResultRepository;
+import org.benchy.TestCaseResult;
 
 import java.io.File;
 import java.util.Date;
@@ -10,12 +11,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-public class DiagramMain {
+public class GraphMain {
 
     private BenchmarkResultRepository resultRepository;
-    private DiagramModel model = new DiagramModel();
+    private GraphModel model = new GraphModel();
 
-    public DiagramMain(File benchmarkDir) {
+    public GraphMain(File benchmarkDir) {
         resultRepository = new FileBasedBenchmarkResultRepository(benchmarkDir);
     }
 
@@ -26,7 +27,7 @@ public class DiagramMain {
             addToModel(now, name);
         }
 
-        DiagramWriter writer = new GnuPlotDiagramWriter(outputFile, x, y);
+        GraphWriter writer = new GnuPlotGraphWriter(outputFile, x, y);
         writer.write(model);
     }
 
@@ -48,8 +49,8 @@ public class DiagramMain {
         String x = args[3];
         String y = args[4];
 
-        DiagramMain diagramMain = new DiagramMain(storageDirectory);
-        diagramMain.doIt(outputFile, names, x, y);
+        GraphMain graphMain = new GraphMain(storageDirectory);
+        graphMain.doIt(outputFile, names, x, y);
 
         System.out.println("Exiting Diagram Creator");
     }

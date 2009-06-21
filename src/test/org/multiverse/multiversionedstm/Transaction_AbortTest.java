@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
 
 public class Transaction_AbortTest {
     private MultiversionedStm stm;
@@ -31,8 +31,8 @@ public class Transaction_AbortTest {
         long globalVersion = stm.getGlobalVersion();
 
         Transaction t = stm.startTransaction();
-        ExampleIntValue intValue = new ExampleIntValue();
-        Handle<ExampleIntValue> handle = t.attach(intValue);
+        ManualIntValue intValue = new ManualIntValue();
+        Handle<ManualIntValue> handle = t.attach(intValue);
         t.abort();
 
         assertIsAborted(t);
@@ -43,11 +43,11 @@ public class Transaction_AbortTest {
     @Test
     public void abortDoesNotCommitChangesOnRematerializedObject() {
         int oldValue = 0;
-        Handle<ExampleIntValue> handle = commit(stm, new ExampleIntValue(oldValue));
+        Handle<ManualIntValue> handle = commit(stm, new ManualIntValue(oldValue));
 
         long globalVersion = stm.getGlobalVersion();
         Transaction t = stm.startTransaction();
-        ExampleIntValue intValue = t.read(handle);
+        ManualIntValue intValue = t.read(handle);
         intValue.inc();
         t.abort();
 

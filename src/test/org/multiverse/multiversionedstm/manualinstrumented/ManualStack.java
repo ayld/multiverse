@@ -1,4 +1,4 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.StmUtils;
@@ -8,13 +8,13 @@ import org.multiverse.multiversionedstm.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ExampleStack<E> implements MaterializedObject {
+public final class ManualStack<E> implements MaterializedObject {
 
-    public ExampleStackNode<E> head;
+    public ManualStackNode<E> head;
     public int size;
 
-    public ExampleStack() {
-        this.handle = new DefaultMultiversionedHandle<ExampleStack<E>>();
+    public ManualStack() {
+        this.handle = new DefaultMultiversionedHandle<ManualStack<E>>();
     }
 
     public E peek() {
@@ -29,14 +29,14 @@ public final class ExampleStack<E> implements MaterializedObject {
         return head == null;
     }
 
-    public void deleteMe(ExampleStackNode<E> x) {
+    public void deleteMe(ManualStackNode<E> x) {
         headRef = null;
         head = x;
     }
 
     public void push(E item) {
         ensureHeadLoaded();
-        head = new ExampleStackNode<E>(head, item);
+        head = new ManualStackNode<E>(head, item);
         size++;
     }
 
@@ -60,7 +60,7 @@ public final class ExampleStack<E> implements MaterializedObject {
 
     private E removeTopItem() {
         size--;
-        ExampleStackNode<E> oldHead = head;
+        ManualStackNode<E> oldHead = head;
         head = oldHead.getNext();
         return oldHead.getValue();
     }
@@ -82,7 +82,7 @@ public final class ExampleStack<E> implements MaterializedObject {
     public List<E> asList() {
         ensureHeadLoaded();
         List<E> result = new ArrayList<E>(size());
-        ExampleStackNode<E> node = head;
+        ManualStackNode<E> node = head;
         for (int k = 0; k < size(); k++) {
             result.add(node.getValue());
             node = node.getNext();
@@ -105,10 +105,10 @@ public final class ExampleStack<E> implements MaterializedObject {
         if (thatObj == this)
             return true;
 
-        if (!(thatObj instanceof ExampleStack))
+        if (!(thatObj instanceof ManualStack))
             return false;
 
-        ExampleStack that = (ExampleStack) thatObj;
+        ManualStack that = (ManualStack) thatObj;
         if (that.size() != this.size())
             return false;
 
@@ -121,10 +121,10 @@ public final class ExampleStack<E> implements MaterializedObject {
     //================== generated ======================
 
     private DematerializedStack<E> lastDematerialized;
-    private LazyReference<ExampleStackNode<E>> headRef;
-    private final MultiversionedHandle<ExampleStack<E>> handle;
+    private LazyReference<ManualStackNode<E>> headRef;
+    private final MultiversionedHandle<ManualStack<E>> handle;
 
-    private ExampleStack(DematerializedStack<E> dematerializedStack, Transaction t) {
+    private ManualStack(DematerializedStack<E> dematerializedStack, Transaction t) {
         this.handle = dematerializedStack.getHandle();
         this.lastDematerialized = dematerializedStack;
         this.headRef = t.readLazyAndSelfManaged(dematerializedStack.head);
@@ -132,7 +132,7 @@ public final class ExampleStack<E> implements MaterializedObject {
     }
 
     @Override
-    public MultiversionedHandle<ExampleStack<E>> getHandle() {
+    public MultiversionedHandle<ManualStack<E>> getHandle() {
         return handle;
     }
 
@@ -170,11 +170,11 @@ public final class ExampleStack<E> implements MaterializedObject {
     }
 
     public static class DematerializedStack<E> implements DematerializedObject {
-        private final MultiversionedHandle<ExampleStack<E>> handle;
-        private final MultiversionedHandle<ExampleStackNode<E>> head;
+        private final MultiversionedHandle<ManualStack<E>> handle;
+        private final MultiversionedHandle<ManualStackNode<E>> head;
         private final int size;
 
-        private DematerializedStack(ExampleStack<E> stack) {
+        private DematerializedStack(ManualStack<E> stack) {
             this.handle = stack.getHandle();
             this.head = MultiversionedStmUtils.getHandle(stack.headRef, stack.head);
             this.size = stack.size;
@@ -182,11 +182,11 @@ public final class ExampleStack<E> implements MaterializedObject {
 
         @Override
         public MaterializedObject rematerialize(Transaction t) {
-            return new ExampleStack<E>(this, t);
+            return new ManualStack<E>(this, t);
         }
 
         @Override
-        public MultiversionedHandle<ExampleStack<E>> getHandle() {
+        public MultiversionedHandle<ManualStack<E>> getHandle() {
             return handle;
         }
     }

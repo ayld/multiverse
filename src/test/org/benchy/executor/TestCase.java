@@ -7,7 +7,7 @@ import java.util.Properties;
 /**
  * A testcase contains all the variable parameters for a benchmark.
  * <p/>
- * The same testcase can be used under different benchmarks.
+ * The same testcase can be used with different benchmarks.
  *
  * @author Peter Veentjer.
  */

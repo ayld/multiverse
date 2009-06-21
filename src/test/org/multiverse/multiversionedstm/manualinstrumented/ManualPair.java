@@ -1,23 +1,23 @@
-package org.multiverse.multiversionedstm.examples;
+package org.multiverse.multiversionedstm.manualinstrumented;
 
 import org.multiverse.api.Handle;
 import org.multiverse.api.LazyReference;
 import org.multiverse.api.Transaction;
 import org.multiverse.multiversionedstm.*;
 
-public final class ExamplePair<L, R> implements MaterializedObject {
+public final class ManualPair<L, R> implements MaterializedObject {
 
     private L left;
     private R right;
 
-    public ExamplePair(L left, R right) {
+    public ManualPair(L left, R right) {
         this.left = left;
         this.right = right;
-        this.handle = new DefaultMultiversionedHandle<ExamplePair<L, R>>();
+        this.handle = new DefaultMultiversionedHandle<ManualPair<L, R>>();
     }
 
-    public ExamplePair() {
-        this.handle = new DefaultMultiversionedHandle<ExamplePair<L, R>>();
+    public ManualPair() {
+        this.handle = new DefaultMultiversionedHandle<ManualPair<L, R>>();
     }
 
     public L getLeft() {
@@ -62,10 +62,10 @@ public final class ExamplePair<L, R> implements MaterializedObject {
         if (thatObj == this)
             return true;
 
-        if (!(thatObj instanceof ExamplePair))
+        if (!(thatObj instanceof ManualPair))
             return false;
 
-        ExamplePair that = (ExamplePair) thatObj;
+        ManualPair that = (ManualPair) thatObj;
 
         if (!equals(that.getLeft(), this.getLeft()))
             return false;
@@ -88,9 +88,9 @@ public final class ExamplePair<L, R> implements MaterializedObject {
     private DematerializedPair<L, R> lastDematerialized;
     private LazyReference<L> lazyLeft;
     private LazyReference<R> lazyRight;
-    private final MultiversionedHandle<ExamplePair<L, R>> handle;
+    private final MultiversionedHandle<ManualPair<L, R>> handle;
 
-    private ExamplePair(DematerializedPair<L, R> dematerializedPair, Transaction t) {
+    private ManualPair(DematerializedPair<L, R> dematerializedPair, Transaction t) {
         this.handle = dematerializedPair.handle;
         this.lastDematerialized = dematerializedPair;
 
@@ -108,7 +108,7 @@ public final class ExamplePair<L, R> implements MaterializedObject {
     }
 
     @Override
-    public MultiversionedHandle<ExamplePair<L, R>> getHandle() {
+    public MultiversionedHandle<ManualPair<L, R>> getHandle() {
         return handle;
     }
 
@@ -150,24 +150,24 @@ public final class ExamplePair<L, R> implements MaterializedObject {
     }
 
     public static class DematerializedPair<L, R> implements DematerializedObject {
-        private final MultiversionedHandle<ExamplePair<L, R>> handle;
+        private final MultiversionedHandle<ManualPair<L, R>> handle;
         private final Object left;
         private final Object right;
 
-        public DematerializedPair(ExamplePair<L, R> pair) {
+        public DematerializedPair(ManualPair<L, R> pair) {
             this.handle = pair.handle;
             this.left = MultiversionedStmUtils.getValueOrHandle(pair.lazyLeft, pair.left);
             this.right = MultiversionedStmUtils.getValueOrHandle(pair.lazyRight, pair.right);
         }
 
         @Override
-        public MultiversionedHandle<ExamplePair<L, R>> getHandle() {
+        public MultiversionedHandle<ManualPair<L, R>> getHandle() {
             return handle;
         }
 
         @Override
-        public ExamplePair<L, R> rematerialize(Transaction t) {
-            return new ExamplePair<L, R>(this, t);
+        public ManualPair<L, R> rematerialize(Transaction t) {
+            return new ManualPair<L, R>(this, t);
         }
     }
 }

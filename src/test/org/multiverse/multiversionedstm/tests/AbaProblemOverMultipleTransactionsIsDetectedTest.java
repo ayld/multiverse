@@ -8,7 +8,7 @@ import org.multiverse.api.Handle;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.multiversionedstm.MultiversionedStm;
-import org.multiverse.multiversionedstm.examples.ExampleIntValue;
+import org.multiverse.multiversionedstm.manualinstrumented.ManualIntValue;
 
 public class AbaProblemOverMultipleTransactionsIsDetectedTest {
 
@@ -17,26 +17,26 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
     private static final int C = 3;
 
     private MultiversionedStm stm;
-    private Handle<ExampleIntValue> handle;
+    private Handle<ManualIntValue> handle;
 
     @Before
     public void setUp() {
         stm = new MultiversionedStm();
-        handle = commit(stm, new ExampleIntValue(A));
+        handle = commit(stm, new ManualIntValue(A));
     }
 
     @Test
     public void test() {
         Transaction t1 = stm.startTransaction();
-        ExampleIntValue r1 = t1.read(handle);
+        ManualIntValue r1 = t1.read(handle);
 
         Transaction t2 = stm.startTransaction();
-        ExampleIntValue r2 = t2.read(handle);
+        ManualIntValue r2 = t2.read(handle);
         r2.set(B);
         t2.commit();
 
         Transaction t3 = stm.startTransaction();
-        ExampleIntValue r3 = t3.read(handle);
+        ManualIntValue r3 = t3.read(handle);
         r3.set(B);
         t3.commit();
 
