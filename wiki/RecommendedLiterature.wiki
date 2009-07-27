@@ -18,4 +18,4 @@ MVCC Literature:
 
 Literature for writing microbenchmarks:
  * [http://www.ibm.com/developerworks/java/library/j-jtp02225.html Java theory and practice: Anatomy of a flawed microbenchmark]
- * [http://www.azulsystems.com/events/javaone_2002/microbenchmarks.pdf How NOT To Write A Microbenchmark]
+ * [http://www.ibm.com/developerworks/java/library/j-benchmark1.html http://www.ibm.com/developerworks/java/library/j-benchmark1.html]
