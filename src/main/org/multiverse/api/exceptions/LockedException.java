@@ -3,7 +3,7 @@ package org.multiverse.api.exceptions;
 import org.multiverse.stms.alpha.AlphaStmDebugConstants;
 
 /**
- * A {@link LoadException} that indicates that a {@link org.multiverse.api.Tranlocal} could not be loaded
+ * A {@link LoadException} that indicates that a {@link org.multiverse.stms.alpha.Tranlocal} could not be loaded
  * because it was locked.
  *
  * @author Peter Veentjer.

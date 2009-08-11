@@ -1,8 +1,8 @@
 package org.multiverse;
 
-import org.multiverse.api.DirtinessStatus;
-import org.multiverse.api.Tranlocal;
-import org.multiverse.api.TranlocalSnapshot;
+import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
 
 public class DummyTranlocal extends Tranlocal {
 

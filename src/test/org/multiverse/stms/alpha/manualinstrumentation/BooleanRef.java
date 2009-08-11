@@ -4,6 +4,10 @@ import org.multiverse.api.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.templates.AtomicTemplate;
 
 public class BooleanRef extends FastAtomicObjectMixin {
@@ -26,12 +30,12 @@ public class BooleanRef extends FastAtomicObjectMixin {
 
     @AtomicMethod
     public void set(boolean value) {
-        ((BooleanRefTranlocal) StmUtils.privatize(this)).set(value);
+        ((BooleanRefTranlocal) AlphaStmUtils.privatize(this)).set(value);
     }
 
     @AtomicMethod
     public boolean get() {
-        return ((BooleanRefTranlocal) org.multiverse.api.StmUtils.privatize(this)).get();
+        return ((BooleanRefTranlocal)AlphaStmUtils.privatize(this)).get();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha.writeset;
 
-import org.multiverse.api.Tranlocal;
+import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 
 /**

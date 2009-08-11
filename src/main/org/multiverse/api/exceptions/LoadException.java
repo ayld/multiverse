@@ -1,7 +1,7 @@
 package org.multiverse.api.exceptions;
 
 /**
- * A {@link StmException} that indicates that the load of a {@link org.multiverse.api.Tranlocal} failed.
+ * A {@link StmException} that indicates that the load of a {@link org.multiverse.stms.alpha.Tranlocal} failed.
  *
  * @author Peter Veentjer.
  */

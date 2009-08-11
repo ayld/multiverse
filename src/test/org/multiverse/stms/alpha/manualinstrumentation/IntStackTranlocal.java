@@ -1,8 +1,8 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.multiverse.api.DirtinessStatus;
-import org.multiverse.api.Tranlocal;
-import org.multiverse.api.TranlocalSnapshot;
+import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal.IntNode;
 import static org.multiverse.api.StmUtils.retry;

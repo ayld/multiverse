@@ -1,7 +1,9 @@
-package org.multiverse.api;
+package org.multiverse.stms.alpha;
+
+import org.multiverse.stms.alpha.Tranlocal;
 
 /**
- * A snapshot of a {@link Tranlocal}. This can be used to make a snapshot and restore an Tranlocal
+ * A snapshot of a {@link org.multiverse.stms.alpha.Tranlocal}. This can be used to make a snapshot and restore an Tranlocal
  * to that state later when the transaction does a rollback. This functionality is useful for the orelse
  * mechanism that requires rollback on Tranlocals.
  * <p/>

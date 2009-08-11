@@ -1,9 +1,9 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.multiverse.api.DirtinessStatus;
+import org.multiverse.stms.alpha.DirtinessStatus;
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.Tranlocal;
-import org.multiverse.api.TranlocalSnapshot;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.ReadonlyException;

@@ -2,7 +2,7 @@
 todo engine
 ---------------------------------------------------------------
 
-- de integration package die heeft verwijzingen naar de projectx package
+- de integration package die heeft verwijzingen naar de alpha package
 
 - flashback transactions test
 
@@ -39,8 +39,6 @@ stuff could be added using instrumentation.
 - FastTom.registerRetryListener en de noProgressPossibleException
 
 - FastTomTest afmaken
-
-- checkin op subversion
 
 - IntValuePerformanceTest moet naar benchy geport worden.
 
@@ -230,4 +228,7 @@ done
 - what happens when a throwable is thrown while executing the orelse template. if the throwable
 is caught, it leaves the transaction in an inconsistent state.
 
+- checkin op subversion
+
+- stm utils has dependencies to the alpha package
 

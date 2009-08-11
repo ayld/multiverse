@@ -1,8 +1,9 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.multiverse.api.DirtinessStatus;
-import org.multiverse.api.Tranlocal;
-import org.multiverse.api.TranlocalSnapshot;
+import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.ReadonlyException;
@@ -30,77 +31,77 @@ final public class LinkedList<E> extends FastAtomicObjectMixin {
 
     @AtomicMethod
     public Iterator<E> iterator() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).iterator();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).iterator();
     }
 
     @AtomicMethod
     public int getFirstIndexOf(E item) {
-        return ((LinkedListTranlocal<E>) StmUtils.privatize(this)).firstIndexOf(item);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).firstIndexOf(item);
     }
 
     @AtomicMethod
     public E get(int index) {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).get(index);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).get(index);
     }
 
     @AtomicMethod
     public void clear() {
-        ((LinkedListTranlocal<E>) StmUtils.privatize(this)).clear();
+        ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).clear();
     }
 
     @AtomicMethod
     public E remove(int index) {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).remove(index);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).remove(index);
     }
 
     @AtomicMethod
     public boolean remove(E item) {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).remove(item);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).remove(item);
     }
 
     @AtomicMethod
     public E removeFirst() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).removeFirst();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).removeFirst();
     }
 
     @AtomicMethod
     public E removeLast() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).removeLast();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).removeLast();
     }
 
     @AtomicMethod
     public E takeFirst() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).takeFirst();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).takeFirst();
     }
 
     @AtomicMethod
     public E takeLast() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).takeLast();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).takeLast();
     }
 
     @AtomicMethod
     public void add(E item) {
-        ((LinkedListTranlocal<E>) StmUtils.privatize(this)).add(item);
+        ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).add(item);
     }
 
     @AtomicMethod
     public void addInFront(E item) {
-        ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).addInFront(item);
+        ((LinkedListTranlocal<E>)AlphaStmUtils.privatize(this)).addInFront(item);
     }
 
     @AtomicMethod
     public int size() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).size();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).size();
     }
 
     @AtomicMethod
     public boolean isEmpty() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).isEmpty();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).isEmpty();
     }
 
     @AtomicMethod
     public String toString() {
-        return ((LinkedListTranlocal<E>) org.multiverse.api.StmUtils.privatize(this)).toString();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).toString();
     }
 
     @Override
