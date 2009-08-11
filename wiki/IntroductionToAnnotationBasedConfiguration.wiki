@@ -4,39 +4,37 @@
 
 = Transaction =
 
-If a method needs to be transactional, this can be done with the @Atomic annotation, example:
+If a method needs to be transactional, this can be done with the @AtomicMethod annotation, example:
 
 {{{
-import org.multiverse.tmutils.TmQueue;
-import org.multiverse.tmutils.LinkedTmQueue;
+import org.multiverse.datastructures.collections.DoubleLinkedQueue;
 
 ...
 
-private Handle<? extends TmQueue<String>> queueHandle;
+private DoubleLinkedQueue<String> queueHandle;
 
-@Atomic
+@AtomicMethod
 public void createQueue(){
-    queueHandle = getTransaction().attach(new LinkedTmQueue<String>());
+    queue = new DoubleLinkedQueue();
 }
 
-@Atomic
+@AtomicMethod
 public void storeItem(String item){
-    TmQueue<String> queue = getTransaction().read(queueHandle);
     queue.push(item);
 }
 
 }}}
 
-This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @Atomic annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time, propagation etc.
+This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @AtomicMethod annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time, propagation etc.
 
-It is also important to realize that not every method needs to be @Atomic; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
+It is also important to realize that not every method needs to be @AtomicMethod; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
 
 = Mapping an entity =
 
-A Entity (an object that lives in STM space) can be configured by placing an @TmEntity annotation, example:
+A Entity (an object that lives in STM space) can be configured by placing an @AtomicObject annotation, example:
 
 {{{
-@TmEntity
+@AtomicObject
 public class Account{
 
    private int amount;
@@ -47,7 +45,7 @@ public class Account{
 When this object is attached to a transaction, it will be persisted (to shared memory) when the transaction is committed. If an entity has a reference to one or more other entities, they will be persisted as well, example: 
 
 {{{
-@TmEntity
+@AtomicObject
 public class Person{
    
     private Account account;
@@ -59,12 +57,16 @@ So there is no need to attach each object individually to a transaction.
 
 All changes made on objects attached/loaded directly/indirectly will be committed atomic, consistent and isolated. So just as with a database, a lot of responsibilities have shifted from the developer to the environment. And only in corner cases you need to influence the implementation.
 
+= Final fields and AtomicObjects =
+
+Final fields in AtomicObjects are completely ignored by the STM. If an AtomicObject only contains final/excluded fields, the object becomes invisible to the STM (although the methods still are atomic). So immutable datastructures can be perfectly combined with STM techniques. So don't throw immutable datastructures out of the window.
+
 = Excluding fields = 
 
 Normally all fields of an object will be stored in STM space. But in some cases it is better to exclude a field. This can be done with the @Exclude annotation, example:
 
 {{{
-@TmEntity
+@AtomicObject
 public class Person{
 
    @Exclude
@@ -79,88 +81,6 @@ public class Person{
 In this case the firstname is ignored and the lastname is not ignored.
 
 The @Exclude annotation can be compared to the @Transient annotation from JPA.
-
-= Preventing transaction overload =
-
-Normally all objects that are loaded from a transaction, are stored in the transaction. This is done for 2 reasons:
-  # when the transaction commits, it can find these objects and knows that these need to be committed if they are dirty.
-  # multiple requests for the same instance, give the same instance.
-But the problem is that this helpful behaviour causes cpu and memory overhead. Luckily there are a lot of cases where this behaviour is not needed, example:
-
-{{{
-@TmEntity
-public class Stack{
-
-   private Node head;
-
-   public void push(Object item){
-         head = new Node(head, item);
-   }
-
-   public void pop(){
-      if(head == null){
-          retry();
-      }
-
-      Node oldHead = head;
-      head = head.next;
-      return oldHead.item;
-   }
-
-   @TmEntity
-   private static class Node{
-
-       private Node next;
-
-       private Object item;
-
-       private Node(Node next, Object item){
-          this.next = next;
-          this.item = item;
-       }
-   }
-}
-}}}
-
-In this case a head or next will only be loaded once so there is no reason to add every node to the transaction. And because the stack has a reference to the head, and a head to each next node, all changes will be persisted when the transaction commits. Again there is no reason to store this information in the transaction. That is why the @NonEscaping annotation is added, example:
-
-{{{
-@TmEntity
-public class Stack{
-
-   @NonEscaping
-   private Node head;
-
-   public void push(Object item){
-         head = new Node(head, item);
-   }
-
-   public void pop(){
-      if(head == null){
-          retry();
-      }
-
-      Node oldHead = head;
-      head = head.next;
-      return oldHead.item;
-   }
-
-   @TmEntity
-   private static class Node{
-       
-       @NonEscaping
-       private Node next;
-
-       private Object item;
-
-       private Node(Node next, Object item){
-          this.next = next;
-          this.item = item;
-       }
-   }
-}
-}}}
-The @NonEscape annotation is perfect for inner objects that won't escape the outer object and where the outer object will keep a reference to the inner objects (directly or indirectly). In the future this information could be retrieved by escape analysis, but for now the @NonEscape annotation is a good solution.
 
 = Annotations planned =
 
