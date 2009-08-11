@@ -3,12 +3,11 @@
 <project name="Multiverse" default="dist">
 
     <property name="application.name" value="multiverse"/>
-    <property name="application.version" value="0.1"/>
+    <property name="application.version" value="0.3"/>
 
     <property environment="env"/>
     <property name="src" value="src"/>
     <property name="src.main" value="${src}/main"/>
-    <property name="src.boot" value="${src}/boot"/>
     <property name="src.test" value="${src}/test"/>
 
     <property name="lib" value="lib"/>
@@ -19,7 +18,6 @@
     <property name="dist" value="${target}/dist"/>
     <property name="classes.main" value="${target}/classes/production"/>
     <property name="classes.test" value="${target}/classes/test"/>
-    <property name="classes.boot" value="${target}/classes/boot"/>
 
     <property name="javadoc" value="${target}/javadoc"/>
     <property name="unit.reports" value="${target}/junit-reports"/>
@@ -102,21 +100,6 @@
         </copy>
     </target>
 
-    <target name="jar.boot"
-            description="Creates the bootjar containing access to the protected stuff">
-
-        <mkdir dir="${classes.boot}"/>
-
-        <javac debug="on"
-               srcdir="${src.boot}"
-               destdir="${classes.boot}"
-               target="1.6"
-               source="1.6"/>
-
-        <jar jarfile="${target}/boot.jar"
-             basedir="${classes.boot}"/>
-    </target>
-
     <target name="compile.all"
             description="Compiles all the sources"
             depends="compile.main, compile.test"/>
@@ -146,15 +129,15 @@
 
         <unzip dest="${classes.main}">
             <fileset dir="${lib.provided}">
-                <include name="*.jar"/>
-                <exclude name="boot.jar"/>
+                <include name="asm*.jar"/>
             </fileset>
         </unzip>
 
         <jar jarfile="${target}/${application.name}-${application.version}.jar"
              basedir="${classes.main}">
             <manifest>
-                <attribute name="Premain-Class" value="org.multiverse.instrumentation.MultiverseJavaAgent"/>
+                <attribute name="Premain-Class"
+                           value="org.multiverse.stms.alpha.instrumentation.MultiverseJavaAgent"/>
             </manifest>
         </jar>
     </target>
@@ -165,7 +148,7 @@
 
         <mkdir dir="${unit.reports}"/>
 
-        <junit printsummary="yes" haltonfailure="yes">
+        <junit printsummary="yes" haltonfailure="false">
 
             <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
             <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
@@ -224,7 +207,7 @@
 
     <target name="dist"
             description="Builds the complete distribution"
-            depends="clean, compile.main, test, javadoc, pmd, findbugs, jar">
+            depends="clean, compile.main, javadoc, jar">
 
         <zip destfile="${target}/sources.zip">
             <zipfileset dir="${src.main}" prefix="src"/>
@@ -235,12 +218,12 @@
             <fileset dir="${target}" includes="*.jar"/>
             <fileset dir="${target}" includes="sources.zip"/>
             <fileset dir="." includes="license.*"/>
+            <fileset dir="." includes="license.*"/>
         </zip>
     </target>
 
     <target name="run" description="Runs a few examples.. (is going to be removed)" depends="jar">
-        <java classname="org.multiverse.instrumentation.TestRunningMain" fork="true">
-            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
+        <java classname="org.multiverse.stms.alpha.instrumentation.TestRunningMain" fork="true">
             <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
         </java>
     </target>
@@ -276,7 +259,7 @@
 
         <!--
        for more information see the following url:
-       https://fisheye.springsource.org/browse/~raw,r=94/dm-server-samples/hello-integration-test/main-branches/jersey/hello-integration-testing/spring-build/lib/findbugs/doc/manual/datamining.html
+       https://fisheye.springsource.org/browse/~raw,r=94/dm-server-samples/hello-integrationtests-test/main-branches/jersey/hello-integrationtests-testing/spring-build/lib/findbugs/doc/manualinstrumentation/datamining.html
         -->
 
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
@@ -301,61 +284,5 @@
         </findbugs>
     </target>
 
-    <target name="benchmarks"
-            description="Runs the benchmarks"
-            depends="compile.test">
-
-        <java classname="org.multiverse.benchmarks.BenchmarkMain" fork="true">
-            <arg value="/tmp/benchmarks"/>
-            <arg value='{"benchmarkName":"baselineContendedTmStackBenchmrk","driverClass":"UncontendedTmStackDriver","testcases":[{"runCount":"1","warmupRunCount":"1"}]}'/>
-
-            <classpath>
-                <pathelement location="${classes.test}"/>
-                <pathelement location="${classes.main}"/>
-                <path refid="classpath.provided"/>
-                <path refid="classpath.support"/>
-            </classpath>
-
-            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
-            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
-        </java>
-    </target>
-
-    <target name="create-diagrams"
-            description="Creates the diagrams"
-            depends="compile.test">
-
-        <java classname="org.multiverse.benchmarks.DiagramMain" fork="true">
-            <arg value="/tmp/benchmarks"/>
-            <arg value="/tmp/graph.dat"/>
-            <arg value="NoSharedStmNoSharedDataAndManualBenchmark;SharedStmNoSharedDataAndManualBenchmark;SharedStmNoSharedDataBenchmark;SharedStmSharedDataBenchmark"/>
-            <arg value="threadCount"/>
-            <arg value="transactions/second"/>
-
-            <classpath>
-                <pathelement location="${classes.test}"/>
-                <pathelement location="${classes.main}"/>
-                <path refid="classpath.provided"/>
-                <path refid="classpath.support"/>
-            </classpath>
-
-            <jvmarg value="-Xbootclasspath/a:${lib.provided}/boot.jar"/>
-            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
-        </java>
-
-        <exec executable="gnuplot" failonerror="true">
-            <arg value="diagram.gnuplot"/>
-        </exec>
-        <!--"aaa set title \'\'
-set xlabel \'threads\'
-set ylabel \'transactions/second\'
-set grid
-set terminal png
-set output \'/tmp/diagram.png\'
-plot /tmp/graph.dat' using 1:2 with linespoint, \\
-   '/tmp/graph.dat' using 1:3 with linespoint, \\
-   '/tmp/graph.dat' using 1:4 with linespoint, \\
-   '/tmp/graph.dat' using 1:5 with linespoint"/ -->
-    </target>
-
+ 
 </project>

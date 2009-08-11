@@ -1,0 +1,136 @@
+package org.multiverse.stms.alpha;
+
+import org.junit.After;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
+import static org.multiverse.TestUtils.assertIsAborted;
+import static org.multiverse.TestUtils.assertIsCommitted;
+import org.multiverse.api.Stm;
+import org.multiverse.api.Tranlocal;
+import org.multiverse.api.Transaction;
+import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
+import org.multiverse.utils.GlobalStmInstance;
+import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+
+/**
+ * @author Peter Veentjer
+ */
+public class UpdateTransaction_abortTest {
+    private Stm stm;
+
+    @Before
+    public void setUp() {
+        setThreadLocalTransaction(null);
+        stm = GlobalStmInstance.get();
+    }
+
+    @After
+    public void tearDown() {
+        setThreadLocalTransaction(null);
+    }
+
+    public Transaction startUpdateTransaction() {
+        Transaction t = stm.startUpdateTransaction();
+        setThreadLocalTransaction(t);
+        return t;
+    }
+
+    public Transaction startReadonlyTransaction() {
+        Transaction t = stm.startReadOnlyTransaction();
+        setThreadLocalTransaction(t);
+        return t;
+    }
+
+    @Test
+    public void changesOnReadPrivatizedObjectsAreNotCommitted() {
+        IntRef value = new IntRef(10);
+
+        long version = stm.getClockVersion();
+        Transaction t2 = startUpdateTransaction();
+        value.inc();
+        t2.abort();
+
+        assertEquals(version, stm.getClockVersion());
+        assertIsAborted(t2);
+
+        startUpdateTransaction();
+        int r = value.get();
+        assertEquals(10, r);
+    }
+
+    @Test
+    public void changesOnAttachedAsNewObjectsAreNotCommitted() {
+        long startVersion = stm.getClockVersion();
+
+        Transaction t = startUpdateTransaction();
+        IntRef intValue = new IntRef(10);
+        t.abort();
+
+        assertIsAborted(t);
+        assertEquals(startVersion, stm.getClockVersion());
+
+        Tranlocal result = intValue.load(stm.getClockVersion());
+        assertNull(result);
+    }
+
+    @Test
+    public void abortComplexScenario() {
+        IntRef value1 = new IntRef(1);
+        IntRef value2 = new IntRef(1);
+        IntRef value3 = new IntRef(1);
+
+        long startVersion = stm.getClockVersion();
+
+        Transaction t = startUpdateTransaction();
+        value1.inc();
+        value2.inc();
+        value3.inc();
+        t.abort();
+        setThreadLocalTransaction(null);
+
+        assertIsAborted(t);
+        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(1, value1.get());
+        assertEquals(1, value2.get());
+        assertEquals(1, value3.get());
+    }
+
+    @Test
+    public void unusedStartedTransaction() {
+        Transaction t = startUpdateTransaction();
+
+        long version = stm.getClockVersion();
+        t.abort();
+        assertEquals(version, stm.getClockVersion());
+        assertIsAborted(t);
+    }
+
+    @Test
+    public void abortFailsOnCommittedTransaction() {
+        Transaction t = startUpdateTransaction();
+        t.commit();
+
+        long version = stm.getClockVersion();
+        try {
+            t.abort();
+            fail();
+        } catch (DeadTransactionException ex) {
+
+        }
+        assertEquals(version, stm.getClockVersion());
+        assertIsCommitted(t);
+    }
+
+    @Test
+    public void abortIsIgnoredOnAbortedTransaction() {
+        Transaction t = startUpdateTransaction();
+        t.abort();
+
+        long expectedVersion = stm.getClockVersion();
+        t.abort();
+        assertEquals(expectedVersion, stm.getClockVersion());
+        assertIsAborted(t);
+    }
+}
