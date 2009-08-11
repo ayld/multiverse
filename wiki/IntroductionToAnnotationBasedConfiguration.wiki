@@ -86,5 +86,4 @@ The @Exclude annotation can be compared to the @Transient annotation from JPA.
 
 Annotations planned for future releases:
   # @Lock(mode=LockMode.exclusive), @Lock(mode=LockMode.shared) 
-  # @Immutable, to indicate that an entity (and everything that can be reached from it) is immutable. This is useful for improving performance.
   # Eager for eager loading of references when lazy loading is not needed
