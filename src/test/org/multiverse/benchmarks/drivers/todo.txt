@@ -1,5 +1,0 @@
-TODO
-
-- the shared stm drivers should have option with or without statistics.
-
-
