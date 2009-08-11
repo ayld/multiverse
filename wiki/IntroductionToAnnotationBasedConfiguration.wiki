@@ -29,9 +29,9 @@ This annotation will make sure that a transaction is started and committed, or r
 
 It is also important to realize that not every method needs to be @AtomicMethod; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
 
-= Mapping an entity =
+= Mapping an AtomicObject =
 
-A Entity (an object that lives in STM space) can be configured by placing an @AtomicObject annotation, example:
+An AtomicObject (an object that lives in STM space) can be configured by placing an @AtomicObject annotation, example:
 
 {{{
 @AtomicObject
@@ -42,7 +42,7 @@ public class Account{
 }
 }}}
 
-When this object is attached to a transaction, it will be persisted (to shared memory) when the transaction is committed. If an entity has a reference to one or more other entities, they will be persisted as well, example: 
+All reads/writes made in this Account will be handled by the STM. AtomicObjects are allowed to have references to other AtomicObjects, eg:
 
 {{{
 @AtomicObject
@@ -53,9 +53,9 @@ public class Person{
 }
 }}}
 
-So there is no need to attach each object individually to a transaction. 
+All changes made on AtomicObject within the context of a transaction, will automatically be persisted when the transaction commits if there are no conflicts. So just as with a database, a lot of responsibilities have shifted from the developer to the environment. And only in corner cases you need to influence the implementation.
 
-All changes made on objects attached/loaded directly/indirectly will be committed atomic, consistent and isolated. So just as with a database, a lot of responsibilities have shifted from the developer to the environment. And only in corner cases you need to influence the implementation.
+If a field is not an atomic object and not a primitive, the reference itself is managed, by the STM, but the object is not. So if you are using a standard LinkedList for example, you still could have concurrency problems. But this doesn't have to be a bad thing if you can make sure that the object is touched by at most 1 thread at a time. This technique can be used for example to pass a normal pojo through the stm from one thread to another.
 
 = Final fields and AtomicObjects =
 
