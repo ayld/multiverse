@@ -1,6 +1,7 @@
 package org.multiverse.api;
 
 import org.multiverse.api.locks.LockManager;
+import org.multiverse.stms.alpha.Tranlocal;
 
 /**
  * All changes on AtomicObjects must be done through a Transaction. The transaction make sure that the changes
@@ -23,22 +24,8 @@ import org.multiverse.api.locks.LockManager;
 public interface Transaction {
 
     /**
-     * Returns the clock version of the stm when this Transaction started. This version is
-     * needed to provide a transaction level read consistent view. The returned version will
-     * always be larger than Long.MIN_VALUE.
+     * todo: this method needs to be moved to the stm.alpha package
      *
-     * @return the version of the stm when this Transaction started.
-     */
-    long getReadVersion();
-
-    /**
-     * Returns the status of this Transaction.
-     *
-     * @return the status of this Transaction.
-     */
-    TransactionStatus getStatus();
-
-    /**
      * Loads an immutable Tranlocal for the specified atomicObject. It could be that a mutable
      * version is given to provide transaction level read consistency..
      * <p/>
@@ -62,6 +49,8 @@ public interface Transaction {
     Tranlocal load(Object atomicObject);
 
     /**
+     * todo: this method needs to be moved to the stm.alpha package
+     *
      * Loads a privatized Tranlocal for the specified owner. This privatized Tranlocal can be
      * used for updates.
      * <p/>
@@ -83,6 +72,23 @@ public interface Transaction {
      * @see #load(Object)
      */
     Tranlocal privatize(Object owner);
+
+
+    /**
+     * Returns the clock version of the stm when this Transaction started. This version is
+     * needed to provide a transaction level read consistent view. The returned version will
+     * always be larger than Long.MIN_VALUE.
+     *
+     * @return the version of the stm when this Transaction started.
+     */
+    long getReadVersion();
+
+    /**
+     * Returns the status of this Transaction.
+     *
+     * @return the status of this Transaction.
+     */
+    TransactionStatus getStatus();
 
     /**
      * Attaches the Tranlocal to this Transaction. This call is needed for newly created AtomicObjects

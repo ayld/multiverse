@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.DirtinessStatus;
+import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.utils.GlobalStmInstance;

@@ -1,6 +1,7 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
-import org.multiverse.api.Tranlocal;
+import org.multiverse.stms.alpha.AlphaStmUtils;
+import org.multiverse.stms.alpha.Tranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.multiverse.utils.TodoException;
 import org.objectweb.asm.Opcodes;
@@ -127,7 +128,7 @@ public class AtomicObjectTransformer implements Opcodes {
         String loadDesc = format("(%s)%s", argDesc, returnDesc);
         m.visitMethodInsn(
                 INVOKESTATIC,
-                getInternalName(org.multiverse.api.StmUtils.class),
+                getInternalName(AlphaStmUtils.class),
                 "privatize",
                 loadDesc);
         m.visitTypeInsn(CHECKCAST, tranlocalName);

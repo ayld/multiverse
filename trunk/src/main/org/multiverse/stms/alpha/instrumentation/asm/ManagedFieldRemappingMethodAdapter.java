@@ -1,6 +1,7 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
-import org.multiverse.api.Tranlocal;
+import org.multiverse.stms.alpha.AlphaStmUtils;
+import org.multiverse.stms.alpha.Tranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.internalFormToDescriptor;
 import org.multiverse.utils.TodoException;
 import org.objectweb.asm.MethodVisitor;
@@ -82,13 +83,13 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
         }
 
         String tranlocalName = metadataService.getTranlocalName(atomicObjectName);
-        //do the stmutils.privatize call to place it in the tranlocal form
+        //do the AlphaStmUtils.privatize call to place it in the tranlocal form
         String argDesc = getDescriptor(Object.class);
         String returnDesc = getDescriptor(Tranlocal.class);
         String loadDesc = format("(%s)%s", argDesc, returnDesc);
         super.visitMethodInsn(
                 INVOKESTATIC,
-                getInternalName(org.multiverse.api.StmUtils.class),
+                getInternalName(AlphaStmUtils.class),
                 "privatize",
                 loadDesc);
 
@@ -124,7 +125,7 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
         String loadDesc = format("(%s)%s", argDesc, returnDesc);
         mv.visitMethodInsn(
                 INVOKESTATIC,
-                getInternalName(org.multiverse.api.StmUtils.class),
+                getInternalName(AlphaStmUtils.class),
                 "getAtomicObject",
                 loadDesc);
 

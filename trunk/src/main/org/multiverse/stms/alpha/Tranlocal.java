@@ -1,9 +1,6 @@
-package org.multiverse.api;
+package org.multiverse.stms.alpha;
 
 /**
- * Tranlocal will be moved to the stms.alpha package since it is tailored for
- * that implementation. 
- *
  * The Tranlocal is the Transaction local content of a AtomicObject, since the state from the
  * AtomicObject is removed. So for every AtomicObject there are 1 or more Tranlocals
  * (or zero when the AtomicObject is being constructed).

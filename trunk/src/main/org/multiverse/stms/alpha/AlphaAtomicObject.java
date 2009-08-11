@@ -1,11 +1,10 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.api.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.utils.latches.Latch;
 
 /**
- * This is the interface placed on the POJO's that want to participate in the STM.
+ * This is the interface placed on the POJO's that want to participate in the alpha STM.
  *
  * In most cases a user of the library is not going to worry bout this interface. Instrumentation
  * is going to do all that work based on annotations ({@link org.multiverse.api.annotations.AtomicMethod}).
@@ -15,7 +14,7 @@ import org.multiverse.utils.latches.Latch;
 public interface AlphaAtomicObject {
 
     /**
-     * Loads the {@link org.multiverse.api.Tranlocal} with a version equal or smaller than readVersion. It is very
+     * Loads the {@link Tranlocal} with a version equal or smaller than readVersion. It is very
      * important for the implementation to not to return a too old version. If this happens, the
      * system could start to suffer from lost updates (not seeing changes you should have seen).
      *

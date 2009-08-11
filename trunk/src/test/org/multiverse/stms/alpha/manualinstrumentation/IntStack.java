@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.multiverse.api.Tranlocal;
+import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;

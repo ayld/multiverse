@@ -1,7 +1,7 @@
 package org.multiverse.stms.alpha.mixins;
 
 import org.multiverse.utils.latches.Latch;
-import org.multiverse.api.Tranlocal;
+import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.FailedToLoadOldVersionException;
 import org.multiverse.api.exceptions.NoProgressPossibleException;

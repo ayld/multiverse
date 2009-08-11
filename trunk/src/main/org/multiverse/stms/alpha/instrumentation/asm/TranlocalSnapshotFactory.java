@@ -1,7 +1,7 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
-import org.multiverse.api.Tranlocal;
-import org.multiverse.api.TranlocalSnapshot;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.internalFormToDescriptor;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Type.getDescriptor;

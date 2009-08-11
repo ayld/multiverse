@@ -1,7 +1,7 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.annotations.AtomicMethod;
-import static org.multiverse.api.StmUtils.privatize;
+import static org.multiverse.stms.alpha.AlphaStmUtils.privatize;
 
 public final class IntQueue {
 

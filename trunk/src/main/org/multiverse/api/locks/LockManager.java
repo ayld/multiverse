@@ -1,6 +1,6 @@
 package org.multiverse.api.locks;
 
-import org.multiverse.api.Tranlocal;
+import org.multiverse.stms.alpha.Tranlocal;
 
 /**
  *

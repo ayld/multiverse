@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Stm;
-import org.multiverse.api.Tranlocal;
+import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
