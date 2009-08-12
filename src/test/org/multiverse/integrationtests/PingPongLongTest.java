@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
-import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 /**
@@ -34,7 +34,7 @@ public class PingPongLongTest {
 
     @After
     public void tearDown() {
-    //    stm.getStatistics().print();
+        //    stm.getStatistics().print();
     }
 
     @Test

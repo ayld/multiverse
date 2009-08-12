@@ -5,7 +5,7 @@ import org.multiverse.utils.latches.Latch;
 
 /**
  * This is the interface placed on the POJO's that want to participate in the alpha STM.
- *
+ * <p/>
  * In most cases a user of the library is not going to worry bout this interface. Instrumentation
  * is going to do all that work based on annotations ({@link org.multiverse.api.annotations.AtomicMethod}).
  *
@@ -32,8 +32,6 @@ public interface AlphaAtomicObject {
      * todo:
      * if you can see that another transaction already did a commit.. no need to continue
      * <p/>
-     * todo:
-     * what to do if no committed data was found.
      *
      * @param readVersion the readversion of the transaction.
      * @return the loaded Tranlocal.

@@ -8,33 +8,13 @@ todo engine
 
 - exceptions in the exception package zijn afhankelijk van de standard package
 
-- the interfaces in the api package contain a lot of implementation specific stuff. A lot of that
-stuff could be added using instrumentation.
-     - what is essential for the tranlocal interface? Atm there is an abstract class
-    with implementation specific stuff in it. If the tranlocal interface is moved, also the
-    dirtninessstatus can be moved.
-    - tranlocalsnapshot can be moved if tranlocal is moved
-    - could the commit field on the tranlocal also be removed?
+- the Transaction interface contains load/privatize methods which are implementation specific.
 
 - RetrySpinningWriteSetLockPolicy
 
 - SpinningWriteSetlockPolicy unit tests
 
 - BalancedTree moet nog rotatie hebben
-
-- LOAD PROBLAMTIEK
-    - it could happen that a readonly transaction fails because it reads a TransactionalObject that
-    is locked.
-    - privatize functie aanpassen zodat fail fast.
-    - it could happen that a writetransaction fails with the privatized call because it reads a
-    TransactionalObject that is locked.
-    - wat moet er gebeuren als een transactie een load doet op uncommitted data.
-    + opgelost in de code
-    + opgelost in de documentatie van de load methodes
-    - opgelost in de code van andere methodes behalve de loadmethods van de transactie.
-    + privatize functie moet aangepast worden zodat er een loaduncommitted wordt gegooid?
-    - documentatie
-    - unit tests
 
 - FastTom.registerRetryListener en de noProgressPossibleException
 
@@ -221,6 +201,16 @@ but a normal object using a managed ref.
 done
 ---------------------------------------------------------------
 
+ - what is essential for the tranlocal interface? Atm there is an abstract class
+    with implementation specific stuff in it. If the tranlocal interface is moved, also the
+    dirtninessstatus can be moved.
+
+- Translocal moves to the stm.alpha package
+
+- TranlocalSnapshot moved to the stm.alpha package
+
+- DirtinessState moved to the stm.alpha package.
+
 - constructors en atomic kunnen niet goed omgaan met  super calls
 
 - the automic template ignorethreadlocaltransaction is activated again.
@@ -231,4 +221,18 @@ is caught, it leaves the transaction in an inconsistent state.
 - checkin op subversion
 
 - stm utils has dependencies to the alpha package
+
+- LOAD PROBLAMTIEK
+    - it could happen that a readonly transaction fails because it reads a TransactionalObject that
+    is locked.
+    + privatize functie aanpassen zodat fail fast.
+    + it could happen that a writetransaction fails with the privatized call because it reads a
+    TransactionalObject that is locked.
+    + wat moet er gebeuren als een transactie een load doet op uncommitted data.
+    + opgelost in de code
+    + opgelost in de documentatie van de load methodes
+    + opgelost in de code van andere methodes behalve de loadmethods van de transactie.
+    + privatize functie moet aangepast worden zodat er een loaduncommitted wordt gegooid?
+    + documentatie
+    + unit tests
 

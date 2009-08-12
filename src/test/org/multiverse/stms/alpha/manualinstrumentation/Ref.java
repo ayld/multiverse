@@ -1,10 +1,11 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
+import org.multiverse.api.Transaction;
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.TranlocalSnapshot;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -42,7 +43,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal)t.privatize(Ref.this);
+                RefTranlocal<E> tranlocalRef = (RefTranlocal) t.privatize(Ref.this);
                 return tranlocalRef.get();
             }
         }.execute();
@@ -52,7 +53,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal)t.privatize(Ref.this);
+                RefTranlocal<E> tranlocalRef = (RefTranlocal) t.privatize(Ref.this);
                 tranlocalRef.set(newValue);
                 return null;
             }
@@ -63,7 +64,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<Boolean>() {
             @Override
             public Boolean execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal)t.privatize(Ref.this);
+                RefTranlocal<E> tranlocalRef = (RefTranlocal) t.privatize(Ref.this);
                 return tranlocalRef.isNull();
             }
         }.execute();
@@ -73,7 +74,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal)t.privatize(Ref.this);
+                RefTranlocal<E> tranlocalRef = (RefTranlocal) t.privatize(Ref.this);
                 return tranlocalRef.clear();
             }
         }.execute();
@@ -82,6 +83,9 @@ public class Ref<E> extends FastAtomicObjectMixin {
     @Override
     public RefTranlocal<E> privatize(long readVersion) {
         RefTranlocal<E> origin = (RefTranlocal) load(readVersion);
+        if (origin == null) {
+            throw new LoadUncommittedAtomicObjectException();
+        }
         return new RefTranlocal(origin);
     }
 }

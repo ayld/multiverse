@@ -1,9 +1,11 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
 import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.Tranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.multiverse.utils.TodoException;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
@@ -235,27 +237,38 @@ public class AtomicObjectTransformer implements Opcodes {
     private void addPrivatizeMethod() {
         String desc = "(J)" + Type.getDescriptor(Tranlocal.class);
 
+        MethodNode m = new MethodNode(ACC_PUBLIC + ACC_SYNTHETIC, "privatize", desc, null, new String[]{});
+
         LabelNode start = new LabelNode();
         LabelNode end = new LabelNode();
 
-        InsnList i = new InsnList();
-        i.add(start);
-        i.add(new VarInsnNode(ALOAD, 0));
-        i.add(new VarInsnNode(LLOAD, 1));
-        i.add(new MethodInsnNode(INVOKEVIRTUAL, atomicObject.name, "load", desc));
-        i.add(new TypeInsnNode(CHECKCAST, tranlocalName));
-        i.add(new VarInsnNode(ASTORE, 3));
-        i.add(new TypeInsnNode(NEW, tranlocalName));
-        i.add(new InsnNode(DUP));
-        i.add(new VarInsnNode(ALOAD, 3));
-        String constructorDesc = format("(%s)V", internalFormToDescriptor(tranlocalName));
-        i.add(new MethodInsnNode(INVOKESPECIAL, tranlocalName, "<init>", constructorDesc));
-        i.add(new InsnNode(ARETURN));
-        i.add(end);
+        m.localVariables.add(new LocalVariableNode("x", internalFormToDescriptor(tranlocalName), null, start, end, 3));
 
-        MethodNode methodNode = new MethodNode(ACC_PUBLIC + ACC_SYNTHETIC, "privatize", desc, null, new String[]{});
-        methodNode.localVariables.add(new LocalVariableNode("x", internalFormToDescriptor(tranlocalName), null, start, end, 3));
-        methodNode.instructions = i;
-        atomicObject.methods.add(methodNode);
+        m.visitLabel(start.getLabel());
+        m.visitVarInsn(ALOAD, 0);
+        m.visitVarInsn(LLOAD, 1);
+        m.visitMethodInsn(INVOKEVIRTUAL, atomicObject.name, "load", desc);
+
+        //a null check to make sure that a not null value is retrieved.
+        m.visitInsn(DUP);
+        Label notNull = new Label();
+        m.visitJumpInsn(IFNONNULL, notNull);
+        m.visitTypeInsn(NEW, getInternalName(LoadUncommittedAtomicObjectException.class));
+        m.visitInsn(DUP);
+        m.visitMethodInsn(INVOKESPECIAL, getInternalName(LoadUncommittedAtomicObjectException.class), "<init>", "()V");
+        m.visitInsn(ATHROW);
+
+        m.visitLabel(notNull);
+        m.visitTypeInsn(CHECKCAST, tranlocalName);
+        m.visitVarInsn(ASTORE, 3);
+        m.visitTypeInsn(NEW, tranlocalName);
+        m.visitInsn(DUP);
+        m.visitVarInsn(ALOAD, 3);
+        String constructorDesc = format("(%s)V", internalFormToDescriptor(tranlocalName));
+        m.visitMethodInsn(INVOKESPECIAL, tranlocalName, "<init>", constructorDesc);
+        m.visitInsn(ARETURN);
+        m.visitLabel(end.getLabel());
+
+        atomicObject.methods.add(m);
     }
 }

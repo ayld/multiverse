@@ -1,19 +1,20 @@
 package org.multiverse.datastructures.refs.manual;
 
-import org.multiverse.stms.alpha.DirtinessStatus;
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.api.Transaction;
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.datastructures.refs.ManagedRef;
+import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
 /**
  * A manual instrumented {@link org.multiverse.datastructures.refs.ManagedRef} implementation.
  * If this class is used, you don't need to worry about instrumentation/javaagents and
- * stuff like this. 
+ * stuff like this.
  *
  * @author Peter Veentjer
  */
@@ -96,6 +97,9 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     @Override
     public RefTranlocal<E> privatize(long readVersion) {
         RefTranlocal<E> origin = (RefTranlocal<E>) load(readVersion);
+        if (origin == null) {
+            throw new LoadUncommittedAtomicObjectException();
+        }
         return new RefTranlocal<E>(origin);
     }
 }
@@ -106,7 +110,7 @@ class RefTranlocal<E> extends Tranlocal {
     RefTranlocal origin;
 
     E ref;
-    
+
     RefTranlocal(RefTranlocal<E> origin) {
         this.version = origin.version;
         this.atomicObject = origin.atomicObject;

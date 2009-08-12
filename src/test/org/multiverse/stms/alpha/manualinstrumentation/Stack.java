@@ -1,13 +1,14 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
+import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.Transaction;
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.TranlocalSnapshot;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.api.StmUtils.retry;
 
 public final class Stack<E> extends FastAtomicObjectMixin {
 
@@ -25,7 +26,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal)t.privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) t.privatize(Stack.this);
                 return tranlocal.size();
             }
         }.execute();
@@ -35,7 +36,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<Boolean>() {
             @Override
             public Boolean execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal)t.privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) t.privatize(Stack.this);
                 return tranlocal.isEmpty();
             }
         }.execute();
@@ -45,7 +46,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal)t.privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) t.privatize(Stack.this);
                 tranlocal.push(item);
                 return null;
             }
@@ -56,17 +57,17 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) {
-                StackTranlocal<E> tranlocal = (StackTranlocal)t.privatize(Stack.this);
+                StackTranlocal<E> tranlocal = (StackTranlocal) t.privatize(Stack.this);
                 return tranlocal.pop();
             }
         }.execute();
     }
 
     public void clear() {
-         new AtomicTemplate() {
+        new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal)t.privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) t.privatize(Stack.this);
                 tranlocal.clear();
                 return null;
             }
@@ -76,6 +77,9 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     @Override
     public Tranlocal privatize(long version) {
         StackTranlocal<E> origin = (StackTranlocal<E>) load(version);
+        if (origin == null) {
+            throw new LoadUncommittedAtomicObjectException();
+        }
         return new StackTranlocal<E>(origin);
     }
 }
