@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * On Factory responsible for creating the Tranlocal class.
+ * On Factory responsible for creating the {@link Tranlocal} class belongs to an
+ * {@link org.multiverse.stms.alpha.AlphaAtomicObject}.
  * <p/>
  * TranlocalClassNodeFactory should not be reused.
  *
@@ -103,7 +104,7 @@ public final class TranlocalFactory implements Opcodes {
     }
 
     private MethodNode fixConstructor(MethodNode originalConstructor) {
-         MethodNode x = fixInstanceMethod(originalConstructor);
+        MethodNode x = fixInstanceMethod(originalConstructor);
         MethodNode result = introduceAtomicObjectVar(x);
         result.access = upgradeToPublic(result.access);
         //the first thing that needs to be done after the super/this constructor
@@ -123,7 +124,7 @@ public final class TranlocalFactory implements Opcodes {
 
 
         //since the constructor owner already has been transformed 
-       AbstractInsnNode first = findFirstInstructionAfterSuper(atomicObject.superName, result);
+        AbstractInsnNode first = findFirstInstructionAfterSuper(atomicObject.superName, result);
         boolean constructorFinished = false;
         for (ListIterator<AbstractInsnNode> it = result.instructions.iterator(); it.hasNext();) {
             AbstractInsnNode node = it.next();

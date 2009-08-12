@@ -1,12 +1,13 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.multiverse.stms.alpha.DirtinessStatus;
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
 import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
@@ -64,7 +65,7 @@ public class LongRef extends FastAtomicObjectMixin {
     }
 
     @AtomicMethod
-    public LongRef add(LongRef ref){
+    public LongRef add(LongRef ref) {
         Transaction t = getThreadLocalTransaction();
         LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
         return tranlocalThis.add(ref);
@@ -73,6 +74,9 @@ public class LongRef extends FastAtomicObjectMixin {
     @Override
     public LongRefTranlocal privatize(long version) {
         LongRefTranlocal origin = (LongRefTranlocal) load(version);
+        if (origin == null) {
+            throw new LoadUncommittedAtomicObjectException();
+        }
         return new LongRefTranlocal(origin);
     }
 
@@ -165,8 +169,8 @@ class LongRefTranlocal extends Tranlocal {
         return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
-    public static LongRef add(LongRefTranlocal owner, LongRefTranlocal arg){
-         return owner.atomicObject.add(owner.atomicObject);       
+    public static LongRef add(LongRefTranlocal owner, LongRefTranlocal arg) {
+        return owner.atomicObject.add(owner.atomicObject);
     }
 }
 

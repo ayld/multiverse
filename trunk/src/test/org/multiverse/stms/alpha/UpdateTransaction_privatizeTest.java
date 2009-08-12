@@ -7,9 +7,9 @@ import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Stm;
-import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
@@ -140,8 +140,12 @@ public class UpdateTransaction_privatizeTest {
         IntRef value = IntRef.createUncommitted();
 
         Transaction t = stm.startUpdateTransaction();
-        Tranlocal result = t.privatize(value);
-        assertNull(result);
+
+        try {
+            t.privatize(value);
+            fail();
+        } catch (LoadUncommittedAtomicObjectException ex) {
+        }
 
         assertIsActive(t);
     }

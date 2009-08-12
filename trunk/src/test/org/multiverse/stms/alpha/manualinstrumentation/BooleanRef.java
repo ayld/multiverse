@@ -1,13 +1,14 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.multiverse.api.*;
+import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.stms.alpha.AlphaStmUtils;
+import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
 public class BooleanRef extends FastAtomicObjectMixin {
@@ -35,12 +36,15 @@ public class BooleanRef extends FastAtomicObjectMixin {
 
     @AtomicMethod
     public boolean get() {
-        return ((BooleanRefTranlocal)AlphaStmUtils.privatize(this)).get();
+        return ((BooleanRefTranlocal) AlphaStmUtils.privatize(this)).get();
     }
 
     @Override
     public Tranlocal privatize(long version) {
         BooleanRefTranlocal origin = (BooleanRefTranlocal) load(version);
+        if (origin == null) {
+            throw new LoadUncommittedAtomicObjectException();
+        }
         return new BooleanRefTranlocal(origin);
     }
 }

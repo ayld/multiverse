@@ -8,8 +8,8 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 

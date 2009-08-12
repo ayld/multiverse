@@ -25,7 +25,7 @@ public interface Transaction {
 
     /**
      * todo: this method needs to be moved to the stm.alpha package
-     *
+     * <p/>
      * Loads an immutable Tranlocal for the specified atomicObject. It could be that a mutable
      * version is given to provide transaction level read consistency..
      * <p/>
@@ -34,8 +34,6 @@ public interface Transaction {
      * The reason why the owner is not of type {@link org.multiverse.stms.alpha.AlphaAtomicObject} is that while developing this interface
      * is not placed on Atomic objects.
      * <p/>
-     * todo: what happens when non committed data is loaded.
-     * todo: what happens when locked data is loaded.
      *
      * @param atomicObject AtomicObject to get the Tranlocal for.
      * @return the loaded Tranlocal.
@@ -50,7 +48,7 @@ public interface Transaction {
 
     /**
      * todo: this method needs to be moved to the stm.alpha package
-     *
+     * <p/>
      * Loads a privatized Tranlocal for the specified owner. This privatized Tranlocal can be
      * used for updates.
      * <p/>
@@ -59,8 +57,6 @@ public interface Transaction {
      * The reason why the owner is not of type {@link org.multiverse.stms.alpha.AlphaAtomicObject} is that while developing this interface
      * is not placed on Atomic objects (this is done by instrumentation).
      * <p/>
-     * todo: what happens when non committed data is loaded.
-     * todo: what happens when locked datais loaded.
      *
      * @param owner AtomicObject to get the transaction local state for.
      * @return the loaded Tranlocal.
@@ -72,6 +68,19 @@ public interface Transaction {
      * @see #load(Object)
      */
     Tranlocal privatize(Object owner);
+
+    /**
+     * todo: needs to be moved tot he stm.alpha package
+     * <p/>
+     * Attaches the Tranlocal to this Transaction. This call is needed for newly created AtomicObjects
+     * so that the first tranlocal is registerd
+     *
+     * @param tranlocal the Tranlocal to attach.
+     * @throws NullPointerException if tranlocal is null.
+     * @throws org.multiverse.api.exceptions.DeadTransactionException
+     *                              if this transaction already is committed or aborted.
+     */
+    void attachNew(Tranlocal tranlocal);
 
 
     /**
@@ -89,17 +98,6 @@ public interface Transaction {
      * @return the status of this Transaction.
      */
     TransactionStatus getStatus();
-
-    /**
-     * Attaches the Tranlocal to this Transaction. This call is needed for newly created AtomicObjects
-     * so that the first tranlocal is registerd
-     *
-     * @param tranlocal the Tranlocal to attach.
-     * @throws NullPointerException if tranlocal is null.
-     * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *                              if this transaction already is committed or aborted.
-     */
-    void attachNew(Tranlocal tranlocal);
 
     /**
      * Commits this Transaction. If the Transaction already is committed, the call is ignored.

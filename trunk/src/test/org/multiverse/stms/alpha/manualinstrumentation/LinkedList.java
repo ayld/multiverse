@@ -1,17 +1,17 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
+import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.Transaction;
+import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.TranlocalSnapshot;
-import org.multiverse.stms.alpha.AlphaStmUtils;
-import org.multiverse.api.Transaction;
-import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.utils.TodoException;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
-import org.multiverse.api.StmUtils;
-import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.utils.TodoException;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
 import java.util.Iterator;
@@ -86,7 +86,7 @@ final public class LinkedList<E> extends FastAtomicObjectMixin {
 
     @AtomicMethod
     public void addInFront(E item) {
-        ((LinkedListTranlocal<E>)AlphaStmUtils.privatize(this)).addInFront(item);
+        ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).addInFront(item);
     }
 
     @AtomicMethod
@@ -107,6 +107,9 @@ final public class LinkedList<E> extends FastAtomicObjectMixin {
     @Override
     public LinkedListTranlocal<E> privatize(long readVersion) {
         LinkedListTranlocal<E> origin = (LinkedListTranlocal<E>) load(readVersion);
+        if (origin == null) {
+            throw new LoadUncommittedAtomicObjectException();
+        }
         return new LinkedListTranlocal<E>(origin);
     }
 }
