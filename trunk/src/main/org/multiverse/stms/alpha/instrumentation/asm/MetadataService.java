@@ -1,9 +1,9 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.multiverse.stms.alpha.instrumentation.MultiverseJavaAgent;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.multiverse.stms.alpha.instrumentation.MultiverseJavaAgent;
 
 import static java.lang.Class.forName;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * A Service (singleton) that stores alle metadata needed for the instrumentation
- * process. 
+ * process.
  *
  * @author Peter Veentjer
  */
@@ -28,11 +28,11 @@ public final class MetadataService {
             return;
         }
 
-        System.out.println("Force load of class: "+className);
+        //System.out.println("Force load of class: "+className);
         try {
             //todo: doesn't work
-            Class clazz = forName(className.replace('/', '.'),true, MultiverseJavaAgent.class.getClassLoader());
-            System.out.println(clazz);
+            Class clazz = forName(className.replace('/', '.'), true, MultiverseJavaAgent.class.getClassLoader());
+            //System.out.println(clazz);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

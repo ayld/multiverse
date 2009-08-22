@@ -294,7 +294,7 @@ public class ReadonlyTransactionTest {
         try {
             t.abortAndRetry();
             fail();
-        } catch (ReadonlyException ex) {
+        } catch (DeadTransactionException ex) {
         }
 
         assertIsCommitted(t);
@@ -308,7 +308,7 @@ public class ReadonlyTransactionTest {
         try {
             t.abortAndRetry();
             fail();
-        } catch (ReadonlyException ex) {
+        } catch (DeadTransactionException ex) {
         }
 
         assertIsAborted(t);

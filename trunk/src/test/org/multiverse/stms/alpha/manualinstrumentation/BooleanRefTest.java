@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -17,8 +18,9 @@ public class BooleanRefTest {
 
     @Before
     public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
-        stm = GlobalStmInstance.get();
     }
 
     public void tearDown() {

@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * everything) but makes the system a lot easier to use. But if the GlobalStm should not
  * be used, but a 'private' stm, you need to carry around the stm reference yourself and
  * just ignore this GlobalStm.
+ * <p/>
+ * Atm it always uses an {@link AlphaStm} by default. In the future this choice should be
+ * made configurable.
  *
  * @author Peter Veentjer
  */

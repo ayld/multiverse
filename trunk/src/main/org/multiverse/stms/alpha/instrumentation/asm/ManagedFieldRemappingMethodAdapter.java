@@ -182,7 +182,7 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
      * @return the found type in atomicobject form.
      */
     private Type getVariableType(int var) {
-        System.out.println("method: " + method.desc);
+        //System.out.println("method: " + method.desc);
 
         if (var == 0) {
             return Type.getObjectType(atomicObject.name);
@@ -413,11 +413,11 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
     }
 
     private boolean oneOfTheArgumentsIsAtomicObject(String desc) {
-        System.out.println("--------------------");
-        System.out.println(desc);
+        //System.out.println("--------------------");
+        //System.out.println(desc);
         Type[] argTypes = Type.getArgumentTypes(desc);
         for (Type argType : argTypes) {
-            System.out.println("argtype: " + argType);
+            //System.out.println("argtype: " + argType);
             if (isRealAtomicObject(argType)) {
                 return true;
             }

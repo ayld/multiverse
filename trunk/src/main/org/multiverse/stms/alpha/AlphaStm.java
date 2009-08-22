@@ -2,6 +2,7 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
+import org.multiverse.utils.TodoException;
 import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
 import org.multiverse.utils.atomicobjectlocks.GenericAtomicObjectLockPolicy;
 
@@ -116,7 +117,8 @@ public final class AlphaStm implements Stm {
             throw new IllegalArgumentException();
         }
 
-        return new ReadonlyTransaction(statistics, readVersion);
+        //return new ReadonlyTransaction(statistics, readVersion);
+        throw new TodoException();
     }
 
     @Override

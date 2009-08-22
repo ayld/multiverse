@@ -34,7 +34,7 @@ public class RefTest {
     }
 
     @Test
-    public void testConstrution_empty() {
+    public void testConstruction_empty() {
         Ref ref = new Ref();
         assertTrue(ref.isNull());
     }

@@ -1,10 +1,10 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.*;
 import org.multiverse.api.locks.LockManager;
 import org.multiverse.api.locks.LockStatus;
 import org.multiverse.api.locks.StmLock;
+import org.multiverse.stms.AbstractTransaction;
 import org.multiverse.utils.TodoException;
 import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
 import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.nothingToLock;
@@ -12,10 +12,7 @@ import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.relea
 import org.multiverse.utils.latches.CheapLatch;
 import org.multiverse.utils.latches.Latch;
 
-import static java.lang.String.format;
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -33,32 +30,22 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-public class UpdateTransaction implements AlphaTransaction, LockManager {
+public class UpdateTransaction extends AbstractTransaction implements AlphaTransaction, LockManager {
 
-    private final AtomicLong clock;
     private final AlphaStmStatistics statistics;
 
     //the attached set contains the Translocals loaded and attached.
     private Map<AlphaAtomicObject, Tranlocal> attached = new IdentityHashMap(2);
 
     private SnapshotStack snapshotStack;
-    private AtomicObjectLockPolicy writeSetLockPolicy;
-    private List<Runnable> postCommitTasks;
-    private long readVersion;
-    private TransactionStatus status;
 
     public UpdateTransaction(AlphaStmStatistics statistics, AtomicLong clock, AtomicObjectLockPolicy writeSetLockPolicy) {
+        super(clock, writeSetLockPolicy);
         this.statistics = statistics;
-        this.clock = clock;
-        this.writeSetLockPolicy = writeSetLockPolicy;
-
         init();
     }
 
-    private void init() {
-        this.postCommitTasks = null;
-        this.readVersion = clock.get();
-        this.status = TransactionStatus.active;
+    protected void onInit() {
         this.snapshotStack = null;
         this.attached.clear();
 
@@ -68,67 +55,8 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     @Override
-    public void executePostCommit(Runnable task) {
-        switch (status) {
-            case active:
-                if (task == null) {
-                    throw new NullPointerException();
-                }
-                if (postCommitTasks == null) {
-                    postCommitTasks = new LinkedList<Runnable>();
-                }
-                postCommitTasks.add(task);
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't add afterCommit task on a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't add afterCommit task on an aborted transaction");
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    public AtomicObjectLockPolicy getAcquireLocksPolicy() {
-        return writeSetLockPolicy;
-    }
-
-    public void setAcquireLocksPolicy(AtomicObjectLockPolicy writeSetLockPolicy) {
-        this.writeSetLockPolicy = writeSetLockPolicy;
-    }
-
-    @Override
-    public long getReadVersion() {
-        return readVersion;
-    }
-
-    @Override
-    public void reset() {
-        switch (status) {
-            case active:
-                throw new ResetFailureException("Can't reset an active transaction, abort or commit first");
-            case committed:
-                init();
-                break;
-            case aborted:
-                init();
-                break;
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    @Override
-    public void retry() {
-        switch (status) {
-            case active:
-                throw RetryError.create();
-            case committed:
-                throw new DeadTransactionException("Can't retry a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't retry an aborted transaction");
-            default:
-                throw new RuntimeException();
-        }
+    public void onRetry() {
+        throw RetryError.create();
     }
 
     @Override
@@ -258,62 +186,14 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
         }
     }
 
-    private AlphaAtomicObject asAtomicObject(Object object) {
-        if (!(object instanceof AlphaAtomicObject)) {
-            String msg = format("Object with class %s does not implement AtomicObject interface",
-                    object.getClass().getName());
-            throw new IllegalArgumentException(msg);
-        }
-
-        return (AlphaAtomicObject) object;
-    }
-
     @Override
-    public TransactionStatus getStatus() {
-        return status;
-    }
-
-    @Override
-    public long commit() {
-        switch (status) {
-            case active:
-                try {
-                    long commitVersion = doCommit();
-                    status = TransactionStatus.committed;
-                    if (statistics != null) {
-                        statistics.incTransactionCommittedCount();
-                    }
-                    executeAfterCommitTasks();
-                    return commitVersion;
-                } finally {
-                    if (status != TransactionStatus.committed) {
-                        doAbort();
-                    }
-                }
-            case committed:
-                //ignore
-                throw new TodoException();
-            case aborted:
-                throw new DeadTransactionException("Can't call commit on an aborted transaction");
-            default:
-                throw new RuntimeException();
+    protected long onCommit() {
+        long commitVersion = doCommit();
+        if (statistics != null) {
+            statistics.incTransactionCommittedCount();
         }
-    }
-
-    private void executeAfterCommitTasks() {
-        if (postCommitTasks != null) {
-            try {
-                for (Runnable task : postCommitTasks) {
-                    try {
-                        task.run();
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            } finally {
-                postCommitTasks = null;
-            }
-        }
+        attached.clear();
+        return commitVersion;
     }
 
     private long doCommit() {
@@ -409,7 +289,7 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     private void acquireLocks(Tranlocal[] writeSet) {
-        if (!writeSetLockPolicy.tryLockAll(writeSet, this)) {
+        if (!lockPolicy.tryLockAll(writeSet, this)) {
             if (statistics != null) {
                 statistics.incTransactionFailedToAcquireLocksCount();
             }
@@ -444,58 +324,32 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     @Override
-    public void abort() {
-        switch (status) {
-            case active:
-                doAbort();
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't call abort on a committed transaction");
-            case aborted:
-                //ignore
-                break;
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    private void doAbort() {
+    protected void onAbort() {
         attached.clear();
-        status = TransactionStatus.aborted;
-        postCommitTasks = null;
         if (statistics != null) {
             statistics.incTransactionAbortedCount();
         }
     }
 
     @Override
-    public void abortAndRetry() {
-        switch (status) {
-            case active:
-                boolean success = false;
-                try {
-                    awaitInterestingWrite();
+    protected void onAbortAndRetry() {
+        boolean success = false;
+        try {
+            awaitInterestingWrite();
 
-                    //we are finished waiting, lets reset the transaction and begin again
-                    init();
-                    success = true;
+            //we are finished waiting, lets reset the transaction and begin again
+            init();
+            success = true;
 
-                    if (statistics != null) {
-                        statistics.incTransactionRetriedCount();
-                    }
-                } finally {
-                    if (!success) {
-                        doAbort();
-                    }
-                }
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't call abortAndRetry on a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't call abortAndRetry on an aborted transaction");
-            default:
-                throw new RuntimeException();
+            if (statistics != null) {
+                statistics.incTransactionRetriedCount();
+            }
+        } finally {
+            if (!success) {
+                doAbort();
+            }
         }
+
     }
 
     private void awaitInterestingWrite() {
@@ -537,17 +391,8 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     @Override
-    public LockManager getLockManager() {
-        switch (status) {
-            case active:
-                return this;
-            case aborted:
-                throw new DeadTransactionException("Can't get the LockManager, transaction already is aborted.");
-            case committed:
-                throw new DeadTransactionException("Can't get the LockManager, transaction already is committed.");
-            default:
-                throw new RuntimeException();
-        }
+    protected LockManager onGetLockManager() {
+        return this;
     }
 
     @Override
@@ -575,18 +420,8 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     @Override
-    public void startOr() {
-        switch (status) {
-            case active:
-                snapshotStack = new SnapshotStack(snapshotStack, createSnapshot());
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't call startOr on a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't call startOr on an aborted transaction");
-            default:
-                throw new RuntimeException();
-        }
+    protected void onStartOr() {
+        snapshotStack = new SnapshotStack(snapshotStack, createSnapshot());
     }
 
     private TranlocalSnapshot createSnapshot() {
@@ -601,41 +436,22 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     @Override
-    public void endOr() {
-        switch (status) {
-            case active:
-                if (snapshotStack == null) {
-                    throw new IllegalStateException();
-                }
-                snapshotStack = snapshotStack.next;
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't call endOr on a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't call endOr on an aborted transaction");
-            default:
-                throw new RuntimeException();
+    protected void onEndOr() {
+        if (snapshotStack == null) {
+            throw new IllegalStateException();
         }
+        snapshotStack = snapshotStack.next;
     }
 
     @Override
-    public void endOrAndStartElse() {
-        switch (status) {
-            case active:
-                if (snapshotStack == null) {
-                    throw new IllegalStateException();
-                }
-                TranlocalSnapshot snapshot = snapshotStack.snapshot;
-                snapshotStack = snapshotStack.next;
-                restoreSnapshot(snapshot);
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't call endOrAndStartElse on a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't call endOrAndStartElse on an aborted transaction");
-            default:
-                throw new RuntimeException();
+    protected void onEndOrAndStartElse() {
+        if (snapshotStack == null) {
+            throw new IllegalStateException();
         }
+        TranlocalSnapshot snapshot = snapshotStack.snapshot;
+        snapshotStack = snapshotStack.next;
+        restoreSnapshot(snapshot);
+
     }
 
     private void restoreSnapshot(TranlocalSnapshot snapshot) {

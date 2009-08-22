@@ -179,7 +179,7 @@ public final class TranlocalFactory implements Opcodes {
      * @return a new fixed method.
      */
     private MethodNode fixInstanceMethod(MethodNode originalMethod) {
-        System.out.println("fixing method: " + originalMethod.name + "." + originalMethod.desc);
+        //System.out.println("fixing method: " + originalMethod.name + "." + originalMethod.desc);
 
         MethodNode mappedMethod = new MethodNode(
                 originalMethod.access,
