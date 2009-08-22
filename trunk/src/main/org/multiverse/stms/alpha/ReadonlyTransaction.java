@@ -89,19 +89,13 @@ final class ReadonlyTransaction implements AlphaTransaction {
     }
 
     @Override
-    public Tranlocal load(Object item) {
+    public Tranlocal load(AlphaAtomicObject atomicObject) {
         switch (status) {
             case active:
-                if (item == null) {
+                if (atomicObject == null) {
                     return null;
                 }
 
-                if (!(item instanceof AlphaAtomicObject)) {
-                    throw new IllegalArgumentException();
-                }
-
-                AlphaAtomicObject atomicObject = (AlphaAtomicObject) item;
-                //todo: the load method.
                 Tranlocal result = atomicObject.load(readVersion);
                 if (result == null) {
                     throw new LoadUncommittedException();
@@ -117,7 +111,7 @@ final class ReadonlyTransaction implements AlphaTransaction {
     }
 
     @Override
-    public Tranlocal privatize(Object item) {
+    public Tranlocal privatize(AlphaAtomicObject item) {
         throw new ReadonlyException();
     }
 

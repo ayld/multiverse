@@ -6,17 +6,18 @@ import org.junit.Test;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import org.multiverse.utils.atomicobjectlocks.GenericAtomicObjectLockPolicy;
 
 import java.util.concurrent.TimeUnit;
 
 public class IntRefPerformanceLongTest {
-    private int count = 30 * 1000 * 1000;
+    private int count = 3 * 1000 * 1000;
 
     private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = new AlphaStm();
+        stm = new AlphaStm(null, GenericAtomicObjectLockPolicy.FAIL_FAST_BUT_RETRY, false);
         GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
     }
@@ -24,7 +25,9 @@ public class IntRefPerformanceLongTest {
     @After
     public void tearDown() {
         setThreadLocalTransaction(null);
-        stm.getStatistics().print();
+        if (stm.getStatistics() != null) {
+            stm.getStatistics().print();
+        }
     }
 
     @Test

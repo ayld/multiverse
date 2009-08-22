@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
-import org.multiverse.utils.atomicobjectlocks.FailFastAtomicObjectLockPolicy;
+import org.multiverse.utils.atomicobjectlocks.GenericAtomicObjectLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,27 +32,36 @@ public final class AlphaStm implements Stm {
 
     private final AlphaStmStatistics statistics;
 
-    private volatile AtomicObjectLockPolicy writeSetLockPolicy = new FailFastAtomicObjectLockPolicy();
-
     private final boolean loggingPossible;
 
+    private volatile AtomicObjectLockPolicy lockPolicy;
+
     /**
-     * Creates a new TL2Stm that keeps track of statistics and where logging is possible.
+     * Creates a new AlphaStm that keeps track of statistics and where logging is possible.
      */
     public AlphaStm() {
-        this(new AlphaStmStatistics(), true);
+        this(new AlphaStmStatistics(), GenericAtomicObjectLockPolicy.FAIL_FAST_BUT_RETRY, true);
     }
 
     /**
-     * Creates a new TL2Stm with the given statistics. If no statistics is given, the JIT is able
+     * Creates a new AlphaStm with the given statistics. If no statistics is given, the JIT is able
      * to remove all calls to the statistics, so we don't need to pay to price if we don't use it.
      * It also means that the value can't be changed after construction.
      *
-     * @param statistics the TL2StmStatistics to use, or null of none should be used.
+     * @param statistics      the TL2StmStatistics to use, or null of none should be used.
+     * @param lockPolicy      the AtomicObjectLockPolicy used to acquire the locks.
+     * @param loggingPossible if logging to java.util.logging is possible. If logging is disabled, a different
+     *                        transaction class will be used that doesn't cause any logging overhead.
+     * @throws NullPointerException if lockPolicy is null.
      */
-    public AlphaStm(AlphaStmStatistics statistics, boolean loggingPossible) {
-        this.statistics = statistics;
-        this.loggingPossible = loggingPossible;
+    public AlphaStm(AlphaStmStatistics statistics, AtomicObjectLockPolicy lockPolicy, boolean loggingPossible) {
+        if (lockPolicy == null) {
+            throw new NullPointerException();
+        } else {
+            this.statistics = statistics;
+            this.loggingPossible = loggingPossible;
+            this.lockPolicy = lockPolicy;
+        }
     }
 
     /**
@@ -60,21 +69,22 @@ public final class AlphaStm implements Stm {
      *
      * @return the current WriteSetLockPolicy.
      */
-    public AtomicObjectLockPolicy getAcquireLocksPolicy() {
-        return writeSetLockPolicy;
+    public AtomicObjectLockPolicy getAtomicObjectLockPolicy() {
+        return lockPolicy;
     }
 
     /**
      * Sets the new WriteSetLockPolicy.
      *
-     * @param newWriteSetLockPolicy the new WriteSetLockPolicy.
+     * @param newLockPolicy the new WriteSetLockPolicy.
      * @throws NullPointerException if newWriteSetLockPolicy is null.
      */
-    public void setAcquireLocksPolicy(AtomicObjectLockPolicy newWriteSetLockPolicy) {
-        if (newWriteSetLockPolicy == null) {
+    public void setAtomicObjectLockPolicy(AtomicObjectLockPolicy newLockPolicy) {
+        if (newLockPolicy == null) {
             throw new NullPointerException();
+        } else {
+            this.lockPolicy = newLockPolicy;
         }
-        this.writeSetLockPolicy = newWriteSetLockPolicy;
     }
 
     /**
@@ -89,9 +99,9 @@ public final class AlphaStm implements Stm {
     @Override
     public Transaction startUpdateTransaction() {
         if (loggingPossible) {
-            return new LoggingUpdateTransaction(statistics, clock, writeSetLockPolicy);
+            return new LoggingUpdateTransaction(statistics, clock, lockPolicy);
         } else {
-            return new UpdateTransaction(statistics, clock, writeSetLockPolicy);
+            return new UpdateTransaction(statistics, clock, lockPolicy);
         }
     }
 

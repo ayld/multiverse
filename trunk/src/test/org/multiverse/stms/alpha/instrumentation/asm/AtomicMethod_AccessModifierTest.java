@@ -1,11 +1,21 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
 public class AtomicMethod_AccessModifierTest {
+    private AlphaStm stm;
+
+    @Before
+    public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+    }
 
     //@After
     //public void tearDown(){

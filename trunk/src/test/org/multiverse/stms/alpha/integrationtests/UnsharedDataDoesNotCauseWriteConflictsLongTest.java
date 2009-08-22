@@ -8,8 +8,8 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
@@ -31,7 +31,9 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
 
     @After
     public void tearDown() {
-        stm.getStatistics().print();
+        if (stm.getStatistics() != null) {
+            stm.getStatistics().print();
+        }
     }
 
     @Test

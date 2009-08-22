@@ -7,6 +7,8 @@ import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.api.locks.LockManager;
 import org.multiverse.utils.TodoException;
+import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
+import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.releaseLocks;
 
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
@@ -21,14 +23,16 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class UpdateBetaTransaction implements BetaTransaction {
     private final AtomicLong clock;
+    private final AtomicObjectLockPolicy lockPolicy;
 
     private long readVersion;
     private TransactionStatus status;
     private List<Runnable> postCommitTasks;
     private Map<BetaRef, BetaRefTranlocal> privatized = new IdentityHashMap<BetaRef, BetaRefTranlocal>(2);
 
-    public UpdateBetaTransaction(AtomicLong clock) {
+    public UpdateBetaTransaction(AtomicLong clock, AtomicObjectLockPolicy lockPolicy) {
         this.clock = clock;
+        this.lockPolicy = lockPolicy;
         init();
     }
 
@@ -164,7 +168,7 @@ public final class UpdateBetaTransaction implements BetaTransaction {
             BetaRefTranlocal[] writeSet = acquireAllLocksAndCheckForConflicts();
             long commitVersion = clock.incrementAndGet();
             writeAllChanges(writeSet, commitVersion);
-            releaseAllLocks(writeSet);
+            releaseLocks(writeSet, this);
             return commitVersion;
         }
     }
@@ -207,7 +211,7 @@ public final class UpdateBetaTransaction implements BetaTransaction {
             return writeSet;
         } finally {
             if (!success) {
-                releaseAllLocks(writeSet);
+                releaseLocks(writeSet, this);
             }
         }
     }
@@ -222,18 +226,6 @@ public final class UpdateBetaTransaction implements BetaTransaction {
 
             tranlocal.signalCommit(commitVersion);
             tranlocal.getBetaRef().write(tranlocal);
-        }
-    }
-
-    private void releaseAllLocks(BetaRefTranlocal[] writeSet) {
-        for (int k = 0; k < writeSet.length; k++) {
-            BetaRefTranlocal tranlocal = writeSet[k];
-
-            if (tranlocal == null) {
-                return;
-            }
-
-            tranlocal.getBetaRef().releaseLock(this);
         }
     }
 

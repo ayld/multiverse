@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.TestUtils.assertIsCommitted;
 import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.utils.GlobalStmInstance;
 
 public class ReadonlyBetaTransaction_abortTest {
 
@@ -15,6 +16,7 @@ public class ReadonlyBetaTransaction_abortTest {
     @Before
     public void setUp() {
         stm = new BetaStm();
+        GlobalStmInstance.set(stm);
     }
 
     private BetaTransaction startTransaction() {

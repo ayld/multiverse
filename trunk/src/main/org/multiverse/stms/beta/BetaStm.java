@@ -3,6 +3,8 @@ package org.multiverse.stms.beta;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.utils.TodoException;
+import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
+import org.multiverse.utils.atomicobjectlocks.GenericAtomicObjectLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -33,6 +35,20 @@ public final class BetaStm implements Stm {
 
     private final AtomicLong clock = new AtomicLong();
 
+    private final AtomicObjectLockPolicy lockPolicy;
+
+    public BetaStm() {
+        this(GenericAtomicObjectLockPolicy.FAIL_FAST_BUT_RETRY);
+    }
+
+    public BetaStm(AtomicObjectLockPolicy lockPolicy) {
+        if (lockPolicy == null) {
+            throw new NullPointerException();
+        } else {
+            this.lockPolicy = lockPolicy;
+        }
+    }
+
     @Override
     public long getClockVersion() {
         return clock.get();
@@ -40,7 +56,7 @@ public final class BetaStm implements Stm {
 
     @Override
     public Transaction startUpdateTransaction() {
-        return new UpdateBetaTransaction(clock);
+        return new UpdateBetaTransaction(clock, lockPolicy);
     }
 
     @Override

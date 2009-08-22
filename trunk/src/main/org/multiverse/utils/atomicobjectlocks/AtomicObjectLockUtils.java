@@ -7,6 +7,10 @@ import org.multiverse.api.Transaction;
  */
 public final class AtomicObjectLockUtils {
 
+    public static boolean nothingToLock(AtomicObjectLock[] writeSet) {
+        return writeSet == null || writeSet.length == 0 || writeSet[0] == null;
+    }
+
     /**
      * Releases the locks. It is important that all locks are released. If this is not done,
      * objects could remain locked and en get inaccessible.

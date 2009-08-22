@@ -36,7 +36,8 @@ public final class AlphaStmUtils {
      * Loads a Tranlocal using a transaction. The transaction is retrieved from the
      * TransactionThreadLocal. If no transaction is found, a RuntimeException is thrown.
      * <p/>
-     * For more information see {@link org.multiverse.api.Transaction#privatize(Object)} for more info.
+     * For more information see {@link AlphaTransaction#privatize(AlphaAtomicObject)}
+     * for more info.
      *
      * @param object
      * @return
@@ -47,7 +48,7 @@ public final class AlphaStmUtils {
             throw new RuntimeException("No Transaction available");
         }
 
-        return t.privatize(object);
+        return t.privatize((AlphaAtomicObject) object);
     }
 
 

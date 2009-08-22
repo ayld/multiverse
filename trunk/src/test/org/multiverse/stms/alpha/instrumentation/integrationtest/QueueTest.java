@@ -3,13 +3,24 @@ package org.multiverse.stms.alpha.instrumentation.integrationtest;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.Before;
 import org.junit.Test;
+import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.instrumentation.asm.MetadataService;
+import org.multiverse.utils.GlobalStmInstance;
 
 /**
  * @author Peter Veentjer
  */
 public class QueueTest {
+
+    private AlphaStm stm;
+
+    @Before
+    public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+    }
 
     @After
     public void tearDown() {

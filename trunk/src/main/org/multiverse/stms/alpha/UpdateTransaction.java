@@ -7,6 +7,7 @@ import org.multiverse.api.locks.LockStatus;
 import org.multiverse.api.locks.StmLock;
 import org.multiverse.utils.TodoException;
 import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
+import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.nothingToLock;
 import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.releaseLocks;
 import org.multiverse.utils.latches.CheapLatch;
 import org.multiverse.utils.latches.Latch;
@@ -172,14 +173,13 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     @Override
-    public Tranlocal load(Object object) {
+    public Tranlocal load(AlphaAtomicObject atomicObject) {
         switch (status) {
             case active:
-                if (object == null) {
+                if (atomicObject == null) {
                     return null;
                 }
 
-                AlphaAtomicObject atomicObject = asAtomicObject(object);
                 Tranlocal existing = attached.get(atomicObject);
                 if (existing != null) {
                     return existing;
@@ -217,14 +217,13 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     @Override
-    public Tranlocal privatize(Object object) {
+    public Tranlocal privatize(AlphaAtomicObject atomicObject) {
         switch (status) {
             case active:
-                if (object == null) {
+                if (atomicObject == null) {
                     return null;
                 }
 
-                AlphaAtomicObject atomicObject = asAtomicObject(object);
                 Tranlocal tranlocal = attached.get(atomicObject);
                 if (tranlocal == null) {
                     if (statistics == null) {
@@ -320,25 +319,26 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     private long doCommit() {
         //System.out.println("starting commit");
         Tranlocal[] writeSet = createWriteSet();
-        if (writeSet == null) {
+        if (nothingToLock(writeSet)) {
             //if there is nothing to commit, we are done.
             if (statistics != null) {
                 statistics.incTransactionEmptyCommitCount();
             }
             return readVersion;
-        }
+        } else {
 
-        boolean success = false;
-        try {
-            acquireLocks(writeSet);
-            ensureConflictFree(writeSet);
-            long writeVersion = clock.incrementAndGet();
-            writeChanges(writeSet, writeVersion);
-            success = true;
-            return writeVersion;
-        } finally {
-            if (!success) {
-                releaseLocks(writeSet, this);
+            boolean success = false;
+            try {
+                acquireLocks(writeSet);
+                ensureConflictFree(writeSet);
+                long writeVersion = clock.incrementAndGet();
+                storeAll(writeSet, writeVersion);
+                success = true;
+                return writeVersion;
+            } finally {
+                if (!success) {
+                    releaseLocks(writeSet, this);
+                }
             }
         }
     }
@@ -357,19 +357,24 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
 
         Tranlocal[] writeSet = null;
 
-        int k = 0;
+        int skipped = 0;
+        int index = 0;
         for (Tranlocal tranlocal : attached.values()) {
             switch (tranlocal.getDirtinessStatus()) {
+                case committed:
+                    skipped++;
+                    break;
                 case fresh:
                     //fall through
                 case dirty:
                     if (writeSet == null) {
-                        writeSet = new Tranlocal[attached.size() - k];
+                        writeSet = new Tranlocal[attached.size() - skipped];
                     }
-                    writeSet[k] = tranlocal;
-                    k++;
+                    writeSet[index] = tranlocal;
+                    index++;
                     break;
                 case clean:
+                    skipped++;
                     break;
                 case conflict:
                     //if we can already determine that the write can never happen, start a write conflict
@@ -404,7 +409,7 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
     }
 
     private void acquireLocks(Tranlocal[] writeSet) {
-        if (!writeSetLockPolicy.tryLocks(writeSet, this)) {
+        if (!writeSetLockPolicy.tryLockAll(writeSet, this)) {
             if (statistics != null) {
                 statistics.incTransactionFailedToAcquireLocksCount();
             }
@@ -419,12 +424,7 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
         }
     }
 
-
-    private void writeChanges(Tranlocal[] writeSet, long writeVersion) {
-        if (writeSet == null) {
-            return;
-        }
-
+    private void storeAll(Tranlocal[] writeSet, long commitVersion) {
         try {
             for (int k = 0; k < writeSet.length; k++) {
                 Tranlocal tranlocal = writeSet[k];
@@ -432,7 +432,7 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
                     return;
                 } else {
                     AlphaAtomicObject atomicObject = tranlocal.getAtomicObject();
-                    atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
+                    atomicObject.storeAndReleaseLock(tranlocal, commitVersion);
                 }
             }
 
