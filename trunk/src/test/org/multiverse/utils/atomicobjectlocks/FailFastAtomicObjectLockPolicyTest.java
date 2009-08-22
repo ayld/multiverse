@@ -1,6 +1,9 @@
-package org.multiverse.utils.writeset;
+package org.multiverse.utils.atomicobjectlocks;
 
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.Test;
+import org.multiverse.DummyTransaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -8,7 +11,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 /**
  * @author Peter Veentjer
  */
-public class FailFastWriteSetLockPolicyTest {
+public class FailFastAtomicObjectLockPolicyTest {
     private AlphaStm stm;
     private FailFastAtomicObjectLockPolicy policy;
 
@@ -18,6 +21,23 @@ public class FailFastWriteSetLockPolicyTest {
         GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
         policy = new FailFastAtomicObjectLockPolicy();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void tryLocksWithNullTransactionFails() {
+        policy.tryLocks(new AtomicObjectLock[]{}, null);
+    }
+
+    @Test
+    public void tryLocksWithNullLocksSucceeds() {
+        boolean success = policy.tryLocks(null, new DummyTransaction());
+        assertTrue(success);
+    }
+
+    @Test
+    public void tryLocksWithEmptyLocksSucceeds() {
+        boolean success = policy.tryLocks(new AtomicObjectLock[]{}, new DummyTransaction());
+        assertTrue(success);
     }
 
     /*

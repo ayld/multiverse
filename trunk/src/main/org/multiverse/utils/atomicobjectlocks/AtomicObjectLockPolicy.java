@@ -1,4 +1,4 @@
-package org.multiverse.utils.writeset;
+package org.multiverse.utils.atomicobjectlocks;
 
 import org.multiverse.api.Transaction;
 

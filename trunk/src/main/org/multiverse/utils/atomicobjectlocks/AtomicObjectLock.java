@@ -1,10 +1,10 @@
-package org.multiverse.utils.writeset;
+package org.multiverse.utils.atomicobjectlocks;
 
 import org.multiverse.api.Transaction;
 
 /**
  * The AtomicObjectLock should never by acquired directly, but always through the
- * {@link org.multiverse.utils.writeset.AtomicObjectLockPolicy}. The implementation of the lock
+ * {@link org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy}. The implementation of the lock
  * are not supposed to use techniques like spinning, that should all be part of the lockpolicy.
  * The lock implementation should try to acquire the lock and fail immedialtely if it can't.
  * <p/>

@@ -127,14 +127,13 @@ final class ReadonlyTransaction implements AlphaTransaction {
     }
 
     @Override
-    public void commit() {
+    public long commit() {
         switch (status) {
             case active:
                 status = TransactionStatus.committed;
-                break;
+                return readVersion;
             case committed:
-                //ignore
-                break;
+                return readVersion;
             case aborted:
                 throw new DeadTransactionException("Can't commit an already aborted transaction");
             default:

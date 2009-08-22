@@ -1,4 +1,4 @@
-package org.multiverse.utils.writeset;
+package org.multiverse.utils.atomicobjectlocks;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.utils.TodoException;
@@ -22,6 +22,10 @@ public final class RetrySpinningAtomicObjectLockPolicy implements AtomicObjectLo
 
     @Override
     public boolean tryLock(AtomicObjectLock lock, Transaction lockOwner) {
+        if (lockOwner == null) {
+            throw new NullPointerException();
+        }
+
         throw new TodoException();
     }
 
@@ -34,10 +38,12 @@ public final class RetrySpinningAtomicObjectLockPolicy implements AtomicObjectLo
     }
 
     public boolean tryLocks(AtomicObjectLock[] locks, Transaction owner) {
-        if (locks == null || locks.length == 0) {
+        if (owner == null) {
+            throw new NullPointerException();
+        } else if (locks == null || locks.length == 0) {
             return true;
+        } else {
+            throw new TodoException();
         }
-
-        throw new TodoException();
     }
 }

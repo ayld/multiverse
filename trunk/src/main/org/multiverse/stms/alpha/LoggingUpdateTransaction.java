@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.utils.writeset.AtomicObjectLockPolicy;
+import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
 
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,10 +29,11 @@ public class LoggingUpdateTransaction extends UpdateTransaction {
             return super.commit();
         } else {
             boolean success = false;
-            long version;
+            long version = Long.MIN_VALUE;
             try {
                 version = super.commit();
                 success = true;
+                return version;
             } finally {
                 if (success) {
                     logger.fine(format("UpdateTransaction%s committed with version %s", logId, version));
