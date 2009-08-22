@@ -1,10 +1,7 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaStmUtils;
-import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.*;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -310,7 +307,7 @@ public final class TranlocalFactory implements Opcodes {
         MethodNode m = new MethodNode(
                 ACC_PUBLIC + ACC_SYNTHETIC,
                 "getAtomicObject",
-                format("()%s", getDescriptor(Object.class)),
+                format("()%s", getDescriptor(AlphaAtomicObject.class)),
                 null,
                 new String[]{});
 

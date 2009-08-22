@@ -7,7 +7,6 @@ import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.TestUtils.assertIsCommitted;
-import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.FailedToObtainLocksException;
@@ -19,11 +18,12 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 
 public class UpdateTransaction_commitTest {
 
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
     }
 
@@ -32,14 +32,14 @@ public class UpdateTransaction_commitTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
 
-    public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction();
+    public AlphaTransaction startReadonlyTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
@@ -50,10 +50,10 @@ public class UpdateTransaction_commitTest {
     public void commitFailsIfWriteConflictIsEncountered() {
         IntRef value = new IntRef(0);
 
-        Transaction t1 = stm.startUpdateTransaction();
+        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal tranlocalIntValueR1 = (IntRefTranlocal) t1.privatize(value);
 
-        Transaction t2 = stm.startUpdateTransaction();
+        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal tranlocalIntValueR2 = (IntRefTranlocal) t2.privatize(value);
         tranlocalIntValueR2.inc();
         t2.commit();
@@ -84,7 +84,7 @@ public class UpdateTransaction_commitTest {
         intValue.inc();
 
         Transaction otherOwner = new DummyTransaction();
-        intValue.acquireLock(otherOwner);
+        intValue.tryLock(otherOwner);
 
         try {
             t.commit();

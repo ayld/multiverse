@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.utils.GlobalStmInstance;
@@ -212,5 +213,35 @@ public class AtomicTemplateTest {
                 }
             }.execute();
         }
+    }
+
+    // =========  retry count ===============================
+
+    @Test
+    public void tooManyRetries() {
+        final IntRef ref = IntRef.createUncommitted();
+        final IntHolder counter = new IntHolder();
+
+        long version = stm.getClockVersion();
+
+        try {
+            new AtomicTemplate() {
+                @Override
+                public Object execute(Transaction t) throws Exception {
+                    counter.value++;
+                    assertEquals(counter.value, getAttemptCount());
+                    ref.get();
+                    return null;
+                }
+            }.execute();
+            fail();
+        } catch (TooManyRetriesException ex) {
+        }
+
+        assertEquals(version, stm.getClockVersion());
+    }
+
+    private static class IntHolder {
+        int value;
     }
 }

@@ -9,9 +9,9 @@ package org.multiverse.stms.alpha;
 public interface AlphaStmDebugConstants {
 
     public static final boolean SANITY_CHECK_ENABLED = true;
-    public static final boolean REUSE_WriteConflictException = false;
-    public static final boolean REUSE_RetryError = false;
-    public static final boolean REUSE_SnapshotTooOldException = false;
-    public static final boolean REUSE_FailedToObtainLocksException = false;
-    public static final boolean REUSE_LockedException = false;
+    public static final boolean REUSE_WriteConflictException = true;
+    public static final boolean REUSE_RetryError = true;
+    public static final boolean REUSE_LoadTooOldVersionException = true;
+    public static final boolean REUSE_FailedToObtainLocksException = true;
+    public static final boolean REUSE_LockedException = true;
 }

@@ -1,5 +1,8 @@
 package org.multiverse.stms.alpha;
 
+import org.multiverse.api.Transaction;
+import org.multiverse.utils.writeset.AtomicObjectLock;
+
 /**
  * The Tranlocal is the Transaction local content of a AtomicObject, since the state from the
  * AtomicObject is removed. So for every AtomicObject there are 1 or more Tranlocals
@@ -18,9 +21,9 @@ package org.multiverse.stms.alpha;
  *
  * @author Peter Veentjer.
  */
-public abstract class Tranlocal<A> {
+public abstract class Tranlocal implements AtomicObjectLock {
 
-     public long version = Long.MIN_VALUE;
+    public long version = Long.MIN_VALUE;
 
     /**
      * True if this Tranlocal is committed and therefor is completely immutable.
@@ -37,16 +40,15 @@ public abstract class Tranlocal<A> {
      * <li>change committed to true</li>
      * <li>set the version to the writeVersion</li>
      * </ol>
-     *
+     * <p/>
      * Detection if the writeVersion makes sense is not mandatory for the implementation.
      *
      * @param writeVersion the version of the commit. This is the version this tranlocal
      *                     from now on will be known. It is never going to change anymore.
-     *
      */
     public abstract void prepareForCommit(long writeVersion);
 
-    public abstract A getAtomicObject();
+    public abstract AlphaAtomicObject getAtomicObject();
 
     /**
      * Creates the TranlocalSnapshot of the Tranlocal. A snapshot should only be made if
@@ -70,4 +72,14 @@ public abstract class Tranlocal<A> {
      *          Depends on the implementation if this is thrown.
      */
     public abstract DirtinessStatus getDirtinessStatus();
+
+    @Override
+    public boolean tryLock(Transaction lockOwner) {
+        return getAtomicObject().tryLock(lockOwner);
+    }
+
+    @Override
+    public void releaseLock(Transaction expectedLockOwner) {
+        getAtomicObject().releaseLock(expectedLockOwner);
+    }
 }

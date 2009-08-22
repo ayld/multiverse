@@ -1,6 +1,5 @@
 package org.multiverse;
 
-import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.locks.LockManager;
@@ -31,6 +30,11 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
+    public void retry() {
+        throw new RuntimeException();
+    }
+
+    @Override
     public void endOr() {
         throw new RuntimeException();
     }
@@ -51,22 +55,7 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
-    public Tranlocal load(Object item) {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public Tranlocal privatize(Object item) {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public void attachNew(Tranlocal tranlocal) {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public void commit() {
+    public long commit() {
         throw new RuntimeException();
     }
 

@@ -6,6 +6,7 @@ import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.CommitFailureException;
 import org.multiverse.api.exceptions.LoadException;
 import org.multiverse.api.exceptions.RetryError;
+import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -45,6 +46,8 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 public abstract class AtomicTemplate<E> {
     private final Stm stm;
     private final boolean ignoreThreadLocalTransaction;
+    private int retryCount = Integer.MAX_VALUE;
+    private int attemptCount;
 
     /**
      * Creates a new AtomicTemplate that uses the STM stored in the GlobalStm and
@@ -82,6 +85,39 @@ public abstract class AtomicTemplate<E> {
         }
         this.stm = stm;
         this.ignoreThreadLocalTransaction = ignoreThreadLocalTransaction;
+    }
+
+    /**
+     * Returns the current attempt. Value will always be larger than zero and increases
+     * everytime the transaction needs to be retried.
+     *
+     * @return the current attempt count.
+     */
+    public int getAttemptCount() {
+        return attemptCount;
+    }
+
+    /**
+     * Returns the number of retries that this AtomicTemplate is allowed to do. The returned
+     * value will always be equal or larger than 0.
+     *
+     * @return the number of retries.
+     */
+    public int getRetryCount() {
+        return retryCount;
+    }
+
+    /**
+     * Sets the number of retries this AtomicTemplate is allowed to do.
+     *
+     * @param newRetryCount the new retryCount.
+     * @throws IllegalArgumentException if retryCount smaller than 0.
+     */
+    public void setRetryCount(int newRetryCount) {
+        if (newRetryCount < 0) {
+            throw new IllegalArgumentException();
+        }
+        this.retryCount = newRetryCount;
     }
 
     /**
@@ -126,7 +162,8 @@ public abstract class AtomicTemplate<E> {
             t = stm.startUpdateTransaction();
             setTransaction(t);
             try {
-                while (true) {
+                attemptCount = 1;
+                while (attemptCount <= retryCount) {
                     boolean abort = true;
                     try {
                         E result = execute(t);
@@ -147,7 +184,10 @@ public abstract class AtomicTemplate<E> {
                             t.reset();
                         }
                     }
+                    attemptCount++;
                 }
+
+                throw new TooManyRetriesException();
             } finally {
                 setTransaction(null);
             }

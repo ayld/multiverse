@@ -1,6 +1,5 @@
 package org.multiverse.api;
 
-import org.multiverse.api.exceptions.RetryError;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
 /**
@@ -12,9 +11,21 @@ import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransact
 public final class StmUtils {
 
     /**
-     * See {@link org.multiverse.api.Transaction#executePostCommit(Runnable)}
+     * See the {@link Transaction#retry()}
+     */
+    public static void retry() {
+        Transaction t = getThreadLocalTransaction();
+        if (t == null) {
+            throw new RuntimeException("No Transaction available");
+        }
+
+        t.retry();
+    }
+
+    /**
+     * See {@link Transaction#executePostCommit(Runnable)}
      *
-     * @param task  the task to execute postcommit.
+     * @param task the task to execute postcommit.
      */
     public static void executePostCommit(Runnable task) {
         Transaction t = getThreadLocalTransaction();
@@ -25,13 +36,7 @@ public final class StmUtils {
         t.executePostCommit(task);
     }
 
-            
-    public static void retry() {
-        throw RetryError.create();
-    }
-
     //we don't want instances.
     private StmUtils() {
     }
-
 }

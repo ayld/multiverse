@@ -5,10 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.AlphaTransaction;
+import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
@@ -40,7 +40,7 @@ public class AtomicObject_AttachAsNewTest {
         private int field;
 
         public CheckingConstructor() {
-            Transaction t = getThreadLocalTransaction();
+            AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
             assertNotNull(t);
             Tranlocal tranlocal = t.load(this);
             assertNotNull(tranlocal);

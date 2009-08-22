@@ -4,8 +4,8 @@ import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStack;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
@@ -28,13 +28,13 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 public class BrokenSerializedTest {
     private IntStack stack1;
     private IntStack stack2;
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
-        setThreadLocalTransaction(null);
+        stm = new AlphaStm();
         GlobalStmInstance.set(stm);
+        setThreadLocalTransaction(null);
         stack1 = new IntStack();
         stack2 = new IntStack();
     }
@@ -46,8 +46,8 @@ public class BrokenSerializedTest {
 
     @Test
     public void test() {
-        Transaction t1 = stm.startUpdateTransaction();
-        Transaction t2 = stm.startUpdateTransaction();
+        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction();
 
         IntStackTranlocal t1Stack1 = (IntStackTranlocal) t1.privatize(stack1);
         IntStackTranlocal t1Stack2 = (IntStackTranlocal) t1.privatize(stack2);

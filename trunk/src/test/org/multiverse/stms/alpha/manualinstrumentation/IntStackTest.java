@@ -4,12 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.AlphaTransaction;
+import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-import org.multiverse.stms.alpha.AlphaStm;
 
 public class IntStackTest {
     private Stm stm;
@@ -31,7 +32,7 @@ public class IntStackTest {
     public void testNewStackIsDirtyByDefault() {
         Transaction t = startTransaction();
         IntStack intStack = new IntStack();
-        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.privatize(intStack);
+        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) ((AlphaTransaction) t).privatize(intStack);
         assertEquals(DirtinessStatus.fresh, tranlocalIntStack.getDirtinessStatus());
     }
 
@@ -40,7 +41,7 @@ public class IntStackTest {
         IntStack intStack = new IntStack();
 
         Transaction t = startTransaction();
-        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.privatize(intStack);
+        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) ((AlphaTransaction) t).privatize(intStack);
         assertEquals(DirtinessStatus.clean, tranlocalIntStack.getDirtinessStatus());
     }
 
@@ -50,7 +51,7 @@ public class IntStackTest {
 
         Transaction t = startTransaction();
         intStack.push(1);
-        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.privatize(intStack);
+        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) ((AlphaTransaction) t).privatize(intStack);
 
         assertEquals(DirtinessStatus.dirty, tranlocalIntStack.getDirtinessStatus());
     }

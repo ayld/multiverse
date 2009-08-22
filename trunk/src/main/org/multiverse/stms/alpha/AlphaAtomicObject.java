@@ -49,7 +49,7 @@ public interface AlphaAtomicObject {
      * @param lockOwner the owner of the lock.
      * @return true if the lock was acquired, false otherwise.
      */
-    boolean acquireLock(Transaction lockOwner);
+    boolean tryLock(Transaction lockOwner);
 
     /**
      * Releases the lock. The lock is only released if the current lockowner is equal to the expected
@@ -90,7 +90,7 @@ public interface AlphaAtomicObject {
      * @throws org.multiverse.api.exceptions.LoadException
      *
      */
-    boolean validate(long readVersion);
+    boolean ensureConflictFree(long readVersion);
 
     /**
      * Returns the current owner of the lock, or null if AtomicObject is not locked.

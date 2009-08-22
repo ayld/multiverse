@@ -6,20 +6,20 @@ package org.multiverse.api.exceptions;
  *
  * @author Peter Veentjer
  */
-public class FailedToResetException extends StmException {
+public class ResetFailureException extends StmException {
 
-    public FailedToResetException() {
+    public ResetFailureException() {
     }
 
-    public FailedToResetException(Throwable cause) {
+    public ResetFailureException(Throwable cause) {
         super(cause);
     }
 
-    public FailedToResetException(String message) {
+    public ResetFailureException(String message) {
         super(message);
     }
 
-    public FailedToResetException(String message, Throwable cause) {
+    public ResetFailureException(String message, Throwable cause) {
         super(message, cause);
     }
 }

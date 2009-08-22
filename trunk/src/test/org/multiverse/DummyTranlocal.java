@@ -1,5 +1,6 @@
 package org.multiverse;
 
+import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.TranlocalSnapshot;
@@ -22,7 +23,7 @@ public class DummyTranlocal extends Tranlocal {
     }
 
     @Override
-    public Object getAtomicObject() {
+    public AlphaAtomicObject getAtomicObject() {
         throw new RuntimeException();
     }
 }

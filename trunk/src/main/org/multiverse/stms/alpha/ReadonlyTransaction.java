@@ -1,14 +1,13 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.api.exceptions.FailedToResetException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.api.locks.DeactivatedLockManager;
 import org.multiverse.api.locks.LockManager;
+import org.multiverse.utils.TodoException;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-final class ReadonlyTransaction implements Transaction {
+final class ReadonlyTransaction implements AlphaTransaction {
     private final AlphaStmStatistics statistics;
     private final AtomicLong clock;
 
@@ -53,7 +52,7 @@ final class ReadonlyTransaction implements Transaction {
 
     private void init() {
         if (clock == null) {
-            throw new FailedToResetException("Can't reset a flashback query");
+            throw new ResetFailureException("Can't reset a flashback query");
         }
 
         status = TransactionStatus.active;
@@ -64,10 +63,15 @@ final class ReadonlyTransaction implements Transaction {
     }
 
     @Override
+    public void retry() {
+        throw new TodoException();
+    }
+
+    @Override
     public void reset() {
         switch (status) {
             case active:
-                throw new FailedToResetException();
+                throw new ResetFailureException();
             case aborted:
                 init();
                 break;
@@ -100,7 +104,7 @@ final class ReadonlyTransaction implements Transaction {
                 //todo: the load method.
                 Tranlocal result = atomicObject.load(readVersion);
                 if (result == null) {
-                    throw new LoadUncommittedAtomicObjectException();
+                    throw new LoadUncommittedException();
                 }
                 return result;
             case committed:

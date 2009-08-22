@@ -4,12 +4,12 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.*;
 import org.multiverse.DummyTranlocal;
-import org.multiverse.stms.alpha.AlphaStm;
-import org.multiverse.stms.alpha.Tranlocal;
+import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.*;
+import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
+import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
@@ -30,14 +30,14 @@ public class ReadonlyTransactionTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
 
-    public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction();
+    public AlphaTransaction startReadonlyTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
@@ -69,7 +69,7 @@ public class ReadonlyTransactionTest {
 
     @Test
     public void readNullReturnsNull() {
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
         Tranlocal result = t.load(null);
         assertNull(result);
     }
@@ -78,12 +78,12 @@ public class ReadonlyTransactionTest {
     public void readNonCommitted() {
         IntRef value = IntRef.createUncommitted();
 
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
 
         try {
             t.load(value);
             fail();
-        } catch (LoadUncommittedAtomicObjectException ex) {
+        } catch (LoadUncommittedException ex) {
         }
 
         assertIsActive(t);
@@ -95,7 +95,7 @@ public class ReadonlyTransactionTest {
 
         IntRefTranlocal expected = (IntRefTranlocal) value.load(stm.getClockVersion());
 
-        Transaction t2 = startReadonlyTransaction();
+        AlphaTransaction t2 = startReadonlyTransaction();
         IntRefTranlocal found = (IntRefTranlocal) t2.load(value);
         assertSame(expected, found);
     }
@@ -104,8 +104,8 @@ public class ReadonlyTransactionTest {
     public void readDoesNotObserveChangesMadeByOtherTransactions() {
         IntRef value = new IntRef(0);
 
-        Transaction readonlyTransaction = stm.startReadOnlyTransaction();
-        Transaction updateTransaction = stm.startUpdateTransaction();
+        AlphaTransaction readonlyTransaction = (AlphaTransaction) stm.startReadOnlyTransaction();
+        AlphaTransaction updateTransaction = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal tranlocal = (IntRefTranlocal) updateTransaction.privatize(value);
         tranlocal.inc();
 
@@ -117,7 +117,7 @@ public class ReadonlyTransactionTest {
     public void readOnCommittedTransactionFails() {
         IntRef value = new IntRef(10);
 
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
         t.commit();
 
         try {
@@ -134,7 +134,7 @@ public class ReadonlyTransactionTest {
     public void readOnAbortedTransactionFails() {
         IntRef value = new IntRef(10);
 
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
         t.abort();
 
         try {
@@ -151,7 +151,7 @@ public class ReadonlyTransactionTest {
 
     @Test
     public void readPrivatizedOnStartedTransactionFails() {
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
 
         try {
             t.privatize(new IntRef(1));
@@ -164,7 +164,7 @@ public class ReadonlyTransactionTest {
 
     @Test
     public void readPrivatizedOnCommittedTransactionFails() {
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
         t.commit();
 
         try {
@@ -178,7 +178,7 @@ public class ReadonlyTransactionTest {
 
     @Test
     public void readPrivatizedOnAbortedTransactionFails() {
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
         t.abort();
 
         try {
@@ -194,7 +194,7 @@ public class ReadonlyTransactionTest {
 
     @Test
     public void attachAsNewOnStartedTransactionShouldFail() {
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
 
         try {
             t.attachNew(new DummyTranlocal());
@@ -207,7 +207,7 @@ public class ReadonlyTransactionTest {
 
     @Test
     public void attachAsNewOnCommittedTransactionShouldFail() {
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
         t.commit();
 
         try {
@@ -221,7 +221,7 @@ public class ReadonlyTransactionTest {
 
     @Test
     public void attachAsNewOnAbortedTransactionShouldFail() {
-        Transaction t = startReadonlyTransaction();
+        AlphaTransaction t = startReadonlyTransaction();
         t.abort();
 
         try {

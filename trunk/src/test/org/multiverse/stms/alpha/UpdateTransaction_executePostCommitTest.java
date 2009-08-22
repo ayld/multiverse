@@ -21,8 +21,9 @@ public class UpdateTransaction_executePostCommitTest {
 
     @Before
     public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
-        stm = GlobalStmInstance.get();
     }
 
     @After
@@ -37,7 +38,7 @@ public class UpdateTransaction_executePostCommitTest {
     }
 
     @Test
-    public void onTransactionAbortPostCommitTasksAreNotExecuted(){
+    public void onTransactionAbortPostCommitTasksAreNotExecuted() {
         TestTask task1 = new TestTask();
         TestTask task2 = new TestTask();
 
@@ -51,7 +52,7 @@ public class UpdateTransaction_executePostCommitTest {
         t.abort();
 
         assertEquals(0, task1.executionCount);
-        assertEquals(0, task2.executionCount);                                                
+        assertEquals(0, task2.executionCount);
     }
 
     @Test

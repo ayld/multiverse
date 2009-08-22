@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.integrationtests;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
@@ -32,11 +32,11 @@ public class ReadersDontBlockWritersTest {
 
     @Test
     public void testWriteWrite() {
-        Transaction readTransaction = stm.startUpdateTransaction();
+        AlphaTransaction readTransaction = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal r1 = (IntRefTranlocal) readTransaction.privatize(intValue);
         r1.get();
 
-        Transaction writeTransaction = stm.startUpdateTransaction();
+        AlphaTransaction writeTransaction = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.privatize(intValue);
         writtenValue.inc();
         writeTransaction.commit();

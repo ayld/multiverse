@@ -1,14 +1,14 @@
 package org.multiverse.stms.alpha.mixins;
 
-import org.multiverse.utils.latches.Latch;
-import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.FailedToLoadOldVersionException;
+import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
-import org.multiverse.utils.TodoException;
-import org.multiverse.stms.alpha.AlphaStmDebugConstants;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaStmDebugConstants;
+import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.utils.Listeners;
+import org.multiverse.utils.TodoException;
+import org.multiverse.utils.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicReference;
@@ -60,18 +60,18 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
 
         if (currentState.writeLockOwner != null) {
             //todo: this is not a snapshot to old error, but will do for now.
-            throw FailedToLoadOldVersionException.INSTANCE;
+            throw LoadTooOldVersionException.INSTANCE;
         }
 
         if (currentState.tranlocal.version > readVersion) {
-            throw FailedToLoadOldVersionException.INSTANCE;
+            throw LoadTooOldVersionException.INSTANCE;
         }
 
         return currentState.tranlocal;
     }
 
     @Override
-    public boolean validate(long readVersion) {
+    public boolean ensureConflictFree(long readVersion) {
         State currentState = stateRef.get();
         return currentState.tranlocal == null || currentState.tranlocal.version <= readVersion;
     }
@@ -82,7 +82,7 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
     }
 
     @Override
-    public boolean acquireLock(Transaction lockOwner) {
+    public boolean tryLock(Transaction lockOwner) {
         boolean success;
         do {
             State currentState = stateRef.get();
