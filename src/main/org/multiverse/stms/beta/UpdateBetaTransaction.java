@@ -1,18 +1,13 @@
 package org.multiverse.stms.beta;
 
-import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.FailedToObtainLocksException;
 import org.multiverse.api.exceptions.PanicError;
-import org.multiverse.api.exceptions.ResetFailureException;
-import org.multiverse.api.locks.LockManager;
-import org.multiverse.utils.TodoException;
+import org.multiverse.stms.AbstractTransaction;
 import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
 import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.releaseLocks;
 
 import java.util.IdentityHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,26 +16,21 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-public final class UpdateBetaTransaction implements BetaTransaction {
-    private final AtomicLong clock;
-    private final AtomicObjectLockPolicy lockPolicy;
+public final class UpdateBetaTransaction extends AbstractTransaction implements BetaTransaction {
 
-    private long readVersion;
-    private TransactionStatus status;
-    private List<Runnable> postCommitTasks;
     private Map<BetaRef, BetaRefTranlocal> privatized = new IdentityHashMap<BetaRef, BetaRefTranlocal>(2);
 
     public UpdateBetaTransaction(AtomicLong clock, AtomicObjectLockPolicy lockPolicy) {
-        this.clock = clock;
-        this.lockPolicy = lockPolicy;
+        super(clock, lockPolicy);
+
         init();
     }
 
-    private void init() {
-        this.status = TransactionStatus.active;
-        this.readVersion = clock.get();
-        this.postCommitTasks = null;
-        this.privatized.clear();
+    @Override
+    protected void onInit() {
+        if (privatized != null) {
+            privatized.clear();
+        }
     }
 
     @Override
@@ -117,55 +107,12 @@ public final class UpdateBetaTransaction implements BetaTransaction {
     }
 
     @Override
-    public long getReadVersion() {
-        return readVersion;
-    }
-
-    @Override
-    public TransactionStatus getStatus() {
-        return status;
-    }
-
-    @Override
-    public long commit() {
-        switch (status) {
-            case active:
-                boolean doAbort = true;
-                try {
-                    long version = doCommit();
-                    doAbort = false;
-                    status = TransactionStatus.committed;
-                    return version;
-                } finally {
-                    if (doAbort) {
-                        doAbort();
-                    } else {
-                        doExecutePostCommitTasks();
-                    }
-                }
-            case committed:
-                //ignore
-                throw new TodoException();
-            case aborted:
-                throw new DeadTransactionException("Can't commit an aborted transaction");
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    private void doExecutePostCommitTasks() {
-        if (postCommitTasks != null) {
-            for (Runnable r : postCommitTasks) {
-                r.run();
-            }
-        }
-    }
-
-    private long doCommit() {
+    protected long onCommit() {
         if (privatized.isEmpty()) {
             return readVersion;
         } else {
             BetaRefTranlocal[] writeSet = acquireAllLocksAndCheckForConflicts();
+
             long commitVersion = clock.incrementAndGet();
             writeAllChanges(writeSet, commitVersion);
             releaseLocks(writeSet, this);
@@ -230,92 +177,7 @@ public final class UpdateBetaTransaction implements BetaTransaction {
     }
 
     @Override
-    public void abort() {
-        switch (status) {
-            case active:
-                doAbort();
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't abort a committed transaction");
-            case aborted:
-                doAbort();
-                break;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    private void doAbort() {
-        postCommitTasks = null;
+    protected void onAbort() {
         privatized.clear();
-        status = TransactionStatus.aborted;
-    }
-
-    @Override
-    public void reset() {
-        switch (status) {
-            case active:
-                throw new ResetFailureException("Can't reset an active transaction");
-            case committed:
-                init();
-                break;
-            case aborted:
-                init();
-                break;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    @Override
-    public void executePostCommit(Runnable task) {
-        switch (status) {
-            case active:
-                if (task == null) {
-                    throw new NullPointerException();
-                }
-
-                if (postCommitTasks == null) {
-                    postCommitTasks = new LinkedList<Runnable>();
-                }
-                postCommitTasks.add(task);
-                break;
-            case committed:
-                throw new DeadTransactionException("Can't executePostCommit on a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't executePostCommit on an aborted transaction");
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    @Override
-    public void retry() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void abortAndRetry() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void startOr() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void endOr() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void endOrAndStartElse() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public LockManager getLockManager() {
-        throw new UnsupportedOperationException();
     }
 }

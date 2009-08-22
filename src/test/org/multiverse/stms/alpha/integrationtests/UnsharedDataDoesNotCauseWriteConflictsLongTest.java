@@ -19,7 +19,7 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
     private AlphaStm stm;
     private IntRef[] values;
     private int threadCount = 4;// * Runtime.getRuntime().availableProcessors();
-    private int updateCountPerThread = 20000000;
+    private int updateCountPerThread = 2 * 1000 * 1000;
 
     @Before
     public void setUp() {
