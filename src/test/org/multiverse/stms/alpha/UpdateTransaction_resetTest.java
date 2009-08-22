@@ -6,8 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.FailedToResetException;
+import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
+import org.multiverse.utils.GlobalStmInstance;
 
 /**
  * @author Peter Veentjer
@@ -18,6 +19,7 @@ public class UpdateTransaction_resetTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
     }
 
     @Test
@@ -26,7 +28,7 @@ public class UpdateTransaction_resetTest {
         try {
             t.reset();
             fail();
-        } catch (FailedToResetException ex) {
+        } catch (ResetFailureException ex) {
         }
 
         assertIsActive(t);

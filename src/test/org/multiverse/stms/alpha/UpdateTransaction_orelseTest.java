@@ -21,8 +21,8 @@ public class UpdateTransaction_orelseTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
@@ -65,7 +65,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void rollbackScenario() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
         IntRef atomicObject = new IntRef(0);
         IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(atomicObject);
 

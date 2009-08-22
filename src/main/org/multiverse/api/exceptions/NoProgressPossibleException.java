@@ -5,7 +5,7 @@ package org.multiverse.api.exceptions;
  * progress.
  * <p/>
  * No reason to create a singleton for performance reasons since this exception should not
- * occur. So it it does, we want a complete stacktrace.
+ * occur. So if it does, we want a complete stacktrace.
  *
  * @author Peter Veentjer.
  */

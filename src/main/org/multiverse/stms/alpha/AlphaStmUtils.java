@@ -1,6 +1,5 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.api.Transaction;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
 /**
@@ -25,7 +24,7 @@ public final class AlphaStmUtils {
      * @param object
      */
     public static void attachAsNew(Tranlocal object) {
-        Transaction t = getThreadLocalTransaction();
+        AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
         }
@@ -43,7 +42,7 @@ public final class AlphaStmUtils {
      * @return
      */
     public static Tranlocal privatize(Object object) {
-        Transaction t = getThreadLocalTransaction();
+        AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
         }

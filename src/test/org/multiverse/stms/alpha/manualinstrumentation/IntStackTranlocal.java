@@ -1,11 +1,12 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
+import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.TranlocalSnapshot;
-import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal.IntNode;
-import static org.multiverse.api.StmUtils.retry;
 
 public final class IntStackTranlocal extends Tranlocal {
 
@@ -27,7 +28,7 @@ public final class IntStackTranlocal extends Tranlocal {
     }
 
     @Override
-    public Object getAtomicObject() {
+    public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
     }
 
@@ -92,7 +93,7 @@ public final class IntStackTranlocal extends Tranlocal {
         } else if (origin == null) {
             return DirtinessStatus.fresh;
         } else if (origin.head != this.head) {
-             return DirtinessStatus.dirty;
+            return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
         }

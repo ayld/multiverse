@@ -3,12 +3,9 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaStmUtils;
-import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 import org.multiverse.utils.TodoException;
@@ -23,7 +20,7 @@ final public class LinkedList<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                t.attachNew(new LinkedListTranlocal(LinkedList.this));
+                ((AlphaTransaction) t).attachNew(new LinkedListTranlocal(LinkedList.this));
                 return null;
             }
         }.execute();
@@ -108,7 +105,7 @@ final public class LinkedList<E> extends FastAtomicObjectMixin {
     public LinkedListTranlocal<E> privatize(long readVersion) {
         LinkedListTranlocal<E> origin = (LinkedListTranlocal<E>) load(readVersion);
         if (origin == null) {
-            throw new LoadUncommittedAtomicObjectException();
+            throw new LoadUncommittedException();
         }
         return new LinkedListTranlocal<E>(origin);
     }
@@ -140,7 +137,7 @@ final class LinkedListTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public Object getAtomicObject() {
+    public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
     }
 
@@ -411,7 +408,7 @@ final class LinkedNode<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                t.attachNew(new LinkedNodeTranlocal(LinkedNode.this, value));
+                ((AlphaTransaction) t).attachNew(new LinkedNodeTranlocal(LinkedNode.this, value));
                 return null;
             }
         }.execute();
@@ -420,35 +417,35 @@ final class LinkedNode<E> extends FastAtomicObjectMixin {
     @AtomicMethod
     public void setPrevious(LinkedNode<E> prev) {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) t.privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
         tranlocalThis.setPrevious(prev);
     }
 
     @AtomicMethod
     public void setNext(LinkedNode<E> next) {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) t.privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
         tranlocalThis.setNext(next);
     }
 
     @AtomicMethod
     public LinkedNode<E> getNext() {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) t.privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
         return tranlocalThis.getNext();
     }
 
     @AtomicMethod
     public LinkedNode<E> getPrevious() {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) t.privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
         return tranlocalThis.getPrevious();
     }
 
     @AtomicMethod
     public E getValue() {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) t.privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
         return tranlocalThis.getValue();
     }
 
@@ -484,7 +481,7 @@ final class LinkedNodeTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public Object getAtomicObject() {
+    public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
     }
 

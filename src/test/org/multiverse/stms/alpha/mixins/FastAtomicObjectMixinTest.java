@@ -4,13 +4,10 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.DummyTransaction;
-import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.FailedToLoadOldVersionException;
-import org.multiverse.api.exceptions.LockedException;
-import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.api.exceptions.LoadLockedException;
+import org.multiverse.api.exceptions.LoadTooOldVersionException;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.utils.GlobalStmInstance;
 
@@ -82,7 +79,7 @@ public class FastAtomicObjectMixinTest {
         try {
             intValue.load(version);
             fail();
-        } catch (FailedToLoadOldVersionException ex) {
+        } catch (LoadTooOldVersionException ex) {
         }
     }
 
@@ -95,7 +92,7 @@ public class FastAtomicObjectMixinTest {
         Transaction owner = new DummyTransaction();
         Tranlocal expected = intValue.load(readVersion);
 
-        intValue.acquireLock(owner);
+        intValue.tryLock(owner);
 
         Tranlocal found = intValue.load(readVersion);
         assertSame(expected, found);
@@ -106,14 +103,14 @@ public class FastAtomicObjectMixinTest {
         IntRef intValue = new IntRef(0);
 
         Transaction owner = new DummyTransaction();
-        intValue.acquireLock(owner);
+        intValue.tryLock(owner);
 
         long readVersion = stm.getClockVersion() + 1;
 
         try {
             intValue.load(readVersion);
             fail();
-        } catch (LockedException ex) {
+        } catch (LoadLockedException ex) {
         }
     }
 
@@ -124,12 +121,12 @@ public class FastAtomicObjectMixinTest {
         intValue.inc();
 
         Transaction owner = new DummyTransaction();
-        intValue.acquireLock(owner);
+        intValue.tryLock(owner);
 
         try {
             intValue.load(readVersion);
             fail();
-        } catch (FailedToLoadOldVersionException ex) {
+        } catch (LoadTooOldVersionException ex) {
         }
     }
 
@@ -141,7 +138,7 @@ public class FastAtomicObjectMixinTest {
         Transaction lockOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
 
-        boolean result = object.acquireLock(lockOwner);
+        boolean result = object.tryLock(lockOwner);
         assertTrue(result);
         assertSame(lockOwner, object.getLockOwner());
     }
@@ -156,10 +153,10 @@ public class FastAtomicObjectMixinTest {
         Transaction oldOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
 
-        object.acquireLock(oldOwner);
+        object.tryLock(oldOwner);
 
         Transaction newOwner = new DummyTransaction();
-        boolean result = object.acquireLock(newOwner);
+        boolean result = object.tryLock(newOwner);
         assertFalse(result);
         assertSame(oldOwner, object.getLockOwner());
     }
@@ -170,7 +167,7 @@ public class FastAtomicObjectMixinTest {
     public void releaseOwnedLock() {
         Transaction owner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
-        object.acquireLock(owner);
+        object.tryLock(owner);
 
         object.releaseLock(owner);
         assertNull(object.getLockOwner());
@@ -190,7 +187,7 @@ public class FastAtomicObjectMixinTest {
         Transaction otherOwner = new DummyTransaction();
         Transaction thisOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
-        object.acquireLock(otherOwner);
+        object.tryLock(otherOwner);
 
         object.releaseLock(thisOwner);
         assertSame(otherOwner, object.getLockOwner());
@@ -224,7 +221,7 @@ public class FastAtomicObjectMixinTest {
         }
 
         @Override
-        public Object getAtomicObject() {
+        public AlphaAtomicObject getAtomicObject() {
             throw new RuntimeException();
         }
     }

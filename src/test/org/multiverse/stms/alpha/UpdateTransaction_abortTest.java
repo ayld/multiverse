@@ -6,8 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.TestUtils.assertIsCommitted;
-import org.multiverse.api.Stm;
-import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
@@ -18,12 +16,13 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  * @author Peter Veentjer
  */
 public class UpdateTransaction_abortTest {
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
-        stm = GlobalStmInstance.get();
     }
 
     @After

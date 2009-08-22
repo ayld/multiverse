@@ -2,13 +2,13 @@
 todo engine
 ---------------------------------------------------------------
 
+- the lock manager has reference to alpha package (translocal)
+
 - de integration package die heeft verwijzingen naar de alpha package
 
+- exceptions in the exception package zijn afhankelijk van de alpha package
+
 - flashback transactions test
-
-- exceptions in the exception package zijn afhankelijk van de standard package
-
-- the Transaction interface contains load/privatize methods which are implementation specific.
 
 - RetrySpinningWriteSetLockPolicy
 
@@ -26,6 +26,8 @@ todo engine
 
 - move the benchmarks to this project
     - depends on instrumentation
+
+- build maken waarin de revisie nummer verwerkt zit.
 
 ---------------------------------------------------------------
 todo instrumentation
@@ -117,6 +119,8 @@ todo features
 ---------------------------------------------------------------
 idea:
 ---------------------------------------------------------------
+
+- a ref stm that is completely optimized for refs without notification support.
 
 - instead of using the StmUtils.privatize, generate the code inline
 
@@ -213,7 +217,7 @@ done
 
 - constructors en atomic kunnen niet goed omgaan met  super calls
 
-- the automic template ignorethreadlocaltransaction is activated again.
+- the atomic template ignorethreadlocaltransaction is activated again.
 
 - what happens when a throwable is thrown while executing the orelse template. if the throwable
 is caught, it leaves the transaction in an inconsistent state.
@@ -236,3 +240,6 @@ is caught, it leaves the transaction in an inconsistent state.
     + documentatie
     + unit tests
 
+- the Transaction interface contains load/privatize methods which are implementation specific.
+
+- added a retry limit on the AtomicTemplate.

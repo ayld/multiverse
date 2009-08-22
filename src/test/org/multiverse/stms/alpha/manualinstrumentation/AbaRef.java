@@ -1,11 +1,9 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -22,7 +20,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                t.attachNew(new AbaRefTranlocal(AbaRef.this));
+                ((AlphaTransaction) t).attachNew(new AbaRefTranlocal(AbaRef.this));
                 return null;
             }
         }.execute();
@@ -32,7 +30,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                t.attachNew(new AbaRefTranlocal(AbaRef.this, value));
+                ((AlphaTransaction) t).attachNew(new AbaRefTranlocal(AbaRef.this, value));
                 return null;
             }
         }.execute();
@@ -42,7 +40,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) throws Exception {
-                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) t.privatize(AbaRef.this);
+                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).privatize(AbaRef.this);
                 return tranlocal.get();
             }
         }.execute();
@@ -52,7 +50,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) throws Exception {
-                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) t.privatize(AbaRef.this);
+                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).privatize(AbaRef.this);
                 tranlocal.set(newValue);
                 return null;
             }
@@ -63,7 +61,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<Boolean>() {
             @Override
             public Boolean execute(Transaction t) throws Exception {
-                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) t.privatize(AbaRef.this);
+                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).privatize(AbaRef.this);
                 return tranlocal.isNull();
             }
         }.execute();
@@ -73,7 +71,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) throws Exception {
-                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) t.privatize(AbaRef.this);
+                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).privatize(AbaRef.this);
                 tranlocal.clear();
                 return null;
             }
@@ -84,7 +82,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
     public AbaRefTranlocal<E> privatize(long readVersion) {
         AbaRefTranlocal<E> origin = (AbaRefTranlocal) load(readVersion);
         if (origin == null) {
-            throw new LoadUncommittedAtomicObjectException();
+            throw new LoadUncommittedException();
         }
         return new AbaRefTranlocal(origin);
     }
@@ -116,7 +114,7 @@ class AbaRefTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public Object getAtomicObject() {
+    public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
     }
 

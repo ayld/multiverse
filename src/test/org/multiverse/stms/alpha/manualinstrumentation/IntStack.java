@@ -1,7 +1,8 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
+import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
@@ -12,7 +13,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                t.attachNew(new IntStackTranlocal(IntStack.this));
+                ((AlphaTransaction) t).attachNew(new IntStackTranlocal(IntStack.this));
                 return null;
             }
         }.execute();
@@ -22,7 +23,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) t.privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
                 return tranlocal.size();
             }
         }.execute();
@@ -32,7 +33,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         return new AtomicTemplate<Boolean>() {
             @Override
             public Boolean execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) t.privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
                 return tranlocal.isEmpty();
             }
         }.execute();
@@ -42,14 +43,14 @@ public final class IntStack extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) t.privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
                 return tranlocal.pop();
             }
         }.execute();
     }
 
     public int pop(Transaction t) {
-        IntStackTranlocal tranlocalThis = (IntStackTranlocal) t.privatize(IntStack.this);
+        IntStackTranlocal tranlocalThis = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
         return tranlocalThis.pop();
     }
 
@@ -57,7 +58,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) t.privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
                 tranlocal.push(value);
                 return null;
             }
@@ -65,7 +66,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     public void push(Transaction t, final int value) {
-        IntStackTranlocal tranlocalThis = (IntStackTranlocal) t.privatize(this);
+        IntStackTranlocal tranlocalThis = (IntStackTranlocal) ((AlphaTransaction) t).privatize(this);
         tranlocalThis.push(value);
     }
 
@@ -73,7 +74,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     public Tranlocal privatize(long version) {
         IntStackTranlocal origin = (IntStackTranlocal) load(version);
         if (origin == null) {
-            throw new LoadUncommittedAtomicObjectException();
+            throw new LoadUncommittedException();
         }
         return new IntStackTranlocal(origin);
     }

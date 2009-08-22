@@ -3,11 +3,9 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
@@ -22,7 +20,7 @@ public class LongRef extends FastAtomicObjectMixin {
             @Override
             public Object execute(Transaction t) {
                 LongRefTranlocal tranlocalThis = new LongRefTranlocal(LongRef.this, value);
-                t.attachNew(tranlocalThis);
+                ((AlphaTransaction) t).attachNew(tranlocalThis);
                 return null;
             }
         }.execute();
@@ -31,35 +29,35 @@ public class LongRef extends FastAtomicObjectMixin {
     @AtomicMethod
     public void await(long expectedValue) {
         Transaction t = getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) ((AlphaTransaction) t).privatize(LongRef.this);
         tranlocalThis.await(expectedValue);
     }
 
     @AtomicMethod
     public void set(final long value) {
         Transaction t = getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) ((AlphaTransaction) t).privatize(LongRef.this);
         tranlocalThis.set(value);
     }
 
     @AtomicMethod
     public long get() {
         Transaction t = getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) ((AlphaTransaction) t).privatize(LongRef.this);
         return tranlocalThis.get();
     }
 
     @AtomicMethod
     public void inc() {
         Transaction t = getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) ((AlphaTransaction) t).privatize(LongRef.this);
         tranlocalThis.inc();
     }
 
     @AtomicMethod
     public void dec() {
         Transaction t = getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) ((AlphaTransaction) t).privatize(LongRef.this);
         tranlocalThis.dec();
 
     }
@@ -67,7 +65,7 @@ public class LongRef extends FastAtomicObjectMixin {
     @AtomicMethod
     public LongRef add(LongRef ref) {
         Transaction t = getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) ((AlphaTransaction) t).privatize(LongRef.this);
         return tranlocalThis.add(ref);
     }
 
@@ -75,7 +73,7 @@ public class LongRef extends FastAtomicObjectMixin {
     public LongRefTranlocal privatize(long version) {
         LongRefTranlocal origin = (LongRefTranlocal) load(version);
         if (origin == null) {
-            throw new LoadUncommittedAtomicObjectException();
+            throw new LoadUncommittedException();
         }
         return new LongRefTranlocal(origin);
     }
@@ -102,7 +100,7 @@ class LongRefTranlocal extends Tranlocal {
     }
 
     @Override
-    public Object getAtomicObject() {
+    public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
     }
 

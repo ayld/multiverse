@@ -1,12 +1,12 @@
 package org.multiverse.stms.alpha.mixins;
 
-import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.FailedToLoadOldVersionException;
-import org.multiverse.api.exceptions.LockedException;
+import org.multiverse.api.exceptions.LoadLockedException;
+import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStmDebugConstants;
+import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.utils.Listeners;
 import org.multiverse.utils.latches.Latch;
 
@@ -61,14 +61,14 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
         } else if (tranlocalT1.version > readVersion) {
             //the current tranlocal it too new to return, so we fail. In the future this would
             //be the location to search for tranlocal with the correct version.
-            throw FailedToLoadOldVersionException.create();
+            throw LoadTooOldVersionException.create();
         } else {
             Transaction lockOwner = lockOwnerUpdater.get(this);
 
             if (lockOwner != null) {
                 //todo: this would be the location for spinning. As long as the lock is there,
                 //we are not sure
-                throw LockedException.create();
+                throw LoadLockedException.create();
             }
 
             Tranlocal tranlocalT2 = tranlocalUpdater.get(this);
@@ -83,7 +83,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
                 //we were not able to find the version we are looking for. It could be tranlocalT1
                 //or tranlocalT2 but it could also have been a write we didn't notice. So lets
                 //fails to indicate that we didn't find it.
-                throw FailedToLoadOldVersionException.create();
+                throw LoadTooOldVersionException.create();
             } else {
                 //the tranlocal has not changed and it was unlocked. This means that we read
                 //an old version that we can use.
@@ -98,7 +98,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
     }
 
     @Override
-    public final boolean acquireLock(Transaction lockOwner) {
+    public final boolean tryLock(Transaction lockOwner) {
         return lockOwnerUpdater.compareAndSet(this, null, lockOwner);
     }
 
@@ -229,7 +229,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
     }
 
     @Override
-    public final boolean validate(long readVersion) {
+    public final boolean ensureConflictFree(long readVersion) {
         //since the lock is acquired....  is this really true? What about the readset? For the writeset
         //this is true.
 

@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.DummyTranlocal;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.PanicError;
@@ -19,26 +18,27 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  * @author Peter Veentjer
  */
 public class UpdateTransaction_attachNewTest {
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
     }
 
-    public void tearDown(){
+    public void tearDown() {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
 
-    public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction();
+    public AlphaTransaction startReadonlyTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
@@ -50,7 +50,7 @@ public class UpdateTransaction_attachNewTest {
         IntRefTranlocal tranlocal = new IntRefTranlocal(atomicObject, 0);
 
         long version = stm.getClockVersion();
-        t.attachNew(tranlocal);
+        ((AlphaTransaction) t).attachNew(tranlocal);
 
         assertIsActive(t);
         assertEquals(version, stm.getClockVersion());
@@ -63,7 +63,7 @@ public class UpdateTransaction_attachNewTest {
         IntRef ref = new IntRef(10);
         IntRefTranlocal committedTranlocal = (IntRefTranlocal) ref.load(stm.getClockVersion());
 
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
 
         long version = stm.getClockVersion();
 
@@ -80,11 +80,11 @@ public class UpdateTransaction_attachNewTest {
 
     @Test
     public void attachNewCommittedObject() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal x = intValue.privatize(stm.getClockVersion());
         t2.attachNew(x);
 
@@ -93,11 +93,11 @@ public class UpdateTransaction_attachNewTest {
 
     @Test
     public void attachNewAlreadyAttached() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef value = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal x = value.privatize(stm.getClockVersion());
         t2.attachNew(x);
         t2.attachNew(x);
@@ -107,11 +107,11 @@ public class UpdateTransaction_attachNewTest {
 
     @Test
     public void attachNewReadPrivatizedValue() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef value = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal tranlocalValue = (IntRefTranlocal) t2.privatize(value);
         t2.attachNew(tranlocalValue);
 
@@ -120,7 +120,7 @@ public class UpdateTransaction_attachNewTest {
 
     @Test
     public void attachNewWithNullArgumentFails() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
         try {
             t.attachNew(null);
             fail();
@@ -132,7 +132,7 @@ public class UpdateTransaction_attachNewTest {
 
     @Test
     public void attachNewOnAbortedTransactionFails() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
         t.abort();
 
         try {
@@ -146,7 +146,7 @@ public class UpdateTransaction_attachNewTest {
 
     @Test
     public void attachNewOnCommittedTransactionFails() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
         t.commit();
 
         try {

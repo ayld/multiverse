@@ -2,8 +2,8 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
-import org.multiverse.stms.alpha.writeset.FailFastWriteSetLockPolicy;
-import org.multiverse.stms.alpha.writeset.WriteSetLockPolicy;
+import org.multiverse.utils.writeset.AtomicObjectLockPolicy;
+import org.multiverse.utils.writeset.FailFastAtomicObjectLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -20,6 +20,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * }
  * </pre>
  * So if you are not using the statistics, you don't need to pay for it.
+ * <p/>
+ * The logging can be completely removed by the JIT if the loggingPossible flag is set to false.
+ * No additional checks are done.. so you don't need to pay the price for it if you don't use it.
  *
  * @author Peter Veentjer.
  */
@@ -29,24 +32,27 @@ public final class AlphaStm implements Stm {
 
     private final AlphaStmStatistics statistics;
 
-    private volatile WriteSetLockPolicy writeSetLockPolicy = new FailFastWriteSetLockPolicy();
+    private volatile AtomicObjectLockPolicy writeSetLockPolicy = new FailFastAtomicObjectLockPolicy();
+
+    private final boolean loggingPossible;
 
     /**
-     * Creates a new TL2Stm that keeps track of statistics.
+     * Creates a new TL2Stm that keeps track of statistics and where logging is possible.
      */
     public AlphaStm() {
-        this(new AlphaStmStatistics());
+        this(new AlphaStmStatistics(), true);
     }
 
     /**
      * Creates a new TL2Stm with the given statistics. If no statistics is given, the JIT is able
-     * to remove all calls to this statistics, so we don't need to pay to price if we don't use it.
+     * to remove all calls to the statistics, so we don't need to pay to price if we don't use it.
      * It also means that the value can't be changed after construction.
      *
      * @param statistics the TL2StmStatistics to use, or null of none should be used.
      */
-    public AlphaStm(AlphaStmStatistics statistics) {
+    public AlphaStm(AlphaStmStatistics statistics, boolean loggingPossible) {
         this.statistics = statistics;
+        this.loggingPossible = loggingPossible;
     }
 
     /**
@@ -54,7 +60,7 @@ public final class AlphaStm implements Stm {
      *
      * @return the current WriteSetLockPolicy.
      */
-    public WriteSetLockPolicy getAcquireLocksPolicy() {
+    public AtomicObjectLockPolicy getAcquireLocksPolicy() {
         return writeSetLockPolicy;
     }
 
@@ -64,7 +70,7 @@ public final class AlphaStm implements Stm {
      * @param newWriteSetLockPolicy the new WriteSetLockPolicy.
      * @throws NullPointerException if newWriteSetLockPolicy is null.
      */
-    public void setAcquireLocksPolicy(WriteSetLockPolicy newWriteSetLockPolicy) {
+    public void setAcquireLocksPolicy(AtomicObjectLockPolicy newWriteSetLockPolicy) {
         if (newWriteSetLockPolicy == null) {
             throw new NullPointerException();
         }
@@ -82,7 +88,11 @@ public final class AlphaStm implements Stm {
 
     @Override
     public Transaction startUpdateTransaction() {
-        return new UpdateTransaction(statistics, clock, writeSetLockPolicy);
+        if (loggingPossible) {
+            return new LoggingUpdateTransaction(statistics, clock, writeSetLockPolicy);
+        } else {
+            return new UpdateTransaction(statistics, clock, writeSetLockPolicy);
+        }
     }
 
     @Override

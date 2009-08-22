@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.Tranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
@@ -253,9 +253,9 @@ public class AtomicObjectTransformer implements Opcodes {
         m.visitInsn(DUP);
         Label notNull = new Label();
         m.visitJumpInsn(IFNONNULL, notNull);
-        m.visitTypeInsn(NEW, getInternalName(LoadUncommittedAtomicObjectException.class));
+        m.visitTypeInsn(NEW, getInternalName(LoadUncommittedException.class));
         m.visitInsn(DUP);
-        m.visitMethodInsn(INVOKESPECIAL, getInternalName(LoadUncommittedAtomicObjectException.class), "<init>", "()V");
+        m.visitMethodInsn(INVOKESPECIAL, getInternalName(LoadUncommittedException.class), "<init>", "()V");
         m.visitInsn(ATHROW);
 
         m.visitLabel(notNull);

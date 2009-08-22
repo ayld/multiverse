@@ -1,15 +1,15 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.api.*;
+import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.*;
 import org.multiverse.api.locks.LockManager;
 import org.multiverse.api.locks.LockStatus;
 import org.multiverse.api.locks.StmLock;
-import org.multiverse.stms.alpha.writeset.WriteSet;
-import org.multiverse.stms.alpha.writeset.WriteSetLockPolicy;
 import org.multiverse.utils.TodoException;
 import org.multiverse.utils.latches.CheapLatch;
 import org.multiverse.utils.latches.Latch;
+import org.multiverse.utils.writeset.AtomicObjectLockPolicy;
+import static org.multiverse.utils.writeset.AtomicObjectLockUtils.releaseLocks;
 
 import static java.lang.String.format;
 import java.util.IdentityHashMap;
@@ -32,21 +32,21 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-final class UpdateTransaction implements Transaction, LockManager {
+public class UpdateTransaction implements AlphaTransaction, LockManager {
 
     private long readVersion;
     private TransactionStatus status;
 
     //the attached set contains the Translocals loaded and attached.
-    private Map<AlphaAtomicObject, Tranlocal<AlphaAtomicObject>> attached = new IdentityHashMap(2);
+    private Map<AlphaAtomicObject, Tranlocal> attached = new IdentityHashMap(2);
 
     private final AtomicLong clock;
     private final AlphaStmStatistics statistics;
     private SnapshotStack snapshotStack;
-    private WriteSetLockPolicy writeSetLockPolicy;
+    private AtomicObjectLockPolicy writeSetLockPolicy;
     private List<Runnable> postCommitTasks;
 
-    public UpdateTransaction(AlphaStmStatistics statistics, AtomicLong clock, WriteSetLockPolicy writeSetLockPolicy) {
+    public UpdateTransaction(AlphaStmStatistics statistics, AtomicLong clock, AtomicObjectLockPolicy writeSetLockPolicy) {
         this.statistics = statistics;
         this.clock = clock;
         this.writeSetLockPolicy = writeSetLockPolicy;
@@ -87,11 +87,11 @@ final class UpdateTransaction implements Transaction, LockManager {
         }
     }
 
-    public WriteSetLockPolicy getAcquireLocksPolicy() {
+    public AtomicObjectLockPolicy getAcquireLocksPolicy() {
         return writeSetLockPolicy;
     }
 
-    public void setAcquireLocksPolicy(WriteSetLockPolicy writeSetLockPolicy) {
+    public void setAcquireLocksPolicy(AtomicObjectLockPolicy writeSetLockPolicy) {
         this.writeSetLockPolicy = writeSetLockPolicy;
     }
 
@@ -104,13 +104,27 @@ final class UpdateTransaction implements Transaction, LockManager {
     public void reset() {
         switch (status) {
             case active:
-                throw new FailedToResetException("Can't reset an active transaction, abort or commit first");
+                throw new ResetFailureException("Can't reset an active transaction, abort or commit first");
             case committed:
                 init();
                 break;
             case aborted:
                 init();
                 break;
+            default:
+                throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public void retry() {
+        switch (status) {
+            case active:
+                throw RetryError.create();
+            case committed:
+                throw new DeadTransactionException("Can't retry a committed transaction");
+            case aborted:
+                throw new DeadTransactionException("Can't retry an aborted transaction");
             default:
                 throw new RuntimeException();
         }
@@ -174,20 +188,20 @@ final class UpdateTransaction implements Transaction, LockManager {
                 if (statistics == null) {
                     Tranlocal loaded = atomicObject.load(readVersion);
                     if (loaded == null) {
-                        throw new LoadUncommittedAtomicObjectException();
+                        throw new LoadUncommittedException();
                     }
                     return loaded;
                 } else {
                     try {
                         Tranlocal loaded = atomicObject.load(readVersion);
                         if (loaded == null) {
-                            throw new LoadUncommittedAtomicObjectException();
+                            throw new LoadUncommittedException();
                         }
                         return loaded;
-                    } catch (FailedToLoadOldVersionException e) {
+                    } catch (LoadTooOldVersionException e) {
                         statistics.incTransactionSnapshotTooOldCount();
                         throw e;
-                    } catch (LockedException e) {
+                    } catch (LoadLockedException e) {
                         //todo
                         statistics.incTransactionSnapshotTooOldCount();
                         throw e;
@@ -211,17 +225,17 @@ final class UpdateTransaction implements Transaction, LockManager {
                 }
 
                 AlphaAtomicObject atomicObject = asAtomicObject(object);
-                Tranlocal<AlphaAtomicObject> tranlocal = attached.get(atomicObject);
+                Tranlocal tranlocal = attached.get(atomicObject);
                 if (tranlocal == null) {
                     if (statistics == null) {
                         tranlocal = atomicObject.privatize(readVersion);
                     } else {
                         try {
                             tranlocal = atomicObject.privatize(readVersion);
-                        } catch (FailedToLoadOldVersionException e) {
+                        } catch (LoadTooOldVersionException e) {
                             statistics.incTransactionSnapshotTooOldCount();
                             throw e;
-                        } catch (LockedException e) {
+                        } catch (LoadLockedException e) {
                             //todo
                             statistics.incTransactionSnapshotTooOldCount();
                             throw e;
@@ -261,16 +275,17 @@ final class UpdateTransaction implements Transaction, LockManager {
     }
 
     @Override
-    public void commit() {
+    public long commit() {
         switch (status) {
             case active:
                 try {
-                    doCommit();
+                    long commitVersion = doCommit();
                     status = TransactionStatus.committed;
                     if (statistics != null) {
                         statistics.incTransactionCommittedCount();
                     }
                     executeAfterCommitTasks();
+                    return commitVersion;
                 } finally {
                     if (status != TransactionStatus.committed) {
                         doAbort();
@@ -305,7 +320,7 @@ final class UpdateTransaction implements Transaction, LockManager {
 
     private void doCommit() {
         //System.out.println("starting commit");
-        WriteSet writeSet = createWriteSet();
+        Tranlocal[] writeSet = createWriteSet();
         if (writeSet == null) {
             //if there is nothing to commit, we are done.
             if (statistics != null) {
@@ -317,13 +332,13 @@ final class UpdateTransaction implements Transaction, LockManager {
         boolean success = false;
         try {
             acquireLocks(writeSet);
-            verifyWriteSet(writeSet);
+            ensureConflictFree(writeSet);
             long writeVersion = clock.incrementAndGet();
             writeChanges(writeSet, writeVersion);
             success = true;
         } finally {
             if (!success) {
-                releaseWriteLocks(writeSet);
+                releaseLocks(writeSet, this);
             }
         }
     }
@@ -335,18 +350,24 @@ final class UpdateTransaction implements Transaction, LockManager {
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *          if can be determined that another transaction did a conflicting write.
      */
-    private WriteSet createWriteSet() {
+    private Tranlocal[] createWriteSet() {
         if (attached.isEmpty()) {
             return null;
         }
 
-        WriteSet writeSet = null;
-        for (Tranlocal<AlphaAtomicObject> tranlocal : attached.values()) {
+        Tranlocal[] writeSet = null;
+
+        int k = 0;
+        for (Tranlocal tranlocal : attached.values()) {
             switch (tranlocal.getDirtinessStatus()) {
                 case fresh:
                     //fall through
                 case dirty:
-                    writeSet = new WriteSet(writeSet, tranlocal);
+                    if (writeSet == null) {
+                        writeSet = new Tranlocal[attached.size() - k];
+                    }
+                    writeSet[k] = tranlocal;
+                    k++;
                     break;
                 case clean:
                     break;
@@ -361,24 +382,29 @@ final class UpdateTransaction implements Transaction, LockManager {
                     throw new RuntimeException();
             }
         }
+
         return writeSet;
     }
 
-    private void verifyWriteSet(WriteSet writeSet) {
-        do {
-            AlphaAtomicObject owner = writeSet.tranlocal.getAtomicObject();
-            if (!owner.validate(readVersion)) {
-                if (statistics != null) {
-                    statistics.incTransactionWriteConflictCount();
+    private void ensureConflictFree(Tranlocal[] writeSet) {
+        for (int k = 0; k < writeSet.length; k++) {
+            Tranlocal tranlocal = writeSet[k];
+            if (tranlocal == null) {
+                return;
+            } else {
+                AlphaAtomicObject owner = tranlocal.getAtomicObject();
+                if (!owner.ensureConflictFree(readVersion)) {
+                    if (statistics != null) {
+                        statistics.incTransactionWriteConflictCount();
+                    }
+                    throw WriteConflictException.create();
                 }
-                throw WriteConflictException.create();
             }
-            writeSet = writeSet.next;
-        } while (writeSet != null);
+        }
     }
 
-    private void acquireLocks(WriteSet writeSet) {
-        if (!writeSetLockPolicy.acquireLocks(writeSet, this)) {
+    private void acquireLocks(Tranlocal[] writeSet) {
+        if (!writeSetLockPolicy.tryLocks(writeSet, this)) {
             if (statistics != null) {
                 statistics.incTransactionFailedToAcquireLocksCount();
             }
@@ -388,35 +414,32 @@ final class UpdateTransaction implements Transaction, LockManager {
             //todo: problem is that if the locks are not acquired successfully, it isn't clear
             //how many locks are acquired..
             if (statistics != null) {
-                statistics.incLockAcquiredCount(writeSet.size);
+                statistics.incLockAcquiredCount(writeSet.length);
             }
         }
     }
 
-    /**
-     * Releases the locks. It is important that all locks are released. If this is not done,
-     * objects could remain locked and en get inaccessible.
-     *
-     * @param writeSet contains the items to release the locks of.
-     */
-    private void releaseWriteLocks(WriteSet writeSet) {
-        do {
-            AlphaAtomicObject atomicObject = writeSet.tranlocal.getAtomicObject();
-            atomicObject.releaseLock(this);
-            writeSet = writeSet.next;
-        } while (writeSet != null);
-    }
 
-    private void writeChanges(WriteSet writeSet, long writeVersion) {
-        do {
-            Tranlocal<AlphaAtomicObject> tranlocal = writeSet.tranlocal;
-            AlphaAtomicObject atomicObject = tranlocal.getAtomicObject();
-            atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
-            writeSet = writeSet.next;
-        } while (writeSet != null);
+    private void writeChanges(Tranlocal[] writeSet, long writeVersion) {
+        if (writeSet == null) {
+            return;
+        }
 
-        if (statistics != null) {
-            statistics.incWriteCount(attached.size());
+        try {
+            for (int k = 0; k < writeSet.length; k++) {
+                Tranlocal tranlocal = writeSet[k];
+                if (tranlocal == null) {
+                    return;
+                } else {
+                    AlphaAtomicObject atomicObject = tranlocal.getAtomicObject();
+                    atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
+                }
+            }
+
+        } finally {
+            if (statistics != null) {
+                statistics.incWriteCount(attached.size());
+            }
         }
     }
 
@@ -619,7 +642,7 @@ final class UpdateTransaction implements Transaction, LockManager {
         attached.clear();
 
         while (snapshot != null) {
-            Tranlocal<AlphaAtomicObject> tranlocal = snapshot.getTranlocal();
+            Tranlocal tranlocal = snapshot.getTranlocal();
             attached.put(tranlocal.getAtomicObject(), tranlocal);
             snapshot.restore();
             snapshot = snapshot.next;

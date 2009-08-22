@@ -1,7 +1,6 @@
 package org.multiverse.api;
 
 import org.multiverse.api.locks.LockManager;
-import org.multiverse.stms.alpha.Tranlocal;
 
 /**
  * All changes on AtomicObjects must be done through a Transaction. The transaction make sure that the changes
@@ -24,66 +23,6 @@ import org.multiverse.stms.alpha.Tranlocal;
 public interface Transaction {
 
     /**
-     * todo: this method needs to be moved to the stm.alpha package
-     * <p/>
-     * Loads an immutable Tranlocal for the specified atomicObject. It could be that a mutable
-     * version is given to provide transaction level read consistency..
-     * <p/>
-     * If item is null, the return value is null.
-     * <p/>
-     * The reason why the owner is not of type {@link org.multiverse.stms.alpha.AlphaAtomicObject} is that while developing this interface
-     * is not placed on Atomic objects.
-     * <p/>
-     *
-     * @param atomicObject AtomicObject to get the Tranlocal for.
-     * @return the loaded Tranlocal.
-     *         todo:  @throws IllegalArgumentException if the owner is not a {@link org.multiverse.stms.alpha.AlphaAtomicObject}.
-     * @throws org.multiverse.api.exceptions.LoadException
-     *          if something goes wrong while loading.
-     * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *          if this transaction already is committed or aborted
-     * @see #privatize(Object)
-     */
-    Tranlocal load(Object atomicObject);
-
-    /**
-     * todo: this method needs to be moved to the stm.alpha package
-     * <p/>
-     * Loads a privatized Tranlocal for the specified owner. This privatized Tranlocal can be
-     * used for updates.
-     * <p/>
-     * If item is null, the return value is null.
-     * <p/>
-     * The reason why the owner is not of type {@link org.multiverse.stms.alpha.AlphaAtomicObject} is that while developing this interface
-     * is not placed on Atomic objects (this is done by instrumentation).
-     * <p/>
-     *
-     * @param owner AtomicObject to get the transaction local state for.
-     * @return the loaded Tranlocal.
-     *         todo: @throws IllegalArgumentException if the owner is not a {@link org.multiverse.stms.alpha.AlphaAtomicObject}.
-     * @throws org.multiverse.api.exceptions.LoadException
-     *          if something goes wrong while loading.
-     * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *          if this transaction already is committed or aborted.
-     * @see #load(Object)
-     */
-    Tranlocal privatize(Object owner);
-
-    /**
-     * todo: needs to be moved tot he stm.alpha package
-     * <p/>
-     * Attaches the Tranlocal to this Transaction. This call is needed for newly created AtomicObjects
-     * so that the first tranlocal is registerd
-     *
-     * @param tranlocal the Tranlocal to attach.
-     * @throws NullPointerException if tranlocal is null.
-     * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *                              if this transaction already is committed or aborted.
-     */
-    void attachNew(Tranlocal tranlocal);
-
-
-    /**
      * Returns the clock version of the stm when this Transaction started. This version is
      * needed to provide a transaction level read consistent view. The returned version will
      * always be larger than Long.MIN_VALUE.
@@ -102,14 +41,15 @@ public interface Transaction {
     /**
      * Commits this Transaction. If the Transaction already is committed, the call is ignored.
      * <p/>
-     * Transaction will be aborted if the commit does not succeed. So it should be dropped.
+     * Transaction will be aborted if the commit does not succeed.
      *
+     * @return the new version if the commit was a success, Long.MIN_VALUE otherwise.
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *
      * @throws org.multiverse.api.exceptions.DeadTransactionException
      *          if this transaction already is aborted.
      */
-    void commit();
+    long commit();
 
     /**
      * Aborts this Transaction. If the Transaction already is aborted, the call is ignored.
@@ -122,14 +62,31 @@ public interface Transaction {
     /**
      * Resets this Transaction. Can only be done if the transaction has committed or aborted.
      *
-     * @throws org.multiverse.api.exceptions.FailedToResetException
+     * @throws org.multiverse.api.exceptions.ResetFailureException
      *          if the reset has failed (for example
      *          because the transaction is still active).
      */
     void reset();
 
     /**
-     * Aborts and retries the transaction. This functionality is required for the retry.
+     * Retries the transaction. This functionality is required for te retry mechanism. The
+     * retry mechanism should be used like this:
+     * first ask the transaction to retry. It will decide what needs to be done. One of the things
+     * that could happen is that a RetryError is thrown. When this happens this error should be
+     * caught and the #abortAndRetry should be called.
+     *
+     * @throws org.multiverse.api.exceptions.NoProgressPossibleException
+     *
+     * @throws org.multiverse.api.exceptions.DeadTransactionException
+     *
+     * @throws org.multiverse.api.exceptions.RetryError
+     *
+     */
+    void retry();
+
+    /**
+     * Aborts and retries the transaction. This functionality is required for the retry
+     * mechanism.
      *
      * @throws org.multiverse.api.exceptions.NoProgressPossibleException
      *          if the retry can't make progress, e.g.

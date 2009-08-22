@@ -1,8 +1,7 @@
 package org.multiverse.api.exceptions;
 
 /**
- * A {@link StmException} that indicates a failure while doing a
- * {@link org.multiverse.api.Transaction#commit()}.
+ * A {@link StmException} that indicates a failure while doing a {@link org.multiverse.api.Transaction#commit()}.
  *
  * @author Peter Veentjer
  */

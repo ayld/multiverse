@@ -6,10 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
@@ -20,11 +19,13 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  */
 public class UpdateTransaction_privatizeTest {
 
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+        setThreadLocalTransaction(null);
     }
 
     @After
@@ -32,15 +33,15 @@ public class UpdateTransaction_privatizeTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
 
     @Test
     public void loadFailsWithNonTransactionalObjectAsArgument() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
 
         try {
             t.privatize("foo");
@@ -55,16 +56,16 @@ public class UpdateTransaction_privatizeTest {
     public void loadFailsIfLocked() {
         IntRef value = new IntRef(0);
         Transaction owner = new DummyTransaction();
-        value.acquireLock(owner);
+        value.tryLock(owner);
 
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
         IntRefTranlocal read = (IntRefTranlocal) t.privatize(value);
         //todo
     }
 
     @Test
     public void loadWithNullArgumentReturnsNull() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
 
         Tranlocal result = t.privatize(null);
 
@@ -74,13 +75,13 @@ public class UpdateTransaction_privatizeTest {
 
     @Test
     public void loadOnCommittedValue() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(0);
         t1.commit();
 
         IntRefTranlocal committed = (IntRefTranlocal) intValue.load(stm.getClockVersion());
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal read = (IntRefTranlocal) t2.privatize(intValue);
         assertTrue(committed != read);
         assertEquals(intValue, read.getAtomicObject());
@@ -92,11 +93,11 @@ public class UpdateTransaction_privatizeTest {
 
     @Test
     public void loadOnAlreadyLoadedValue() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal read1 = (IntRefTranlocal) t2.privatize(intValue);
         IntRefTranlocal read2 = (IntRefTranlocal) t2.privatize(intValue);
         assertSame(read1, read2);
@@ -105,7 +106,7 @@ public class UpdateTransaction_privatizeTest {
 
     @Test
     public void loadOnAlreadyAttachedValue() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(20);
         IntRefTranlocal read1 = (IntRefTranlocal) t1.privatize(intValue);
 
@@ -122,10 +123,10 @@ public class UpdateTransaction_privatizeTest {
     public void loadOnDifferentTransactionsReturnDifferentInstances() {
         IntRef value = new IntRef(1);
 
-        Transaction t1 = stm.startUpdateTransaction();
+        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal found1 = (IntRefTranlocal) t1.privatize(value);
 
-        Transaction t2 = stm.startUpdateTransaction();
+        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal found2 = (IntRefTranlocal) t2.privatize(value);
 
         assertNotSame(found1, found2);
@@ -139,12 +140,12 @@ public class UpdateTransaction_privatizeTest {
     public void loadFailsOnUncommittedObject() {
         IntRef value = IntRef.createUncommitted();
 
-        Transaction t = stm.startUpdateTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
 
         try {
             t.privatize(value);
             fail();
-        } catch (LoadUncommittedAtomicObjectException ex) {
+        } catch (LoadUncommittedException ex) {
         }
 
         assertIsActive(t);
@@ -152,11 +153,11 @@ public class UpdateTransaction_privatizeTest {
 
     @Test
     public void loadFailsIfTransactionAlreadyCommitted() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef value = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         t2.commit();
 
         try {
@@ -170,11 +171,11 @@ public class UpdateTransaction_privatizeTest {
 
     @Test
     public void loadFailsIfTransactionAlreadyAborted() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef value = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         t2.abort();
 
         try {

@@ -17,20 +17,20 @@ package org.multiverse.api.exceptions;
  *
  * @author Peter Veentjer.
  */
-public class LoadUncommittedAtomicObjectException extends LoadException {
+public class LoadUncommittedException extends LoadException {
 
-    public LoadUncommittedAtomicObjectException() {
+    public LoadUncommittedException() {
     }
 
-    public LoadUncommittedAtomicObjectException(String message) {
+    public LoadUncommittedException(String message) {
         super(message);
     }
 
-    public LoadUncommittedAtomicObjectException(String message, Throwable cause) {
+    public LoadUncommittedException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public LoadUncommittedAtomicObjectException(Throwable cause) {
+    public LoadUncommittedException(Throwable cause) {
         super(cause);
     }
 }

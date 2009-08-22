@@ -5,22 +5,22 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Stm;
-import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 public class UpdateTransaction_loadTest {
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+        setThreadLocalTransaction(null);
     }
 
     @After
@@ -28,21 +28,21 @@ public class UpdateTransaction_loadTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
 
-    public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction();
+    public AlphaTransaction startReadonlyTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
 
     @Test
     public void loadNullReturnsNull() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
 
         Tranlocal result = t.load(null);
         assertNull(result);
@@ -51,7 +51,7 @@ public class UpdateTransaction_loadTest {
 
     @Test
     public void loadNonTransactionalObject() {
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
 
         try {
             t.load("foo");
@@ -64,11 +64,11 @@ public class UpdateTransaction_loadTest {
 
     @Test
     public void loadOfAlreadyAttachedObject() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal expected = intValue.privatize(stm.getClockVersion());
         t2.attachNew(expected);
         IntRefTranlocal found = (IntRefTranlocal) t2.load(intValue);
@@ -79,7 +79,7 @@ public class UpdateTransaction_loadTest {
     public void loadObjectThatIsAlreadyReadPrivatized() {
         IntRef intValue = new IntRef(0);
 
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
         IntRefTranlocal loaded1 = (IntRefTranlocal) t.privatize(intValue);
 
         Tranlocal loaded2 = t.load(intValue);
@@ -90,7 +90,7 @@ public class UpdateTransaction_loadTest {
 
     @Test
     public void loadObjectThatAlreadyIsAttachAsNew() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(100);
 
         IntRefTranlocal tranlocalIntValue = (IntRefTranlocal) t1.load(intValue);
@@ -103,12 +103,12 @@ public class UpdateTransaction_loadTest {
     public void loadUncommittedStateFails() {
         IntRef intValue = IntRef.createUncommitted();
 
-        Transaction t = startUpdateTransaction();
+        AlphaTransaction t = startUpdateTransaction();
         try {
             t.load(intValue);
             fail();
-        } catch (LoadUncommittedAtomicObjectException ex) {
-           //ignore
+        } catch (LoadUncommittedException ex) {
+            //ignore
         }
 
         assertIsActive(t);
@@ -120,7 +120,7 @@ public class UpdateTransaction_loadTest {
         IntRef value = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         t2.commit();
 
         try {
@@ -134,11 +134,11 @@ public class UpdateTransaction_loadTest {
 
     @Test
     public void loadFailsIfTransactionAlreadyAborted() {
-        Transaction t1 = startUpdateTransaction();
+        AlphaTransaction t1 = startUpdateTransaction();
         IntRef value = new IntRef(0);
         t1.commit();
 
-        Transaction t2 = startUpdateTransaction();
+        AlphaTransaction t2 = startUpdateTransaction();
         t2.abort();
 
         try {

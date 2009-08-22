@@ -1,10 +1,11 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
+import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.TranlocalSnapshot;
-import org.multiverse.api.exceptions.ReadonlyException;
-import static org.multiverse.api.StmUtils.retry;
 
 /**
  * access modifiers for fields are public because this object is used for testing purposes. For the
@@ -28,7 +29,7 @@ public class IntRefTranlocal extends Tranlocal {
     }
 
     @Override
-    public Object getAtomicObject() {
+    public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
     }
 
@@ -94,7 +95,7 @@ public class IntRefTranlocal extends Tranlocal {
         } else if (origin == null) {
             return DirtinessStatus.fresh;
         } else if (origin.value != this.value) {
-              return DirtinessStatus.dirty;
+            return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
         }

@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.AlphaTransaction;
+import org.multiverse.stms.alpha.DirtinessStatus;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -16,12 +18,13 @@ public class IntRefTest {
 
     @Before
     public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
-        stm = GlobalStmInstance.get();
     }
 
-    public Transaction startTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+    public AlphaTransaction startTransaction() {
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
         setThreadLocalTransaction(t);
         return t;
     }
@@ -32,7 +35,7 @@ public class IntRefTest {
     public void dirtinessStateForFreshObject() {
         Transaction t = startTransaction();
         IntRef value = new IntRef(0);
-        IntRefTranlocal tranlocalValue = (IntRefTranlocal) t.privatize(value);
+        IntRefTranlocal tranlocalValue = (IntRefTranlocal) ((AlphaTransaction) t).privatize(value);
         assertEquals(DirtinessStatus.fresh, tranlocalValue.getDirtinessStatus());
     }
 
@@ -41,7 +44,7 @@ public class IntRefTest {
         IntRef value = new IntRef(0);
 
         Transaction t = startTransaction();
-        IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(value);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) ((AlphaTransaction) t).privatize(value);
         assertEquals(DirtinessStatus.clean, tranlocal.getDirtinessStatus());
     }
 
@@ -51,7 +54,7 @@ public class IntRefTest {
 
         Transaction t = startTransaction();
         value.inc();
-        IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(value);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) ((AlphaTransaction) t).privatize(value);
 
         assertEquals(DirtinessStatus.dirty, tranlocal.getDirtinessStatus());
     }
@@ -60,10 +63,10 @@ public class IntRefTest {
     public void dirtinessStateForWriteConflict() {
         IntRef value = new IntRef(0);
 
-        Transaction t1 = startTransaction();
+        AlphaTransaction t1 = startTransaction();
         value.inc();
 
-        Transaction t2 = startTransaction();
+        AlphaTransaction t2 = startTransaction();
         value.inc();
         t2.commit();
         setThreadLocalTransaction(t1);

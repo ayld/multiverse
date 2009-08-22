@@ -3,20 +3,21 @@ package org.multiverse.stms.alpha.integrationtests;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 public class WritersDontBlockReadersTest {
-    private Stm stm;
+    private AlphaStm stm;
     private IntRef value;
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
         value = new IntRef(0);
     }
@@ -28,11 +29,11 @@ public class WritersDontBlockReadersTest {
 
     @Test
     public void testBothTransactionsAreWriteTransactions() {
-        Transaction writeTransaction = stm.startUpdateTransaction();
+        AlphaTransaction writeTransaction = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.privatize(value);
         writtenValue.inc();
 
-        Transaction readTransaction = stm.startUpdateTransaction();
+        AlphaTransaction readTransaction = (AlphaTransaction) stm.startUpdateTransaction();
         IntRefTranlocal readValue = (IntRefTranlocal) readTransaction.privatize(value);
         int value = readValue.get();
         readTransaction.commit();

@@ -1,7 +1,8 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedAtomicObjectException;
+import org.multiverse.api.exceptions.LoadUncommittedException;
+import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -20,7 +21,7 @@ public final class IntRef extends FastAtomicObjectMixin {
             @Override
             public Object execute(Transaction t) {
                 IntRefTranlocal tranlocalThis = new IntRefTranlocal(IntRef.this, value);
-                t.attachNew(tranlocalThis);
+                ((AlphaTransaction) t).attachNew(tranlocalThis);
                 return null;
             }
         }.execute();
@@ -35,7 +36,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) t.privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
                 tranlocalThis.await(expectedValue);
                 return null;
             }
@@ -46,7 +47,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) t.privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
                 tranlocalThis.set(value);
                 return null;
             }
@@ -58,7 +59,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) t.privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
                 return tranlocalThis.get();
             }
         }.execute();
@@ -68,7 +69,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) t.privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
                 tranlocalThis.loopInc(amount);
                 return null;
             }
@@ -79,7 +80,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) t.privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
                 tranlocalThis.inc();
                 return null;
             }
@@ -90,7 +91,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) t.privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
                 tranlocalThis.dec();
                 return null;
             }
@@ -101,7 +102,7 @@ public final class IntRef extends FastAtomicObjectMixin {
     public IntRefTranlocal privatize(long version) {
         IntRefTranlocal origin = (IntRefTranlocal) load(version);
         if (origin == null) {
-            throw new LoadUncommittedAtomicObjectException();
+            throw new LoadUncommittedException();
         }
         return new IntRefTranlocal(origin);
     }

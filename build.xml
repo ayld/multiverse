@@ -25,6 +25,13 @@
     <property name="findbugs.reports" value="${target}/findbugs-reports"/>
     <property name="findbugs.home" value="${env.FINDBUGS_HOME}"/>
 
+    <loadfile property="revision" srcFile="./.svn/entries">
+        <filterchain>
+            <headfilter lines="1" skip="3"/>
+            <deletecharacters chars="\n"/>
+        </filterchain>
+    </loadfile>
+
     <path id="classpath.provided">
         <fileset dir="${lib.provided}">
             <include name="**/*.jar"/>
@@ -213,7 +220,7 @@
             <zipfileset dir="${src.main}" prefix="src"/>
         </zip>
 
-        <zip destfile="${target}/${application.name}-${application.version}.zip">
+        <zip destfile="${target}/${application.name}-${application.version}-revision${revision}.zip">
             <zipfileset dir="${javadoc}" prefix="javadoc"/>
             <fileset dir="${target}" includes="*.jar"/>
             <fileset dir="${target}" includes="sources.zip"/>
@@ -284,5 +291,5 @@
         </findbugs>
     </target>
 
- 
+
 </project>
