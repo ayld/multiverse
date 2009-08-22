@@ -6,10 +6,10 @@ import org.multiverse.api.locks.LockManager;
 import org.multiverse.api.locks.LockStatus;
 import org.multiverse.api.locks.StmLock;
 import org.multiverse.utils.TodoException;
+import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
+import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.releaseLocks;
 import org.multiverse.utils.latches.CheapLatch;
 import org.multiverse.utils.latches.Latch;
-import org.multiverse.utils.writeset.AtomicObjectLockPolicy;
-import static org.multiverse.utils.writeset.AtomicObjectLockUtils.releaseLocks;
 
 import static java.lang.String.format;
 import java.util.IdentityHashMap;
@@ -34,17 +34,17 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class UpdateTransaction implements AlphaTransaction, LockManager {
 
-    private long readVersion;
-    private TransactionStatus status;
+    private final AtomicLong clock;
+    private final AlphaStmStatistics statistics;
 
     //the attached set contains the Translocals loaded and attached.
     private Map<AlphaAtomicObject, Tranlocal> attached = new IdentityHashMap(2);
 
-    private final AtomicLong clock;
-    private final AlphaStmStatistics statistics;
     private SnapshotStack snapshotStack;
     private AtomicObjectLockPolicy writeSetLockPolicy;
     private List<Runnable> postCommitTasks;
+    private long readVersion;
+    private TransactionStatus status;
 
     public UpdateTransaction(AlphaStmStatistics statistics, AtomicLong clock, AtomicObjectLockPolicy writeSetLockPolicy) {
         this.statistics = statistics;
@@ -291,10 +291,9 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
                         doAbort();
                     }
                 }
-                break;
             case committed:
                 //ignore
-                break;
+                throw new TodoException();
             case aborted:
                 throw new DeadTransactionException("Can't call commit on an aborted transaction");
             default:
@@ -318,7 +317,7 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
         }
     }
 
-    private void doCommit() {
+    private long doCommit() {
         //System.out.println("starting commit");
         Tranlocal[] writeSet = createWriteSet();
         if (writeSet == null) {
@@ -326,7 +325,7 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
             if (statistics != null) {
                 statistics.incTransactionEmptyCommitCount();
             }
-            return;
+            return readVersion;
         }
 
         boolean success = false;
@@ -336,6 +335,7 @@ public class UpdateTransaction implements AlphaTransaction, LockManager {
             long writeVersion = clock.incrementAndGet();
             writeChanges(writeSet, writeVersion);
             success = true;
+            return writeVersion;
         } finally {
             if (!success) {
                 releaseLocks(writeSet, this);

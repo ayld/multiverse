@@ -1,4 +1,4 @@
-package org.multiverse.utils.writeset;
+package org.multiverse.utils.atomicobjectlocks;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.utils.TodoException;
@@ -37,29 +37,31 @@ public final class SpinningAtomicObjectLockPolicy implements AtomicObjectLockPol
     }
 
     public boolean tryLocks(AtomicObjectLock[] locks, Transaction lockOwner) {
-        if (locks == null || locks.length == 0) {
+        if (lockOwner == null) {
+            throw new NullPointerException();
+        } else if (locks == null || locks.length == 0) {
+            return true;
+        } else {
+            //todo: not completely fair
+            int remainingAttempts = spinAttemptsPerLockCount * locks.length;
+            for (int k = 0; k < locks.length; k++) {
+                AtomicObjectLock item = locks[k];
+                if (item == null) {
+                    return true;
+                } else {
+                    boolean locked;
+                    do {
+                        if (remainingAttempts == 0) {
+                            return false;
+                        }
+                        remainingAttempts--;
+
+                        locked = item.tryLock(lockOwner);
+                    } while (!locked);
+                }
+            }
+
             return true;
         }
-
-        //todo: not completely fair
-        int remainingAttempts = spinAttemptsPerLockCount * locks.length;
-        for (int k = 0; k < locks.length; k++) {
-            AtomicObjectLock item = locks[k];
-            if (item == null) {
-                return true;
-            } else {
-                boolean locked;
-                do {
-                    if (remainingAttempts == 0) {
-                        return false;
-                    }
-                    remainingAttempts--;
-
-                    locked = item.tryLock(lockOwner);
-                } while (!locked);
-            }
-        }
-
-        return true;
     }
 }

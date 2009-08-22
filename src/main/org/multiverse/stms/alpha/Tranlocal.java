@@ -1,7 +1,7 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Transaction;
-import org.multiverse.utils.writeset.AtomicObjectLock;
+import org.multiverse.utils.atomicobjectlocks.AtomicObjectLock;
 
 /**
  * The Tranlocal is the Transaction local content of a AtomicObject, since the state from the

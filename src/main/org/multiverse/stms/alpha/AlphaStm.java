@@ -2,8 +2,8 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
-import org.multiverse.utils.writeset.AtomicObjectLockPolicy;
-import org.multiverse.utils.writeset.FailFastAtomicObjectLockPolicy;
+import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
+import org.multiverse.utils.atomicobjectlocks.FailFastAtomicObjectLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 
