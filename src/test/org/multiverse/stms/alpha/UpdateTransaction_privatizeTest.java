@@ -40,19 +40,6 @@ public class UpdateTransaction_privatizeTest {
     }
 
     @Test
-    public void loadFailsWithNonTransactionalObjectAsArgument() {
-        AlphaTransaction t = startUpdateTransaction();
-
-        try {
-            t.privatize("foo");
-            fail();
-        } catch (IllegalArgumentException ex) {
-        }
-
-        assertIsActive(t);
-    }
-
-    @Test
     public void loadFailsIfLocked() {
         IntRef value = new IntRef(0);
         Transaction owner = new DummyTransaction();

@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import org.multiverse.stms.alpha.manualinstrumentation.LongRef;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -25,7 +23,7 @@ public class AtomicClassTransformerIntegrationTest {
 
     @Test
     public void testInstanceMethod() {
-        IntRef v1 = new IntRef(0);
+        LongRef v1 = new LongRef(0);
 
         inc(v1);
 
@@ -33,13 +31,13 @@ public class AtomicClassTransformerIntegrationTest {
     }
 
     @AtomicMethod
-    public void inc(IntRef v1) {
+    public void inc(LongRef v1) {
         v1.inc();
     }
 
     @Test
     public void testStaticMethod() {
-        IntRef v1 = new IntRef(0);
+        LongRef v1 = new LongRef(0);
 
         incStatic(v1);
 
@@ -47,7 +45,7 @@ public class AtomicClassTransformerIntegrationTest {
     }
 
     @AtomicMethod
-    public static void incStatic(IntRef v1) {
+    public static void incStatic(LongRef v1) {
         v1.inc();
     }
 

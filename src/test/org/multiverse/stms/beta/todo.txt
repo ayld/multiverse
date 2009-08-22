@@ -1,13 +1,9 @@
 todo
 
-- acquiren lock
-
-- releasen lock
-
-- dirtiness state
-
-- readonly query
+- lockpolicy
 
 - flashback query
+
+- logging
 
 done

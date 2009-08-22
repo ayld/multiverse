@@ -9,6 +9,7 @@ import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -35,7 +36,8 @@ public class AtomicBehaviorLongTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
         intValue = new IntRef(0);
     }

@@ -1,12 +1,23 @@
 package org.multiverse.stms.alpha.instrumentation;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.annotations.AtomicObject;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.utils.GlobalStmInstance;
 
 /**
  * @author Peter Veentjer
  */
 public class NonStaticInnerClassThatIsNotAnAtomicObjectTest {
+
+    private AlphaStm stm;
+
+    @Before
+    public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+    }
 
     @Test
     public void testAnonymousInnerClass() {
@@ -19,12 +30,12 @@ public class NonStaticInnerClassThatIsNotAnAtomicObjectTest {
         private int i;
 
         public AnonymousInnerClass() {
-           new Runnable(){
-               @Override
-               public void run() {
-                   //todo
-               }
-           };
+            new Runnable() {
+                @Override
+                public void run() {
+                    //todo
+                }
+            };
         }
 
     }
@@ -34,20 +45,20 @@ public class NonStaticInnerClassThatIsNotAnAtomicObjectTest {
         NamedInnerClass executor = new NamedInnerClass();
     }
 
-     @AtomicObject
+    @AtomicObject
     public static class NamedInnerClass {
 
         private int i;
 
         public NamedInnerClass() {
-            new SomeRunnable();           
+            new SomeRunnable();
         }
 
-         class SomeRunnable implements Runnable{
-             @Override
-             public void run() {
-                 //todo
-             }
-         }
-     }
+        class SomeRunnable implements Runnable {
+            @Override
+            public void run() {
+                //todo
+            }
+        }
+    }
 }

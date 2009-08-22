@@ -50,19 +50,6 @@ public class UpdateTransaction_loadTest {
     }
 
     @Test
-    public void loadNonTransactionalObject() {
-        AlphaTransaction t = startUpdateTransaction();
-
-        try {
-            t.load("foo");
-            fail();
-        } catch (IllegalArgumentException ex) {
-        }
-
-        assertIsActive(t);
-    }
-
-    @Test
     public void loadOfAlreadyAttachedObject() {
         AlphaTransaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(0);

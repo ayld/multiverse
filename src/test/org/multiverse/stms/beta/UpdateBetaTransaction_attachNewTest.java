@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.utils.GlobalStmInstance;
 
 public class UpdateBetaTransaction_attachNewTest {
 
@@ -14,6 +15,7 @@ public class UpdateBetaTransaction_attachNewTest {
     @Before
     public void setUp() {
         stm = new BetaStm();
+        GlobalStmInstance.set(stm);
     }
 
     private BetaTransaction startTransaction() {

@@ -1,9 +1,12 @@
 package org.multiverse.stms.alpha.instrumentation;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.utils.GlobalStmInstance;
 
 /**
  * todo:
@@ -12,6 +15,15 @@ import org.multiverse.stms.alpha.AlphaAtomicObject;
  * controleren dat de velden van gemodificeerde classes verwijderd zijn.
  */
 public class InstrumentationTest {
+
+    private AlphaStm stm;
+
+    @Before
+    public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+    }
+
 
     @Test
     public void nonAtomicObjectIsNotTransformed() {

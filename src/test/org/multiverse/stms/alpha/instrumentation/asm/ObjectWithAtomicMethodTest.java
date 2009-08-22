@@ -6,18 +6,21 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.annotations.AtomicMethod;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.utils.GlobalStmInstance;
+import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
  */
 public class ObjectWithAtomicMethodTest {
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        setThreadLocalTransaction(null);
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
     }
 
     @After

@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import org.multiverse.api.exceptions.ResetFailureException;
+import org.multiverse.utils.GlobalStmInstance;
 
 public class ReadonlyBetaTransaction_resetTest {
     private BetaStm stm;
@@ -13,6 +14,7 @@ public class ReadonlyBetaTransaction_resetTest {
     @Before
     public void setUp() {
         stm = new BetaStm();
+        GlobalStmInstance.set(stm);
     }
 
     private BetaTransaction startTransaction() {

@@ -4,11 +4,11 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicObject;
-import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.utils.GlobalStmInstance;
 import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.utils.GlobalStmInstance;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,11 +16,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Peter Veentjer
  */
 public class AtomicObject_ConstructorTest {
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
     }
 
     @After
@@ -476,7 +477,7 @@ public class AtomicObject_ConstructorTest {
     public static class InstanceInitializer {
         long initCounter = constructorInitCounter.incrementAndGet();
 
-        public InstanceInitializer(){
+        public InstanceInitializer() {
         }
 
         public long getInitCounter() {

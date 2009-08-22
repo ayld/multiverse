@@ -4,20 +4,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.utils.GlobalStmInstance;
+import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import org.multiverse.utils.atomicobjectlocks.GenericAtomicObjectLockPolicy;
 
 import java.util.concurrent.TimeUnit;
 
 public class IntStackPerformanceLongTest {
 
-    private int count = 30 * 1000 * 1000;
+    private int count = 3 * 1000 * 1000;
 
     private Stm stm;
 
     @Before
     public void setUp() {
-        stm = new AlphaStm();
+        stm = new AlphaStm(null, GenericAtomicObjectLockPolicy.FAIL_FAST_BUT_RETRY, false);
+        GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
     }
 
@@ -51,7 +54,7 @@ public class IntStackPerformanceLongTest {
     }
 
     @Test
-    public void testOptimized() {
+    public void testOptimizedTransactionRetrieval() {
         Transaction t = startTransaction();
         IntStack stack = new IntStack();
         t.commit();

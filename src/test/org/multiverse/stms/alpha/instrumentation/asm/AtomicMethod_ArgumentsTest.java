@@ -3,9 +3,12 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
 /**
@@ -15,6 +18,15 @@ import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransact
  * @author Peter Veentjer.
  */
 public class AtomicMethod_ArgumentsTest {
+
+    private AlphaStm stm;
+
+    @Before
+    public void setUp() {
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+    }
+
 
     @After
     public void tearDown() {

@@ -1,6 +1,9 @@
 package org.multiverse.stms.beta;
 
+import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.utils.TodoException;
+import org.multiverse.utils.atomicobjectlocks.AtomicObjectLock;
 
 /**
  * The Transaction local content of a {@link BetaRef}. So one BetaRef has one or more BetaRefTranlocals (or zero when
@@ -9,7 +12,7 @@ import org.multiverse.api.exceptions.ReadonlyException;
  * @author Peter Veentjer.
  * @param <E>
  */
-public final class BetaRefTranlocal<E> {
+public final class BetaRefTranlocal<E> implements AtomicObjectLock {
 
     //the original BetaRef
     private final BetaRef<E> betaRef;
@@ -81,4 +84,14 @@ public final class BetaRefTranlocal<E> {
         this.commitVersion = commitVersion;
     }
 
+    @Override
+    public boolean tryLock(Transaction lockOwner) {
+        //return betaRef.acquireLockAndDetectWriteConflict();
+        throw new TodoException();
+    }
+
+    @Override
+    public void releaseLock(Transaction expectedLockOwner) {
+        betaRef.releaseLock((BetaTransaction) expectedLockOwner);
+    }
 }
