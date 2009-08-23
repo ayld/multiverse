@@ -84,7 +84,7 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
                     }
                 }
 
-                attached.put((AlphaAtomicObject) tranlocal.getAtomicObject(), tranlocal);
+                attached.put(tranlocal.getAtomicObject(), tranlocal);
 
                 if (statistics != null) {
                     statistics.incAttachNewCount();
@@ -379,10 +379,11 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
 
             if (!atLeastOne) {
                 throw new NoProgressPossibleException();
-            }
+            } else {
 
-            //wait for the other transactions to do a write we are interested in.
-            listener.awaitUninterruptible();
+                //wait for the other transactions to do a write we are interested in.
+                listener.awaitUninterruptible();
+            }
         } finally {
             if (statistics != null) {
                 statistics.decTransactionPendingRetryCount();

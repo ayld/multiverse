@@ -24,6 +24,6 @@ public class AtomicObject_AttachAsNewTest {
     }
 
     public void test() {
-
+        //todo
     }
 }
