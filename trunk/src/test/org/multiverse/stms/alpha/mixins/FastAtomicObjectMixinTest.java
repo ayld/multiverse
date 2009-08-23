@@ -40,8 +40,7 @@ public class FastAtomicObjectMixinTest {
     public void loadEqualVersion() {
         DummyFastAtomicObjectMixin atomicObject = new DummyFastAtomicObjectMixin();
 
-        DummyTranlocal tranlocal = new DummyTranlocal();
-        //tranlocal.atomicObject = atomicObject;
+        DummyTranlocal tranlocal = new DummyTranlocal(atomicObject);
         long writeVersion = 10;
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
 
@@ -51,13 +50,13 @@ public class FastAtomicObjectMixinTest {
 
     @Test
     public void loadWithNewVersion() {
-        DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
+        DummyFastAtomicObjectMixin atomicObject = new DummyFastAtomicObjectMixin();
 
-        DummyTranlocal tranlocal = new DummyTranlocal();
+        DummyTranlocal tranlocal = new DummyTranlocal(atomicObject);
         long writeVersion = 10;
-        object.storeAndReleaseLock(tranlocal, writeVersion);
+        atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
 
-        Tranlocal result = object.load(writeVersion + 1);
+        Tranlocal result = atomicObject.load(writeVersion + 1);
         assertSame(tranlocal, result);
     }
 
@@ -205,6 +204,12 @@ public class FastAtomicObjectMixinTest {
 
     static class DummyTranlocal extends Tranlocal {
 
+        private AlphaAtomicObject atomicObject;
+
+        DummyTranlocal(AlphaAtomicObject atomicObject) {
+            this.atomicObject = atomicObject;
+        }
+
         @Override
         public void prepareForCommit(long writeVersion) {
             throw new RuntimeException();
@@ -222,7 +227,7 @@ public class FastAtomicObjectMixinTest {
 
         @Override
         public AlphaAtomicObject getAtomicObject() {
-            throw new RuntimeException();
+            return atomicObject;
         }
     }
 }
