@@ -2,6 +2,12 @@
 
 = FAQ =
 
+== Which Java version is required ==
+Java 6 is needed. In the future it also depends on Java 7 to make use of all features.
+
+== Which libraries does Multverse depend on ==
+Atm it only depends on ASM. But if you are not using bytecode instrumentation, even this dependency can be dropped.
+
 == Can AtomicObjects be accessed without a transaction ==
 This is not possible. When a field or method on a AtomicObject is called, it will always be done under a transaction, so if a transaction doesn't exist, it is created.
 
