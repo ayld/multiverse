@@ -15,7 +15,24 @@ The Alpha Stm implementation (the main implementation containing the most featur
 The design of main stm implementation (Alpha) is to remove contention points. The only contention points are the clock and of course the shared atomicobjects.
 
 == Is Multiverse lockfree? ==
-The current stm implementations need to acquire the locks on AtomicObjects before they do a commit.
+The current stm implementations need to acquire the locks on AtomicObjects before they do a commit. So the problems that can happen with non lock free algorithms still can happen with multiverse. This is something that needs research in the future.
+
+== What about contention management ==
+Contention management has at least 2 different scopes:
+* Commit time: this can be influenced through CommitLockPolicy
+* Encounter time: this is not supported yet since Multiverse doesn't support pessimistic locking when an object is encountered. This reduces the need for contention management because locks already are hold for a short amount of time (only while committing). But in the future the contentionmanagers described in the work of Maurice Herlihy.
+
+== What is the default STM implementation? ==
+The default STM implementation is the AlphaStm. This STM implementation is a general purpose implementation that supports the most features.
+
+== How can the STM be configured? ==
+For standard usage this can only be done by setting the GlobalStmInstance. This needs to be done before any transactions are executed. In the future a more advanced mechanism needs to be used (OSGI, system properties etc).
+
+== Does Multiverse depend on instrumentation? ==
+No. Using instrumentation can be very useful because the Java code remains very readable. But if you don't want to use it, there is no reason you should. In the org.multiverse.datastructures.ref.manual package you will find references that are instrumented manually. So if you use these implementation in combination with the AtomicTemplate, you don't need to rely on instrumentation.
+
+== Is Multiverse concurrent itself? ==
+No. Each transaction is run on completely on a single transaction (however a transaction can be passed from one to another transaction as long as there are no concurrent calls on the transaction). In the future improving the performance of the commit will be done by parallelizing the commit (so acquiring the locks and checking for conflicts.. And another task that can be executed parallel is storing the changes and releasing the locks). 
 
 == What about immutable fields of an AtomicObject ==
 The AlphaStm completely ignores immutable fields of an AtomicObject so there is no overhead. If an AtomicObject only contains immutable fields, it is completely ignored by the stm. The only thing that does happen is that the methods are made atomic.
