@@ -41,10 +41,10 @@ The AlphaStm completely ignores immutable fields of an AtomicObject so there is 
 Multiverse completely ignores static fields, so you are on your own. 
 
 == What about volatile fields? ==
-Volatile fields are managed. In the future this 
+For multiverse it doesn't matter if a field is or isn't volatile.
 
 == What about transient fields? ==
-For multiverse it doesn't matter if a field is transient or not.
+For multiverse it doesn't matter if a field is or isn't transient.
 
 == What about integration with Scala? ==
 I'm working on integrating Multiverse with Scala, so you can say stuff like:
