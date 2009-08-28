@@ -1,0 +1,53 @@
+#summary Frequent Asked Questions
+
+= FAQ =
+
+== Can AtomicObjects be accessed without a transaction ==
+This is not possible. When a field or method on a AtomicObject is called, it will always be done under a transaction, so if a transaction doesn't exist, it is created.
+
+== What about extensibility ==
+The Multiverse architecture makes it possible to extend existing engines through all kinds of policies, or it is even possible to create additional engines. Experimental engines (engines that contain features that will be moved to the main engines if useful) also make use of the Multiverse infrastructure.
+
+== What about the retry/orelse ==
+The Alpha Stm implementation (the main implementation containing the most features) supports the retry/orelse. The beta enigine doesn't.
+
+== What about scalability ==
+The design of main stm implementation (Alpha) is to remove contention points. The only contention points are the clock and of course the shared atomicobjects.
+
+== Is Multiverse lockfree? ==
+The current stm implementations need to acquire the locks on AtomicObjects before they do a commit.
+
+== What about immutable fields of an AtomicObject ==
+The AlphaStm completely ignores immutable fields of an AtomicObject so there is no overhead. If an AtomicObject only contains immutable fields, it is completely ignored by the stm. The only thing that does happen is that the methods are made atomic.
+
+== What about static fields? ==
+Multiverse completely ignores static fields, so you are on your own. 
+
+== What about volatile fields? ==
+Volatile fields are managed. In the future this 
+
+== What about transient fields? ==
+For multiverse it doesn't matter if a field is transient or not.
+
+== What about integration with Scala? ==
+I'm working on integrating Multiverse with Scala, so you can say stuff like:
+
+{{{
+atomic{
+   intRef.inc();
+}
+}}}
+
+or
+
+{{{
+atomic{
+   {  
+       stack1.pop();
+   }orelse{
+       stack2.pop();
+   }   
+}
+}}}
+
+It would be nice if someone with Scala experience could pick this part up since I only have one day worth of Scala experience.
