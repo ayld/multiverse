@@ -68,3 +68,12 @@ atomic{
 }}}
 
 It would be nice if someone with Scala experience could pick this part up since I only have one day worth of Scala experience.
+
+== What about deadlocks ==
+Deadlocks are not possible because waiting for a lock is bounded. So eventually one transaction is going to release its resources so others can complete. If in the future pessimistic locking is added, a deadlock detection mechanism will be added as well.
+
+== What about livelocks ==
+Livelocks certainly are possible. The AlphaStm tracks livelocking transactions, but this is not done on a transaction level. This will be added in the future.
+
+== What about starvation ==
+No special precautions have been made to protect against starvation.
