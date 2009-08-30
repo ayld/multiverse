@@ -2,7 +2,6 @@ package org.multiverse;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
-import org.multiverse.api.locks.LockManager;
 
 /**
  * @author Peter Veentjer
@@ -16,11 +15,6 @@ public class DummyTransaction implements Transaction {
 
     @Override
     public void executePostCommit(Runnable r) {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public LockManager getLockManager() {
         throw new RuntimeException();
     }
 

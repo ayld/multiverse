@@ -1,7 +1,5 @@
 package org.multiverse.api;
 
-import org.multiverse.datastructures.refs.ManagedRef;
-
 /**
  * The goal of the stripe is to assist with helping to find a non conflicting
  * execution of a transaction.
@@ -10,9 +8,9 @@ import org.multiverse.datastructures.refs.ManagedRef;
  */
 public interface Stripe<E> {
 
-    ManagedRef<E> getFreeRef();
+    PredictingManagedRef<E> getFreeRef();
 
-    ManagedRef<E> getOccupiedRef();
+    PredictingManagedRef<E> getOccupiedRef();
 
     boolean isFull();
 }

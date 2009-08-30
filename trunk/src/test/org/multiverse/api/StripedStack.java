@@ -15,15 +15,11 @@ public class StripedStack<E> {
         stripe = new DefaultStripe<E>(stripeSize);
     }
 
-    private Node root;
-
     public E pop() {
-      throw new TodoException();
+        throw new TodoException();
     }
 
     public void push(E item) {
-        //StripeCell<E> favorite = stripe.getBiasedCell();
-        //StripeCellState favoriteState =
         throw new TodoException();
     }
 

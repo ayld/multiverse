@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public final class UpdateBetaTransaction extends AbstractTransaction implements BetaTransaction {
 
-    private Map<BetaRef, BetaRefTranlocal> privatized = new IdentityHashMap<BetaRef, BetaRefTranlocal>(2);
+    private Map<BetaRef, BetaRefTranlocal> readwriteSet = new IdentityHashMap<BetaRef, BetaRefTranlocal>(2);
 
     public UpdateBetaTransaction(String familyName, AtomicLong clock, CommitLockPolicy lockPolicy) {
         super(familyName, clock, lockPolicy);
@@ -28,8 +28,8 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
 
     @Override
     protected void onInit() {
-        if (privatized != null) {
-            privatized.clear();
+        if (readwriteSet != null) {
+            readwriteSet.clear();
         }
     }
 
@@ -42,9 +42,9 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
                 }
 
                 BetaRef ref = refTranlocal.getBetaRef();
-                BetaRefTranlocal found = privatized.get(ref);
+                BetaRefTranlocal found = readwriteSet.get(ref);
                 if (found == null) {
-                    privatized.put(ref, refTranlocal);
+                    readwriteSet.put(ref, refTranlocal);
                 } else if (found != refTranlocal) {
                     throw new PanicError();
                 }
@@ -66,13 +66,13 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
                     throw new NullPointerException();
                 }
 
-                BetaRefTranlocal tranlocal = privatized.get(ref);
+                BetaRefTranlocal tranlocal = readwriteSet.get(ref);
                 if (tranlocal != null) {
                     return tranlocal;
                 }
 
                 tranlocal = ref.privatize(readVersion);
-                privatized.put(ref, tranlocal);
+                readwriteSet.put(ref, tranlocal);
                 return tranlocal;
             case committed:
                 throw new DeadTransactionException("Can't privatize on a committed transaction");
@@ -91,7 +91,7 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
                     throw new NullPointerException();
                 }
 
-                BetaRefTranlocal tranlocal = privatized.get(ref);
+                BetaRefTranlocal tranlocal = readwriteSet.get(ref);
                 if (tranlocal != null) {
                     return tranlocal;
                 }
@@ -108,7 +108,7 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
 
     @Override
     protected long onCommit() {
-        if (privatized.isEmpty()) {
+        if (readwriteSet.isEmpty()) {
             return readVersion;
         } else {
             BetaRefTranlocal[] writeSet = acquireAllLocksAndCheckForConflicts();
@@ -120,6 +120,44 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
         }
     }
 
+    /*
+    protected BetaRefTranlocal[] createWriteSet() {
+        BetaRefTranlocal[] writeSet = null;
+
+        if (!readwriteSet.isEmpty()) {
+            int writeSetIndex = 0;
+            int skipped = 0;
+            for (Map.Entry<BetaRef, BetaRefTranlocal> entry : readwriteSet.entrySet()) {
+                BetaRefTranlocal tranlocal = entry.getValue();
+                switch (tranlocal.getDirtinessStatus()) {
+                    case clean:
+                        skipped++;
+                        break;
+                    case committed:
+                        skipped++;
+                        break;
+                    case fresh:
+                        //fall through
+                    case dirty:
+                        if (writeSet == null) {
+                            writeSet = new BetaRefTranlocal[readwriteSet.size() - skipped];
+                        }
+                        writeSet[writeSetIndex] = tranlocal;
+                        writeSetIndex++;
+                        break;
+                    case conflict:
+                        throw WriteConflictException.create();
+                    default:
+                        throw new IllegalStateException();
+                }
+            }
+
+        }
+
+        return writeSet;
+    } */
+
+
     /**
      * Acquires the locks and checks for writeconflicts.
      *
@@ -128,13 +166,13 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
      *         returned to indicate that the locks could not be obtained.
      */
     private BetaRefTranlocal[] acquireAllLocksAndCheckForConflicts() {
-        BetaRefTranlocal[] writeSet = new BetaRefTranlocal[privatized.size()];
+        BetaRefTranlocal[] writeSet = new BetaRefTranlocal[readwriteSet.size()];
 
         boolean success = false;
         try {
             int k = 0;
-            for (BetaRefTranlocal tranlocal : privatized.values()) {
-                switch (tranlocal.getDirtinessState()) {
+            for (BetaRefTranlocal tranlocal : readwriteSet.values()) {
+                switch (tranlocal.getDirtinessStatus()) {
                     case clean:
                         break;
                     case dirty:
@@ -178,6 +216,6 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
 
     @Override
     protected void onAbort() {
-        privatized.clear();
+        readwriteSet.clear();
     }
 }

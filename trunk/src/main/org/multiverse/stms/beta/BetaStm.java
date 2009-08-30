@@ -3,7 +3,6 @@ package org.multiverse.stms.beta;
 import org.multiverse.api.Stm;
 import org.multiverse.utils.TodoException;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
-import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -37,15 +36,15 @@ public final class BetaStm implements Stm {
     private final CommitLockPolicy lockPolicy;
 
     public BetaStm() {
-        this(GenericCommitLockPolicy.FAIL_FAST_BUT_RETRY);
+        this(new BetaStmConfig());
     }
 
-    public BetaStm(CommitLockPolicy lockPolicy) {
-        if (lockPolicy == null) {
+    public BetaStm(BetaStmConfig config) {
+        if (config == null) {
             throw new NullPointerException();
-        } else {
-            this.lockPolicy = lockPolicy;
         }
+
+        lockPolicy = config.lockPolicy;
     }
 
     @Override

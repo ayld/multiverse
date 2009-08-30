@@ -1,7 +1,5 @@
 package org.multiverse.api;
 
-import org.multiverse.api.locks.LockManager;
-
 /**
  * All changes on AtomicObjects must be done through a Transaction. The transaction make sure that the changes
  * are:
@@ -137,16 +135,6 @@ public interface Transaction {
      * @see #startOr()
      */
     void endOrAndStartElse();
-
-    /**
-     * Returns the LockManager that belongs to the transaction. It depends on the Transaction
-     * implementation if a working LockManager is returned.
-     *
-     * @return the lock manager.
-     * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *          if this transaction already is committed or aborted.
-     */
-    LockManager getLockManager();
 
     /**
      * Registers a task to be executed after the transaction completes. If the transaction

@@ -4,8 +4,6 @@ import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.api.exceptions.ResetFailureException;
-import org.multiverse.api.locks.DeactivatedLockManager;
-import org.multiverse.api.locks.LockManager;
 import org.multiverse.stms.AbstractTransaction;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -25,11 +23,6 @@ final class ReadonlyAlphaTransaction extends AbstractTransaction implements Alph
         this.statistics = statistics;
 
         init();
-    }
-
-    @Override
-    public LockManager getLockManager() {
-        return DeactivatedLockManager.INSTANCE;
     }
 
     protected void onInit() {

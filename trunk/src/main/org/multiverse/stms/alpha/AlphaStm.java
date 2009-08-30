@@ -58,7 +58,7 @@ public final class AlphaStm implements Stm {
 
         this.statistics = config.statistics;
         this.loggingPossible = config.loggingPossible;
-        this.lockPolicy = config.lockPolicy;
+        this.lockPolicy = config.commitLockPolicy;
     }
 
     /**

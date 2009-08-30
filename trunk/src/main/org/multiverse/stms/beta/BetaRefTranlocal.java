@@ -66,7 +66,7 @@ public final class BetaRefTranlocal<E> implements CommitLock {
     }
 
 
-    public DirtinessStatus getDirtinessState() {
+    public DirtinessStatus getDirtinessStatus() {
         if (original == null) {
             return DirtinessStatus.fresh;
         } else if (original.reference != reference) {

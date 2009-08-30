@@ -2,6 +2,8 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
+import org.multiverse.utils.spinning.BoundedSpinPolicy;
+import org.multiverse.utils.spinning.SpinPolicy;
 
 /**
  * An Object responsible for storing the configuration for an {@link AlphaStm}. So instead
@@ -28,11 +30,17 @@ public final class AlphaStmConfig {
 
     public boolean loggingPossible = true;
 
-    public CommitLockPolicy lockPolicy = GenericCommitLockPolicy.FAIL_FAST_BUT_RETRY;
+    public CommitLockPolicy commitLockPolicy = GenericCommitLockPolicy.FAIL_FAST_BUT_RETRY;
+
+    public SpinPolicy spinPolicy = BoundedSpinPolicy.INSTANCE;
 
     public void ensureValid() {
-        if (lockPolicy == null) {
+        if (commitLockPolicy == null) {
             throw new RuntimeException("commitLockPolicy can't be null");
+        }
+
+        if (spinPolicy == null) {
+            throw new RuntimeException("spinPolicy can't be null");
         }
     }
 

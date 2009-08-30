@@ -1,11 +1,7 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.api.exceptions.*;
-import org.multiverse.api.locks.LockManager;
-import org.multiverse.api.locks.LockStatus;
-import org.multiverse.api.locks.StmLock;
 import org.multiverse.stms.AbstractTransaction;
-import org.multiverse.utils.TodoException;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
 import static org.multiverse.utils.commitlock.CommitLockUtils.releaseLocks;
@@ -24,13 +20,10 @@ import java.util.concurrent.atomic.AtomicLong;
  * Comment about design:
  * A state design pattern would have been a solution to reduce the switch statements,
  * but to prevent object creation, this is not done.
- * <p/>
- * This class also implements the LockManager interface instead of using some inner class.
- * This is done to reduce object creation overhead at the cost of more complicated code.
  *
  * @author Peter Veentjer.
  */
-public class UpdateAlphaTransaction extends AbstractTransaction implements AlphaTransaction, LockManager {
+public class UpdateAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
 
     private final AlphaStmStatistics statistics;
 
@@ -380,35 +373,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                 statistics.decTransactionPendingRetryCount();
             }
         }
-    }
-
-    @Override
-    protected LockManager onGetLockManager() {
-        return this;
-    }
-
-    @Override
-    public StmLock getLock(Object atomicObject, LockStatus lockStatus) {
-        switch (status) {
-            case active:
-                throw new TodoException();
-            case aborted:
-                throw new DeadTransactionException("Can't get pessimistic lock, transaction already is aborted.");
-            case committed:
-                throw new DeadTransactionException("Can't get pessimistic lock, transaction already is committed.");
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    @Override
-    public LockStatus getLockStatus(Object atomicObject) {
-        throw new TodoException();
-    }
-
-    @Override
-    public AlphaTranlocal privatize(Object atomicObject, LockStatus lockMode) {
-        throw new TodoException();
     }
 
     @Override

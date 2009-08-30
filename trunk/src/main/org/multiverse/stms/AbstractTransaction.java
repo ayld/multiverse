@@ -4,8 +4,6 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.ResetFailureException;
-import org.multiverse.api.locks.DeactivatedLockManager;
-import org.multiverse.api.locks.LockManager;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 
 import java.util.LinkedList;
@@ -207,24 +205,6 @@ public abstract class AbstractTransaction implements Transaction {
 
     protected void onAbortAndRetry() {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public LockManager getLockManager() {
-        switch (status) {
-            case active:
-                return onGetLockManager();
-            case aborted:
-                throw new DeadTransactionException("Can't get the LockManager, transaction already is aborted.");
-            case committed:
-                throw new DeadTransactionException("Can't get the LockManager, transaction already is committed.");
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    protected LockManager onGetLockManager() {
-        return DeactivatedLockManager.INSTANCE;
     }
 
     @Override
