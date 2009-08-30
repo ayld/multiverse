@@ -4,8 +4,8 @@ import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.FailedToObtainLocksException;
 import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.stms.AbstractTransaction;
-import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
-import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.releaseLocks;
+import org.multiverse.utils.commitlock.CommitLockPolicy;
+import static org.multiverse.utils.commitlock.CommitLockUtils.releaseLocks;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -20,8 +20,8 @@ public final class UpdateBetaTransaction extends AbstractTransaction implements 
 
     private Map<BetaRef, BetaRefTranlocal> privatized = new IdentityHashMap<BetaRef, BetaRefTranlocal>(2);
 
-    public UpdateBetaTransaction(AtomicLong clock, AtomicObjectLockPolicy lockPolicy) {
-        super(clock, lockPolicy);
+    public UpdateBetaTransaction(String familyName, AtomicLong clock, CommitLockPolicy lockPolicy) {
+        super(familyName, clock, lockPolicy);
 
         init();
     }

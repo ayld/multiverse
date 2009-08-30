@@ -1,7 +1,7 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
+import org.multiverse.stms.alpha.AlphaTranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.internalFormToDescriptor;
 import org.objectweb.asm.Opcodes;
 import static org.objectweb.asm.Type.getDescriptor;
@@ -43,7 +43,7 @@ public class TranlocalSnapshotFactory implements Opcodes {
         ClassNode result = new ClassNode();
         result.version = original.version;
         result.name = tranlocalSnapshotName;
-        result.superName = getInternalName(TranlocalSnapshot.class);
+        result.superName = getInternalName(AlphaTranlocalSnapshot.class);
         result.access = ACC_PUBLIC + ACC_FINAL + ACC_SYNTHETIC;
         result.sourceFile = original.sourceFile;
         result.sourceDebug = original.sourceDebug;
@@ -107,7 +107,7 @@ public class TranlocalSnapshotFactory implements Opcodes {
         MethodNode m = new MethodNode(
                 ACC_PUBLIC + ACC_SYNTHETIC,
                 "getTranlocal",
-                format("()%s", getDescriptor(Tranlocal.class)),
+                format("()%s", getDescriptor(AlphaTranlocal.class)),
                 null,
                 new String[]{});
 

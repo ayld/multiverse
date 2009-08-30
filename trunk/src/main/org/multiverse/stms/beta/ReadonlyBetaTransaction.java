@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ReadonlyBetaTransaction extends AbstractTransaction implements BetaTransaction {
 
-    public ReadonlyBetaTransaction(AtomicLong clock) {
-        super(clock, null);
+    public ReadonlyBetaTransaction(String familyName, AtomicLong clock) {
+        super(familyName, clock, null);
 
         init();
     }

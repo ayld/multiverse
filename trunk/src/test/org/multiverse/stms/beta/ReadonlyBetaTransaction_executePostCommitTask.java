@@ -19,7 +19,7 @@ public class ReadonlyBetaTransaction_executePostCommitTask {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startReadOnlyTransaction();
+        return (BetaTransaction) stm.startReadOnlyTransaction(null);
     }
 
     @Test

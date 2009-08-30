@@ -3,15 +3,15 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaTranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
 import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
 
 /**
  * access modifiers for fields are public because this object is used for testing purposes. For the
  * instrumentation the fields don't need to be this public.
  */
-public class IntRefTranlocal extends Tranlocal {
+public class IntRefTranlocal extends AlphaTranlocal {
     public IntRef atomicObject;
     public int value;
     private IntRefTranlocal origin;
@@ -107,7 +107,7 @@ public class IntRefTranlocal extends Tranlocal {
     }
 }
 
-class TranlocalIntValueSnapshot extends TranlocalSnapshot {
+class TranlocalIntValueSnapshot extends AlphaTranlocalSnapshot {
 
     final IntRefTranlocal tranlocal;
     final int value;
@@ -118,7 +118,7 @@ class TranlocalIntValueSnapshot extends TranlocalSnapshot {
     }
 
     @Override
-    public Tranlocal getTranlocal() {
+    public AlphaTranlocal getTranlocal() {
         return tranlocal;
     }
 

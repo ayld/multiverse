@@ -20,14 +20,14 @@ public interface Stm {
      *
      * @return the created Transaction.
      */
-    Transaction startUpdateTransaction();
+    Transaction startUpdateTransaction(String familyName);
 
     /**
      * Starts a readonly Transaction.
      *
      * @return the created readonly Transaction.
      */
-    Transaction startReadOnlyTransaction();
+    Transaction startReadOnlyTransaction(String familyName);
 
     /**
      * Starts a readonly Transaction with the provided readVersion. Normally a readonly
@@ -41,5 +41,5 @@ public interface Stm {
      * @return the created readonly Transaction.
      * @throws IllegalArgumentException if the readVersion is larger than the clockVersion.
      */
-    Transaction startFlashbackTransaction(long readVersion);
+    Transaction startFlashbackTransaction(String familyName, long readVersion);
 }

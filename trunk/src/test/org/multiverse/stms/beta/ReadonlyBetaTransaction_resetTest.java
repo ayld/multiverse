@@ -18,7 +18,7 @@ public class ReadonlyBetaTransaction_resetTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startReadOnlyTransaction();
+        return (BetaTransaction) stm.startReadOnlyTransaction(null);
     }
 
     @Test

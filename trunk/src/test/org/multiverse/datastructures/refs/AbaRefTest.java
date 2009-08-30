@@ -1,13 +1,11 @@
 package org.multiverse.datastructures.refs;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.After;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
-import org.multiverse.datastructures.refs.AbaRef;
 import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -160,7 +158,7 @@ public class AbaRefTest {
         org.multiverse.datastructures.refs.AbaRef<String> ref = new org.multiverse.datastructures.refs.AbaRef<String>(oldRef);
 
         long version = stm.getClockVersion();
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         String newRef = "bar";
         ref.set(newRef);
@@ -168,7 +166,7 @@ public class AbaRefTest {
         t.commit();
         setThreadLocalTransaction(null);
 
-        assertEquals(version+1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getClockVersion());
         assertSame(oldRef, ref.get());
     }
 
@@ -193,7 +191,7 @@ public class AbaRefTest {
 
         //we start a transaction because we don't want to lift on the retry mechanism
         //of the transaction that else would be started on the getOrAwait method.
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         try {
             ref.getOrAwait();

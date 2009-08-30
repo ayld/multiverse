@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha.retry;
 
-import org.multiverse.stms.alpha.UpdateTransaction;
+import org.multiverse.stms.alpha.UpdateAlphaTransaction;
 
 /**
  * One of the problems with the {@link ImmediatelyRetryPolicy} is that the transaction
@@ -20,7 +20,7 @@ public class SpinningRetryPolicy implements RetryPolicy {
     }
 
     @Override
-    public void retry(UpdateTransaction t) {
+    public void retry(UpdateAlphaTransaction t) {
 
     }
 }

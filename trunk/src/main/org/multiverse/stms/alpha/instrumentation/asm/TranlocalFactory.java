@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * On Factory responsible for creating the {@link Tranlocal} class belongs to an
+ * On Factory responsible for creating the {@link org.multiverse.stms.alpha.AlphaTranlocal} class belongs to an
  * {@link org.multiverse.stms.alpha.AlphaAtomicObject}.
  * <p/>
  * TranlocalClassNodeFactory should not be reused.
@@ -47,7 +47,7 @@ public final class TranlocalFactory implements Opcodes {
         ClassNode result = new ClassNode();
         result.version = atomicObject.version;
         result.name = tranlocalName;
-        result.superName = getInternalName(Tranlocal.class);
+        result.superName = getInternalName(AlphaTranlocal.class);
         result.access = ACC_PUBLIC + ACC_FINAL + ACC_SYNTHETIC;
         result.sourceFile = atomicObject.sourceFile;
         result.sourceDebug = atomicObject.sourceDebug;
@@ -109,13 +109,13 @@ public final class TranlocalFactory implements Opcodes {
 
         InsnList i = new InsnList();
         i.add(new VarInsnNode(ALOAD, 0));
-        i.add(new MethodInsnNode(INVOKESPECIAL, getInternalName(Tranlocal.class), "<init>", "()V"));
+        i.add(new MethodInsnNode(INVOKESPECIAL, getInternalName(AlphaTranlocal.class), "<init>", "()V"));
 
         i.add(new VarInsnNode(ALOAD, 0));
         i.add(new VarInsnNode(ALOAD, 1));
         i.add(new FieldInsnNode(PUTFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name)));
 
-        String attachAsNewDesc = format("(%s)V", getDescriptor(Tranlocal.class));
+        String attachAsNewDesc = format("(%s)V", getDescriptor(AlphaTranlocal.class));
         i.add(new VarInsnNode(ALOAD, 0));
         i.add(new MethodInsnNode(INVOKESTATIC, getInternalName(AlphaStmUtils.class), "attachAsNew", attachAsNewDesc));
 
@@ -245,7 +245,7 @@ public final class TranlocalFactory implements Opcodes {
 
         //init
         m.visitVarInsn(ALOAD, 0);
-        m.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(Tranlocal.class), "<init>", "()V");
+        m.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(AlphaTranlocal.class), "<init>", "()V");
 
         //placement of the atomicObject
         m.visitVarInsn(ALOAD, 0);
@@ -402,7 +402,7 @@ public final class TranlocalFactory implements Opcodes {
         MethodNode m = new MethodNode(
                 ACC_PUBLIC + ACC_SYNTHETIC,
                 "takeSnapshot",
-                format("()%s", getDescriptor(TranlocalSnapshot.class)),
+                format("()%s", getDescriptor(AlphaTranlocalSnapshot.class)),
                 null,
                 new String[]{});
 

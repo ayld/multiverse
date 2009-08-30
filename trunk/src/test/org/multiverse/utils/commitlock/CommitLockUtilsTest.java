@@ -1,14 +1,14 @@
-package org.multiverse.utils.atomicobjectlocks;
+package org.multiverse.utils.commitlock;
 
 import org.junit.Test;
 import org.multiverse.DummyTransaction;
-import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.releaseLocks;
+import static org.multiverse.utils.commitlock.CommitLockUtils.releaseLocks;
 
-public class AtomicObjectLockUtilsTest {
+public class CommitLockUtilsTest {
 
     @Test(expected = NullPointerException.class)
     public void releaseLocksWithNullTransactionFails() {
-        releaseLocks(new AtomicObjectLock[]{}, null);
+        releaseLocks(new CommitLock[]{}, null);
     }
 
     @Test
@@ -18,7 +18,7 @@ public class AtomicObjectLockUtilsTest {
 
     @Test
     public void releaseLocksWithEmptyLocksSucceeds() {
-        releaseLocks(new AtomicObjectLock[]{}, new DummyTransaction());
+        releaseLocks(new CommitLock[]{}, new DummyTransaction());
     }
 
     @Test

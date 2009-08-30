@@ -6,7 +6,7 @@ import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStmDebugConstants;
-import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.utils.Listeners;
 import org.multiverse.utils.latches.Latch;
 
@@ -23,19 +23,24 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
     private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Transaction> lockOwnerUpdater =
             AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Transaction.class, "lockOwner");
 
-    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Tranlocal> tranlocalUpdater =
-            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Tranlocal.class, "tranlocal");
+    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, AlphaTranlocal> tranlocalUpdater =
+            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, AlphaTranlocal.class, "tranlocal");
 
     private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Listeners> listenersUpdater =
             AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Listeners.class, "listeners");
 
     private volatile Transaction lockOwner;
-    private volatile Tranlocal tranlocal;
+    private volatile AlphaTranlocal tranlocal;
     private volatile Listeners listeners;
 
     @Override
-    public final Tranlocal load(long readVersion) {
-        Tranlocal tranlocalT1 = tranlocalUpdater.get(this);
+    public AlphaTranlocal load() {
+        return tranlocalUpdater.get(this);
+    }
+
+    @Override
+    public final AlphaTranlocal load(long readVersion) {
+        AlphaTranlocal tranlocalT1 = tranlocalUpdater.get(this);
 
         if (tranlocalT1 == null) {
             //a read is done, but there is no committed data. Lets return null.
@@ -71,7 +76,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
                 throw LoadLockedException.create();
             }
 
-            Tranlocal tranlocalT2 = tranlocalUpdater.get(this);
+            AlphaTranlocal tranlocalT2 = tranlocalUpdater.get(this);
             boolean otherWritesHaveBeenExecuted = tranlocalT2 != tranlocalT1;
             if (otherWritesHaveBeenExecuted) {
                 //if the tranlocal has changed, lets check if the new tranlocal has exactly the
@@ -108,7 +113,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
     }
 
     @Override
-    public final void storeAndReleaseLock(Tranlocal tranlocal, long writeVersion) {
+    public final void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
         if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
             if (lockOwner == null) {
                 throw new PanicError();
@@ -118,7 +123,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
                 throw new PanicError();
             }
 
-            Tranlocal old = tranlocalUpdater.get(this);
+            AlphaTranlocal old = tranlocalUpdater.get(this);
             if (old != null) {
                 if (old.version >= writeVersion) {
                     throw new PanicError();
@@ -147,7 +152,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
 
     @Override
     public final boolean registerRetryListener(Latch listener, long minimumVersion) {
-        Tranlocal tranlocalT1 = tranlocalUpdater.get(this);
+        AlphaTranlocal tranlocalT1 = tranlocalUpdater.get(this);
 
         //could it be that a locked value is read? (YES, can happen) A value that will be updated,
         //but isn't updated yet.. consequence: the listener tries to register a listener.
@@ -179,7 +184,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
                 if (!placedListener) {
                     //it could be that another transaction did a register, but it also could mean
                     //that a write occurred.
-                    Tranlocal tranlocalT2 = tranlocalUpdater.get(this);
+                    AlphaTranlocal tranlocalT2 = tranlocalUpdater.get(this);
                     if (tranlocalT1 != tranlocalT2) {
                         //we are not sure when the registration took place, but a new version is available.
 
@@ -209,7 +214,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
                 }
             } while (!placedListener);
 
-            Tranlocal tranlocalT2 = tranlocalUpdater.get(this);
+            AlphaTranlocal tranlocalT2 = tranlocalUpdater.get(this);
             if (tranlocalT1 != tranlocalT2) {
                 if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
                     //we are not sure when the registration took place, but a new version is available.
@@ -233,7 +238,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
         //since the lock is acquired....  is this really true? What about the readset? For the writeset
         //this is true.
 
-        Tranlocal tranlocal = tranlocalUpdater.get(this);
+        AlphaTranlocal tranlocal = tranlocalUpdater.get(this);
 
         if (tranlocal == null) {
             return true;

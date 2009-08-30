@@ -1,22 +1,22 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
+import org.multiverse.utils.commitlock.CommitLockPolicy;
 
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LoggingUpdateTransaction extends UpdateTransaction {
+public class LoggingUpdateTransaction extends UpdateAlphaTransaction {
 
-    private static Logger logger = Logger.getLogger(UpdateTransaction.class.getName());
+    private static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
 
     public final static AtomicLong logIdGenerator = new AtomicLong();
 
     private final long logId = logIdGenerator.getAndIncrement();
 
-    public LoggingUpdateTransaction(AlphaStmStatistics statistics, AtomicLong clock, AtomicObjectLockPolicy writeSetLockPolicy) {
-        super(statistics, clock, writeSetLockPolicy);
+    public LoggingUpdateTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, CommitLockPolicy writeSetLockPolicy) {
+        super(familyName, statistics, clock, writeSetLockPolicy);
 
         if (logger.isLoggable(Level.FINE)) {
             logger.fine(format("UpdateTransaction%s and readversion %s started", logId, getReadVersion()));

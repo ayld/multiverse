@@ -111,7 +111,7 @@ final public class LinkedList<E> extends FastAtomicObjectMixin {
     }
 }
 
-final class LinkedListTranlocal<E> extends Tranlocal {
+final class LinkedListTranlocal<E> extends AlphaTranlocal {
 
     private final LinkedList<E> atomicObject;
     private int size;
@@ -373,7 +373,7 @@ final class LinkedListTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         throw new TodoException();
     }
 
@@ -456,7 +456,7 @@ final class LinkedNode<E> extends FastAtomicObjectMixin {
     }
 }
 
-final class LinkedNodeTranlocal<E> extends Tranlocal {
+final class LinkedNodeTranlocal<E> extends AlphaTranlocal {
     private final LinkedNode<E> atomicObject;
     private LinkedNodeTranlocal<E> origin;
     private LinkedNode<E> next;
@@ -521,7 +521,7 @@ final class LinkedNodeTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         throw new TodoException();
     }
 

@@ -15,7 +15,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 /**
  * @author Peter Veentjer
  */
-public class UpdateTransaction_abortTest {
+public class UpdateAlphaTransaction_abortTest {
     private AlphaStm stm;
 
     @Before
@@ -31,13 +31,13 @@ public class UpdateTransaction_abortTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
 
     public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction();
+        Transaction t = stm.startReadOnlyTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -70,7 +70,7 @@ public class UpdateTransaction_abortTest {
         assertIsAborted(t);
         assertEquals(startVersion, stm.getClockVersion());
 
-        Tranlocal result = intValue.load(stm.getClockVersion());
+        AlphaTranlocal result = intValue.load(stm.getClockVersion());
         assertNull(result);
     }
 

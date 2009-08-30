@@ -35,7 +35,7 @@ public class CycleHandlingTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -48,7 +48,7 @@ public class CycleHandlingTest {
     @AtomicObject
     public static class SingleLinkedNode {
         private SingleLinkedNode next;
-                
+
         public SingleLinkedNode() {
         }
 

@@ -46,7 +46,7 @@ public class AbaProblemIsNotDetectedTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

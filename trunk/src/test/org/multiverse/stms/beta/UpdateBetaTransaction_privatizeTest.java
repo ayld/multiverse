@@ -20,7 +20,7 @@ public class UpdateBetaTransaction_privatizeTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startUpdateTransaction();
+        return stm.startUpdateTransaction(null);
     }
 
     @Test

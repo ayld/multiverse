@@ -20,7 +20,7 @@ public class ReadonlyBetaTransaction_abortTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startReadOnlyTransaction();
+        return (BetaTransaction) stm.startReadOnlyTransaction(null);
     }
 
     @Test

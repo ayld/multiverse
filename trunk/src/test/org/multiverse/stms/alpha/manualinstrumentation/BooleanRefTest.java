@@ -28,7 +28,7 @@ public class BooleanRefTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

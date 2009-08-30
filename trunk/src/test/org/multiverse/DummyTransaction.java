@@ -10,6 +10,11 @@ import org.multiverse.api.locks.LockManager;
 public class DummyTransaction implements Transaction {
 
     @Override
+    public String getFamilyName() {
+        throw new RuntimeException();
+    }
+
+    @Override
     public void executePostCommit(Runnable r) {
         throw new RuntimeException();
     }

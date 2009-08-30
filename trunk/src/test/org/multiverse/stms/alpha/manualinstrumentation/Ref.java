@@ -88,7 +88,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
     }
 }
 
-class RefTranlocal<E> extends Tranlocal {
+class RefTranlocal<E> extends AlphaTranlocal {
     Ref atomicObject;
     E value;
     RefTranlocal origin;
@@ -144,7 +144,7 @@ class RefTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         return new RefTranlocalSnapshot<E>(this);
     }
 
@@ -162,7 +162,7 @@ class RefTranlocal<E> extends Tranlocal {
     }
 }
 
-class RefTranlocalSnapshot<E> extends TranlocalSnapshot {
+class RefTranlocalSnapshot<E> extends AlphaTranlocalSnapshot {
     final RefTranlocal tranlocal;
     final E value;
 
@@ -172,7 +172,7 @@ class RefTranlocalSnapshot<E> extends TranlocalSnapshot {
     }
 
     @Override
-    public Tranlocal getTranlocal() {
+    public AlphaTranlocal getTranlocal() {
         return tranlocal;
     }
 

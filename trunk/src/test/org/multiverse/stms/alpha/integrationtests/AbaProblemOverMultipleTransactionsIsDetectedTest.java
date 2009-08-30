@@ -3,7 +3,6 @@ package org.multiverse.stms.alpha.integrationtests;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.Stm;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
@@ -19,7 +18,7 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
     private static final int B = 2;
     private static final int C = 3;
 
-    private Stm stm;
+    private AlphaStm stm;
     private IntRef handle;
 
     @Before
@@ -31,7 +30,7 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

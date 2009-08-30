@@ -28,7 +28,7 @@ public class RefTest {
     }
 
     public Transaction startTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

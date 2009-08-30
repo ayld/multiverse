@@ -17,7 +17,7 @@ public class ReadonlyBetaTransaction_privatizeTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startReadOnlyTransaction();
+        return stm.startReadOnlyTransaction(null);
     }
 
     @Test

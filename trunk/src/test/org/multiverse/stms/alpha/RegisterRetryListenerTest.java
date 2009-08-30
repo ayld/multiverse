@@ -11,7 +11,6 @@ import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-import org.multiverse.stms.alpha.AlphaStm;
 
 public class RegisterRetryListenerTest {
     private AlphaStm stm;
@@ -22,13 +21,13 @@ public class RegisterRetryListenerTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
 
     public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction();
+        Transaction t = stm.startReadOnlyTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -52,10 +51,10 @@ public class RegisterRetryListenerTest {
         Transaction t = startUpdateTransaction();
         IntRef intValue = new IntRef(0);
 
-        try{
+        try {
             t.abortAndRetry();
             fail();
-        }catch(NoProgressPossibleException ex){
+        } catch (NoProgressPossibleException ex) {
         }
 
         assertIsAborted(t);

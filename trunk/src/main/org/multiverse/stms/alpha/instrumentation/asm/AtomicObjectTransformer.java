@@ -2,7 +2,7 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.AlphaStmUtils;
-import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.multiverse.utils.TodoException;
 import org.objectweb.asm.Label;
@@ -126,7 +126,7 @@ public class AtomicObjectTransformer implements Opcodes {
         m.visitVarInsn(ALOAD, 0);
 
         String argDesc = getDescriptor(Object.class);
-        String returnDesc = getDescriptor(Tranlocal.class);
+        String returnDesc = getDescriptor(AlphaTranlocal.class);
         String loadDesc = format("(%s)%s", argDesc, returnDesc);
         m.visitMethodInsn(
                 INVOKESTATIC,
@@ -235,7 +235,7 @@ public class AtomicObjectTransformer implements Opcodes {
     }
 
     private void addPrivatizeMethod() {
-        String desc = "(J)" + Type.getDescriptor(Tranlocal.class);
+        String desc = "(J)" + Type.getDescriptor(AlphaTranlocal.class);
 
         MethodNode m = new MethodNode(ACC_PUBLIC + ACC_SYNTHETIC, "privatize", desc, null, new String[]{});
 

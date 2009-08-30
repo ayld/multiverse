@@ -6,9 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-import org.multiverse.stms.alpha.AlphaStm;
 
 public class StackTest {
     private Stm stm;
@@ -21,7 +21,7 @@ public class StackTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

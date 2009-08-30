@@ -15,7 +15,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
-public class ReadonlyTransactionTest {
+public class ReadonlyAlphaTransactionTest {
     private AlphaStm stm;
 
     @Before
@@ -31,13 +31,13 @@ public class ReadonlyTransactionTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
 
     public AlphaTransaction startReadonlyTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
+        AlphaTransaction t = stm.startReadOnlyTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -61,7 +61,7 @@ public class ReadonlyTransactionTest {
     @Test
     public void start() {
         long version = stm.getClockVersion();
-        Transaction t = stm.startReadOnlyTransaction();
+        Transaction t = stm.startReadOnlyTransaction(null);
         assertIsActive(t);
         assertEquals(version, stm.getClockVersion());
         assertEquals(1, stm.getStatistics().getReadonlyTransactionStartedCount());
@@ -70,7 +70,7 @@ public class ReadonlyTransactionTest {
     @Test
     public void readNullReturnsNull() {
         AlphaTransaction t = startReadonlyTransaction();
-        Tranlocal result = t.load(null);
+        AlphaTranlocal result = t.load(null);
         assertNull(result);
     }
 
@@ -104,8 +104,8 @@ public class ReadonlyTransactionTest {
     public void readDoesNotObserveChangesMadeByOtherTransactions() {
         IntRef value = new IntRef(0);
 
-        AlphaTransaction readonlyTransaction = (AlphaTransaction) stm.startReadOnlyTransaction();
-        AlphaTransaction updateTransaction = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction readonlyTransaction = stm.startReadOnlyTransaction(null);
+        AlphaTransaction updateTransaction = stm.startUpdateTransaction(null);
         IntRefTranlocal tranlocal = (IntRefTranlocal) updateTransaction.privatize(value);
         tranlocal.inc();
 

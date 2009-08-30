@@ -44,7 +44,7 @@ public class FastAtomicObjectMixinTest {
         long writeVersion = 10;
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
 
-        Tranlocal result = atomicObject.load(writeVersion);
+        AlphaTranlocal result = atomicObject.load(writeVersion);
         assertSame(tranlocal, result);
     }
 
@@ -56,7 +56,7 @@ public class FastAtomicObjectMixinTest {
         long writeVersion = 10;
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
 
-        Tranlocal result = atomicObject.load(writeVersion + 1);
+        AlphaTranlocal result = atomicObject.load(writeVersion + 1);
         assertSame(tranlocal, result);
     }
 
@@ -64,7 +64,7 @@ public class FastAtomicObjectMixinTest {
     public void loadUncommittedData() {
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
 
-        Tranlocal result = object.load(1);
+        AlphaTranlocal result = object.load(1);
         assertNull(result);
     }
 
@@ -89,11 +89,11 @@ public class FastAtomicObjectMixinTest {
         long readVersion = stm.getClockVersion();
 
         Transaction owner = new DummyTransaction();
-        Tranlocal expected = intValue.load(readVersion);
+        AlphaTranlocal expected = intValue.load(readVersion);
 
         intValue.tryLock(owner);
 
-        Tranlocal found = intValue.load(readVersion);
+        AlphaTranlocal found = intValue.load(readVersion);
         assertSame(expected, found);
     }
 
@@ -197,12 +197,12 @@ public class FastAtomicObjectMixinTest {
     static class DummyFastAtomicObjectMixin extends FastAtomicObjectMixin {
 
         @Override
-        public Tranlocal privatize(long readVersion) {
+        public AlphaTranlocal privatize(long readVersion) {
             throw new RuntimeException();
         }
     }
 
-    static class DummyTranlocal extends Tranlocal {
+    static class DummyTranlocal extends AlphaTranlocal {
 
         private AlphaAtomicObject atomicObject;
 
@@ -216,7 +216,7 @@ public class FastAtomicObjectMixinTest {
         }
 
         @Override
-        public TranlocalSnapshot takeSnapshot() {
+        public AlphaTranlocalSnapshot takeSnapshot() {
             throw new RuntimeException();
         }
 

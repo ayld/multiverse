@@ -5,14 +5,14 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
+import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import org.multiverse.stms.alpha.manualinstrumentation.IntQueue;
-import org.multiverse.stms.alpha.manualinstrumentation.IntStack;
-import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.manualinstrumentation.IntQueue;
+import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
+import org.multiverse.stms.alpha.manualinstrumentation.IntStack;
 import org.multiverse.utils.GlobalStmInstance;
-import static org.multiverse.api.StmUtils.retry;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 public class OrElseTemplateTest {
@@ -32,7 +32,7 @@ public class OrElseTemplateTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

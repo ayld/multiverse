@@ -1,14 +1,14 @@
 package org.multiverse;
 
 import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaTranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
 import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
 
-public class DummyTranlocal extends Tranlocal {
+public class DummyTranlocal extends AlphaTranlocal {
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         throw new RuntimeException();
     }
 

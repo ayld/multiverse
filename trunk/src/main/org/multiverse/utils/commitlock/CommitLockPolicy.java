@@ -1,4 +1,4 @@
-package org.multiverse.utils.atomicobjectlocks;
+package org.multiverse.utils.commitlock;
 
 import org.multiverse.api.Transaction;
 
@@ -16,18 +16,9 @@ import org.multiverse.api.Transaction;
  *
  * @author Peter Veentjer.
  */
-public interface AtomicObjectLockPolicy {
+public interface CommitLockPolicy {
 
-    /**
-     * Tries to acquire the lock. This method should behave just the same as all the
-     * other tryLock methods. The reason of its existence is that it prevents creating
-     * an array if you only need to lock a single element.
-     *
-     * @param lock      the AtomicObjectLock to acquire
-     * @param lockOwner the Transaction that wants to own the lock.
-     * @return true if the lock as acquired successfully, false otherwise.
-     */
-    boolean tryLock(AtomicObjectLock lock, Transaction lockOwner);
+    CommitLockResult tryLockAndDetectConflict(CommitLock lock, Transaction lockOwner);
 
     /**
      * Tries to acquire all the locks.
@@ -42,5 +33,5 @@ public interface AtomicObjectLockPolicy {
      * @param lockOwner the Transaction that wants to own the lock.
      * @return true if the locks are acquired successfully, false otherwise.
      */
-    boolean tryLockAll(AtomicObjectLock[] locks, Transaction lockOwner);
+    CommitLockResult tryLockAllAndDetectConflicts(CommitLock[] locks, Transaction lockOwner);
 }

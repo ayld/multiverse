@@ -11,17 +11,17 @@ import org.multiverse.stms.AbstractTransaction;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * A readonly {@link org.multiverse.api.Transaction} implementation. Unlike the {@link UpdateTransaction}
+ * A readonly {@link org.multiverse.api.Transaction} implementation. Unlike the {@link UpdateAlphaTransaction}
  * a readonly transaction doesn't need track any reads done. This has the advantage that a
  * readonly transaction consumes a lot less resources.
  *
  * @author Peter Veentjer.
  */
-final class ReadonlyTransaction extends AbstractTransaction implements AlphaTransaction {
+final class ReadonlyAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
     private final AlphaStmStatistics statistics;
 
-    public ReadonlyTransaction(AlphaStmStatistics statistics, AtomicLong clock) {
-        super(clock, null);
+    public ReadonlyAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock) {
+        super(familyName, clock, null);
         this.statistics = statistics;
 
         init();
@@ -43,14 +43,14 @@ final class ReadonlyTransaction extends AbstractTransaction implements AlphaTran
     }
 
     @Override
-    public Tranlocal load(AlphaAtomicObject atomicObject) {
+    public AlphaTranlocal load(AlphaAtomicObject atomicObject) {
         switch (status) {
             case active:
                 if (atomicObject == null) {
                     return null;
                 }
 
-                Tranlocal result = atomicObject.load(readVersion);
+                AlphaTranlocal result = atomicObject.load(readVersion);
                 if (result == null) {
                     throw new LoadUncommittedException();
                 }
@@ -65,12 +65,12 @@ final class ReadonlyTransaction extends AbstractTransaction implements AlphaTran
     }
 
     @Override
-    public Tranlocal privatize(AlphaAtomicObject item) {
+    public AlphaTranlocal privatize(AlphaAtomicObject item) {
         throw new ReadonlyException();
     }
 
     @Override
-    public void attachNew(Tranlocal tranlocal) {
+    public void attachNew(AlphaTranlocal tranlocal) {
         throw new ReadonlyException();
     }
 

@@ -73,7 +73,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     @Override
-    public Tranlocal privatize(long version) {
+    public AlphaTranlocal privatize(long version) {
         StackTranlocal<E> origin = (StackTranlocal<E>) load(version);
         if (origin == null) {
             throw new LoadUncommittedException();
@@ -82,7 +82,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 }
 
-final class StackTranlocal<E> extends Tranlocal {
+final class StackTranlocal<E> extends AlphaTranlocal {
     private final Stack<E> atomicObject;
     int size;
     Node<E> head;
@@ -179,7 +179,7 @@ final class StackTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         throw new RuntimeException();
     }
 
