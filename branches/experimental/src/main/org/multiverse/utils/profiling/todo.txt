@@ -1,0 +1,14 @@
+todo
+
+- a better performing defaultprofiler (remove the concurrenthashmap)
+
+- easier way to do the actual logging, you don't want to have it scattered all over the code itself. Perhaps
+annotations icw with instrumentation?
+
+- track on class level where writeconflicts happen
+
+- track on class level where the locks could not be acquired.
+
+- make it easy to calculate percentages. 
+
+done
