@@ -1,0 +1,49 @@
+todo
+
+- the tranlocal needs to be attached as soon as possible so that it can
+be retrieved as soon as possible. The best way to realize this is to add
+this functionality to the constructor.
+
+- test for multiple clinit clauses
+
+- nalopen method node creatie zonder var table.
+
+- een systeem zelf geschreven in de stm, die bepaald wat de beste lengte voor een
+transactie kan zijn.
+
+- transacties maken die geoptimaliseerd zijn voor een bepaalde lengte.
+
+- alleen lezen als er een waarde staat, als er geen waarde staat ga je
+het niet lezen en naar de volgende. Dit is handig for the rety mechanism.
+
+if a transaction is going to include the readset in the commit, you don't want to
+read too much. If you do, you get a lot of conflicts.. So with the 'readifsomething
+interesting is there, else don't read.
+
+idea
+
+done
+
+- de debug info van de methodes uit de FastAtomicObjectMixin meenemen naar de class zelf.
+
+- bij de Tranlocal nog een snapshot
+
+- TranlocalSnapshot
+
+- de automatic package moet gerenamed worden.
+
+- Tranlocal opzetten mbv tree api
+
+- bij de Tranlocal moet nog een committed check gedaan worden
+
+- problemen met het toevoegen van nieuwe classes in asm structuur
+
+- aangezien je een chain hebt, ben je de orginele kwijt... zou je die misschien mee kunnen geven?
+
+- de nieuwe Tranlocal toevoegen aan de classloader.
+
+- Tranlocal en privatize constructor
+
+- bij de Tranlocal getDirtnessState
+
+
