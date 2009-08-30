@@ -4,7 +4,6 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.assertNoInstrumentationProblems;
 import org.multiverse.api.Stm;
 import org.multiverse.utils.GlobalStmInstance;
 
@@ -21,7 +20,7 @@ public class DoubleLinkedQueueTest {
 
     @After
     public void tearDown() {
-        assertNoInstrumentationProblems();
+        //assertNoInstrumentationProblems();
     }
 
     @Test

@@ -5,9 +5,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.assertNoInstrumentationProblems;
 import org.multiverse.api.Stm;
+import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
+import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -17,12 +18,14 @@ public class SingleLinkedStackTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = new AlphaStm();
+        GlobalStmInstance.set(stm);
+        setThreadLocalTransaction(null);
     }
 
     @After
     public void tearDown() {
-        assertNoInstrumentationProblems();
+        //assertNoInstrumentationProblems();
     }
 
     @Test

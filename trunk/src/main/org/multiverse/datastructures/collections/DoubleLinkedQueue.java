@@ -3,7 +3,7 @@ package org.multiverse.datastructures.collections;
 import org.multiverse.api.annotations.AtomicObject;
 
 /**
- * A Queue that used 2 single linked lists. See the {@link org.multiverse.datastructures.collections.DoubleLinkedQueue}
+ * A Queue that uses 2 SingleLinkedStacks; one for the head and one for the tail. See the {@link DoubleLinkedQueue}
  * for more information.
  *
  * @author Peter Veentjer
