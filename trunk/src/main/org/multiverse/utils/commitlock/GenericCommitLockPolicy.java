@@ -2,8 +2,6 @@ package org.multiverse.utils.commitlock;
 
 import org.multiverse.api.Transaction;
 import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
-import org.multiverse.utils.spinning.BoundedSpinPolicy;
-import org.multiverse.utils.spinning.SpinPolicy;
 
 /**
  * An {@link CommitLockPolicy} that spins when it can't acquire a lock. When the lock can't
@@ -27,15 +25,11 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
     public static final CommitLockPolicy FAIL_FAST_BUT_RETRY = new GenericCommitLockPolicy(0, 10);
     public static final CommitLockPolicy SPIN_AND_RETRY = new GenericCommitLockPolicy(10, 10);
 
-    private final SpinPolicy spinPolicy;
+    private final int spinAttemptsPerLockCount;
     private final int retryCount;
 
     public GenericCommitLockPolicy(int spinAttemptsPerLockCount, int retryCount) {
-        this(new BoundedSpinPolicy(spinAttemptsPerLockCount), retryCount);
-    }
-
-    public GenericCommitLockPolicy(SpinPolicy spinPolicy, int retryCount) {
-        if (spinPolicy == null) {
+        if (spinAttemptsPerLockCount < 0) {
             throw new NullPointerException();
         }
 
@@ -43,10 +37,9 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
             throw new IllegalArgumentException();
         }
 
-        this.spinPolicy = spinPolicy;
+        this.spinAttemptsPerLockCount = spinAttemptsPerLockCount;
         this.retryCount = retryCount;
     }
-
 
     public int getRetryCount() {
         return retryCount;
@@ -130,7 +123,7 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
 
                     } while (!lockAcquired);
 
-                    money += 0;
+                    money += spinAttemptsPerLockCount;
                 }
             }
 
