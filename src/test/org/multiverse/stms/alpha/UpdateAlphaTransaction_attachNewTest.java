@@ -17,7 +17,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 /**
  * @author Peter Veentjer
  */
-public class UpdateTransaction_attachNewTest {
+public class UpdateAlphaTransaction_attachNewTest {
     private AlphaStm stm;
 
     @Before
@@ -32,13 +32,13 @@ public class UpdateTransaction_attachNewTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
 
     public AlphaTransaction startReadonlyTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

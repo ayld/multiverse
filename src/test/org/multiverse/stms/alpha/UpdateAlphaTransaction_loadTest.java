@@ -13,7 +13,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
-public class UpdateTransaction_loadTest {
+public class UpdateAlphaTransaction_loadTest {
     private AlphaStm stm;
 
     @Before
@@ -29,13 +29,13 @@ public class UpdateTransaction_loadTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
 
     public AlphaTransaction startReadonlyTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -44,7 +44,7 @@ public class UpdateTransaction_loadTest {
     public void loadNullReturnsNull() {
         AlphaTransaction t = startUpdateTransaction();
 
-        Tranlocal result = t.load(null);
+        AlphaTranlocal result = t.load(null);
         assertNull(result);
         assertIsActive(t);
     }
@@ -69,7 +69,7 @@ public class UpdateTransaction_loadTest {
         AlphaTransaction t = startUpdateTransaction();
         IntRefTranlocal loaded1 = (IntRefTranlocal) t.privatize(intValue);
 
-        Tranlocal loaded2 = t.load(intValue);
+        AlphaTranlocal loaded2 = t.load(intValue);
 
         assertSame(loaded1, loaded2);
         assertIsActive(t);

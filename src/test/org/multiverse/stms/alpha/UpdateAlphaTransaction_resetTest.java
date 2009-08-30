@@ -13,7 +13,7 @@ import org.multiverse.utils.GlobalStmInstance;
 /**
  * @author Peter Veentjer
  */
-public class UpdateTransaction_resetTest {
+public class UpdateAlphaTransaction_resetTest {
     private AlphaStm stm;
 
     @Before
@@ -24,7 +24,7 @@ public class UpdateTransaction_resetTest {
 
     @Test
     public void resetOnActiveTransactionFails() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         try {
             t.reset();
             fail();
@@ -36,7 +36,7 @@ public class UpdateTransaction_resetTest {
 
     @Test
     public void resetOnAbortedTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.abort();
 
         //commit some dummy change
@@ -49,7 +49,7 @@ public class UpdateTransaction_resetTest {
 
     @Test
     public void resetOnCommittedTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.commit();
 
         //commit some dummy change

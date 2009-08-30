@@ -37,7 +37,7 @@ public class BooleanRef extends FastAtomicObjectMixin {
     }
 
     @Override
-    public Tranlocal privatize(long version) {
+    public AlphaTranlocal privatize(long version) {
         BooleanRefTranlocal origin = (BooleanRefTranlocal) load(version);
         if (origin == null) {
             throw new LoadUncommittedException();
@@ -46,7 +46,7 @@ public class BooleanRef extends FastAtomicObjectMixin {
     }
 }
 
-class BooleanRefTranlocal extends Tranlocal {
+class BooleanRefTranlocal extends AlphaTranlocal {
     final BooleanRef atomicObject;
     boolean value;
     BooleanRefTranlocal origin;
@@ -87,7 +87,7 @@ class BooleanRefTranlocal extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         return new BooleanRefTranlocalSnapshot(this);
     }
 
@@ -105,7 +105,7 @@ class BooleanRefTranlocal extends Tranlocal {
     }
 }
 
-class BooleanRefTranlocalSnapshot extends TranlocalSnapshot {
+class BooleanRefTranlocalSnapshot extends AlphaTranlocalSnapshot {
     final BooleanRefTranlocal tranlocal;
     final boolean value;
 
@@ -115,7 +115,7 @@ class BooleanRefTranlocalSnapshot extends TranlocalSnapshot {
     }
 
     @Override
-    public Tranlocal getTranlocal() {
+    public AlphaTranlocal getTranlocal() {
         return tranlocal;
     }
 

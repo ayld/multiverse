@@ -1,9 +1,8 @@
 package org.multiverse.api.locks;
 
-import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocal;
 
 /**
- *
  * To prevent complicating the Transaction interface, all the lock related functionality
  * can be found here.
  *
@@ -17,14 +16,15 @@ public interface LockManager {
      * later using the todo
      *
      * @param atomicObject the AtomicObject to privatize and lock.
-     * @param lockStatus how to lock the atomicObject.
+     * @param lockStatus   how to lock the atomicObject.
      * @return the privatized and locked Tranlocal.
      * @throws IllegalArgumentException
-     * @throws NullPointerException if atomicObject or LockStatus is null.
-     * @throws org.multiverse.api.exceptions.DeadTransactionException if the transaction
-     * is dead (so not active).
+     * @throws NullPointerException     if atomicObject or LockStatus is null.
+     * @throws org.multiverse.api.exceptions.DeadTransactionException
+     *                                  if the transaction
+     *                                  is dead (so not active).
      */
-    Tranlocal privatize(Object atomicObject, LockStatus lockStatus);
+    AlphaTranlocal privatize(Object atomicObject, LockStatus lockStatus);
 
     /**
      * Returns the status of the lock of an atomic object.
@@ -32,18 +32,19 @@ public interface LockManager {
      * @param atomicObject
      * @return the Lock mode of the atomic object.
      * @throws IllegalArgumentException
-     * @throws org.multiverse.api.exceptions.DeadTransactionException if the transaction
-     * is dead.
+     * @throws org.multiverse.api.exceptions.DeadTransactionException
+     *                                  if the transaction
+     *                                  is dead.
      */
     LockStatus getLockStatus(Object atomicObject);
 
-     /**
-     *
+    /**
      * @param atomicObject
      * @return
      * @throws IllegalArgumentException
-     * @throws org.multiverse.api.exceptions.DeadTransactionException if the transaction
-     * already is aborted.
+     * @throws org.multiverse.api.exceptions.DeadTransactionException
+     *                                  if the transaction
+     *                                  already is aborted.
      */
     StmLock getLock(Object atomicObject, LockStatus lockStatus);
 }

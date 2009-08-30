@@ -15,7 +15,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 /**
  * @author Peter Veentjer
  */
-public class UpdateTransaction_executePostCommitTest {
+public class UpdateAlphaTransaction_executePostCommitTest {
 
     private Stm stm;
 
@@ -32,7 +32,7 @@ public class UpdateTransaction_executePostCommitTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -42,7 +42,7 @@ public class UpdateTransaction_executePostCommitTest {
         TestTask task1 = new TestTask();
         TestTask task2 = new TestTask();
 
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.executePostCommit(task1);
         t.executePostCommit(task2);
 
@@ -60,7 +60,7 @@ public class UpdateTransaction_executePostCommitTest {
         TestTask task1 = new TestTask();
         TestTask task2 = new TestTask();
 
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.executePostCommit(task1);
         t.executePostCommit(task2);
 
@@ -75,7 +75,7 @@ public class UpdateTransaction_executePostCommitTest {
 
     @Test
     public void executePostCommitFailsWithNullArgument() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
 
         try {
             t.executePostCommit(null);
@@ -88,7 +88,7 @@ public class UpdateTransaction_executePostCommitTest {
 
     @Test
     public void executePostCommitFailsOnCommittedTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.commit();
 
         TestTask task = new TestTask();
@@ -104,7 +104,7 @@ public class UpdateTransaction_executePostCommitTest {
 
     @Test
     public void executePostCommitFailsOnAbortedTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.abort();
 
         TestTask task = new TestTask();

@@ -15,7 +15,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 /**
  * @author Peter Veentjer
  */
-public class UpdateTransaction_getLockManagerTest {
+public class UpdateAlphaTransaction_getLockManagerTest {
 
     private Stm stm;
 
@@ -31,7 +31,7 @@ public class UpdateTransaction_getLockManagerTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -40,7 +40,7 @@ public class UpdateTransaction_getLockManagerTest {
     public void getLockManager() {
         Transaction t = startUpdateTransaction();
         LockManager m = t.getLockManager();
-        assertSame(t,m);
+        assertSame(t, m);
     }
 
     @Test

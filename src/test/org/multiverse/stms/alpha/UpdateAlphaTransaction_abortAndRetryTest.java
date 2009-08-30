@@ -14,7 +14,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
-public class UpdateTransaction_abortAndRetryTest {
+public class UpdateAlphaTransaction_abortAndRetryTest {
 
     private AlphaStm stm;
 
@@ -26,7 +26,7 @@ public class UpdateTransaction_abortAndRetryTest {
     }
 
     public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

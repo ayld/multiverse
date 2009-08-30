@@ -17,7 +17,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 /**
  * @author Peter Veentjer
  */
-public class UpdateTransaction_privatizeTest {
+public class UpdateAlphaTransaction_privatizeTest {
 
     private AlphaStm stm;
 
@@ -34,7 +34,7 @@ public class UpdateTransaction_privatizeTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -54,7 +54,7 @@ public class UpdateTransaction_privatizeTest {
     public void loadWithNullArgumentReturnsNull() {
         AlphaTransaction t = startUpdateTransaction();
 
-        Tranlocal result = t.privatize(null);
+        AlphaTranlocal result = t.privatize(null);
 
         assertNull(result);
         assertIsActive(t);
@@ -110,10 +110,10 @@ public class UpdateTransaction_privatizeTest {
     public void loadOnDifferentTransactionsReturnDifferentInstances() {
         IntRef value = new IntRef(1);
 
-        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction(null);
         IntRefTranlocal found1 = (IntRefTranlocal) t1.privatize(value);
 
-        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction(null);
         IntRefTranlocal found2 = (IntRefTranlocal) t2.privatize(value);
 
         assertNotSame(found1, found2);
@@ -127,7 +127,7 @@ public class UpdateTransaction_privatizeTest {
     public void loadFailsOnUncommittedObject() {
         IntRef value = IntRef.createUncommitted();
 
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
 
         try {
             t.privatize(value);

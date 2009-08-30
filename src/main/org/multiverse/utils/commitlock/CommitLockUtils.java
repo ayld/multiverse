@@ -1,13 +1,13 @@
-package org.multiverse.utils.atomicobjectlocks;
+package org.multiverse.utils.commitlock;
 
 import org.multiverse.api.Transaction;
 
 /**
  * @author Peter Veentjer.
  */
-public final class AtomicObjectLockUtils {
+public final class CommitLockUtils {
 
-    public static boolean nothingToLock(AtomicObjectLock[] writeSet) {
+    public static boolean nothingToLock(CommitLock[] writeSet) {
         return writeSet == null || writeSet.length == 0 || writeSet[0] == null;
     }
 
@@ -22,12 +22,12 @@ public final class AtomicObjectLockUtils {
      * @param locks contains the items to release the locks of.
      * @throws NullPointerException if lockOwner is null.
      */
-    public static void releaseLocks(AtomicObjectLock[] locks, Transaction lockOwner) {
+    public static void releaseLocks(CommitLock[] locks, Transaction lockOwner) {
         if (lockOwner == null) {
             throw new NullPointerException();
         } else if (locks != null) {
             for (int k = 0; k < locks.length; k++) {
-                AtomicObjectLock element = locks[k];
+                CommitLock element = locks[k];
                 if (element == null) {
                     return;
                 } else {
@@ -38,6 +38,6 @@ public final class AtomicObjectLockUtils {
     }
 
     //we don't want instances
-    private AtomicObjectLockUtils() {
+    private CommitLockUtils() {
     }
 }

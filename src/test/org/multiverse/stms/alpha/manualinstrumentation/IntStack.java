@@ -2,8 +2,8 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
+import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
-import org.multiverse.stms.alpha.Tranlocal;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -71,7 +71,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     @Override
-    public Tranlocal privatize(long version) {
+    public AlphaTranlocal privatize(long version) {
         IntStackTranlocal origin = (IntStackTranlocal) load(version);
         if (origin == null) {
             throw new LoadUncommittedException();

@@ -9,7 +9,6 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-import org.multiverse.datastructures.refs.Ref;
 
 /**
  * @author Peter Veentjer
@@ -159,7 +158,7 @@ public class RefTest {
         Ref<String> ref = new Ref<String>(oldRef);
 
         long version = stm.getClockVersion();
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         String newRef = "bar";
         ref.set(newRef);
@@ -192,7 +191,7 @@ public class RefTest {
 
         //we start a transaction because we don't want to lift on the retry mechanism
         //of the transaction that else would be started on the getOrAwait method.
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         try {
             ref.getOrAwait();

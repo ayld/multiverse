@@ -23,6 +23,15 @@ import org.multiverse.api.locks.LockManager;
 public interface Transaction {
 
     /**
+     * Returns the family name of this Transaction. Every transaction in principle should have
+     * a family name. This information can be used for debugging purposes, but also other techniques
+     * that rely to know something about similar types of transactions like profiling.
+     *
+     * @return the familyName. The returned value can be null.
+     */
+    String getFamilyName();
+
+    /**
      * Returns the clock version of the stm when this Transaction started. This version is
      * needed to provide a transaction level read consistent view. The returned version will
      * always be larger than Long.MIN_VALUE.

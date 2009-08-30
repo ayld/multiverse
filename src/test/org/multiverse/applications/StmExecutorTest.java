@@ -28,9 +28,9 @@ public class StmExecutorTest {
             }
         };
 
-        Transaction t = GlobalStmInstance.get().startUpdateTransaction();
+        Transaction t = GlobalStmInstance.get().startUpdateTransaction(null);
         setThreadLocalTransaction(t);
-        StmExecutor executor = new StmExecutor(1,10);
+        StmExecutor executor = new StmExecutor(1, 10);
 
         executor.execute(task);
         executor.execute(task);
@@ -48,7 +48,7 @@ public class StmExecutorTest {
             }
         };
 
-        StmExecutor executor = new StmExecutor(1,10);
+        StmExecutor executor = new StmExecutor(1, 10);
         executor.execute(task);
         executor.execute(task);
         executor.execute(task);
@@ -60,5 +60,6 @@ public class StmExecutorTest {
 
 
     @Test
-    public void testIgnore(){}
+    public void testIgnore() {
+    }
 }

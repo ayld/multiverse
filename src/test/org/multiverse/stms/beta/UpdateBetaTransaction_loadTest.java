@@ -20,7 +20,7 @@ public class UpdateBetaTransaction_loadTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startUpdateTransaction();
+        return (BetaTransaction) stm.startUpdateTransaction(null);
     }
 
     @Test

@@ -129,6 +129,10 @@ public abstract class AtomicTemplate<E> {
      */
     public abstract E execute(Transaction t) throws Exception;
 
+    public final E execute() {
+        return execute((String) null);
+    }
+
     /**
      * Executes the template.
      *
@@ -136,9 +140,10 @@ public abstract class AtomicTemplate<E> {
      * @throws InvisibleCheckedException if a checked exception was thrown while executing the
      *                                   {@link #execute(org.multiverse.api.Transaction)} method.
      */
-    public final E execute() {
+
+    public final E execute(String familyName) {
         try {
-            return executeChecked();
+            return executeChecked(familyName);
         } catch (Exception ex) {
             if (ex instanceof RuntimeException) {
                 throw (RuntimeException) ex;
@@ -146,6 +151,11 @@ public abstract class AtomicTemplate<E> {
                 throw new AtomicTemplate.InvisibleCheckedException(ex);
             }
         }
+    }
+
+    public final E executeChecked() throws Exception {
+        //todo: this method will be removed since familyName usage should be promoted
+        return executeChecked(null);
     }
 
     /**
@@ -156,10 +166,10 @@ public abstract class AtomicTemplate<E> {
      * @throws Exception the Exception thrown inside the {@link #execute(org.multiverse.api.Transaction)}
      *                   method.
      */
-    public final E executeChecked() throws Exception {
+    public final E executeChecked(String familyName) throws Exception {
         Transaction t = getTransaction();
         if (t == null || t.getStatus() != TransactionStatus.active) {
-            t = stm.startUpdateTransaction();
+            t = stm.startUpdateTransaction(familyName);
             setTransaction(t);
             try {
                 attemptCount = 1;

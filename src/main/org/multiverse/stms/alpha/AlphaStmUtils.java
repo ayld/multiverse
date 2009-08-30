@@ -11,7 +11,7 @@ public final class AlphaStmUtils {
      * @param t
      * @return
      */
-    public static Object getAtomicObject(Tranlocal t) {
+    public static Object getAtomicObject(AlphaTranlocal t) {
         return t == null ? null : t.getAtomicObject();
     }
 
@@ -23,7 +23,7 @@ public final class AlphaStmUtils {
      *
      * @param object
      */
-    public static void attachAsNew(Tranlocal object) {
+    public static void attachAsNew(AlphaTranlocal object) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
@@ -42,7 +42,7 @@ public final class AlphaStmUtils {
      * @param object
      * @return
      */
-    public static Tranlocal privatize(Object object) {
+    public static AlphaTranlocal privatize(Object object) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");

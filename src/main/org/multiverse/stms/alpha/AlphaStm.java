@@ -1,10 +1,8 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
 import org.multiverse.utils.TodoException;
-import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
-import org.multiverse.utils.atomicobjectlocks.GenericAtomicObjectLockPolicy;
+import org.multiverse.utils.commitlock.CommitLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -35,13 +33,13 @@ public final class AlphaStm implements Stm {
 
     private final boolean loggingPossible;
 
-    private volatile AtomicObjectLockPolicy lockPolicy;
+    private volatile CommitLockPolicy lockPolicy;
 
     /**
      * Creates a new AlphaStm that keeps track of statistics and where logging is possible.
      */
     public AlphaStm() {
-        this(new AlphaStmStatistics(), GenericAtomicObjectLockPolicy.FAIL_FAST_BUT_RETRY, true);
+        this(AlphaStmConfig.createDebugConfig());
     }
 
     /**
@@ -49,20 +47,18 @@ public final class AlphaStm implements Stm {
      * to remove all calls to the statistics, so we don't need to pay to price if we don't use it.
      * It also means that the value can't be changed after construction.
      *
-     * @param statistics      the TL2StmStatistics to use, or null of none should be used.
-     * @param lockPolicy      the AtomicObjectLockPolicy used to acquire the locks.
-     * @param loggingPossible if logging to java.util.logging is possible. If logging is disabled, a different
-     *                        transaction class will be used that doesn't cause any logging overhead.
      * @throws NullPointerException if lockPolicy is null.
      */
-    public AlphaStm(AlphaStmStatistics statistics, AtomicObjectLockPolicy lockPolicy, boolean loggingPossible) {
-        if (lockPolicy == null) {
+    public AlphaStm(AlphaStmConfig config) {
+        if (config == null) {
             throw new NullPointerException();
-        } else {
-            this.statistics = statistics;
-            this.loggingPossible = loggingPossible;
-            this.lockPolicy = lockPolicy;
         }
+
+        config.ensureValid();
+
+        this.statistics = config.statistics;
+        this.loggingPossible = config.loggingPossible;
+        this.lockPolicy = config.lockPolicy;
     }
 
     /**
@@ -70,7 +66,7 @@ public final class AlphaStm implements Stm {
      *
      * @return the current WriteSetLockPolicy.
      */
-    public AtomicObjectLockPolicy getAtomicObjectLockPolicy() {
+    public CommitLockPolicy getAtomicObjectLockPolicy() {
         return lockPolicy;
     }
 
@@ -80,7 +76,7 @@ public final class AlphaStm implements Stm {
      * @param newLockPolicy the new WriteSetLockPolicy.
      * @throws NullPointerException if newWriteSetLockPolicy is null.
      */
-    public void setAtomicObjectLockPolicy(AtomicObjectLockPolicy newLockPolicy) {
+    public void setAtomicObjectLockPolicy(CommitLockPolicy newLockPolicy) {
         if (newLockPolicy == null) {
             throw new NullPointerException();
         } else {
@@ -98,21 +94,21 @@ public final class AlphaStm implements Stm {
     }
 
     @Override
-    public Transaction startUpdateTransaction() {
+    public AlphaTransaction startUpdateTransaction(String familyName) {
         if (loggingPossible) {
-            return new LoggingUpdateTransaction(statistics, clock, lockPolicy);
+            return new LoggingUpdateTransaction(familyName, statistics, clock, lockPolicy);
         } else {
-            return new UpdateTransaction(statistics, clock, lockPolicy);
+            return new UpdateAlphaTransaction(familyName, statistics, clock, lockPolicy);
         }
     }
 
     @Override
-    public Transaction startReadOnlyTransaction() {
-        return new ReadonlyTransaction(statistics, clock);
+    public AlphaTransaction startReadOnlyTransaction(String familyName) {
+        return new ReadonlyAlphaTransaction(familyName, statistics, clock);
     }
 
     @Override
-    public Transaction startFlashbackTransaction(long readVersion) {
+    public AlphaTransaction startFlashbackTransaction(String familyName, long readVersion) {
         if (readVersion > clock.get()) {
             throw new IllegalArgumentException();
         }

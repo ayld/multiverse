@@ -1,7 +1,8 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Transaction;
-import org.multiverse.utils.atomicobjectlocks.AtomicObjectLock;
+import org.multiverse.utils.commitlock.CommitLock;
+import org.multiverse.utils.commitlock.CommitLockResult;
 
 /**
  * The Tranlocal is the Transaction local content of a AtomicObject, since the state from the
@@ -21,7 +22,7 @@ import org.multiverse.utils.atomicobjectlocks.AtomicObjectLock;
  *
  * @author Peter Veentjer.
  */
-public abstract class Tranlocal implements AtomicObjectLock {
+public abstract class AlphaTranlocal implements CommitLock {
 
     public long version = Long.MIN_VALUE;
 
@@ -56,7 +57,7 @@ public abstract class Tranlocal implements AtomicObjectLock {
      *
      * @return the snapshot.
      */
-    public abstract TranlocalSnapshot takeSnapshot();
+    public abstract AlphaTranlocalSnapshot takeSnapshot();
 
     /**
      * Returns the DirtinessStatus for this Tranlocal. Based on this value the stm is able to decide
@@ -74,8 +75,26 @@ public abstract class Tranlocal implements AtomicObjectLock {
     public abstract DirtinessStatus getDirtinessStatus();
 
     @Override
-    public boolean tryLock(Transaction lockOwner) {
-        return getAtomicObject().tryLock(lockOwner);
+    public CommitLockResult tryLockAndDetectConflicts(Transaction lockOwner) {
+        AlphaAtomicObject atomicObject = getAtomicObject();
+
+        boolean lockedAcquired = atomicObject.tryLock(lockOwner);
+        if (!lockedAcquired) {
+            return CommitLockResult.failure;
+        }
+
+        AlphaTranlocal mostRecentlyWritten = atomicObject.load();
+        if (mostRecentlyWritten == null) {
+            return CommitLockResult.success;
+        }
+
+        boolean noConflict = mostRecentlyWritten.version <= lockOwner.getReadVersion();
+        if (noConflict) {
+            return CommitLockResult.success;
+        }
+
+        atomicObject.releaseLock(lockOwner);
+        return CommitLockResult.conflict;
     }
 
     @Override

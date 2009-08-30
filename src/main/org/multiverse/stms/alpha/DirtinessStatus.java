@@ -1,7 +1,7 @@
 package org.multiverse.stms.alpha;
 
 /**
- * A {@link org.multiverse.stms.alpha.Tranlocal} can have different 'dirtiness' states.
+ * A {@link AlphaTranlocal} can have different 'dirtiness' states.
  *
  * @author Peter Veentjer.
  */

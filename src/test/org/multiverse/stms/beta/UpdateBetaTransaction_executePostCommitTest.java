@@ -19,7 +19,7 @@ public class UpdateBetaTransaction_executePostCommitTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startUpdateTransaction();
+        return stm.startUpdateTransaction(null);
     }
 
     @Test

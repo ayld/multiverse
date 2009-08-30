@@ -5,7 +5,7 @@ import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStmDebugConstants;
-import org.multiverse.stms.alpha.Tranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.utils.Listeners;
 import org.multiverse.utils.TodoException;
 import org.multiverse.utils.latches.Latch;
@@ -45,7 +45,7 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
      * @return
      */
     @Override
-    public Tranlocal load(long readVersion) {
+    public AlphaTranlocal load(long readVersion) {
         State currentState = stateRef.get();
 
         if (currentState == null || currentState.tranlocal == null) {
@@ -133,7 +133,7 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
     }
 
     @Override
-    public void storeAndReleaseLock(Tranlocal tranlocal, long writeVersion) {
+    public void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
         if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
             if (tranlocal.committed) {
                 throw new RuntimeException("Can't commit already committed data");
@@ -202,11 +202,11 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
     }
 
     public static class State {
-        public final Tranlocal tranlocal;
+        public final AlphaTranlocal tranlocal;
         public final Listeners listeners;
         public final Transaction writeLockOwner;
 
-        public State(Tranlocal tranlocal, Transaction writeLockOwner, Listeners listeners) {
+        public State(AlphaTranlocal tranlocal, Transaction writeLockOwner, Listeners listeners) {
             this.tranlocal = tranlocal;
             this.listeners = listeners;
             this.writeLockOwner = writeLockOwner;

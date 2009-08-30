@@ -18,7 +18,7 @@ public class ReadonlyBetaTransaction_loadTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startUpdateTransaction();
+        return (BetaTransaction) stm.startUpdateTransaction(null);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ReadonlyBetaTransaction_loadTest {
 
         BetaTransaction t1 = startTransaction();
 
-        BetaTransaction t2 = (BetaTransaction) stm.startUpdateTransaction();
+        BetaTransaction t2 = stm.startUpdateTransaction(null);
         ref.set(t2, 20L);
         t2.commit();
 

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
@@ -14,7 +13,7 @@ import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransact
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 public class IntRefTest {
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
@@ -24,7 +23,7 @@ public class IntRefTest {
     }
 
     public AlphaTransaction startTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -33,9 +32,9 @@ public class IntRefTest {
 
     @Test
     public void dirtinessStateForFreshObject() {
-        Transaction t = startTransaction();
+        AlphaTransaction t = startTransaction();
         IntRef value = new IntRef(0);
-        IntRefTranlocal tranlocalValue = (IntRefTranlocal) ((AlphaTransaction) t).privatize(value);
+        IntRefTranlocal tranlocalValue = (IntRefTranlocal) t.privatize(value);
         assertEquals(DirtinessStatus.fresh, tranlocalValue.getDirtinessStatus());
     }
 
@@ -43,8 +42,8 @@ public class IntRefTest {
     public void dirtinessStateForLoadedObject() {
         IntRef value = new IntRef(0);
 
-        Transaction t = startTransaction();
-        IntRefTranlocal tranlocal = (IntRefTranlocal) ((AlphaTransaction) t).privatize(value);
+        AlphaTransaction t = startTransaction();
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(value);
         assertEquals(DirtinessStatus.clean, tranlocal.getDirtinessStatus());
     }
 
@@ -52,9 +51,9 @@ public class IntRefTest {
     public void dirtinessStateForDirtyObject() {
         IntRef value = new IntRef(0);
 
-        Transaction t = startTransaction();
+        AlphaTransaction t = startTransaction();
         value.inc();
-        IntRefTranlocal tranlocal = (IntRefTranlocal) ((AlphaTransaction) t).privatize(value);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(value);
 
         assertEquals(DirtinessStatus.dirty, tranlocal.getDirtinessStatus());
     }

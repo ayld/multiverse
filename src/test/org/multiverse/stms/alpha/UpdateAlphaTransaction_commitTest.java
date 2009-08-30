@@ -16,7 +16,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
-public class UpdateTransaction_commitTest {
+public class UpdateAlphaTransaction_commitTest {
 
     private AlphaStm stm;
 
@@ -33,13 +33,13 @@ public class UpdateTransaction_commitTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
 
     public AlphaTransaction startReadonlyTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction();
+        AlphaTransaction t = stm.startReadOnlyTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -50,10 +50,10 @@ public class UpdateTransaction_commitTest {
     public void commitFailsIfWriteConflictIsEncountered() {
         IntRef value = new IntRef(0);
 
-        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t1 = stm.startUpdateTransaction(null);
         IntRefTranlocal tranlocalIntValueR1 = (IntRefTranlocal) t1.privatize(value);
 
-        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t2 = stm.startUpdateTransaction(null);
         IntRefTranlocal tranlocalIntValueR2 = (IntRefTranlocal) t2.privatize(value);
         tranlocalIntValueR2.inc();
         t2.commit();

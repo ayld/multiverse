@@ -18,7 +18,7 @@ public class UpdateBetaTransaction_resetTest {
     }
 
     private BetaTransaction startTransaction() {
-        return (BetaTransaction) stm.startUpdateTransaction();
+        return stm.startUpdateTransaction(null);
     }
 
     @Test

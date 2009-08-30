@@ -14,7 +14,7 @@ import org.multiverse.utils.latches.Latch;
 public interface AlphaAtomicObject {
 
     /**
-     * Loads the {@link Tranlocal} with a version equal or smaller than readVersion. It is very
+     * Loads the {@link AlphaTranlocal} with a version equal or smaller than readVersion. It is very
      * important for the implementation to not to return a too old version. If this happens, the
      * system could start to suffer from lost updates (not seeing changes you should have seen).
      *
@@ -23,10 +23,12 @@ public interface AlphaAtomicObject {
      * @throws org.multiverse.api.exceptions.LoadException
      *          if the system wasn't able to load the Tranlocal.
      */
-    Tranlocal load(long readVersion);
+    AlphaTranlocal load(long readVersion);
+
+    AlphaTranlocal load();
 
     /**
-     * Loads the {@link Tranlocal} with the specified version and returns a private copy that can be used
+     * Loads the {@link AlphaTranlocal} with the specified version and returns a private copy that can be used
      * for updating transactions.
      * <p/>
      * todo:
@@ -41,7 +43,7 @@ public interface AlphaAtomicObject {
      *          if is already able to determine that
      *          a write will never be successful.
      */
-    Tranlocal privatize(long readVersion);
+    AlphaTranlocal privatize(long readVersion);
 
     /**
      * Acquires the lock. The lock is only acquired it the lock is free.
@@ -71,7 +73,7 @@ public interface AlphaAtomicObject {
      * @param tranlocal    the Tranlocal to store.
      * @param writeVersion the version to store the Tranlocal with.
      */
-    void storeAndReleaseLock(Tranlocal tranlocal, long writeVersion);
+    void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion);
 
     /**
      * Registers a listener for retrying (the condition variable version for STM's). The Latch is a

@@ -79,7 +79,7 @@ public class LongRef extends FastAtomicObjectMixin {
     }
 }
 
-class LongRefTranlocal extends Tranlocal {
+class LongRefTranlocal extends AlphaTranlocal {
     private final LongRef atomicObject;
     public long value;
     LongRefTranlocal origin;
@@ -157,7 +157,7 @@ class LongRefTranlocal extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         return new LongRefTranlocalSnapshot(this);
     }
 
@@ -170,7 +170,7 @@ class LongRefTranlocal extends Tranlocal {
     }
 }
 
-class LongRefTranlocalSnapshot extends TranlocalSnapshot {
+class LongRefTranlocalSnapshot extends AlphaTranlocalSnapshot {
     final LongRefTranlocal tranlocal;
     final long value;
 
@@ -180,7 +180,7 @@ class LongRefTranlocalSnapshot extends TranlocalSnapshot {
     }
 
     @Override
-    public Tranlocal getTranlocal() {
+    public AlphaTranlocal getTranlocal() {
         return tranlocal;
     }
 

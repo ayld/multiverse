@@ -1,10 +1,9 @@
 package org.multiverse.stms.beta;
 
 import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
 import org.multiverse.utils.TodoException;
-import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
-import org.multiverse.utils.atomicobjectlocks.GenericAtomicObjectLockPolicy;
+import org.multiverse.utils.commitlock.CommitLockPolicy;
+import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -35,13 +34,13 @@ public final class BetaStm implements Stm {
 
     private final AtomicLong clock = new AtomicLong();
 
-    private final AtomicObjectLockPolicy lockPolicy;
+    private final CommitLockPolicy lockPolicy;
 
     public BetaStm() {
-        this(GenericAtomicObjectLockPolicy.FAIL_FAST_BUT_RETRY);
+        this(GenericCommitLockPolicy.FAIL_FAST_BUT_RETRY);
     }
 
-    public BetaStm(AtomicObjectLockPolicy lockPolicy) {
+    public BetaStm(CommitLockPolicy lockPolicy) {
         if (lockPolicy == null) {
             throw new NullPointerException();
         } else {
@@ -55,17 +54,17 @@ public final class BetaStm implements Stm {
     }
 
     @Override
-    public Transaction startUpdateTransaction() {
-        return new UpdateBetaTransaction(clock, lockPolicy);
+    public BetaTransaction startUpdateTransaction(String familyName) {
+        return new UpdateBetaTransaction(familyName, clock, lockPolicy);
     }
 
     @Override
-    public Transaction startReadOnlyTransaction() {
-        return new ReadonlyBetaTransaction(clock);
+    public BetaTransaction startReadOnlyTransaction(String familyName) {
+        return new ReadonlyBetaTransaction(familyName, clock);
     }
 
     @Override
-    public Transaction startFlashbackTransaction(long readVersion) {
-        throw new TodoException();
+    public BetaTransaction startFlashbackTransaction(String familyName, long readVersion) {
+        throw new TodoException(familyName);
     }
 }

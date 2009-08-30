@@ -6,7 +6,7 @@ import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.api.locks.DeactivatedLockManager;
 import org.multiverse.api.locks.LockManager;
-import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
+import org.multiverse.utils.commitlock.CommitLockPolicy;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * An abstract {@link Transaction} implementation that contains most of the plumbing logic. Extend
  * this and prevent duplicate logic.
  * <p/>
- * The on-methods can be overriden.
+ * The on-methods can be overridden.
  *
  * @author Peter Veentjer.
  */
@@ -24,15 +24,17 @@ public abstract class AbstractTransaction implements Transaction {
 
     protected final AtomicLong clock;
 
-    protected AtomicObjectLockPolicy lockPolicy;
+    protected CommitLockPolicy commitLockPolicy;
     protected List<Runnable> postCommitTasks;
     protected long readVersion;
     protected long commitVersion;
     protected TransactionStatus status;
+    private String familyName;
 
-    public AbstractTransaction(AtomicLong clock, AtomicObjectLockPolicy lockPolicy) {
+    public AbstractTransaction(String familyName, AtomicLong clock, CommitLockPolicy commitLockPolicy) {
         this.clock = clock;
-        this.lockPolicy = lockPolicy;
+        this.commitLockPolicy = commitLockPolicy;
+        this.familyName = familyName;
     }
 
     protected final void init() {
@@ -40,6 +42,10 @@ public abstract class AbstractTransaction implements Transaction {
         this.readVersion = clock.get();
         this.status = TransactionStatus.active;
         onInit();
+    }
+
+    public String getFamilyName() {
+        return familyName;
     }
 
     protected void onInit() {
@@ -65,12 +71,12 @@ public abstract class AbstractTransaction implements Transaction {
         }
     }
 
-    public AtomicObjectLockPolicy getLockPolicy() {
-        return lockPolicy;
+    public CommitLockPolicy getCommitLockPolicy() {
+        return commitLockPolicy;
     }
 
-    public void setLockPolicy(AtomicObjectLockPolicy writeSetLockPolicy) {
-        this.lockPolicy = writeSetLockPolicy;
+    public void setCommitLockPolicy(CommitLockPolicy newCommitLockPolicy) {
+        this.commitLockPolicy = newCommitLockPolicy;
     }
 
     @Override
@@ -126,7 +132,7 @@ public abstract class AbstractTransaction implements Transaction {
         }
     }
 
-    protected void doAbort() {
+    protected final void doAbort() {
         status = TransactionStatus.aborted;
         postCommitTasks = null;
         onAbort();

@@ -88,7 +88,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
     }
 }
 
-class AbaRefTranlocal<E> extends Tranlocal {
+class AbaRefTranlocal<E> extends AlphaTranlocal {
     AbaRef<E> atomicObject;
     E value;
     long writeVersion;
@@ -140,6 +140,7 @@ class AbaRefTranlocal<E> extends Tranlocal {
         this.writeVersion++;
     }
 
+
     @Override
     public void prepareForCommit(long writeVersion) {
         this.version = writeVersion;
@@ -148,7 +149,7 @@ class AbaRefTranlocal<E> extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         return new AbaRefTranlocalSnapshot<E>(this);
     }
 
@@ -168,7 +169,7 @@ class AbaRefTranlocal<E> extends Tranlocal {
     }
 }
 
-class AbaRefTranlocalSnapshot<E> extends TranlocalSnapshot {
+class AbaRefTranlocalSnapshot<E> extends AlphaTranlocalSnapshot {
 
     final AbaRefTranlocal<E> tranlocal;
     final E value;
@@ -181,7 +182,7 @@ class AbaRefTranlocalSnapshot<E> extends TranlocalSnapshot {
     }
 
     @Override
-    public Tranlocal getTranlocal() {
+    public AlphaTranlocal getTranlocal() {
         return tranlocal;
     }
 

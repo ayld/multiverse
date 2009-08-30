@@ -11,7 +11,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
-public class UpdateTransaction_orelseTest {
+public class UpdateAlphaTransaction_orelseTest {
     private AlphaStm stm;
 
     @Before
@@ -22,7 +22,7 @@ public class UpdateTransaction_orelseTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -151,7 +151,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void endOrFailsIfCalledTooEarly() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
 
         try {
             t.endOr();
@@ -164,7 +164,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void endOrAndStartElseIfCalledTooEarly() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
 
         try {
             t.endOrAndStartElse();
@@ -203,7 +203,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void startOrFailsIfTransactionAlreadyIsAborted() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.abort();
 
         try {
@@ -217,7 +217,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void endOrFailsIfTransactionAlreadyIsAborted() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.abort();
 
         try {
@@ -231,7 +231,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void endOrAndStartElseFailsIfTransactionAlreadyIsAborted() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.abort();
 
         try {
@@ -245,7 +245,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void startOrFailsIfTransactionAlreadyIsCommitted() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.commit();
 
         try {
@@ -259,7 +259,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void endOrFailsIfTransactionAlreadyIsCommitted() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.commit();
 
         try {
@@ -273,7 +273,7 @@ public class UpdateTransaction_orelseTest {
 
     @Test
     public void endOrAndStartElseFailsIfTransactionIsAborted() {
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         t.commit();
 
         try {

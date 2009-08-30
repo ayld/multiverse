@@ -28,7 +28,7 @@ public interface AlphaTransaction extends Transaction {
      *          if this transaction already is committed or aborted
      * @see #privatize(AlphaAtomicObject)
      */
-    Tranlocal load(AlphaAtomicObject atomicObject);
+    AlphaTranlocal load(AlphaAtomicObject atomicObject);
 
     /**
      * Loads a privatized Tranlocal for the specified owner. This privatized Tranlocal can be
@@ -49,7 +49,7 @@ public interface AlphaTransaction extends Transaction {
      *          if this transaction already is committed or aborted.
      * @see #load(AlphaAtomicObject)
      */
-    Tranlocal privatize(AlphaAtomicObject owner);
+    AlphaTranlocal privatize(AlphaAtomicObject owner);
 
     /**
      * Attaches the Tranlocal to this Transaction. This call is needed for newly created AtomicObjects
@@ -60,5 +60,5 @@ public interface AlphaTransaction extends Transaction {
      * @throws org.multiverse.api.exceptions.DeadTransactionException
      *                              if this transaction already is committed or aborted.
      */
-    void attachNew(Tranlocal tranlocal);
+    void attachNew(AlphaTranlocal tranlocal);
 }

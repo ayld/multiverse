@@ -46,8 +46,8 @@ public class BrokenSerializedTest {
 
     @Test
     public void test() {
-        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction();
-        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction();
+        AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction(null);
+        AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction(null);
 
         IntStackTranlocal t1Stack1 = (IntStackTranlocal) t1.privatize(stack1);
         IntStackTranlocal t1Stack2 = (IntStackTranlocal) t1.privatize(stack2);

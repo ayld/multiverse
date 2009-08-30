@@ -3,12 +3,12 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaTranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
 import org.multiverse.stms.alpha.DirtinessStatus;
-import org.multiverse.stms.alpha.Tranlocal;
-import org.multiverse.stms.alpha.TranlocalSnapshot;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal.IntNode;
 
-public final class IntStackTranlocal extends Tranlocal {
+public final class IntStackTranlocal extends AlphaTranlocal {
 
     IntStack atomicObject;
     int size;
@@ -82,7 +82,7 @@ public final class IntStackTranlocal extends Tranlocal {
     }
 
     @Override
-    public TranlocalSnapshot takeSnapshot() {
+    public AlphaTranlocalSnapshot takeSnapshot() {
         return new TranlocalIntStackSnapshot(this);
     }
 
@@ -100,7 +100,7 @@ public final class IntStackTranlocal extends Tranlocal {
     }
 }
 
-final class TranlocalIntStackSnapshot extends TranlocalSnapshot {
+final class TranlocalIntStackSnapshot extends AlphaTranlocalSnapshot {
     public final IntStackTranlocal tranlocal;
     public final int size;
     public final IntNode head;
@@ -112,7 +112,7 @@ final class TranlocalIntStackSnapshot extends TranlocalSnapshot {
     }
 
     @Override
-    public Tranlocal getTranlocal() {
+    public AlphaTranlocal getTranlocal() {
         return tranlocal;
     }
 

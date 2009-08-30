@@ -156,7 +156,7 @@ public class RefTest {
         Ref<String> ref = new Ref<String>(oldRef);
 
         long version = stm.getClockVersion();
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         String newRef = "bar";
         ref.set(newRef);
@@ -189,7 +189,7 @@ public class RefTest {
 
         //we start a transaction because we don't want to lift on the retry mechanism
         //of the transaction that else would be started on the getOrAwait method.
-        Transaction t = stm.startUpdateTransaction();
+        Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         try {
             ref.getOrAwait();

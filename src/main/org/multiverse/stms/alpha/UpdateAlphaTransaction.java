@@ -6,9 +6,9 @@ import org.multiverse.api.locks.LockStatus;
 import org.multiverse.api.locks.StmLock;
 import org.multiverse.stms.AbstractTransaction;
 import org.multiverse.utils.TodoException;
-import org.multiverse.utils.atomicobjectlocks.AtomicObjectLockPolicy;
-import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.nothingToLock;
-import static org.multiverse.utils.atomicobjectlocks.AtomicObjectLockUtils.releaseLocks;
+import org.multiverse.utils.commitlock.CommitLockPolicy;
+import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
+import static org.multiverse.utils.commitlock.CommitLockUtils.releaseLocks;
 import org.multiverse.utils.latches.CheapLatch;
 import org.multiverse.utils.latches.Latch;
 
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A {@link org.multiverse.api.Transaction} implementation that is used to do updates. It can also be used for
- * reaonly transaction, but a {@link ReadonlyTransaction} would be a better candidate
+ * reaonly transaction, but a {@link ReadonlyAlphaTransaction} would be a better candidate
  * for that.
  * <p/>
  * Comment about design:
@@ -30,17 +30,17 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-public class UpdateTransaction extends AbstractTransaction implements AlphaTransaction, LockManager {
+public class UpdateAlphaTransaction extends AbstractTransaction implements AlphaTransaction, LockManager {
 
     private final AlphaStmStatistics statistics;
 
     //the attached set contains the Translocals loaded and attached.
-    private Map<AlphaAtomicObject, Tranlocal> attached = new IdentityHashMap(2);
+    private Map<AlphaAtomicObject, AlphaTranlocal> attached = new IdentityHashMap(2);
 
     private SnapshotStack snapshotStack;
 
-    public UpdateTransaction(AlphaStmStatistics statistics, AtomicLong clock, AtomicObjectLockPolicy writeSetLockPolicy) {
-        super(clock, writeSetLockPolicy);
+    public UpdateAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, CommitLockPolicy writeSetLockPolicy) {
+        super(familyName, clock, writeSetLockPolicy);
         this.statistics = statistics;
         init();
     }
@@ -60,7 +60,7 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
     }
 
     @Override
-    public void attachNew(Tranlocal tranlocal) {
+    public void attachNew(AlphaTranlocal tranlocal) {
         switch (status) {
             case active:
                 //System.out.println("attachNew is called");
@@ -101,27 +101,27 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
     }
 
     @Override
-    public Tranlocal load(AlphaAtomicObject atomicObject) {
+    public AlphaTranlocal load(AlphaAtomicObject atomicObject) {
         switch (status) {
             case active:
                 if (atomicObject == null) {
                     return null;
                 }
 
-                Tranlocal existing = attached.get(atomicObject);
+                AlphaTranlocal existing = attached.get(atomicObject);
                 if (existing != null) {
                     return existing;
                 }
 
                 if (statistics == null) {
-                    Tranlocal loaded = atomicObject.load(readVersion);
+                    AlphaTranlocal loaded = atomicObject.load(readVersion);
                     if (loaded == null) {
                         throw new LoadUncommittedException();
                     }
                     return loaded;
                 } else {
                     try {
-                        Tranlocal loaded = atomicObject.load(readVersion);
+                        AlphaTranlocal loaded = atomicObject.load(readVersion);
                         if (loaded == null) {
                             throw new LoadUncommittedException();
                         }
@@ -145,14 +145,14 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
     }
 
     @Override
-    public Tranlocal privatize(AlphaAtomicObject atomicObject) {
+    public AlphaTranlocal privatize(AlphaAtomicObject atomicObject) {
         switch (status) {
             case active:
                 if (atomicObject == null) {
                     return null;
                 }
 
-                Tranlocal tranlocal = attached.get(atomicObject);
+                AlphaTranlocal tranlocal = attached.get(atomicObject);
                 if (tranlocal == null) {
                     if (statistics == null) {
                         tranlocal = atomicObject.privatize(readVersion);
@@ -198,7 +198,7 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
 
     private long doCommit() {
         //System.out.println("starting commit");
-        Tranlocal[] writeSet = createWriteSet();
+        AlphaTranlocal[] writeSet = createWriteSet();
         if (nothingToLock(writeSet)) {
             //if there is nothing to commit, we are done.
             if (statistics != null) {
@@ -209,8 +209,7 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
 
             boolean success = false;
             try {
-                acquireLocks(writeSet);
-                ensureConflictFree(writeSet);
+                acquireLocksAndCheckForConflicts(writeSet);
                 long writeVersion = clock.incrementAndGet();
                 storeAll(writeSet, writeVersion);
                 success = true;
@@ -230,16 +229,16 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *          if can be determined that another transaction did a conflicting write.
      */
-    private Tranlocal[] createWriteSet() {
+    private AlphaTranlocal[] createWriteSet() {
         if (attached.isEmpty()) {
             return null;
         }
 
-        Tranlocal[] writeSet = null;
+        AlphaTranlocal[] writeSet = null;
 
         int skipped = 0;
         int index = 0;
-        for (Tranlocal tranlocal : attached.values()) {
+        for (AlphaTranlocal tranlocal : attached.values()) {
             switch (tranlocal.getDirtinessStatus()) {
                 case committed:
                     skipped++;
@@ -248,7 +247,7 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
                     //fall through
                 case dirty:
                     if (writeSet == null) {
-                        writeSet = new Tranlocal[attached.size() - skipped];
+                        writeSet = new AlphaTranlocal[attached.size() - skipped];
                     }
                     writeSet[index] = tranlocal;
                     index++;
@@ -271,43 +270,35 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
         return writeSet;
     }
 
-    private void ensureConflictFree(Tranlocal[] writeSet) {
-        for (int k = 0; k < writeSet.length; k++) {
-            Tranlocal tranlocal = writeSet[k];
-            if (tranlocal == null) {
-                return;
-            } else {
-                AlphaAtomicObject owner = tranlocal.getAtomicObject();
-                if (!owner.ensureConflictFree(readVersion)) {
-                    if (statistics != null) {
-                        statistics.incTransactionWriteConflictCount();
-                    }
-                    throw WriteConflictException.create();
+    private void acquireLocksAndCheckForConflicts(AlphaTranlocal[] writeSet) {
+        switch (commitLockPolicy.tryLockAllAndDetectConflicts(writeSet, this)) {
+            case success:
+                //todo: problem is that if the locks are not acquired successfully, it isn't clear
+                //how many locks were acquired.
+                if (statistics != null) {
+                    statistics.incLockAcquiredCount(writeSet.length);
                 }
-            }
+                break;
+            case failure:
+                if (statistics != null) {
+                    statistics.incTransactionFailedToAcquireLocksCount();
+                }
+
+                throw FailedToObtainLocksException.create();
+            case conflict:
+                if (statistics != null) {
+                    statistics.incTransactionWriteConflictCount();
+                }
+                throw WriteConflictException.create();
+            default:
+                throw new RuntimeException();
         }
     }
 
-    private void acquireLocks(Tranlocal[] writeSet) {
-        if (!lockPolicy.tryLockAll(writeSet, this)) {
-            if (statistics != null) {
-                statistics.incTransactionFailedToAcquireLocksCount();
-            }
-
-            throw FailedToObtainLocksException.create();
-        } else {
-            //todo: problem is that if the locks are not acquired successfully, it isn't clear
-            //how many locks are acquired..
-            if (statistics != null) {
-                statistics.incLockAcquiredCount(writeSet.length);
-            }
-        }
-    }
-
-    private void storeAll(Tranlocal[] writeSet, long commitVersion) {
+    private void storeAll(AlphaTranlocal[] writeSet, long commitVersion) {
         try {
             for (int k = 0; k < writeSet.length; k++) {
-                Tranlocal tranlocal = writeSet[k];
+                AlphaTranlocal tranlocal = writeSet[k];
                 if (tranlocal == null) {
                     return;
                 } else {
@@ -416,7 +407,7 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
     }
 
     @Override
-    public Tranlocal privatize(Object atomicObject, LockStatus lockMode) {
+    public AlphaTranlocal privatize(Object atomicObject, LockStatus lockMode) {
         throw new TodoException();
     }
 
@@ -425,10 +416,10 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
         snapshotStack = new SnapshotStack(snapshotStack, createSnapshot());
     }
 
-    private TranlocalSnapshot createSnapshot() {
-        TranlocalSnapshot result = null;
-        for (Tranlocal tranlocal : attached.values()) {
-            TranlocalSnapshot snapshot = tranlocal.takeSnapshot();
+    private AlphaTranlocalSnapshot createSnapshot() {
+        AlphaTranlocalSnapshot result = null;
+        for (AlphaTranlocal tranlocal : attached.values()) {
+            AlphaTranlocalSnapshot snapshot = tranlocal.takeSnapshot();
             snapshot.next = result;
             result = snapshot;
         }
@@ -449,17 +440,17 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
         if (snapshotStack == null) {
             throw new IllegalStateException();
         }
-        TranlocalSnapshot snapshot = snapshotStack.snapshot;
+        AlphaTranlocalSnapshot snapshot = snapshotStack.snapshot;
         snapshotStack = snapshotStack.next;
         restoreSnapshot(snapshot);
 
     }
 
-    private void restoreSnapshot(TranlocalSnapshot snapshot) {
+    private void restoreSnapshot(AlphaTranlocalSnapshot snapshot) {
         attached.clear();
 
         while (snapshot != null) {
-            Tranlocal tranlocal = snapshot.getTranlocal();
+            AlphaTranlocal tranlocal = snapshot.getTranlocal();
             attached.put(tranlocal.getAtomicObject(), tranlocal);
             snapshot.restore();
             snapshot = snapshot.next;
@@ -468,9 +459,9 @@ public class UpdateTransaction extends AbstractTransaction implements AlphaTrans
 
     static final class SnapshotStack {
         public final SnapshotStack next;
-        public final TranlocalSnapshot snapshot;
+        public final AlphaTranlocalSnapshot snapshot;
 
-        SnapshotStack(SnapshotStack next, TranlocalSnapshot snapshot) {
+        SnapshotStack(SnapshotStack next, AlphaTranlocalSnapshot snapshot) {
             this.next = next;
             this.snapshot = snapshot;
         }
