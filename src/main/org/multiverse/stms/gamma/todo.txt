@@ -1,0 +1,7 @@
+doel
+
+DONE
+
+- locks zo kort mogelijk houden.
+
+- writeconflicts moeten nog gedetecteerd worden
