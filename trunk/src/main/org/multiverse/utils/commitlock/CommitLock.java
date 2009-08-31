@@ -6,7 +6,7 @@ import org.multiverse.api.Transaction;
  * The AtomicObjectLock should never by acquired directly, but always through the
  * {@link CommitLockPolicy}. The implementation of the lock
  * are not supposed to use techniques like spinning, that should all be part of the lockpolicy.
- * The lock implementation should try to acquire the lock and fail immedialtely if it can't.
+ * The lock implementation should try to acquire the lock and fail immediately if it can't.
  * <p/>
  * An element in a LockSet (an array of LockSetElements).
  * <p/>
@@ -24,7 +24,7 @@ public interface CommitLock {
      * Tries to acquire the lock.
      *
      * @param lockOwner the Transaction that wants to own the lock.
-     * @return
+     * @return the result of this action (will always be a non null value).
      */
     CommitLockResult tryLockAndDetectConflicts(Transaction lockOwner);
 
@@ -35,7 +35,7 @@ public interface CommitLock {
      * It is very important that this method doesn't fail because when it does it could leave
      * locks
      *
-     * @param expectedLockOwner
+     * @param expectedLockOwner the expected Transaction that owns the lock.
      */
     void releaseLock(Transaction expectedLockOwner);
 }

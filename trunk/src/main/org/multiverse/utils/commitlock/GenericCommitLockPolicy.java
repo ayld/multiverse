@@ -30,7 +30,7 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
 
     public GenericCommitLockPolicy(int spinAttemptsPerLockCount, int retryCount) {
         if (spinAttemptsPerLockCount < 0) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException();
         }
 
         if (retryCount < 0) {

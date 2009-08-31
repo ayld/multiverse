@@ -1,9 +1,0 @@
-todo
-
-- lockpolicy
-
-- flashback query
-
-- logging
-
-done
