@@ -8,11 +8,13 @@ import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransact
 public final class AlphaStmUtils {
 
     /**
-     * @param t
-     * @return
+     * Gets the AtomicObject for the provided AlphaTranlocal.
+     *
+     * @param tranlocal the AlphaTranlocal.
+     * @return the AlphaAtomicObject that belongs to the tranlocal, or null if tranlocal is null.
      */
-    public static Object getAtomicObject(AlphaTranlocal t) {
-        return t == null ? null : t.getAtomicObject();
+    public static AlphaAtomicObject getAtomicObject(AlphaTranlocal tranlocal) {
+        return tranlocal == null ? null : tranlocal.getAtomicObject();
     }
 
     /**
@@ -21,15 +23,15 @@ public final class AlphaStmUtils {
      * <p/>
      * For more information see
      *
-     * @param object
+     * @param tranlocal the AlphaTranlocal to attach.
      */
-    public static void attachAsNew(AlphaTranlocal object) {
+    public static void attachAsNew(AlphaTranlocal tranlocal) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
         }
 
-        t.attachNew(object);
+        t.attachNew(tranlocal);
     }
 
     /**
@@ -39,16 +41,16 @@ public final class AlphaStmUtils {
      * For more information see {@link AlphaTransaction#privatize(AlphaAtomicObject)}
      * for more info.
      *
-     * @param object
-     * @return
+     * @param atomicObject the AlphaAtomicObject.
+     * @return the AlphaTranlocal
      */
-    public static AlphaTranlocal privatize(Object object) {
+    public static AlphaTranlocal privatize(Object atomicObject) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
         }
 
-        return t.privatize((AlphaAtomicObject) object);
+        return t.privatize((AlphaAtomicObject) atomicObject);
     }
 
 

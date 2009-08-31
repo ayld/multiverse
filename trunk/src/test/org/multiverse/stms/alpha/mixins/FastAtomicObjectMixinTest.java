@@ -38,10 +38,12 @@ public class FastAtomicObjectMixinTest {
 
     @Test
     public void loadEqualVersion() {
+        Transaction lockOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin atomicObject = new DummyFastAtomicObjectMixin();
 
         DummyTranlocal tranlocal = new DummyTranlocal(atomicObject);
         long writeVersion = 10;
+        atomicObject.tryLock(lockOwner);
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
 
         AlphaTranlocal result = atomicObject.load(writeVersion);

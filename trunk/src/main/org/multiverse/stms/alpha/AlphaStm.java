@@ -1,7 +1,6 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Stm;
-import org.multiverse.utils.TodoException;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,11 +42,12 @@ public final class AlphaStm implements Stm {
     }
 
     /**
-     * Creates a new AlphaStm with the given statistics. If no statistics is given, the JIT is able
-     * to remove all calls to the statistics, so we don't need to pay to price if we don't use it.
-     * It also means that the value can't be changed after construction.
+     * Creates a new AlphaStm with the provided configuration.
      *
-     * @throws NullPointerException if lockPolicy is null.
+     * @param config the provided config.
+     * @throws NullPointerException if config is null.
+     * @throws org.multiverse.utils.InvalidConfigException
+     *                              if the provided config is invalid.
      */
     public AlphaStm(AlphaStmConfig config) {
         if (config == null) {
@@ -105,16 +105,6 @@ public final class AlphaStm implements Stm {
     @Override
     public AlphaTransaction startReadOnlyTransaction(String familyName) {
         return new ReadonlyAlphaTransaction(familyName, statistics, clock);
-    }
-
-    @Override
-    public AlphaTransaction startFlashbackTransaction(String familyName, long readVersion) {
-        if (readVersion > clock.get()) {
-            throw new IllegalArgumentException();
-        }
-
-        //return new ReadonlyTransaction(statistics, readVersion);
-        throw new TodoException();
     }
 
     @Override

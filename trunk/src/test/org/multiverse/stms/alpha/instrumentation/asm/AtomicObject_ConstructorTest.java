@@ -437,8 +437,8 @@ public class AtomicObject_ConstructorTest {
 
         AtomicObjectWithFinalRefThatIsCreatedInsideConstructor o = new AtomicObjectWithFinalRefThatIsCreatedInsideConstructor();
         assertFalse(o instanceof AlphaAtomicObject);
-        assertEquals(version + 1, stm.getClockVersion());
         assertEquals(10, o.value.get());
+        assertEquals(version + 1, stm.getClockVersion());
     }
 
     @AtomicObject

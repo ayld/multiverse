@@ -2,11 +2,6 @@
 todo engine
 ---------------------------------------------------------------
 
-- the lock manager has reference to alpha package (translocal)
-
-- de integration package die heeft verwijzingen naar de alpha package
-
-- exceptions in the exception package zijn afhankelijk van de alpha package
 
 - flashback transactions test
 
@@ -243,3 +238,9 @@ is caught, it leaves the transaction in an inconsistent state.
 - the Transaction interface contains load/privatize methods which are implementation specific.
 
 - added a retry limit on the AtomicTemplate.
+
+- the lock manager has reference to alpha package (translocal)
+
+- de integration package die heeft verwijzingen naar de alpha package
+
+- exceptions in the exception package zijn afhankelijk van de alpha package

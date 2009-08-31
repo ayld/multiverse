@@ -1,6 +1,6 @@
 package org.multiverse.api.exceptions;
 
-import org.multiverse.stms.alpha.AlphaStmDebugConstants;
+import static java.lang.Boolean.parseBoolean;
 
 /**
  * An Error dat indicates that a retry should be done.
@@ -14,10 +14,12 @@ import org.multiverse.stms.alpha.AlphaStmDebugConstants;
  */
 public class RetryError extends Error {
 
+    private final static boolean reuse = parseBoolean(System.getProperty(RetryError.class.getName(), "true"));
+
     public final static RetryError INSTANCE = new RetryError();
 
     public static RetryError create() {
-        if (AlphaStmDebugConstants.REUSE_RetryError) {
+        if (reuse) {
             return RetryError.INSTANCE;
         } else {
             return new RetryError();

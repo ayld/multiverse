@@ -1,5 +1,6 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.internalFormToDescriptor;
@@ -46,6 +47,7 @@ import java.util.List;
  *
  * @author Peter Veentjer
  */
+@SuppressWarnings({"UnnecessaryLocalVariable", "UnnecessaryLocalVariable"})
 public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter implements Opcodes {
     private final MetadataService metadataService;
     private final ClassNode atomicObject;
@@ -121,7 +123,7 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
 
         //do the stmutils.privatize call to place it in the tranlocal form
         String argDesc = getDescriptor(AlphaTranlocal.class);
-        String returnDesc = getDescriptor(Object.class);
+        String returnDesc = getDescriptor(AlphaAtomicObject.class);
         String loadDesc = format("(%s)%s", argDesc, returnDesc);
         mv.visitMethodInsn(
                 INVOKESTATIC,

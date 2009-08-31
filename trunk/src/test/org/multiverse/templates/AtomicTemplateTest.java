@@ -225,7 +225,7 @@ public class AtomicTemplateTest {
         long version = stm.getClockVersion();
 
         try {
-            new AtomicTemplate() {
+            AtomicTemplate template = new AtomicTemplate() {
                 @Override
                 public Object execute(Transaction t) throws Exception {
                     counter.value++;
@@ -233,7 +233,9 @@ public class AtomicTemplateTest {
                     ref.get();
                     return null;
                 }
-            }.execute();
+            };
+            template.setRetryCount(10);
+            template.execute();
             fail();
         } catch (TooManyRetriesException ex) {
         }

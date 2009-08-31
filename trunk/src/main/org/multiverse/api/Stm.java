@@ -18,6 +18,7 @@ public interface Stm {
     /**
      * Starts a Transaction that can be used for writes.
      *
+     * @param familyName the familyName of the Transaction.
      * @return the created Transaction.
      */
     Transaction startUpdateTransaction(String familyName);
@@ -25,21 +26,8 @@ public interface Stm {
     /**
      * Starts a readonly Transaction.
      *
+     * @param familyName the familyName of the Transaction.
      * @return the created readonly Transaction.
      */
     Transaction startReadOnlyTransaction(String familyName);
-
-    /**
-     * Starts a readonly Transaction with the provided readVersion. Normally a readonly
-     * transaction starts with the clockVersion of the stm. But if a value is provided
-     * from the outside, you are able to look back in time. In Oracle this is called a
-     * flashback query.
-     * <p/>
-     * It depends on the Stm how far a transaction is able to look back in time.
-     *
-     * @param readVersion the readversion.
-     * @return the created readonly Transaction.
-     * @throws IllegalArgumentException if the readVersion is larger than the clockVersion.
-     */
-    Transaction startFlashbackTransaction(String familyName, long readVersion);
 }

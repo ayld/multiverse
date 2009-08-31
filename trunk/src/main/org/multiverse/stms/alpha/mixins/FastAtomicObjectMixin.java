@@ -1,11 +1,11 @@
 package org.multiverse.stms.alpha.mixins;
 
+import org.multiverse.MultiverseConstants;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadLockedException;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.stms.alpha.AlphaStmDebugConstants;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.utils.Listeners;
 import org.multiverse.utils.latches.Latch;
@@ -47,7 +47,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
             return null;
         }
 
-        if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
             if (!tranlocalT1.committed) {
                 throw new PanicError();
             }
@@ -114,7 +114,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
 
     @Override
     public final void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
-        if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
             if (lockOwner == null) {
                 throw new PanicError();
             }
@@ -188,7 +188,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
                     if (tranlocalT1 != tranlocalT2) {
                         //we are not sure when the registration took place, but a new version is available.
 
-                        if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+                        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
                             if (tranlocalT2.version <= tranlocalT1.version) {
                                 throw new PanicError();
                             }
@@ -216,7 +216,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
 
             AlphaTranlocal tranlocalT2 = tranlocalUpdater.get(this);
             if (tranlocalT1 != tranlocalT2) {
-                if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+                if (MultiverseConstants.SANITY_CHECK_ENABLED) {
                     //we are not sure when the registration took place, but a new version is available.
                     if (tranlocalT2.version < minimumVersion) {
                         throw new PanicError();
@@ -242,13 +242,14 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
 
         if (tranlocal == null) {
             return true;
-        } else {
-            if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
-                if (lockOwner == null) {
-                    throw new PanicError();
-                }
-            }
-            return tranlocal.version <= readVersion;
         }
+
+        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
+            if (lockOwner == null) {
+                throw new PanicError();
+            }
+        }
+
+        return tranlocal.version <= readVersion;
     }
 }

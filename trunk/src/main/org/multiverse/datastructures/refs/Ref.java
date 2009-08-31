@@ -1,7 +1,7 @@
 package org.multiverse.datastructures.refs;
 
-import org.multiverse.api.annotations.AtomicObject;
 import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.annotations.AtomicObject;
 
 import static java.lang.String.format;
 
@@ -9,9 +9,9 @@ import static java.lang.String.format;
  * Default {@link org.multiverse.datastructures.refs.ManagedRef}. Changes on refs are atomic and consistent,
  * but not completely because a transaction could suffer from the ABA problem between transactions.
  * See the {@link org.multiverse.datastructures.refs.AbaRef} to solve this problem.
- *
+ * <p/>
  * It depends on the STM implementation if the ABA problem can occur btw. If the readset also
- * is included in the conflict detection, the ABA problem can't occur even with this implementation.
+ * is included in the conflict detection, then the ABA problem can't occur.
  *
  * @author Peter Veentjer
  */
@@ -22,7 +22,7 @@ public final class Ref<E> implements ManagedRef<E> {
     /**
      * Creates a Ref with a null reference.
      */
-    public Ref(){
+    public Ref() {
         reference = null;
     }
 
@@ -63,15 +63,15 @@ public final class Ref<E> implements ManagedRef<E> {
     }
 
     @Override
-    public E clear(){
+    public E clear() {
         return set(null);
     }
 
     @Override
-    public String toString(){
-        if(reference == null){
+    public String toString() {
+        if (reference == null) {
             return "Ref(ref=null)";
-        }else{
+        } else {
             return format("Ref(ref=%s)", reference);
         }
     }

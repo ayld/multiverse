@@ -1,6 +1,6 @@
 package org.multiverse.api.exceptions;
 
-import org.multiverse.stms.alpha.AlphaStmDebugConstants;
+import static java.lang.Boolean.parseBoolean;
 
 /**
  * A {@link LoadException} that indicates that a load was done, but the version needed could not
@@ -12,8 +12,10 @@ public class LoadTooOldVersionException extends LoadException {
 
     public final static LoadTooOldVersionException INSTANCE = new LoadTooOldVersionException();
 
+    private final static boolean reuse = parseBoolean(System.getProperty(LoadTooOldVersionException.class.getName(), "true"));
+
     public static LoadTooOldVersionException create() {
-        if (AlphaStmDebugConstants.REUSE_LoadTooOldVersionException) {
+        if (reuse) {
             return LoadTooOldVersionException.INSTANCE;
         } else {
             return new LoadTooOldVersionException();

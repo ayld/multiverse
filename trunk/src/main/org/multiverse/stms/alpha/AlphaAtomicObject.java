@@ -35,7 +35,7 @@ public interface AlphaAtomicObject {
      * if you can see that another transaction already did a commit.. no need to continue
      * <p/>
      *
-     * @param readVersion the readversion of the transaction.
+     * @param readVersion the readVersion of the transaction.
      * @return the loaded Tranlocal.
      * @throws org.multiverse.api.exceptions.LoadException
      *          if the system wasn't able to load the Tranlocal.
@@ -54,7 +54,7 @@ public interface AlphaAtomicObject {
     boolean tryLock(Transaction lockOwner);
 
     /**
-     * Releases the lock. The lock is only released if the current lockowner is equal to the expected
+     * Releases the lock. The lock is only released if the current lockOwner is equal to the expected
      * lock owner. If the lock is free, this call is ignored. If the lock is owned by a different transaction
      * this call is ignored.
      * <p/>
@@ -87,8 +87,10 @@ public interface AlphaAtomicObject {
     boolean registerRetryListener(Latch listener, long minimumVersion);
 
     /**
+     * Makes sure that ... is conflict free.
+     *
      * @param readVersion the read version of the transaction.
-     * @return true if valide, false otherwise.
+     * @return true if there are no conflicts, false otherwise.
      * @throws org.multiverse.api.exceptions.LoadException
      *
      */

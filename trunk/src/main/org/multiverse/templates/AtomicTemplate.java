@@ -125,7 +125,7 @@ public abstract class AtomicTemplate<E> {
      *
      * @param t the transaction used for this execution.
      * @return the result of the execution.
-     * @throws Exception
+     * @throws Exception the Exception thrown
      */
     public abstract E execute(Transaction t) throws Exception;
 
@@ -136,11 +136,11 @@ public abstract class AtomicTemplate<E> {
     /**
      * Executes the template.
      *
+     * @param familyName the familyName of the Transaction.
      * @return the result of the {@link #execute(org.multiverse.api.Transaction)} method.
      * @throws InvisibleCheckedException if a checked exception was thrown while executing the
      *                                   {@link #execute(org.multiverse.api.Transaction)} method.
      */
-
     public final E execute(String familyName) {
         try {
             return executeChecked(familyName);
@@ -162,6 +162,7 @@ public abstract class AtomicTemplate<E> {
      * Executes the Template and rethrows the checked exception instead of wrapping it
      * in a InvisibleCheckedException.
      *
+     * @param familyName the familyName of the transaction.
      * @return the result
      * @throws Exception the Exception thrown inside the {@link #execute(org.multiverse.api.Transaction)}
      *                   method.

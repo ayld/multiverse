@@ -1,5 +1,6 @@
 package org.multiverse.stms.alpha;
 
+import org.multiverse.MultiverseConstants;
 import org.multiverse.api.exceptions.*;
 import org.multiverse.stms.AbstractTransaction;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
@@ -62,7 +63,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     throw new NullPointerException();
                 }
 
-                if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+                if (MultiverseConstants.SANITY_CHECK_ENABLED) {
                     if (tranlocal.getAtomicObject() == null) {
                         throw new PanicError();
                     }

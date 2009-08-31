@@ -10,7 +10,7 @@ import org.multiverse.utils.GlobalStmInstance;
 /**
  * @author Peter Veentjer
  */
-public class DoubleLinkedQueueTest {
+public class LinkedQueueTest {
     private Stm stm;
 
     @Before
@@ -25,7 +25,7 @@ public class DoubleLinkedQueueTest {
 
     @Test
     public void complexPushPopScenario() {
-        DoubleLinkedQueue<String> queue = new DoubleLinkedQueue<String>();
+        LinkedQueue<String> queue = new LinkedQueue<String>();
         queue.push("1");
         queue.push("2");
         queue.push("3");
@@ -41,7 +41,7 @@ public class DoubleLinkedQueueTest {
 
     @Test
     public void clear() {
-        DoubleLinkedQueue<String> queue = new DoubleLinkedQueue<String>();
+        LinkedQueue<String> queue = new LinkedQueue<String>();
         queue.push("foo");
         queue.push("bar");
         queue.take();
@@ -55,12 +55,17 @@ public class DoubleLinkedQueueTest {
 
     @Test
     public void isEmpty() {
-        DoubleLinkedQueue<String> queue = new DoubleLinkedQueue<String>();
+        LinkedQueue<String> queue = new LinkedQueue<String>();
         assertTrue(queue.isEmpty());
 
         queue.push("foo");
         queue.push("bar");
 
         assertFalse(queue.isEmpty());
+    }
+
+    public void testToString() {
+        LinkedQueue<String> queue = new LinkedQueue<String>();
+        assertEquals("[]", queue.toString());
     }
 }

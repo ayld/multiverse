@@ -5,7 +5,7 @@ import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
 
 /**
  * An Object responsible for storing the configuration for an {@link AlphaStm}. So instead
- * of having to deal with ever growning number of arguments, the AlphaStm constructor only
+ * of having to deal with ever growing number of arguments, the AlphaStm constructor only
  * needs a single argument.
  * <p/>
  * Once the AlphaStm is constructed, changes made to the config object is not visible to

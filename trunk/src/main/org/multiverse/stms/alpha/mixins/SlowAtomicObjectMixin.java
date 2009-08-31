@@ -1,10 +1,10 @@
 package org.multiverse.stms.alpha.mixins;
 
+import org.multiverse.MultiverseConstants;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.stms.alpha.AlphaStmDebugConstants;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.utils.Listeners;
 import org.multiverse.utils.TodoException;
@@ -52,7 +52,7 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
             return null;
         }
 
-        if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
             if (!currentState.tranlocal.committed) {
                 throw new RuntimeException("Uncommitted state found");
             }
@@ -90,7 +90,7 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
             if (currentState == null) {
                 tobeState = new State(null, lockOwner, null);
             } else {
-                if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+                if (MultiverseConstants.SANITY_CHECK_ENABLED) {
                     if (currentState.tranlocal == null) {
                         throw new IllegalStateException("This should not happen since a lock was already acquired");
                     }
@@ -134,7 +134,7 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
 
     @Override
     public void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
-        if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
             if (tranlocal.committed) {
                 throw new RuntimeException("Can't commit already committed data");
             }
@@ -150,7 +150,7 @@ public abstract class SlowAtomicObjectMixin implements AlphaAtomicObject {
             State currentState = stateRef.get();
             State tobeState;
 
-            if (AlphaStmDebugConstants.SANITY_CHECK_ENABLED) {
+            if (MultiverseConstants.SANITY_CHECK_ENABLED) {
                 if (currentState.tranlocal != null && currentState.tranlocal.version >= writeVersion) {
                     String msg = format("Lost update, commitVersion=%s found version=%s", writeVersion, currentState.tranlocal.version);
                     throw new RuntimeException(msg);

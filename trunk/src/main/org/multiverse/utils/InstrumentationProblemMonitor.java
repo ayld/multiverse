@@ -43,6 +43,7 @@ public final class InstrumentationProblemMonitor {
 
         @Override
         public void run() {
+            //noinspection InfiniteLoopStatement
             while (true) {
                 System.err.println("STM integrity compromised, instrumentation problems encountered");
                 try {

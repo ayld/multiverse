@@ -1,8 +1,7 @@
 package org.multiverse.datastructures.collections;
 
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.Stm;
@@ -78,7 +77,7 @@ public class SingleLinkedStackTest {
 
         s.push("foo");
         s.push("bar");
-        assertEquals(2, s.size());
+        assertFalse(s.isEmpty());
     }
 
     @Test
@@ -91,5 +90,27 @@ public class SingleLinkedStackTest {
         s.push("2");
         s.push("3");
         assertEquals("[3,2,1]", s.toString());
+    }
+
+    @Test
+    public void peek() {
+        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        assertNull(s.peek());
+
+        s.push("1");
+        assertEquals("1", s.peek());
+
+        s.push("2");
+        assertEquals("2", s.peek());
+    }
+
+    @Test
+    public void equals() {
+
+    }
+
+    @Test
+    public void testHash() {
+
     }
 }

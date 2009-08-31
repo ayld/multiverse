@@ -83,7 +83,6 @@ public class AtomicObject_WithFinalsTest {
         assertEquals(10, o.getFinalValue());
         assertEquals(10, o.finalValue);
         assertEquals(20, o.getNonFinalValue());
-
     }
 
     @AtomicObject

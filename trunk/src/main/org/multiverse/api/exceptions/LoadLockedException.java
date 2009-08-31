@@ -1,6 +1,6 @@
 package org.multiverse.api.exceptions;
 
-import org.multiverse.stms.alpha.AlphaStmDebugConstants;
+import static java.lang.Boolean.parseBoolean;
 
 /**
  * A {@link LoadException} that indicates that a load failed because the item was locked.
@@ -11,8 +11,10 @@ public class LoadLockedException extends LoadException {
 
     public final static LoadLockedException INSTANCE = new LoadLockedException();
 
+    private final static boolean reuse = parseBoolean(System.getProperty(LoadLockedException.class.getName(), "true"));
+
     public static LoadLockedException create() {
-        if (AlphaStmDebugConstants.REUSE_LockedException) {
+        if (reuse) {
             return LoadLockedException.INSTANCE;
         } else {
             return new LoadLockedException();
