@@ -234,6 +234,8 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
         int index = 0;
         for (AlphaTranlocal tranlocal : attached.values()) {
             switch (tranlocal.getDirtinessStatus()) {
+                case clean:
+                    //fall through
                 case committed:
                     skipped++;
                     break;
@@ -245,9 +247,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     }
                     writeSet[index] = tranlocal;
                     index++;
-                    break;
-                case clean:
-                    skipped++;
                     break;
                 case conflict:
                     //if we can already determine that the write can never happen, start a write conflict

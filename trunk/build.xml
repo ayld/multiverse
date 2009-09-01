@@ -244,7 +244,6 @@
         </zip>
     </target>
 
-
     <target name="pmd"
             description="Creates a PMD report"
             depends="compile.main">
@@ -272,7 +271,7 @@
 
     <target name="findbugs"
             description="Creates the FindBugs report"
-            depends="compile.main">
+            depends="clean,compile.main">
 
         <!--
         for more information see the following url:
@@ -300,6 +299,5 @@
             <class location="${classes.main}"/>
         </findbugs>
     </target>
-
 
 </project>
