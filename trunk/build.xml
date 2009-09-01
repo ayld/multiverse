@@ -216,24 +216,34 @@
             description="Builds the complete distribution"
             depends="clean, compile.main, javadoc, jar">
 
-        <zip destfile="${target}/sources.zip">
-            <zipfileset dir="${src.main}" prefix="src"/>
-        </zip>
+        <mkdir dir="${target}/${application.name}-${application.version}-r${revision}"/>
 
-        <zip destfile="${target}/${application.name}-${application.version}-revision${revision}.zip">
-            <zipfileset dir="${javadoc}" prefix="javadoc"/>
-            <fileset dir="${target}" includes="*.jar"/>
-            <fileset dir="${target}" includes="sources.zip"/>
+        <copy todir="${target}/${application.name}-${application.version}-r${revision}/src">
+            <fileset dir="${src.main}">
+                <exclude name="**/.svn"/>
+                <exclude name="**/*.txt"/>
+            </fileset>
+        </copy>
+
+        <copy todir="${target}/${application.name}-${application.version}-r${revision}/javadoc">
+            <fileset dir="${javadoc}">
+                <exclude name="**/.svn"/>
+                <exclude name="**/*.txt"/>
+            </fileset>
+        </copy>
+
+        <copy file="${target}/${application.name}-${application.version}.jar"
+              todir="${target}/${application.name}-${application.version}-r${revision}/"/>
+
+        <copy todir="${target}/${application.name}-${application.version}-r${revision}">
             <fileset dir="." includes="license.*"/>
-            <fileset dir="." includes="license.*"/>
+        </copy>
+
+        <zip destfile="${target}/${application.name}-${application.version}-r${revision}.zip">
+            <fileset dir="${target}/${application.name}-${application.version}-r${revision}"/>
         </zip>
     </target>
 
-    <target name="run" description="Runs a few examples.. (is going to be removed)" depends="jar">
-        <java classname="org.multiverse.stms.alpha.instrumentation.TestRunningMain" fork="true">
-            <jvmarg value="-javaagent:${target}/${application.name}-${application.version}.jar"/>
-        </java>
-    </target>
 
     <target name="pmd"
             description="Creates a PMD report"
@@ -265,8 +275,8 @@
             depends="compile.main">
 
         <!--
-       for more information see the following url:
-       https://fisheye.springsource.org/browse/~raw,r=94/dm-server-samples/hello-integrationtests-test/main-branches/jersey/hello-integrationtests-testing/spring-build/lib/findbugs/doc/manualinstrumentation/datamining.html
+        for more information see the following url:
+        https://fisheye.springsource.org/browse/~raw,r=94/dm-server-samples/hello-integrationtests-test/main-branches/jersey/hello-integrationtests-testing/spring-build/lib/findbugs/doc/manualinstrumentation/datamining.html
         -->
 
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">

@@ -2,14 +2,9 @@
 todo engine
 ---------------------------------------------------------------
 
+- 
 
-- flashback transactions test
-
-- RetrySpinningWriteSetLockPolicy
-
-- SpinningWriteSetlockPolicy unit tests
-
-- BalancedTree moet nog rotatie hebben
+- the zip file needs to contain the multiverse directory and version.
 
 - FastTom.registerRetryListener en de noProgressPossibleException
 
@@ -21,8 +16,6 @@ todo engine
 
 - move the benchmarks to this project
     - depends on instrumentation
-
-- build maken waarin de revisie nummer verwerkt zit.
 
 ---------------------------------------------------------------
 todo instrumentation
@@ -166,12 +159,6 @@ what if you are only interested in a specific field... this could reduce the str
 
 - Optimization for transaction usage
 
-via DebugConstants er in laten genereren
-- exceptions opnieuw aanmaken of bestaande instance hergebruiken:
-
-- te kijken wat te doen met de exception hierarcy.. zoals moeten andere exceptions extenden van abortexception and
-retryerror?
-
 - bloomfilter
 
 - heeft het nu om een read op een writetransactie te hebben terwijl je de $readPrivatized daar ook al hebt?
@@ -182,8 +169,6 @@ retryerror?
 
 - ipv de cheap latch zou je ook de monitor lock van de transactie kunnen gebruiken.
 Dit scheelt nog een object creatie.
-
-- enchance the $Object structure so that it also can be used for tree (replacement for the identity hashmap)
 
 - timeout tijd.. spaarrekening waar je iedere keer vanaf kunt boeken.
 
@@ -200,47 +185,3 @@ but a normal object using a managed ref.
 done
 ---------------------------------------------------------------
 
- - what is essential for the tranlocal interface? Atm there is an abstract class
-    with implementation specific stuff in it. If the tranlocal interface is moved, also the
-    dirtninessstatus can be moved.
-
-- Translocal moves to the stm.alpha package
-
-- TranlocalSnapshot moved to the stm.alpha package
-
-- DirtinessState moved to the stm.alpha package.
-
-- constructors en atomic kunnen niet goed omgaan met  super calls
-
-- the atomic template ignorethreadlocaltransaction is activated again.
-
-- what happens when a throwable is thrown while executing the orelse template. if the throwable
-is caught, it leaves the transaction in an inconsistent state.
-
-- checkin op subversion
-
-- stm utils has dependencies to the alpha package
-
-- LOAD PROBLAMTIEK
-    - it could happen that a readonly transaction fails because it reads a TransactionalObject that
-    is locked.
-    + privatize functie aanpassen zodat fail fast.
-    + it could happen that a writetransaction fails with the privatized call because it reads a
-    TransactionalObject that is locked.
-    + wat moet er gebeuren als een transactie een load doet op uncommitted data.
-    + opgelost in de code
-    + opgelost in de documentatie van de load methodes
-    + opgelost in de code van andere methodes behalve de loadmethods van de transactie.
-    + privatize functie moet aangepast worden zodat er een loaduncommitted wordt gegooid?
-    + documentatie
-    + unit tests
-
-- the Transaction interface contains load/privatize methods which are implementation specific.
-
-- added a retry limit on the AtomicTemplate.
-
-- the lock manager has reference to alpha package (translocal)
-
-- de integration package die heeft verwijzingen naar de alpha package
-
-- exceptions in the exception package zijn afhankelijk van de alpha package

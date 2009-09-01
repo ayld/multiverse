@@ -27,7 +27,7 @@ public abstract class AbstractTransaction implements Transaction {
     protected long readVersion;
     protected long commitVersion;
     protected TransactionStatus status;
-    private String familyName;
+    protected String familyName;
 
     public AbstractTransaction(String familyName, AtomicLong clock, CommitLockPolicy commitLockPolicy) {
         this.clock = clock;

@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-public class UpdateAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
+public class UpdateAlphaTransaction extends AbstractTransaction implements AlphaTransaction, MultiverseConstants {
 
     private final AlphaStmStatistics statistics;
 
@@ -63,7 +63,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     throw new NullPointerException();
                 }
 
-                if (MultiverseConstants.SANITY_CHECK_ENABLED) {
+                if (SANITY_CHECKS_ENABLED) {
                     if (tranlocal.getAtomicObject() == null) {
                         throw new PanicError();
                     }

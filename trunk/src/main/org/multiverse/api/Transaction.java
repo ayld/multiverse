@@ -5,10 +5,10 @@ package org.multiverse.api;
  * are:
  * <ol>
  * <li>Atomic: all or nothing gets committed (Failure atomicity)</li>
- * <li>Consistent : all or nothing gets committed</li>
+ * <li>Consistent : </li>
  * <li>Isolated: a transaction is executed isolated from other transactions. Meaning that a transaction won't
- * see changed made by transactions executed concurrently, but it will see changes made by transaction executed
- * before it.</li>
+ * see changed made by transactions executed concurrently, but it will see changes made by transaction completed
+ * before.</li>
  * </ol>
  * <p/>
  * A Transaction is not threadsafe to use (just like a Hibernate Session is not threadsafe to use). It can

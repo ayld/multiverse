@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  *
  * @author Peter Veentjer
  */
-public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
+public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, MultiverseConstants {
 
     private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Transaction> lockOwnerUpdater =
             AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Transaction.class, "lockOwner");
@@ -47,7 +47,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
             return null;
         }
 
-        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
+        if (SANITY_CHECKS_ENABLED) {
             if (!tranlocalT1.committed) {
                 throw new PanicError();
             }
@@ -71,8 +71,9 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
             Transaction lockOwner = lockOwnerUpdater.get(this);
 
             if (lockOwner != null) {
-                //todo: this would be the location for spinning. As long as the lock is there,
-                //we are not sure
+                //this would be the location for spinning. As long as the lock is there,
+                //we are not sure if the version read is the version that can be returned (perhaps there are
+                //pending writes).
                 throw LoadLockedException.create();
             }
 
@@ -114,7 +115,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
 
     @Override
     public final void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
-        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
+        if (SANITY_CHECKS_ENABLED) {
             if (lockOwner == null) {
                 throw new PanicError();
             }
@@ -124,10 +125,8 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
             }
 
             AlphaTranlocal old = tranlocalUpdater.get(this);
-            if (old != null) {
-                if (old.version >= writeVersion) {
-                    throw new PanicError();
-                }
+            if (old != null && old.version >= writeVersion) {
+                throw new PanicError();
             }
         }
 
@@ -188,22 +187,12 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
                     if (tranlocalT1 != tranlocalT2) {
                         //we are not sure when the registration took place, but a new version is available.
 
-                        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
+                        if (SANITY_CHECKS_ENABLED) {
                             if (tranlocalT2.version <= tranlocalT1.version) {
                                 throw new PanicError();
                             }
 
-                            //deze fout dit zich voor, hoe kan dit gebeuren?
-                            //is het een onredelijk eis die hier ligt?
-
-                            //als de write nog niet heeft plaats gevonden, maar de clock is al wel opgehoogd,
-                            //als je dan een lezende transactie hebt, kan die al de nieuwe clock zien en gaat
-                            //dan starten. Als deze dan een retry gaat uitvoeren, dan ligt je dus
-
                             if (minimumVersion > tranlocalT2.version) {
-                                //long dif = Math.abs(minimumVersion - tranlocalT2.version);
-                                //System.out.println("difference " + dif);
-
                                 throw new PanicError();
                             }
                         }
@@ -216,7 +205,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
 
             AlphaTranlocal tranlocalT2 = tranlocalUpdater.get(this);
             if (tranlocalT1 != tranlocalT2) {
-                if (MultiverseConstants.SANITY_CHECK_ENABLED) {
+                if (SANITY_CHECKS_ENABLED) {
                     //we are not sure when the registration took place, but a new version is available.
                     if (tranlocalT2.version < minimumVersion) {
                         throw new PanicError();
@@ -235,21 +224,22 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject {
 
     @Override
     public final boolean ensureConflictFree(long readVersion) {
-        //since the lock is acquired....  is this really true? What about the readset? For the writeset
-        //this is true.
-
-        AlphaTranlocal tranlocal = tranlocalUpdater.get(this);
-
-        if (tranlocal == null) {
-            return true;
-        }
-
-        if (MultiverseConstants.SANITY_CHECK_ENABLED) {
+        if (SANITY_CHECKS_ENABLED) {
             if (lockOwner == null) {
                 throw new PanicError();
             }
         }
 
+        AlphaTranlocal tranlocal = tranlocalUpdater.get(this);
+
+        if (tranlocal == null) {
+            //no store has been executed, so conflict free.
+            return true;
+        }
+
+        //It is conflict free if the version of the tranlocal is smaller or equal than the readVersion.
+        //It is not conflict free if the version of the tranlocal is larger than the readVersion because
+        //a different transaction committed after the transaction started and before it completed.
         return tranlocal.version <= readVersion;
     }
 }
