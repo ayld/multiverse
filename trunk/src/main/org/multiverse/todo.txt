@@ -2,10 +2,6 @@
 todo engine
 ---------------------------------------------------------------
 
-- 
-
-- the zip file needs to contain the multiverse directory and version.
-
 - FastTom.registerRetryListener en de noProgressPossibleException
 
 - FastTomTest afmaken
@@ -184,4 +180,9 @@ but a normal object using a managed ref.
 ---------------------------------------------------------------
 done
 ---------------------------------------------------------------
+
+- the zip file needs to contain the multiverse directory and version.
+
+- asm should be placed under a different package name so no writeconflicts can happen
+http://code.google.com/p/jarjar/wiki/GettingStarted
 

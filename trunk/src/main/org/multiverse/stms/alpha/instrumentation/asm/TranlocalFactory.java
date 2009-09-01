@@ -356,9 +356,6 @@ public final class TranlocalFactory implements Opcodes {
 
             failure = new Label();
             switch (getType(managedField.desc).getSort()) {
-                case Type.OBJECT:
-                    m.visitJumpInsn(IF_ACMPEQ, failure);
-                    break;
                 case Type.BOOLEAN:
                 case Type.BYTE:
                 case Type.CHAR:
@@ -378,6 +375,8 @@ public final class TranlocalFactory implements Opcodes {
                     m.visitInsn(DCMPL);
                     m.visitJumpInsn(IFEQ, failure);
                     break;
+                case Type.OBJECT:
+                    //fall through
                 case Type.ARRAY:
                     m.visitJumpInsn(IF_ACMPEQ, failure);
                     break;

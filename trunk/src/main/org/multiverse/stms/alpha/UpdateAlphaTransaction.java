@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class UpdateAlphaTransaction extends AbstractTransaction implements AlphaTransaction, MultiverseConstants {
 
+    private final static AlphaTranlocal[] EMPTY_WRITESET = new AlphaTranlocal[0];
+
     private final AlphaStmStatistics statistics;
 
     //the attached set contains the Translocals loaded and attached.
@@ -219,13 +221,13 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
     /**
      * Creates the writeset; a set of objects which state needs to be committed.
      *
-     * @return the created WriteSet or null if there is nothing that needs to be written.
+     * @return the created WriteSet. The returned value will never be null.
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *          if can be determined that another transaction did a conflicting write.
      */
     private AlphaTranlocal[] createWriteSet() {
         if (attached.isEmpty()) {
-            return null;
+            return EMPTY_WRITESET;
         }
 
         AlphaTranlocal[] writeSet = null;
@@ -260,7 +262,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
             }
         }
 
-        return writeSet;
+        return writeSet == null ? EMPTY_WRITESET : writeSet;
     }
 
     private void acquireLocksAndCheckForConflicts(AlphaTranlocal[] writeSet) {

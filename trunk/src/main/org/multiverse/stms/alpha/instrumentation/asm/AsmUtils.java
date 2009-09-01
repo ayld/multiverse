@@ -409,13 +409,13 @@ public final class AsmUtils implements Opcodes {
     public static int getLoadOpcode(Type type) {
         switch (type.getSort()) {
             case Type.BOOLEAN:
-                return Opcodes.ILOAD;
+                //fall through
             case Type.CHAR:
-                return Opcodes.ILOAD;
+                //fall through
             case Type.BYTE:
-                return Opcodes.ILOAD;
+                //fall through
             case Type.SHORT:
-                return Opcodes.ILOAD;
+                //fall through
             case Type.INT:
                 return Opcodes.ILOAD;
             case Type.LONG:
@@ -425,9 +425,9 @@ public final class AsmUtils implements Opcodes {
             case Type.DOUBLE:
                 return Opcodes.DLOAD;
             case Type.OBJECT:
-                return Opcodes.ALOAD;
+                //fall through
             case Type.ARRAY:
-                return Opcodes.ALOAD;//todo: is tis correct
+                return Opcodes.ALOAD;
             default:
                 throw new RuntimeException("unhandled returntype: " + type);
         }
@@ -438,13 +438,13 @@ public final class AsmUtils implements Opcodes {
             case Type.VOID:
                 return Opcodes.RETURN;
             case Type.BOOLEAN:
-                return Opcodes.IRETURN;
+                //fall through
             case Type.CHAR:
-                return Opcodes.IRETURN;
+                //fall through
             case Type.BYTE:
-                return Opcodes.IRETURN;
+                //fall through
             case Type.SHORT:
-                return Opcodes.IRETURN;
+                //fall through
             case Type.INT:
                 return Opcodes.IRETURN;
             case Type.LONG:
