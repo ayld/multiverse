@@ -240,7 +240,7 @@
             </fileset>
         </copy>
 
-         <copy todir="${target}/${application.name}-${application.version}-r${revision}">
+        <copy todir="${target}/${application.name}-${application.version}-r${revision}">
             <fileset dir="${target}">
                 <include name="*.jar"/>
             </fileset>
@@ -256,8 +256,8 @@
     </target>
 
     <target name="pmd"
-            description="Creates a PMD report"
-            depends="compile.main">
+            description="Creates the PMD report"
+            depends="clean, compile.main">
 
         <taskdef name="pmd"
                  classname="net.sourceforge.pmd.ant.PMDTask">
@@ -284,11 +284,6 @@
             description="Creates the FindBugs report"
             depends="clean,compile.main">
 
-        <!--
-        for more information see the following url:
-        https://fisheye.springsource.org/browse/~raw,r=94/dm-server-samples/hello-integrationtests-test/main-branches/jersey/hello-integrationtests-testing/spring-build/lib/findbugs/doc/manualinstrumentation/datamining.html
-        -->
-
         <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
             <classpath>
                 <path refid="classpath.findbugs"/>
@@ -299,7 +294,7 @@
 
         <findbugs home="${findbugs.home}"
                   output="html"
-                  outputFile="${findbugs.reports}/Findbugs-${application.name}-${application.version}.html"
+                  outputFile="${findbugs.reports}/Findbugs.html"
                   reportLevel="experimental"
                   workHard="true"
                   stylesheet="fancy.xsl"
