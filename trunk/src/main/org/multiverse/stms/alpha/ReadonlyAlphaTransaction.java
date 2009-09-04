@@ -58,11 +58,6 @@ final class ReadonlyAlphaTransaction extends AbstractTransaction implements Alph
     }
 
     @Override
-    public AlphaTranlocal privatize(AlphaAtomicObject item) {
-        throw new ReadonlyException();
-    }
-
-    @Override
     public void attachNew(AlphaTranlocal tranlocal) {
         throw new ReadonlyException();
     }

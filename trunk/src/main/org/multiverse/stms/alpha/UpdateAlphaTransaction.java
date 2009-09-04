@@ -96,52 +96,9 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
         }
     }
 
+
     @Override
     public AlphaTranlocal load(AlphaAtomicObject atomicObject) {
-        switch (status) {
-            case active:
-                if (atomicObject == null) {
-                    return null;
-                }
-
-                AlphaTranlocal existing = attached.get(atomicObject);
-                if (existing != null) {
-                    return existing;
-                }
-
-                if (statistics == null) {
-                    AlphaTranlocal loaded = atomicObject.load(readVersion);
-                    if (loaded == null) {
-                        throw new LoadUncommittedException();
-                    }
-                    return loaded;
-                } else {
-                    try {
-                        AlphaTranlocal loaded = atomicObject.load(readVersion);
-                        if (loaded == null) {
-                            throw new LoadUncommittedException();
-                        }
-                        return loaded;
-                    } catch (LoadTooOldVersionException e) {
-                        statistics.incTransactionSnapshotTooOldCount();
-                        throw e;
-                    } catch (LoadLockedException e) {
-                        //todo
-                        statistics.incTransactionSnapshotTooOldCount();
-                        throw e;
-                    }
-                }
-            case committed:
-                throw new DeadTransactionException("Can't call loadReadonly on a committed transaction");
-            case aborted:
-                throw new DeadTransactionException("Can't call loadReadonly on an aborted transaction");
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    @Override
-    public AlphaTranlocal privatize(AlphaAtomicObject atomicObject) {
         switch (status) {
             case active:
                 if (atomicObject == null) {

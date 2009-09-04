@@ -7,15 +7,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LoggingUpdateTransaction extends UpdateAlphaTransaction {
+public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
-    private static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
+    private final static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
 
-    public final static AtomicLong logIdGenerator = new AtomicLong();
+    private final static AtomicLong logIdGenerator = new AtomicLong();
 
     private final long logId = logIdGenerator.getAndIncrement();
 
-    public LoggingUpdateTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, CommitLockPolicy writeSetLockPolicy) {
+    public LoggingUpdateAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, CommitLockPolicy writeSetLockPolicy) {
         super(familyName, statistics, clock, writeSetLockPolicy);
 
         if (logger.isLoggable(Level.FINE)) {
@@ -102,13 +102,13 @@ public class LoggingUpdateTransaction extends UpdateAlphaTransaction {
     }
 
     @Override
-    public void abortAndRetry() {
+    public void abortAndWaitForRetry() {
         if (!logger.isLoggable(Level.FINE)) {
-            super.abortAndRetry();
+            super.abortAndWaitForRetry();
         } else {
             boolean success = false;
             try {
-                super.abortAndRetry();
+                super.abortAndWaitForRetry();
                 success = true;
             } finally {
                 if (success) {

@@ -38,15 +38,15 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
     @Test
     public void test() {
         AlphaTransaction t1 = startUpdateTransaction();
-        IntRefTranlocal r1 = (IntRefTranlocal) t1.privatize(handle);
+        IntRefTranlocal r1 = (IntRefTranlocal) t1.load(handle);
 
         AlphaTransaction t2 = startUpdateTransaction();
-        IntRefTranlocal r2 = (IntRefTranlocal) t2.privatize(handle);
+        IntRefTranlocal r2 = (IntRefTranlocal) t2.load(handle);
         r2.set(B);
         t2.commit();
 
         AlphaTransaction t3 = startUpdateTransaction();
-        IntRefTranlocal r3 = (IntRefTranlocal) t3.privatize(handle);
+        IntRefTranlocal r3 = (IntRefTranlocal) t3.load(handle);
         r3.set(B);
         t3.commit();
 

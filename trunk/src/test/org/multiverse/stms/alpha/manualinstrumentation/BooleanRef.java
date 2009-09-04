@@ -28,12 +28,12 @@ public class BooleanRef extends FastAtomicObjectMixin {
 
     @AtomicMethod
     public void set(boolean value) {
-        ((BooleanRefTranlocal) AlphaStmUtils.privatize(this)).set(value);
+        ((BooleanRefTranlocal) AlphaStmUtils.load(this)).set(value);
     }
 
     @AtomicMethod
     public boolean get() {
-        return ((BooleanRefTranlocal) AlphaStmUtils.privatize(this)).get();
+        return ((BooleanRefTranlocal) AlphaStmUtils.load(this)).get();
     }
 
     @Override

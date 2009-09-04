@@ -1,6 +1,7 @@
 package org.multiverse.datastructures.collections;
 
 import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 
 import java.util.AbstractCollection;
@@ -47,6 +48,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
      *
      * @return the maximum capacity of this Stack.
      */
+    @AtomicMethod(readonly = true)
     public int getMaximumCapacity() {
         return maximumCapacity;
     }
@@ -56,6 +58,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
      *
      * @return the number of element in the stack.
      */
+    @AtomicMethod(readonly = true)
     public int size() {
         return size;
     }
@@ -65,6 +68,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
      *
      * @return the top element, or null if no such item exists.
      */
+    @AtomicMethod(readonly = true)
     public E peek() {
         return head == null ? null : head.value;
     }
@@ -114,6 +118,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public Iterator<E> iterator() {
         return new NodeIterator<E>(head);
     }
@@ -127,7 +132,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
 
         @Override
         public boolean hasNext() {
-            return current != null && current.next != null;
+            return current != null;
         }
 
         @Override
@@ -148,6 +153,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public boolean equals(Object thatObj) {
         if (thatObj == this) {
             return true;
@@ -170,6 +176,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public int hashCode() {
         return head == null ? 0 : head.hashCode();
     }

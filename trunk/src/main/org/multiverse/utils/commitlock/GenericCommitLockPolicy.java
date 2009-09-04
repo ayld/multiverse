@@ -15,7 +15,7 @@ import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
  * cause livelocking on transaction level. So finding good value's is something that needs to be
  * determined.
  * <p/>
- * This GenericAtomicObjectLockPolicy is immutable and threadsafe to use.
+ * This GenericAtomicObjectLockPolicy is immutable and thread-safe to use.
  *
  * @author Peter Veentjer
  */
@@ -66,7 +66,6 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
             int attempt = 1;
 
             while (attempt <= maxAttempts) {
-
                 switch (attempt(locks, lockOwner)) {
                     case success:
                         return CommitLockResult.success;
@@ -75,6 +74,8 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
                         break;
                     case conflict:
                         return CommitLockResult.conflict;
+                    default:
+                        throw new IllegalStateException();
                 }
             }
 
@@ -141,6 +142,14 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
             CommitLock lock = locks[k];
             lock.releaseLock(owner);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "GenericCommitLockPolicy{" +
+                "retryCount=" + retryCount +
+                ", spinAttemptsPerLockCount=" + spinAttemptsPerLockCount +
+                '}';
     }
 }
 

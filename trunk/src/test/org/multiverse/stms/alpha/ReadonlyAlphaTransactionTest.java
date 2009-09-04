@@ -10,6 +10,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.utils.GlobalStmInstance;
@@ -40,20 +41,6 @@ public class ReadonlyAlphaTransactionTest {
         AlphaTransaction t = stm.startReadOnlyTransaction(null);
         setThreadLocalTransaction(t);
         return t;
-    }
-
-    // ====================== reset ==========================================
-
-    public void resetOnActiveTransactionFails() {
-        //todo
-    }
-
-    public void resetOnAbortedTransaction() {
-        //todo
-    }
-
-    public void resetOnCommittedTransaction() {
-        //todo
     }
 
     //====================== loadReadonly ====================================
@@ -106,7 +93,7 @@ public class ReadonlyAlphaTransactionTest {
 
         AlphaTransaction readonlyTransaction = stm.startReadOnlyTransaction(null);
         AlphaTransaction updateTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal tranlocal = (IntRefTranlocal) updateTransaction.privatize(value);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) updateTransaction.load(value);
         tranlocal.inc();
 
         IntRefTranlocal tranlocalIntValue = (IntRefTranlocal) readonlyTransaction.load(value);
@@ -154,7 +141,7 @@ public class ReadonlyAlphaTransactionTest {
         AlphaTransaction t = startReadonlyTransaction();
 
         try {
-            t.privatize(new IntRef(1));
+            t.load(new IntRef(1));
             fail();
         } catch (ReadonlyException ex) {
         }
@@ -168,7 +155,7 @@ public class ReadonlyAlphaTransactionTest {
         t.commit();
 
         try {
-            t.privatize(new IntRef(1));
+            t.load(new IntRef(1));
             fail();
         } catch (ReadonlyException ex) {
         }
@@ -182,7 +169,7 @@ public class ReadonlyAlphaTransactionTest {
         t.abort();
 
         try {
-            t.privatize(new IntRef(1));
+            t.load(new IntRef(1));
             fail();
         } catch (ReadonlyException ex) {
         }
@@ -261,6 +248,7 @@ public class ReadonlyAlphaTransactionTest {
         assertIsCommitted(t);
     }
 
+    @Test
     public void abortAbortedTransactionIsIgnored() {
         Transaction t = startReadonlyTransaction();
         t.abort();
@@ -278,7 +266,7 @@ public class ReadonlyAlphaTransactionTest {
         Transaction t = startReadonlyTransaction();
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (ReadonlyException ex) {
         }
@@ -292,7 +280,7 @@ public class ReadonlyAlphaTransactionTest {
         t.commit();
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (DeadTransactionException ex) {
         }
@@ -306,7 +294,7 @@ public class ReadonlyAlphaTransactionTest {
         t.abort();
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (DeadTransactionException ex) {
         }
@@ -352,5 +340,50 @@ public class ReadonlyAlphaTransactionTest {
 
         assertIsAborted(t);
         assertEquals(startVersion, stm.getClockVersion());
+    }
+
+    // ====================== reset ==========================================
+
+    @Test
+    public void resetOnActiveTransactionFails() {
+        Transaction t = startReadonlyTransaction();
+        try {
+            t.reset();
+            fail();
+        } catch (ResetFailureException ex) {
+
+        }
+
+        assertIsActive(t);
+    }
+
+    @Test
+    public void resetOnAbortedTransaction() {
+        IntRef value = new IntRef(10);
+
+        AlphaTransaction t = startReadonlyTransaction();
+        t.abort();
+
+        value.inc();
+
+        long version = stm.getClockVersion();
+        t.reset();
+        assertEquals(version, stm.getClockVersion());
+        assertIsActive(t);
+    }
+
+    @Test
+    public void resetOnCommittedTransaction() {
+        IntRef value = new IntRef(10);
+
+        AlphaTransaction t = startReadonlyTransaction();
+        t.commit();
+
+        value.inc();
+
+        long version = stm.getClockVersion();
+        t.reset();
+        assertEquals(version, stm.getClockVersion());
+        assertIsActive(t);
     }
 }

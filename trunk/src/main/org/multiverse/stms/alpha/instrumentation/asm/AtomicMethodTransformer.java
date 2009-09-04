@@ -28,25 +28,25 @@ public final class AtomicMethodTransformer implements Opcodes {
 
     private final ClassNode classNode;
     private final List<ClassNode> innerClasses = new LinkedList<ClassNode>();
-    private final MetadataService prepareInfoMap;
+    private final MetadataService metadataService;
 
     public AtomicMethodTransformer(ClassNode classNode) {
         this.classNode = classNode;
-        this.prepareInfoMap = MetadataService.INSTANCE;
+        this.metadataService = MetadataService.INSTANCE;
     }
 
     public ClassNode transform() {
-        if (!prepareInfoMap.hasAtomicMethods(classNode)) {
+        if (!metadataService.hasAtomicMethods(classNode)) {
             return null;
         }
 
-        for (MethodNode atomicMethod : prepareInfoMap.getAtomicMethods(classNode)) {
+        for (MethodNode atomicMethod : metadataService.getAtomicMethods(classNode)) {
             classNode.methods.remove(atomicMethod);
 
             MethodNode delegateMethod = createDelegateMethod(atomicMethod);
             classNode.methods.add(delegateMethod);
 
-            ClassNode atomicTemplateClassNode = createNewAtomicTemplateClass(delegateMethod);
+            ClassNode atomicTemplateClassNode = createNewAtomicTemplateClass(atomicMethod, delegateMethod);
             innerClasses.add(atomicTemplateClassNode);
 
             MethodNode replacementMethod = createReplacementMethod(atomicMethod, atomicTemplateClassNode);
@@ -206,9 +206,7 @@ public final class AtomicMethodTransformer implements Opcodes {
 
             constructorArgTypes[0] = Type.getObjectType(classNode.name);
 
-            for (int k = 0; k < methodArgTypes.length; k++) {
-                constructorArgTypes[k + 1] = methodArgTypes[k];
-            }
+            System.arraycopy(methodArgTypes, 0, constructorArgTypes, 1, methodArgTypes.length);
         }
 
         return getMethodDescriptor(Type.VOID_TYPE, constructorArgTypes);
@@ -218,7 +216,7 @@ public final class AtomicMethodTransformer implements Opcodes {
         return AtomicMethodTransformer.this.classNode.name + "AtomicTemplate" + innerClasses.size();
     }
 
-    private ClassNode createNewAtomicTemplateClass(MethodNode delegateMethod) {
+    private ClassNode createNewAtomicTemplateClass(MethodNode atomicMethod, MethodNode delegateMethod) {
         String transactionTemplateClassName = generateTransactionTemplateClassname();
 
         ClassBuilder classBuilder = new ClassBuilder();
@@ -238,7 +236,7 @@ public final class AtomicMethodTransformer implements Opcodes {
             classBuilder.addPublicFinalSyntheticField("arg" + k, type);
         }
 
-        classBuilder.addMethod(createAtomicTemplateConstructor(delegateMethod, transactionTemplateClassName));
+        classBuilder.addMethod(createAtomicTemplateConstructor(atomicMethod, transactionTemplateClassName));
         classBuilder.addMethod(createAtomicTemplateExecuteMethod(delegateMethod, transactionTemplateClassName));
 
         ClassNode transactionTemplateClassNode = classBuilder.build();
@@ -251,6 +249,8 @@ public final class AtomicMethodTransformer implements Opcodes {
     private MethodNode createAtomicTemplateConstructor(MethodNode originalMethod, String transactionTemplateClass) {
         MethodNode constructor = new MethodNode();
 
+        AtomicMethodParams atomicMethodParams = metadataService.getAtomicMethodParams(classNode, originalMethod);
+
         constructor.name = "<init>";
         constructor.desc = getConstructorDescriptorForTransactionTemplate(originalMethod);
         constructor.access = ACC_PUBLIC + ACC_SYNTHETIC;
@@ -262,7 +262,10 @@ public final class AtomicMethodTransformer implements Opcodes {
         //initialize super
         cb.ALOAD(0);
         //[.., this]
-        cb.INVOKESPECIAL(AtomicTemplate.class, "<init>", "()V");
+        cb.LDC(atomicMethodParams.familyName);
+        cb.ICONST(atomicMethodParams.isReadonly);
+        cb.LDC(atomicMethodParams.retryCount);
+        cb.INVOKESPECIAL(AtomicTemplate.class, "<init>", "(Ljava/lang/String;ZI)V");
         //[..]
 
         if (!isStatic(originalMethod)) {

@@ -9,6 +9,8 @@ import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
+import java.util.Iterator;
+
 /**
  * @author Peter Veentjer
  */
@@ -89,7 +91,7 @@ public class SingleLinkedStackTest {
         assertEquals("[1]", s.toString());
         s.push("2");
         s.push("3");
-        assertEquals("[3,2,1]", s.toString());
+        assertEquals("[3, 2, 1]", s.toString());
     }
 
     @Test
@@ -103,6 +105,41 @@ public class SingleLinkedStackTest {
         s.push("2");
         assertEquals("2", s.peek());
     }
+
+    @Test
+    public void testEmptyIterator() {
+        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        assertFalse(s.iterator().hasNext());
+    }
+
+    @Test
+    public void testSingleItemIterator() {
+        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        s.push("1");
+
+        Iterator<String> it = s.iterator();
+        assertTrue(it.hasNext());
+        assertEquals("1", it.next());
+        assertFalse(it.hasNext());
+    }
+
+    @Test
+    public void testMultipleItemsIterator() {
+        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        s.push("1");
+        s.push("2");
+        s.push("3");
+
+        Iterator<String> it = s.iterator();
+        assertTrue(it.hasNext());
+        assertEquals("3", it.next());
+        assertTrue(it.hasNext());
+        assertEquals("2", it.next());
+        assertTrue(it.hasNext());
+        assertEquals("1", it.next());
+        assertFalse(it.hasNext());
+    }
+
 
     @Test
     public void equals() {

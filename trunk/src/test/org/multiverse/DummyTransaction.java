@@ -64,7 +64,7 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
-    public void abortAndRetry() {
+    public void abortAndWaitForRetry() {
         throw new RuntimeException();
     }
 }

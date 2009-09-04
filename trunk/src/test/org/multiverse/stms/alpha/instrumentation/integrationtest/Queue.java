@@ -1,5 +1,6 @@
 package org.multiverse.stms.alpha.instrumentation.integrationtest;
 
+import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.manualinstrumentation.Stack;
 
@@ -29,6 +30,7 @@ public class Queue<E> {
         this.maxCapacity = Integer.MAX_VALUE;
     }
 
+    @AtomicMethod(readonly = true)
     public int getMaxCapacity() {
         return maxCapacity;
     }
@@ -51,10 +53,12 @@ public class Queue<E> {
         return readyToPopStack.pop();
     }
 
+    @AtomicMethod(readonly = true)
     public int size() {
         return pushedStack.size() + readyToPopStack.size();
     }
 
+    @AtomicMethod(readonly = true)
     public boolean isEmpty() {
         return pushedStack.isEmpty() && readyToPopStack.isEmpty();
     }

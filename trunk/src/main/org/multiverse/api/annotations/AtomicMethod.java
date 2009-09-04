@@ -18,8 +18,9 @@ import java.lang.annotation.Target;
  * completed earlier. If a transaction doesn't see this, the system could start to suffer
  * from the lost update problem</li>
  * </ol>
- *
- * All methods of an AtomicObject will be atomic by default. So accessing data without
+ * <p/>
+ * todo
+ * All (instance?) methods of an AtomicObject will be atomic by default. So accessing data without
  * a transaction simply is not possible.
  *
  * @author Peter Veentjer
@@ -27,4 +28,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface AtomicMethod {
+    boolean readonly() default false;
+
+    String familyName() default "";
+
+    int retryCount() default Integer.MAX_VALUE;
 }

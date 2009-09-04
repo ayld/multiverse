@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
@@ -225,7 +226,7 @@ public class AtomicTemplateTest {
         long version = stm.getClockVersion();
 
         try {
-            AtomicTemplate template = new AtomicTemplate() {
+            new AtomicTemplate(stm, null, false, false, 10) {
                 @Override
                 public Object execute(Transaction t) throws Exception {
                     counter.value++;
@@ -233,9 +234,7 @@ public class AtomicTemplateTest {
                     ref.get();
                     return null;
                 }
-            };
-            template.setRetryCount(10);
-            template.execute();
+            }.execute();
             fail();
         } catch (TooManyRetriesException ex) {
         }
@@ -245,5 +244,28 @@ public class AtomicTemplateTest {
 
     private static class IntHolder {
         int value;
+    }
+
+    // =============== readonly support ===================
+
+    @Test
+    public void readonly() {
+        final IntRef ref = new IntRef(0);
+
+        long version = stm.getClockVersion();
+
+        try {
+            new AtomicTemplate(stm, null, false, true, Integer.MAX_VALUE) {
+                @Override
+                public Object execute(Transaction t) throws Exception {
+                    ref.inc();
+                    return null;
+                }
+            }.execute();
+        } catch (ReadonlyException ex) {
+        }
+
+        assertEquals(version, stm.getClockVersion());
+        assertEquals(0, ref.get());
     }
 }

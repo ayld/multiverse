@@ -45,9 +45,8 @@ public final class AlphaStm implements Stm {
      * Creates a new AlphaStm with the provided configuration.
      *
      * @param config the provided config.
-     * @throws NullPointerException if config is null.
-     * @throws org.multiverse.utils.InvalidConfigException
-     *                              if the provided config is invalid.
+     * @throws NullPointerException  if config is null.
+     * @throws IllegalStateException if the provided config is invalid.
      */
     public AlphaStm(AlphaStmConfig config) {
         if (config == null) {
@@ -79,9 +78,8 @@ public final class AlphaStm implements Stm {
     public void setAtomicObjectLockPolicy(CommitLockPolicy newLockPolicy) {
         if (newLockPolicy == null) {
             throw new NullPointerException();
-        } else {
-            this.lockPolicy = newLockPolicy;
         }
+        this.lockPolicy = newLockPolicy;
     }
 
     /**
@@ -96,7 +94,7 @@ public final class AlphaStm implements Stm {
     @Override
     public AlphaTransaction startUpdateTransaction(String familyName) {
         if (loggingPossible) {
-            return new LoggingUpdateTransaction(familyName, statistics, clock, lockPolicy);
+            return new LoggingUpdateAlphaTransaction(familyName, statistics, clock, lockPolicy);
         } else {
             return new UpdateAlphaTransaction(familyName, statistics, clock, lockPolicy);
         }

@@ -13,8 +13,7 @@ import org.multiverse.utils.latches.Latch;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 /**
- * todo:
- * does the trick with read(content), read(transaction), read(content) really work?
+ * Base AlphaAtomicObject implementation that also can be used to transplant methods from during instrumentation.
  *
  * @author Peter Veentjer
  */
@@ -220,26 +219,5 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
 
             return true;
         }
-    }
-
-    @Override
-    public final boolean ensureConflictFree(long readVersion) {
-        if (SANITY_CHECKS_ENABLED) {
-            if (lockOwner == null) {
-                throw new PanicError();
-            }
-        }
-
-        AlphaTranlocal tranlocal = tranlocalUpdater.get(this);
-
-        if (tranlocal == null) {
-            //no store has been executed, so conflict free.
-            return true;
-        }
-
-        //It is conflict free if the version of the tranlocal is smaller or equal than the readVersion.
-        //It is not conflict free if the version of the tranlocal is larger than the readVersion because
-        //a different transaction committed after the transaction started and before it completed.
-        return tranlocal.version <= readVersion;
     }
 }

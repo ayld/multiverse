@@ -32,13 +32,7 @@ public class UpdateAlphaTransaction_attachNewTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
-        setThreadLocalTransaction(t);
-        return t;
-    }
-
-    public AlphaTransaction startReadonlyTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startReadOnlyTransaction(null);
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -112,7 +106,7 @@ public class UpdateAlphaTransaction_attachNewTest {
         t1.commit();
 
         AlphaTransaction t2 = startUpdateTransaction();
-        IntRefTranlocal tranlocalValue = (IntRefTranlocal) t2.privatize(value);
+        IntRefTranlocal tranlocalValue = (IntRefTranlocal) t2.load(value);
         t2.attachNew(tranlocalValue);
 
         assertIsActive(t2);

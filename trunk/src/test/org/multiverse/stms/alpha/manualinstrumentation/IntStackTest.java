@@ -30,7 +30,7 @@ public class IntStackTest {
     public void testNewStackIsDirtyByDefault() {
         AlphaTransaction t = startTransaction();
         IntStack intStack = new IntStack();
-        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.privatize(intStack);
+        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.load(intStack);
         assertEquals(DirtinessStatus.fresh, tranlocalIntStack.getDirtinessStatus());
     }
 
@@ -39,7 +39,7 @@ public class IntStackTest {
         IntStack intStack = new IntStack();
 
         AlphaTransaction t = startTransaction();
-        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.privatize(intStack);
+        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.load(intStack);
         assertEquals(DirtinessStatus.clean, tranlocalIntStack.getDirtinessStatus());
     }
 
@@ -49,7 +49,7 @@ public class IntStackTest {
 
         AlphaTransaction t = startTransaction();
         intStack.push(1);
-        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.privatize(intStack);
+        IntStackTranlocal tranlocalIntStack = (IntStackTranlocal) t.load(intStack);
 
         assertEquals(DirtinessStatus.dirty, tranlocalIntStack.getDirtinessStatus());
     }

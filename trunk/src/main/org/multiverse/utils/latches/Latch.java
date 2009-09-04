@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
  * interrupted or a timeout occurs). As soon as it opens, all waiting threads can pass. Threads that call the
  * wait after the Latch is opened, can continue. Once the Latch has been opened, it can never be closed.
  * <p/>
- * A Latch is threadsafe to use.
+ * A Latch is thread-safe to use.
  *
  * @author Peter Veentjer.
  */
@@ -20,7 +20,7 @@ public interface Latch {
     void open();
 
     /**
-     * Return true if this Latch is open, false othewise.
+     * Return true if this Latch is open, false otherwise.
      *
      * @return true if this Latch is open, false otherwise.
      */
@@ -36,7 +36,7 @@ public interface Latch {
     /**
      * Waits for this Latch to open and while waiting it won't be interrupted. If the Latch
      * already is open, the call continues. If the thread is interrupted while waiting, the
-     * interruptexception is dropped and the interrupt status is restored as soon as the method
+     * InterruptedException is dropped and the interrupt status is restored as soon as the method
      * returns.
      *
      * @throws UnsupportedOperationException if the implementation doesn't support this functionality.

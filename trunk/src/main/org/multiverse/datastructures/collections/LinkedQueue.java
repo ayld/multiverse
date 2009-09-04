@@ -1,6 +1,7 @@
 package org.multiverse.datastructures.collections;
 
 import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.utils.TodoException;
 
@@ -49,6 +50,7 @@ public final class LinkedQueue<E> extends AbstractCollection<E> {
      *
      * @return the maximum capacity. The returned value will always be equal or larger than zero.
      */
+    @AtomicMethod(readonly = true)
     public int getMaxCapacity() {
         return maxCapacity;
     }
@@ -90,16 +92,19 @@ public final class LinkedQueue<E> extends AbstractCollection<E> {
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public int size() {
         return pushedStack.size() + readyToPopStack.size();
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public boolean isEmpty() {
         return pushedStack.isEmpty() && readyToPopStack.isEmpty();
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public Iterator<E> iterator() {
         return new IteratorImpl<E>();
     }

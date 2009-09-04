@@ -34,11 +34,11 @@ public class ReadersDontBlockWritersTest {
     @Test
     public void testWriteWrite() {
         AlphaTransaction readTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal r1 = (IntRefTranlocal) readTransaction.privatize(intValue);
+        IntRefTranlocal r1 = (IntRefTranlocal) readTransaction.load(intValue);
         r1.get();
 
         AlphaTransaction writeTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.privatize(intValue);
+        IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.load(intValue);
         writtenValue.inc();
         writeTransaction.commit();
     }

@@ -36,7 +36,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
                 tranlocalThis.await(expectedValue);
                 return null;
             }
@@ -47,7 +47,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
                 tranlocalThis.set(value);
                 return null;
             }
@@ -59,7 +59,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
                 return tranlocalThis.get();
             }
         }.execute();
@@ -69,7 +69,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
                 tranlocalThis.loopInc(amount);
                 return null;
             }
@@ -80,7 +80,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
                 tranlocalThis.inc();
                 return null;
             }
@@ -91,7 +91,7 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).privatize(IntRef.this);
+                IntRefTranlocal tranlocalThis = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
                 tranlocalThis.dec();
                 return null;
             }

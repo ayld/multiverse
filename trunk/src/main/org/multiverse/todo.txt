@@ -2,6 +2,8 @@
 todo engine
 ---------------------------------------------------------------
 
+- readonly annotation
+
 - FastTom.registerRetryListener en de noProgressPossibleException
 
 - FastTomTest afmaken
@@ -104,6 +106,9 @@ todo features
 idea:
 ---------------------------------------------------------------
 
+- if a familyName is missing when a transaction starts, it could be derived from the methodName and the
+className. This only counts for AtomicMethods
+
 - a ref stm that is completely optimized for refs without notification support.
 
 - instead of using the StmUtils.privatize, generate the code inline
@@ -115,7 +120,7 @@ this reference can be set to null. Can also be used for detecting if a tranlocal
 transaction.
 
 - provide as much as possible to point to failures in the byteocode (missing
-parts for example) which class/method it was.. for debugging purposes ofcourse
+parts for example) which class/method it was.. for debugging purposes of course
 
 - idee om plementatie specific details eruit te laten:
 de interfaces zo maken zodat multiverse 0.2 er ook in gebouwd had kunnen worden
@@ -185,4 +190,6 @@ done
 
 - asm should be placed under a different package name so no writeconflicts can happen
 http://code.google.com/p/jarjar/wiki/GettingStarted
+
+- activate readonly support in the the TransactionTemplate
 

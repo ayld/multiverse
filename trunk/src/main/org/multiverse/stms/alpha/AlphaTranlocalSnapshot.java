@@ -20,6 +20,8 @@ public abstract class AlphaTranlocalSnapshot {
 
     /**
      * The Tranlocal that created this TranlocalSnapshot.
+     *
+     * @return the Tranlocal that created this AlphaTranlocalSnapshot.
      */
     public abstract AlphaTranlocal getTranlocal();
 

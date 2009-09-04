@@ -11,10 +11,10 @@ package org.multiverse.api;
  * before.</li>
  * </ol>
  * <p/>
- * A Transaction is not threadsafe to use (just like a Hibernate Session is not threadsafe to use). It can
- * be handed over from transaction to transaction, but one needs to be really careful for ThreadLocals.
+ * A Transaction is not thread-safe to use (just like a Hibernate Session is not thread-safe to use). It can
+ * be handed over from transaction to transaction, but one needs to be really careful with threadlocals.
  * Although the Stm/Transaction implementation don't care about threadlocals, the stuff in front (templates,
- * instrumentation etc) do care about threadlocals.
+ * instrumentation etc) could care about threadlocals.
  *
  * @author Peter Veentjer.
  */
@@ -22,8 +22,8 @@ public interface Transaction {
 
     /**
      * Returns the family name of this Transaction. Every transaction in principle should have
-     * a family name. This information can be used for debugging purposes, but also other techniques
-     * that rely to know something about similar types of transactions like profiling.
+     * a family name. This information can be used for debugging/logging purposes but also other
+     * techniques that rely to know something about similar types of transactions like profiling.
      *
      * @return the familyName. The returned value can be null.
      */
@@ -31,7 +31,8 @@ public interface Transaction {
 
     /**
      * Returns the clock version of the stm when this Transaction started. This version is
-     * needed to provide a transaction level read consistent view. The returned version will
+     * needed to provide a transaction level read consistent view (so a transaction will always
+     * see a stable view of the objects at some point in time). The returned version will
      * always be larger than Long.MIN_VALUE.
      *
      * @return the version of the stm when this Transaction started.
@@ -50,7 +51,8 @@ public interface Transaction {
      * <p/>
      * Transaction will be aborted if the commit does not succeed.
      *
-     * @return the new version if the commit was a success, Long.MIN_VALUE otherwise.
+     * @return the new version if the commit was a success. If the there are no changes, the readVersion
+     *         if the transaction is returned. Otherwise the writeVersion of the transaction is returned.
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *
      * @throws org.multiverse.api.exceptions.DeadTransactionException
@@ -59,7 +61,11 @@ public interface Transaction {
     long commit();
 
     /**
-     * Aborts this Transaction. If the Transaction already is aborted, the call is ignored.
+     * Aborts this Transaction. This means that the changes made in this transaction are not
+     * committed. It depends on the implementation if this operation is simple (ditching objects
+     * for example), or if changes need to be rolled back.
+     * <p/>
+     * If the Transaction already is aborted, the call is ignored.
      *
      * @throws org.multiverse.api.exceptions.DeadTransactionException
      *          if this transaction already is committed
@@ -67,7 +73,8 @@ public interface Transaction {
     void abort();
 
     /**
-     * Resets this Transaction. Can only be done if the transaction has committed or aborted.
+     * Resets this Transaction so that it can be used again. Can only be done if the transaction has
+     * committed or aborted.
      *
      * @throws org.multiverse.api.exceptions.ResetFailureException
      *          if the reset has failed (for example
@@ -76,24 +83,30 @@ public interface Transaction {
     void reset();
 
     /**
-     * Retries the transaction. This functionality is required for te retry mechanism. The
-     * retry mechanism should be used like this:
+     * Retries the transaction. This functionality is required for te retry mechanism (the condition
+     * variable version for STM) and is something completely different than just executing the
+     * transaction again because some kind of problem occurred.
+     * <p/>
+     * The retry mechanism should be used like this:
      * first ask the transaction to retry. It will decide what needs to be done. One of the things
-     * that could happen is that a RetryError is thrown. When this happens this error should be
-     * caught and the #abortAndRetry should be called.
+     * that could happen is that a {@link org.multiverse.api.exceptions.RetryError} is thrown. When this
+     * happens this error should be caught and the #abortAndRetry should be called.
      *
      * @throws org.multiverse.api.exceptions.NoProgressPossibleException
-     *
+     *          if there is nothing read
+     *          by the transaction to listen to.
      * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *
+     *          if this call is made on an aborted
+     *          or committed transaction.
      * @throws org.multiverse.api.exceptions.RetryError
      *
      */
     void retry();
 
     /**
-     * Aborts and retries the transaction. This functionality is required for the retry
-     * mechanism.
+     * Aborts and waits till this transaction can be retried. This functionality is required for the retry
+     * mechanism and is something different than 'just' aborting an retrying the transaction. If you want to
+     * do that, you need to call an abort followed by a reset.
      *
      * @throws org.multiverse.api.exceptions.NoProgressPossibleException
      *          if the retry can't make progress, e.g.
@@ -101,7 +114,7 @@ public interface Transaction {
      * @throws org.multiverse.api.exceptions.DeadTransactionException
      *          if this transaction already is committed or aborted.
      */
-    void abortAndRetry();
+    void abortAndWaitForRetry();
 
     /**
      * Starts the 'or' from the 'orelse' block.
@@ -109,7 +122,8 @@ public interface Transaction {
      * The orelse block is needed for the orelse functionality:
      *
      * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *          if this transaction already is committed or aborted.
+     *                                       if this transaction already is committed or aborted.
+     * @throws UnsupportedOperationException if the implementation doesn't support it.
      * @see #endOr()
      * @see #endOrAndStartElse()
      */
@@ -119,7 +133,8 @@ public interface Transaction {
      * End the 'or' from the orelse block successfully. No rollbacks are done.
      *
      * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *          if this transaction already is committed or aborted.
+     *                                       if this transaction already is committed or aborted.
+     * @throws UnsupportedOperationException if the implementation doesn't support it.
      * @see #startOr()
      * @see #endOrAndStartElse()
      */
@@ -130,14 +145,15 @@ public interface Transaction {
      * and starts the else block.
      *
      * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *          if this transaction already is committed or aborted.
+     *                                       if this transaction already is committed or aborted.
+     * @throws UnsupportedOperationException if the implementation doesn't support it.
      * @see #endOr()
      * @see #startOr()
      */
     void endOrAndStartElse();
 
     /**
-     * Registers a task to be executed after the transaction completes. If the transaction
+     * Registers a task to be executed <b>after</b> the transaction completes. If the transaction
      * aborts, all tasks are discarded. Atm there is no support for post abort tasks.
      * <p/>
      * If the execution of one of the tasks fails, the others won't be executed.
@@ -152,11 +168,11 @@ public interface Transaction {
      * If the task accesses the STM, it could see changes made after the commit
      * of the current transaction. So they will not be running on the same transaction.
      * <p/>
-     * A good usage of this feature is starting up threads. If you need to
+     * A good use case of this feature is starting up threads. If you need to
      * start threads, you don't want to start them immediately because eventually
-     * the transaction could be rolled back. And another problem is that transaction
-     * are not able to see the changes already made in the current transaction, because
-     * it hasn't completed yet.
+     * the transaction could be aborted. And another problem is that new transaction started
+     * by spawned threads are not able to see the changes already made in the current transaction,
+     * because the current transaction hasn't completed yet.
      *
      * @param task the task to execute after the transaction completes.
      * @throws NullPointerException if task is null.

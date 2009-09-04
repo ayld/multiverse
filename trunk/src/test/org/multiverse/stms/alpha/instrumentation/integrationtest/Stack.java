@@ -1,7 +1,8 @@
 package org.multiverse.stms.alpha.instrumentation.integrationtest;
 
-import org.multiverse.api.annotations.AtomicObject;
 import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.api.annotations.AtomicObject;
 
 /**
  * @author Peter Veentjer
@@ -40,10 +41,12 @@ public final class Stack<E> {
         return oldHead.value;
     }
 
+    @AtomicMethod(readonly = true)
     public boolean isEmpty() {
         return size == 0;
     }
 
+    @AtomicMethod(readonly = true)
     public int size() {
         return size;
     }

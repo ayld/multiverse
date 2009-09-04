@@ -36,18 +36,20 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  * <p/>
  * All uncaught throwable's lead to a rollback of the transaction.
  * <p/>
- * AtomicTemplates are not threadsafe to use.
+ * AtomicTemplates are not thread-safe to use.
  * <p/>
  * AtomicTemplates can completely work without threadlocals. See the
- * {@link AtomicTemplate#AtomicTemplate(org.multiverse.api.Stm , boolean)} for more information.
+ * {@link AtomicTemplate#AtomicTemplate(org.multiverse.api.Stm ,String, boolean, boolean, int)} for more information.
  *
  * @author Peter Veentjer
  */
 public abstract class AtomicTemplate<E> {
     private final Stm stm;
     private final boolean ignoreThreadLocalTransaction;
-    private int retryCount = Integer.MAX_VALUE;
+    private final int retryCount;
+    private final boolean readonly;
     private int attemptCount;
+    private final String familyName;
 
     /**
      * Creates a new AtomicTemplate that uses the STM stored in the GlobalStm and
@@ -65,7 +67,11 @@ public abstract class AtomicTemplate<E> {
      * @throws NullPointerException if stm is null.
      */
     public AtomicTemplate(Stm stm) {
-        this(stm, false);
+        this(stm, null, false, false, Integer.MAX_VALUE);
+    }
+
+    public AtomicTemplate(String familyName, boolean readonly, int retryCount) {
+        this(GlobalStmInstance.get(), familyName, false, readonly, retryCount);
     }
 
     /**
@@ -79,12 +85,22 @@ public abstract class AtomicTemplate<E> {
      *                                     environments that don't want to depend on threadlocals but do want to use the AtomicTemplate.
      * @throws NullPointerException if stm is null.
      */
-    public AtomicTemplate(Stm stm, boolean ignoreThreadLocalTransaction) {
+    public AtomicTemplate(Stm stm, String familyName, boolean ignoreThreadLocalTransaction, boolean readonly, int retryCount) {
         if (stm == null) {
             throw new NullPointerException();
         }
+        if (retryCount < 0) {
+            throw new IllegalArgumentException();
+        }
         this.stm = stm;
         this.ignoreThreadLocalTransaction = ignoreThreadLocalTransaction;
+        this.readonly = readonly;
+        this.retryCount = retryCount;
+        this.familyName = familyName;
+    }
+
+    public String getFamilyName() {
+        return familyName;
     }
 
     /**
@@ -93,7 +109,7 @@ public abstract class AtomicTemplate<E> {
      *
      * @return the current attempt count.
      */
-    public int getAttemptCount() {
+    public final int getAttemptCount() {
         return attemptCount;
     }
 
@@ -103,21 +119,35 @@ public abstract class AtomicTemplate<E> {
      *
      * @return the number of retries.
      */
-    public int getRetryCount() {
+    public final int getRetryCount() {
         return retryCount;
     }
 
     /**
-     * Sets the number of retries this AtomicTemplate is allowed to do.
+     * Returns the {@link Stm} used by this AtomicTemplate to execute transactions on.
      *
-     * @param newRetryCount the new retryCount.
-     * @throws IllegalArgumentException if retryCount smaller than 0.
+     * @return the Stm used by this AtomicTemplate.
      */
-    public void setRetryCount(int newRetryCount) {
-        if (newRetryCount < 0) {
-            throw new IllegalArgumentException();
-        }
-        this.retryCount = newRetryCount;
+    public final Stm getStm() {
+        return stm;
+    }
+
+    /**
+     * Check if this AtomicTemplate ignores the ThreadLocalTransaction.
+     *
+     * @return true if this AtomicTemplate ignores the ThreadLocalTransaction, false otherwise.
+     */
+    public final boolean isIgnoreThreadLocalTransaction() {
+        return ignoreThreadLocalTransaction;
+    }
+
+    /**
+     * Checks if this AtomicTemplate executes readonly transactions.
+     *
+     * @return true if it executes readonly transactions, false otherwise.
+     */
+    public final boolean isReadonly() {
+        return readonly;
     }
 
     /**
@@ -129,21 +159,16 @@ public abstract class AtomicTemplate<E> {
      */
     public abstract E execute(Transaction t) throws Exception;
 
-    public final E execute() {
-        return execute((String) null);
-    }
-
     /**
      * Executes the template.
      *
-     * @param familyName the familyName of the Transaction.
      * @return the result of the {@link #execute(org.multiverse.api.Transaction)} method.
      * @throws InvisibleCheckedException if a checked exception was thrown while executing the
      *                                   {@link #execute(org.multiverse.api.Transaction)} method.
      */
-    public final E execute(String familyName) {
+    public final E execute() {
         try {
-            return executeChecked(familyName);
+            return executeChecked();
         } catch (Exception ex) {
             if (ex instanceof RuntimeException) {
                 throw (RuntimeException) ex;
@@ -153,24 +178,18 @@ public abstract class AtomicTemplate<E> {
         }
     }
 
-    public final E executeChecked() throws Exception {
-        //todo: this method will be removed since familyName usage should be promoted
-        return executeChecked(null);
-    }
-
     /**
      * Executes the Template and rethrows the checked exception instead of wrapping it
      * in a InvisibleCheckedException.
      *
-     * @param familyName the familyName of the transaction.
      * @return the result
      * @throws Exception the Exception thrown inside the {@link #execute(org.multiverse.api.Transaction)}
      *                   method.
      */
-    public final E executeChecked(String familyName) throws Exception {
+    public final E executeChecked() throws Exception {
         Transaction t = getTransaction();
         if (t == null || t.getStatus() != TransactionStatus.active) {
-            t = stm.startUpdateTransaction(familyName);
+            t = readonly ? stm.startReadOnlyTransaction(familyName) : stm.startUpdateTransaction(familyName);
             setTransaction(t);
             try {
                 attemptCount = 1;
@@ -182,7 +201,7 @@ public abstract class AtomicTemplate<E> {
                         abort = false;
                         return result;
                     } catch (RetryError e) {
-                        t.abortAndRetry();
+                        t.abortAndWaitForRetry();
                         //since the abort is already done, no need to do it again.
                         abort = false;
                     } catch (CommitFailureException ex) {

@@ -24,7 +24,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
                 return tranlocal.size();
             }
         }.execute();
@@ -34,7 +34,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<Boolean>() {
             @Override
             public Boolean execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
                 return tranlocal.isEmpty();
             }
         }.execute();
@@ -44,7 +44,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
                 tranlocal.push(item);
                 return null;
             }
@@ -55,7 +55,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) {
-                StackTranlocal<E> tranlocal = (StackTranlocal) ((AlphaTransaction) t).privatize(Stack.this);
+                StackTranlocal<E> tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
                 return tranlocal.pop();
             }
         }.execute();
@@ -65,7 +65,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).privatize(Stack.this);
+                StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
                 tranlocal.clear();
                 return null;
             }

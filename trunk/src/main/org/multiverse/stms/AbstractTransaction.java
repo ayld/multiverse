@@ -30,6 +30,9 @@ public abstract class AbstractTransaction implements Transaction {
     protected String familyName;
 
     public AbstractTransaction(String familyName, AtomicLong clock, CommitLockPolicy commitLockPolicy) {
+        if (clock == null) {
+            throw new NullPointerException();
+        }
         this.clock = clock;
         this.commitLockPolicy = commitLockPolicy;
         this.familyName = familyName;
@@ -189,7 +192,7 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     @Override
-    public void abortAndRetry() {
+    public void abortAndWaitForRetry() {
         switch (status) {
             case active:
                 onAbortAndRetry();

@@ -49,12 +49,12 @@ public class BrokenSerializedTest {
         AlphaTransaction t1 = (AlphaTransaction) stm.startUpdateTransaction(null);
         AlphaTransaction t2 = (AlphaTransaction) stm.startUpdateTransaction(null);
 
-        IntStackTranlocal t1Stack1 = (IntStackTranlocal) t1.privatize(stack1);
-        IntStackTranlocal t1Stack2 = (IntStackTranlocal) t1.privatize(stack2);
+        IntStackTranlocal t1Stack1 = (IntStackTranlocal) t1.load(stack1);
+        IntStackTranlocal t1Stack2 = (IntStackTranlocal) t1.load(stack2);
         t1Stack1.push(t1Stack2.size());
 
-        IntStackTranlocal t2Stack1 = (IntStackTranlocal) t2.privatize(stack1);
-        IntStackTranlocal t2Stack2 = (IntStackTranlocal) t2.privatize(stack2);
+        IntStackTranlocal t2Stack1 = (IntStackTranlocal) t2.load(stack1);
+        IntStackTranlocal t2Stack2 = (IntStackTranlocal) t2.load(stack2);
         t2Stack2.push(t2Stack1.size());
 
         t1.commit();

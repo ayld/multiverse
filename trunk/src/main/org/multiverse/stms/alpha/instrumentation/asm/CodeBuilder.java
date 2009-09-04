@@ -299,6 +299,10 @@ public class CodeBuilder implements Opcodes {
         instructions.add(new InsnNode(ACONST_NULL));
     }
 
+    public void LDC(Object value) {
+        instructions.add(new LdcInsnNode(value));
+    }
+
     public void RETURN(Type type) {
         switch (type.getSort()) {
             case Type.VOID:
@@ -380,6 +384,14 @@ public class CodeBuilder implements Opcodes {
 
     public void ICONST_TRUE() {
         ICONST_1();
+    }
+
+    public void ICONST(boolean value) {
+        if (value) {
+            ICONST_TRUE();
+        } else {
+            ICONST_FALSE();
+        }
     }
 
     public void ICONST_1() {

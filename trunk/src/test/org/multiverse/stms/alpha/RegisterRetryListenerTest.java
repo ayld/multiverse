@@ -26,18 +26,12 @@ public class RegisterRetryListenerTest {
         return t;
     }
 
-    public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction(null);
-        setThreadLocalTransaction(t);
-        return t;
-    }
-
     @Test
     public void testNothingRead() {
         Transaction t = startUpdateTransaction();
         long startVersion = stm.getClockVersion();
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (NoProgressPossibleException ex) {
         }
@@ -52,7 +46,7 @@ public class RegisterRetryListenerTest {
         IntRef intValue = new IntRef(0);
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (NoProgressPossibleException ex) {
         }
@@ -68,7 +62,7 @@ public class RegisterRetryListenerTest {
 
         Transaction t2 = startUpdateTransaction();
         int result = intValue.get();
-        t2.abortAndRetry();
+        t2.abortAndWaitForRetry();
 
         assertIsAborted(t2);
     }

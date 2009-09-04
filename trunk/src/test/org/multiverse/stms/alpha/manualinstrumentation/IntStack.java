@@ -23,7 +23,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);
                 return tranlocal.size();
             }
         }.execute();
@@ -33,7 +33,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         return new AtomicTemplate<Boolean>() {
             @Override
             public Boolean execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);
                 return tranlocal.isEmpty();
             }
         }.execute();
@@ -43,14 +43,14 @@ public final class IntStack extends FastAtomicObjectMixin {
         return new AtomicTemplate<Integer>() {
             @Override
             public Integer execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);
                 return tranlocal.pop();
             }
         }.execute();
     }
 
     public int pop(Transaction t) {
-        IntStackTranlocal tranlocalThis = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
+        IntStackTranlocal tranlocalThis = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);
         return tranlocalThis.pop();
     }
 
@@ -58,7 +58,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Integer execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).privatize(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);
                 tranlocal.push(value);
                 return null;
             }
@@ -66,7 +66,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     public void push(Transaction t, final int value) {
-        IntStackTranlocal tranlocalThis = (IntStackTranlocal) ((AlphaTransaction) t).privatize(this);
+        IntStackTranlocal tranlocalThis = (IntStackTranlocal) ((AlphaTransaction) t).load(this);
         tranlocalThis.push(value);
     }
 

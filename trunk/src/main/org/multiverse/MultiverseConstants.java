@@ -1,6 +1,6 @@
 package org.multiverse;
 
-import static java.lang.Boolean.getBoolean;
+import static java.lang.Boolean.parseBoolean;
 
 /**
  * An interface containing global constants (currently only sanity check). It is a final instead of something
@@ -15,5 +15,5 @@ import static java.lang.Boolean.getBoolean;
  */
 public interface MultiverseConstants {
 
-    public static final boolean SANITY_CHECKS_ENABLED = getBoolean(System.getProperty("multiverse.sanitychecks.enabled", "true"));
+    boolean SANITY_CHECKS_ENABLED = parseBoolean(System.getProperty("multiverse.sanitychecks.enabled", "true"));
 }

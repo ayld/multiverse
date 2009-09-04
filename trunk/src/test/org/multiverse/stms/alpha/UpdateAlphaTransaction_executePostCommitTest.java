@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.utils.GlobalStmInstance;
@@ -17,7 +16,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  */
 public class UpdateAlphaTransaction_executePostCommitTest {
 
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
@@ -31,8 +30,8 @@ public class UpdateAlphaTransaction_executePostCommitTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction(null);
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

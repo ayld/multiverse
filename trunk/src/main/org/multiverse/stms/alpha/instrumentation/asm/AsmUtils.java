@@ -98,9 +98,7 @@ public final class AsmUtils implements Opcodes {
         Type[] newArgTypes = new Type[oldArgTypes.length + 1];
         newArgTypes[0] = Type.getObjectType(extraArgType);
 
-        for (int k = 0; k < oldArgTypes.length; k++) {
-            newArgTypes[k + 1] = oldArgTypes[k];
-        }
+        System.arraycopy(oldArgTypes, 0, newArgTypes, 1, oldArgTypes.length);
 
         Type returnType = Type.getReturnType(oldDesc);
         return Type.getMethodDescriptor(returnType, newArgTypes);
@@ -225,27 +223,31 @@ public final class AsmUtils implements Opcodes {
     /**
      * Checks if a ClassNode has the specified visible annotation.
      *
-     * @param memberNode     the ClassNode to check
-     * @param anotationClass the Annotation class that is checked for.
+     * @param memberNode      the ClassNode to check
+     * @param annotationClass the Annotation class that is checked for.
      * @return true if classNode has the specified annotation, false otherwise.
      */
-    public static boolean hasVisibleAnnotation(MemberNode memberNode, Class anotationClass) {
-        if (memberNode == null || anotationClass == null) {
+    public static boolean hasVisibleAnnotation(MemberNode memberNode, Class annotationClass) {
+        return getVisibleAnnotation(memberNode, annotationClass) != null;
+    }
+
+    public static AnnotationNode getVisibleAnnotation(MemberNode memberNode, Class annotationClass) {
+        if (memberNode == null || annotationClass == null) {
             throw new NullPointerException();
         }
 
         if (memberNode.visibleAnnotations == null) {
-            return false;
+            return null;
         }
 
-        String annotationClassDescriptor = getDescriptor(anotationClass);
+        String annotationClassDescriptor = getDescriptor(annotationClass);
 
         for (AnnotationNode node : (List<AnnotationNode>) memberNode.visibleAnnotations) {
             if (annotationClassDescriptor.equals(node.desc))
-                return true;
+                return node;
         }
 
-        return false;
+        return null;
     }
 
     public static String internalFormToDescriptor(String internalForm) {

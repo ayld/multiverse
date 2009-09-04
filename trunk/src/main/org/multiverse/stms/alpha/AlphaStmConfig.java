@@ -1,6 +1,5 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.utils.InvalidConfigException;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
 
@@ -13,7 +12,7 @@ import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
  * the stm that received. It wil have copied all fields, and doesn't read from the config
  * after creation anymore.
  * <p/>
- * AlphaStmConfig is not threadsafe. It can be shared between threads as long as no changes
+ * AlphaStmConfig is not thread-safe. It can be shared between threads as long as no changes
  * are to the config and there is a save handover point from construction to usage. A volatile
  * variable or mutex would do the trick. As long as there is a happens before relation
  * between the write and the read expressed in terms of the JMM.
@@ -47,11 +46,11 @@ public final class AlphaStmConfig {
     /**
      * Check if the AlphaStmConfig has been configured correctly.
      *
-     * @throws InvalidConfigException if the configuration isn't valid.
+     * @throws IllegalStateException if the configuration isn't valid.
      */
     public void ensureValid() {
         if (commitLockPolicy == null) {
-            throw new InvalidConfigException("commitLockPolicy can't be null");
+            throw new IllegalStateException("commitLockPolicy can't be null");
         }
     }
 }

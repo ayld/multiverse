@@ -92,7 +92,7 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
         super.visitMethodInsn(
                 INVOKESTATIC,
                 getInternalName(AlphaStmUtils.class),
-                "privatize",
+                "load",
                 loadDesc);
 
         super.visitTypeInsn(CHECKCAST, tranlocalName);

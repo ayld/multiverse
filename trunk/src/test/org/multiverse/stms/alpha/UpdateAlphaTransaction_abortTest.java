@@ -30,14 +30,8 @@ public class UpdateAlphaTransaction_abortTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction(null);
-        setThreadLocalTransaction(t);
-        return t;
-    }
-
-    public Transaction startReadonlyTransaction() {
-        Transaction t = stm.startReadOnlyTransaction(null);
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }

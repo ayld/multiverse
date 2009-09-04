@@ -22,7 +22,7 @@ public class UpdateAlphaTransaction_orelseTest {
     }
 
     public AlphaTransaction startUpdateTransaction() {
-        AlphaTransaction t = (AlphaTransaction) stm.startUpdateTransaction(null);
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -67,11 +67,11 @@ public class UpdateAlphaTransaction_orelseTest {
     public void rollbackScenario() {
         AlphaTransaction t = startUpdateTransaction();
         IntRef atomicObject = new IntRef(0);
-        IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(atomicObject);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t.load(atomicObject);
 
         //start the or, and do a check that the tranlocal has not changed.
         t.startOr();
-        assertSame(tranlocal, t.privatize(atomicObject));
+        assertSame(tranlocal, t.load(atomicObject));
 
         //now do an increase that is going to be rolled back.
         tranlocal.inc();

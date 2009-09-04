@@ -38,19 +38,19 @@ public final class AlphaStmUtils {
      * Loads a Tranlocal using a transaction. The transaction is retrieved from the
      * TransactionThreadLocal. If no transaction is found, a RuntimeException is thrown.
      * <p/>
-     * For more information see {@link AlphaTransaction#privatize(AlphaAtomicObject)}
+     * For more information see {@link AlphaTransaction#load(AlphaAtomicObject)}
      * for more info.
      *
      * @param atomicObject the AlphaAtomicObject.
      * @return the AlphaTranlocal
      */
-    public static AlphaTranlocal privatize(Object atomicObject) {
+    public static AlphaTranlocal load(Object atomicObject) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
         }
 
-        return t.privatize((AlphaAtomicObject) atomicObject);
+        return t.load((AlphaAtomicObject) atomicObject);
     }
 
 

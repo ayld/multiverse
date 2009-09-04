@@ -29,35 +29,35 @@ public class LongRef extends FastAtomicObjectMixin {
     @AtomicMethod
     public void await(long expectedValue) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
         tranlocalThis.await(expectedValue);
     }
 
     @AtomicMethod
     public void set(final long value) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
         tranlocalThis.set(value);
     }
 
     @AtomicMethod
     public long get() {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
         return tranlocalThis.get();
     }
 
     @AtomicMethod
     public void inc() {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
         tranlocalThis.inc();
     }
 
     @AtomicMethod
     public void dec() {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
         tranlocalThis.dec();
 
     }
@@ -65,7 +65,7 @@ public class LongRef extends FastAtomicObjectMixin {
     @AtomicMethod
     public LongRef add(LongRef ref) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.privatize(LongRef.this);
+        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
         return tranlocalThis.add(ref);
     }
 

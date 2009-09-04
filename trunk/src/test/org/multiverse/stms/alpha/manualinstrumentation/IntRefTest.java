@@ -34,7 +34,7 @@ public class IntRefTest {
     public void dirtinessStateForFreshObject() {
         AlphaTransaction t = startTransaction();
         IntRef value = new IntRef(0);
-        IntRefTranlocal tranlocalValue = (IntRefTranlocal) t.privatize(value);
+        IntRefTranlocal tranlocalValue = (IntRefTranlocal) t.load(value);
         assertEquals(DirtinessStatus.fresh, tranlocalValue.getDirtinessStatus());
     }
 
@@ -43,7 +43,7 @@ public class IntRefTest {
         IntRef value = new IntRef(0);
 
         AlphaTransaction t = startTransaction();
-        IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(value);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t.load(value);
         assertEquals(DirtinessStatus.clean, tranlocal.getDirtinessStatus());
     }
 
@@ -53,7 +53,7 @@ public class IntRefTest {
 
         AlphaTransaction t = startTransaction();
         value.inc();
-        IntRefTranlocal tranlocal = (IntRefTranlocal) t.privatize(value);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t.load(value);
 
         assertEquals(DirtinessStatus.dirty, tranlocal.getDirtinessStatus());
     }
@@ -70,7 +70,7 @@ public class IntRefTest {
         t2.commit();
         setThreadLocalTransaction(t1);
 
-        IntRefTranlocal tranlocal = (IntRefTranlocal) t1.privatize(value);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t1.load(value);
         assertEquals(DirtinessStatus.dirty, tranlocal.getDirtinessStatus());
     }
 

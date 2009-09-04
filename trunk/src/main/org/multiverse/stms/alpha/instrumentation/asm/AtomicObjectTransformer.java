@@ -131,7 +131,7 @@ public class AtomicObjectTransformer implements Opcodes {
         m.visitMethodInsn(
                 INVOKESTATIC,
                 getInternalName(AlphaStmUtils.class),
-                "privatize",
+                "load",
                 loadDesc);
         m.visitTypeInsn(CHECKCAST, tranlocalName);
 

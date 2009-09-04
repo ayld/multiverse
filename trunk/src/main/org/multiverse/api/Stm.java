@@ -16,7 +16,7 @@ public interface Stm {
     long getClockVersion();
 
     /**
-     * Starts a Transaction that can be used for writes.
+     * Starts a Transaction that can be used for updates.
      *
      * @param familyName the familyName of the Transaction.
      * @return the created Transaction.
@@ -24,7 +24,7 @@ public interface Stm {
     Transaction startUpdateTransaction(String familyName);
 
     /**
-     * Starts a readonly Transaction.
+     * Starts Transaction that only can be used for readonly access.
      *
      * @param familyName the familyName of the Transaction.
      * @return the created readonly Transaction.

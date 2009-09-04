@@ -1,7 +1,7 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.annotations.AtomicMethod;
-import static org.multiverse.stms.alpha.AlphaStmUtils.privatize;
+import static org.multiverse.stms.alpha.AlphaStmUtils.load;
 
 public final class IntQueue {
 
@@ -32,15 +32,15 @@ public final class IntQueue {
             throw new IllegalStateException();
         }
 
-        IntStackTranlocal tranlocalPushedStack = (IntStackTranlocal) privatize(pushedStack);
+        IntStackTranlocal tranlocalPushedStack = (IntStackTranlocal) load(pushedStack);
         tranlocalPushedStack.push(item);
     }
 
     @AtomicMethod
     public int pop() {
-        IntStackTranlocal tranlocalReadyToPopStack = (IntStackTranlocal) privatize(readyToPopStack);
+        IntStackTranlocal tranlocalReadyToPopStack = (IntStackTranlocal) load(readyToPopStack);
         if (tranlocalReadyToPopStack.isEmpty()) {
-            IntStackTranlocal tranlocalPushedStack = (IntStackTranlocal) privatize(pushedStack);
+            IntStackTranlocal tranlocalPushedStack = (IntStackTranlocal) load(pushedStack);
             while (!tranlocalPushedStack.isEmpty()) {
                 tranlocalReadyToPopStack.push(tranlocalPushedStack.pop());
             }

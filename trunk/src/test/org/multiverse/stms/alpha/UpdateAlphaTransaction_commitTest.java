@@ -38,12 +38,6 @@ public class UpdateAlphaTransaction_commitTest {
         return t;
     }
 
-    public AlphaTransaction startReadonlyTransaction() {
-        AlphaTransaction t = stm.startReadOnlyTransaction(null);
-        setThreadLocalTransaction(t);
-        return t;
-    }
-
     // ================== commit =============================
 
     @Test
@@ -51,10 +45,10 @@ public class UpdateAlphaTransaction_commitTest {
         IntRef value = new IntRef(0);
 
         AlphaTransaction t1 = stm.startUpdateTransaction(null);
-        IntRefTranlocal tranlocalIntValueR1 = (IntRefTranlocal) t1.privatize(value);
+        IntRefTranlocal tranlocalIntValueR1 = (IntRefTranlocal) t1.load(value);
 
         AlphaTransaction t2 = stm.startUpdateTransaction(null);
-        IntRefTranlocal tranlocalIntValueR2 = (IntRefTranlocal) t2.privatize(value);
+        IntRefTranlocal tranlocalIntValueR2 = (IntRefTranlocal) t2.load(value);
         tranlocalIntValueR2.inc();
         t2.commit();
 

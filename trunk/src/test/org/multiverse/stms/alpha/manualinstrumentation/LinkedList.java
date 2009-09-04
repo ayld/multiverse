@@ -28,77 +28,77 @@ final public class LinkedList<E> extends FastAtomicObjectMixin {
 
     @AtomicMethod
     public Iterator<E> iterator() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).iterator();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).iterator();
     }
 
     @AtomicMethod
     public int getFirstIndexOf(E item) {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).firstIndexOf(item);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).firstIndexOf(item);
     }
 
     @AtomicMethod
     public E get(int index) {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).get(index);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).get(index);
     }
 
     @AtomicMethod
     public void clear() {
-        ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).clear();
+        ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).clear();
     }
 
     @AtomicMethod
     public E remove(int index) {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).remove(index);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).remove(index);
     }
 
     @AtomicMethod
     public boolean remove(E item) {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).remove(item);
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).remove(item);
     }
 
     @AtomicMethod
     public E removeFirst() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).removeFirst();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).removeFirst();
     }
 
     @AtomicMethod
     public E removeLast() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).removeLast();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).removeLast();
     }
 
     @AtomicMethod
     public E takeFirst() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).takeFirst();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).takeFirst();
     }
 
     @AtomicMethod
     public E takeLast() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).takeLast();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).takeLast();
     }
 
     @AtomicMethod
     public void add(E item) {
-        ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).add(item);
+        ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).add(item);
     }
 
     @AtomicMethod
     public void addInFront(E item) {
-        ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).addInFront(item);
+        ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).addInFront(item);
     }
 
     @AtomicMethod
     public int size() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).size();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).size();
     }
 
     @AtomicMethod
     public boolean isEmpty() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).isEmpty();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).isEmpty();
     }
 
     @AtomicMethod
     public String toString() {
-        return ((LinkedListTranlocal<E>) AlphaStmUtils.privatize(this)).toString();
+        return ((LinkedListTranlocal<E>) AlphaStmUtils.load(this)).toString();
     }
 
     @Override
@@ -417,35 +417,35 @@ final class LinkedNode<E> extends FastAtomicObjectMixin {
     @AtomicMethod
     public void setPrevious(LinkedNode<E> prev) {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).load(this);
         tranlocalThis.setPrevious(prev);
     }
 
     @AtomicMethod
     public void setNext(LinkedNode<E> next) {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).load(this);
         tranlocalThis.setNext(next);
     }
 
     @AtomicMethod
     public LinkedNode<E> getNext() {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).load(this);
         return tranlocalThis.getNext();
     }
 
     @AtomicMethod
     public LinkedNode<E> getPrevious() {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).load(this);
         return tranlocalThis.getPrevious();
     }
 
     @AtomicMethod
     public E getValue() {
         Transaction t = getThreadLocalTransaction();
-        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).privatize(this);
+        LinkedNodeTranlocal<E> tranlocalThis = (LinkedNodeTranlocal<E>) ((AlphaTransaction) t).load(this);
         return tranlocalThis.getValue();
     }
 

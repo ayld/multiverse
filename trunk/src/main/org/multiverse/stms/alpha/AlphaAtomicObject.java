@@ -28,12 +28,8 @@ public interface AlphaAtomicObject {
     AlphaTranlocal load();
 
     /**
-     * Loads the {@link AlphaTranlocal} with the specified version and returns a private copy that can be used
-     * for updating transactions.
-     * <p/>
-     * todo:
-     * if you can see that another transaction already did a commit.. no need to continue
-     * <p/>
+     * Loads the {@link AlphaTranlocal} with the specified version and returns a private copy that can be
+     * used for updating transactions.
      *
      * @param readVersion the readVersion of the transaction.
      * @return the loaded Tranlocal.
@@ -85,16 +81,6 @@ public interface AlphaAtomicObject {
      * @return true if the listener was registered on a committed object, false otherwise.
      */
     boolean registerRetryListener(Latch listener, long minimumVersion);
-
-    /**
-     * Makes sure that ... is conflict free.
-     *
-     * @param readVersion the read version of the transaction.
-     * @return true if there are no conflicts, false otherwise.
-     * @throws org.multiverse.api.exceptions.LoadException
-     *
-     */
-    boolean ensureConflictFree(long readVersion);
 
     /**
      * Returns the current owner of the lock, or null if AtomicObject is not locked.

@@ -25,8 +25,8 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
         setThreadLocalTransaction(null);
     }
 
-    public Transaction startUpdateTransaction() {
-        Transaction t = stm.startUpdateTransaction(null);
+    public AlphaTransaction startUpdateTransaction() {
+        AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
@@ -36,7 +36,7 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
         Transaction t = startUpdateTransaction();
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (NoProgressPossibleException ex) {
         }
@@ -50,7 +50,7 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
         IntRef intValue = new IntRef(0);
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (NoProgressPossibleException ex) {
 
@@ -115,7 +115,7 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
         long expectedVersion = stm.getClockVersion();
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (DeadTransactionException ex) {
         }
@@ -132,7 +132,7 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
         long expectedVersion = stm.getClockVersion();
 
         try {
-            t.abortAndRetry();
+            t.abortAndWaitForRetry();
             fail();
         } catch (DeadTransactionException ex) {
         }

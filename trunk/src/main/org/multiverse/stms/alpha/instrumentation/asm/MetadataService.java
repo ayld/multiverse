@@ -42,14 +42,24 @@ public final class MetadataService {
         return isAtomicMethod(owner.name, method.name, method.desc);
     }
 
-    public boolean isAtomicMethod(String className, String name, String desc) {
-        ensureClassLoaded(className);
-        String key = "IsAtomicMethod#" + className + "#" + name + "#" + desc;
+    public boolean isAtomicMethod(String atomicClass, String name, String desc) {
+        ensureClassLoaded(atomicClass);
+        String key = "IsAtomicMethod#" + atomicClass + "#" + name + "#" + desc;
         return getPrepareInfoAsBoolean(key);
     }
 
-    public void setIsAtomicMethod(ClassNode classNode, MethodNode method, boolean isAtomicMethod) {
-        String key = "IsAtomicMethod#" + classNode.name + "#" + method.name + "#" + method.desc;
+    public AtomicMethodParams getAtomicMethodParams(ClassNode atomicClass, MethodNode method) {
+        String key = "AtomicMethodParams#" + atomicClass.name + "#" + method.name + "#" + method.desc;
+        return (AtomicMethodParams) infoMap.get(key);
+    }
+
+    public void setAtomicMethodParams(ClassNode atomicClass, MethodNode method, AtomicMethodParams params) {
+        String key = "AtomicMethodParams#" + atomicClass.name + "#" + method.name + "#" + method.desc;
+        infoMap.put(key, params);
+    }
+
+    public void setIsAtomicMethod(ClassNode atomicClass, MethodNode method, boolean isAtomicMethod) {
+        String key = "IsAtomicMethod#" + atomicClass.name + "#" + method.name + "#" + method.desc;
         putBoolean(isAtomicMethod, key);
     }
 

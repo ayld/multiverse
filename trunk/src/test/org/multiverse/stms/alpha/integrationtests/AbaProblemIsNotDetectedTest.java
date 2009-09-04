@@ -57,10 +57,10 @@ public class AbaProblemIsNotDetectedTest {
         intValue = new IntRef(A);
 
         AlphaTransaction t1 = startUpdateTransaction();
-        IntRefTranlocal r1 = (IntRefTranlocal) t1.privatize(intValue);
+        IntRefTranlocal r1 = (IntRefTranlocal) t1.load(intValue);
 
         AlphaTransaction t2 = startUpdateTransaction();
-        IntRefTranlocal r2 = (IntRefTranlocal) t2.privatize(intValue);
+        IntRefTranlocal r2 = (IntRefTranlocal) t2.load(intValue);
         r2.set(B);
         r2.set(A);
         t2.commit();
