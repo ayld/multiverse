@@ -193,7 +193,7 @@ public abstract class AtomicTemplate<E> {
             setTransaction(t);
             try {
                 attemptCount = 1;
-                while (attemptCount <= retryCount) {
+                while (attemptCount - 1 <= retryCount) {
                     boolean abort = true;
                     try {
                         E result = execute(t);

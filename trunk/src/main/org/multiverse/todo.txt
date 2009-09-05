@@ -2,8 +2,6 @@
 todo engine
 ---------------------------------------------------------------
 
-- readonly annotation
-
 - FastTom.registerRetryListener en de noProgressPossibleException
 
 - FastTomTest afmaken
@@ -14,6 +12,8 @@ todo engine
 
 - move the benchmarks to this project
     - depends on instrumentation
+
+- readonly advice moet weer op de tranlocal gezet worden
 
 ---------------------------------------------------------------
 todo instrumentation
@@ -30,12 +30,7 @@ Some integration tests fail while using the former one.
 
 - testCreateAtomicObjectInConstructor
 
-- er gaat is mis met een private method van een tranlocal. Dit heeft te maken
-met het feit dat de opcode INVOKESPECIAL is, ipv INVOKEVIRTUAL wat nodig is
-voor een non private method.
-
 - swappen bij de managedfieldremappingadapter kan voor problemen zorgen bij longs/doubles
-
 
 - vanuit een aangepaste method gaan de calls naar in tranlocalform, terwijl
 de callee's in atomicobject vorm verwacht.
@@ -49,8 +44,6 @@ de outerclass nog steeds naar de AtomicObject, en niet naar de Tranlocal
 
     - code from the construtor in the mixin is discarded
 
-
-- readonly advice moet weer op de tranlocal gezet worden
 
 - constructors & atomic
 
@@ -82,8 +75,6 @@ todo features
 
 - excluded packages in the AbstractClassFileTransformer should be configurable
 
-- name on transaction
-
 - retry limit in instrumentation needs to be added
 
 - retry limit on atomictemplate.
@@ -100,20 +91,11 @@ todo features
 
 - SkipList
 
-- better queue that allows better concurrency.
-
 ---------------------------------------------------------------
 idea:
 ---------------------------------------------------------------
 
-- if a familyName is missing when a transaction starts, it could be derived from the methodName and the
-className. This only counts for AtomicMethods
-
 - a ref stm that is completely optimized for refs without notification support.
-
-- instead of using the StmUtils.privatize, generate the code inline
-
-- insead of using the SmtUtils.attachAsNew, generate the code inline
 
 - instead of having a locked bit, the tranlocal could have access to the transaction. Once committed,
 this reference can be set to null. Can also be used for detecting if a tranlocal can in from a different
@@ -122,8 +104,6 @@ transaction.
 - provide as much as possible to point to failures in the byteocode (missing
 parts for example) which class/method it was.. for debugging purposes of course
 
-- idee om plementatie specific details eruit te laten:
-de interfaces zo maken zodat multiverse 0.2 er ook in gebouwd had kunnen worden
 - a performance test comparing the 'managed ref' approach vs the full blown multiverse approach.
 
 - a performance comparison between 'uninstrumented' code and instrumented code.
@@ -144,8 +124,6 @@ wait/notify.
 all objects loaded by a transaction are a reason to wake up (cause a change happens on them). But
 what if you are only interested in a specific field... this could reduce the stress on the mechanism
 
-- logging instrumentation: instrumentation that adds logging.
-
 - transaction level statistics
 
 - jmx component om statistics grafisch inzichtelijk te maken
@@ -161,8 +139,6 @@ what if you are only interested in a specific field... this could reduce the str
 - Optimization for transaction usage
 
 - bloomfilter
-
-- heeft het nu om een read op een writetransactie te hebben terwijl je de $readPrivatized daar ook al hebt?
 
 - abort silently
 
@@ -185,11 +161,3 @@ but a normal object using a managed ref.
 ---------------------------------------------------------------
 done
 ---------------------------------------------------------------
-
-- the zip file needs to contain the multiverse directory and version.
-
-- asm should be placed under a different package name so no writeconflicts can happen
-http://code.google.com/p/jarjar/wiki/GettingStarted
-
-- activate readonly support in the the TransactionTemplate
-

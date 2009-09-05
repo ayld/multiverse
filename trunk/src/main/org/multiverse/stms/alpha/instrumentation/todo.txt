@@ -23,27 +23,4 @@ interesting is there, else don't read.
 idea
 
 done
-
-- de debug info van de methodes uit de FastAtomicObjectMixin meenemen naar de class zelf.
-
-- bij de Tranlocal nog een snapshot
-
-- TranlocalSnapshot
-
-- de automatic package moet gerenamed worden.
-
-- Tranlocal opzetten mbv tree api
-
-- bij de Tranlocal moet nog een committed check gedaan worden
-
-- problemen met het toevoegen van nieuwe classes in asm structuur
-
-- aangezien je een chain hebt, ben je de orginele kwijt... zou je die misschien mee kunnen geven?
-
-- de nieuwe Tranlocal toevoegen aan de classloader.
-
-- Tranlocal en privatize constructor
-
-- bij de Tranlocal getDirtnessState
-
-
+S
