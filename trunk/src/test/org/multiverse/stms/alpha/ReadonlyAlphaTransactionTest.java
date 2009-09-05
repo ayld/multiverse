@@ -157,7 +157,7 @@ public class ReadonlyAlphaTransactionTest {
         try {
             t.load(new IntRef(1));
             fail();
-        } catch (ReadonlyException ex) {
+        } catch (DeadTransactionException ex) {
         }
 
         assertIsCommitted(t);
@@ -171,7 +171,7 @@ public class ReadonlyAlphaTransactionTest {
         try {
             t.load(new IntRef(1));
             fail();
-        } catch (ReadonlyException ex) {
+        } catch (DeadTransactionException ex) {
         }
 
         assertIsAborted(t);

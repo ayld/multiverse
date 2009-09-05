@@ -1,6 +1,7 @@
 package org.multiverse.datastructures.refs;
 
 import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 
 import static java.lang.String.format;
@@ -37,6 +38,7 @@ public final class AbaRef<E> implements ManagedRef<E> {
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public E getOrAwait() {
         if (reference == null) {
             retry();
@@ -46,11 +48,13 @@ public final class AbaRef<E> implements ManagedRef<E> {
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public E get() {
         return reference;
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public boolean isNull() {
         return reference == null;
     }
@@ -73,6 +77,7 @@ public final class AbaRef<E> implements ManagedRef<E> {
     }
 
     @Override
+    @AtomicMethod(readonly = true)
     public String toString() {
         if (reference == null) {
             return "AbaRef(ref=null)";

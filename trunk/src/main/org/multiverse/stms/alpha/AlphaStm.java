@@ -34,6 +34,8 @@ public final class AlphaStm implements Stm {
 
     private volatile CommitLockPolicy lockPolicy;
 
+    private final AtomicLong logIdGenerator = new AtomicLong();
+
     /**
      * Creates a new AlphaStm that keeps track of statistics and where logging is possible.
      */
@@ -94,7 +96,7 @@ public final class AlphaStm implements Stm {
     @Override
     public AlphaTransaction startUpdateTransaction(String familyName) {
         if (loggingPossible) {
-            return new LoggingUpdateAlphaTransaction(familyName, statistics, clock, lockPolicy);
+            return new LoggingUpdateAlphaTransaction(familyName, statistics, clock, lockPolicy, logIdGenerator);
         } else {
             return new UpdateAlphaTransaction(familyName, statistics, clock, lockPolicy);
         }
@@ -102,7 +104,11 @@ public final class AlphaStm implements Stm {
 
     @Override
     public AlphaTransaction startReadOnlyTransaction(String familyName) {
-        return new ReadonlyAlphaTransaction(familyName, statistics, clock);
+        if (loggingPossible) {
+            return new LoggingReadonlyAlphaTransaction(familyName, statistics, clock, logIdGenerator);
+        } else {
+            return new ReadonlyAlphaTransaction(familyName, statistics, clock);
+        }
     }
 
     @Override

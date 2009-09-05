@@ -11,12 +11,15 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
     private final static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
 
-    private final static AtomicLong logIdGenerator = new AtomicLong();
+    private final AtomicLong logIdGenerator;
 
-    private final long logId = logIdGenerator.getAndIncrement();
+    private final long logId;
 
-    public LoggingUpdateAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, CommitLockPolicy writeSetLockPolicy) {
+    public LoggingUpdateAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, CommitLockPolicy writeSetLockPolicy, AtomicLong logIdGenerator) {
         super(familyName, statistics, clock, writeSetLockPolicy);
+
+        this.logIdGenerator = logIdGenerator;
+        logId = logIdGenerator.getAndIncrement();
 
         if (logger.isLoggable(Level.FINE)) {
             logger.fine(format("UpdateTransaction%s and readversion %s started", logId, getReadVersion()));

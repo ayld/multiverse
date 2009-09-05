@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-final public class ReadonlyAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
+public class ReadonlyAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
     private final AlphaStmStatistics statistics;
 
     public ReadonlyAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock) {

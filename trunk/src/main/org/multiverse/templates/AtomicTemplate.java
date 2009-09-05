@@ -59,6 +59,10 @@ public abstract class AtomicTemplate<E> {
         this(GlobalStmInstance.get());
     }
 
+    public AtomicTemplate(boolean readonly) {
+        this(GlobalStmInstance.get(), null, false, readonly, Integer.MAX_VALUE);
+    }
+
     /**
      * Creates a new AtomicTemplate using the provided stm. The transaction used
      * is stores/retrieved from the {@link org.multiverse.utils.TransactionThreadLocal}.

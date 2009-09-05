@@ -52,7 +52,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     public E get() {
-        return new AtomicTemplate<E>() {
+        return new AtomicTemplate<E>(true) {
             @Override
             public E execute(Transaction t) throws Exception {
                 RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
@@ -68,7 +68,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
 
     @Override
     public E getOrAwait() {
-        return new AtomicTemplate<E>() {
+        return new AtomicTemplate<E>(true) {
             @Override
             public E execute(Transaction t) throws Exception {
                 RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
@@ -101,7 +101,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
 
     @Override
     public boolean isNull() {
-        return new AtomicTemplate<Boolean>() {
+        return new AtomicTemplate<Boolean>(true) {
             @Override
             public Boolean execute(Transaction t) throws Exception {
                 RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
@@ -133,7 +133,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
 
     @Override
     public String toString() {
-        return new AtomicTemplate<String>() {
+        return new AtomicTemplate<String>(true) {
             @Override
             public String execute(Transaction t) throws Exception {
                 RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);

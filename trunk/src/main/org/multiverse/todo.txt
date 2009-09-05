@@ -2,6 +2,12 @@
 todo engine
 ---------------------------------------------------------------
 
+- readonly advice moet weer op de tranlocal gezet worden
+
+- controleren of readonly transacties ook worden voorzien van statistics
+
+- javadoc publishen op de site
+
 - FastTom.registerRetryListener en de noProgressPossibleException
 
 - FastTomTest afmaken
@@ -13,7 +19,7 @@ todo engine
 - move the benchmarks to this project
     - depends on instrumentation
 
-- readonly advice moet weer op de tranlocal gezet worden
+- naamgeving van de 'retry' (blocking) functionality aanpassen aangezien het enorm misleidend is.
 
 ---------------------------------------------------------------
 todo instrumentation
@@ -161,3 +167,6 @@ but a normal object using a managed ref.
 ---------------------------------------------------------------
 done
 ---------------------------------------------------------------
+
+- logging op readonly transactie
+

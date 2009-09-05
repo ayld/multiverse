@@ -29,7 +29,7 @@ public class RefTest {
     public void noArgConstruction() {
         long version = stm.getClockVersion();
 
-        org.multiverse.datastructures.refs.Ref<String> ref = new Ref<String>();
+        Ref<String> ref = new Ref<String>();
 
         assertEquals(version + 1, stm.getClockVersion());
         assertNull(ref.get());

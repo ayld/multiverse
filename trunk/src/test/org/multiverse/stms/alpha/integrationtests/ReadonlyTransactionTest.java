@@ -55,5 +55,4 @@ public class ReadonlyTransactionTest {
     public static void readonlyMethodThatUpdates(Ref<Integer> ref) {
         ref.set(1);
     }
-
 }
