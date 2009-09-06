@@ -52,7 +52,7 @@ public int execute(int newAge){
 }}}
 
 == Family Name ==
-Each transaction can have a family name that is sort of an identifier. This identifier can be used to classify the transaction (this can be used for identification purposes.. and this can be used for various techniques like profiling or determining the optimal transaction size). Default the complete classname.methoddescriptor is the familyName.
+Each transaction can have a family name that is sort of an identifier. This identifier can be used to classify the transaction (and this can be used for various techniques like profiling/determining the optimal transaction size/logging etc). Default the complete classname.methodDescriptor is used as the familyName.
 
 {{{
 @AtomicMethod(familyName = "setAge")
