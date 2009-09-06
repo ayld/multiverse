@@ -25,9 +25,11 @@ public void storeItem(String item){
 
 }}}
 
-This annotation will make sure that a transaction is started and committed, or retried when needed. In the future the @AtomicMethod annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time, propagation etc.
+This annotation will make sure that an update transaction is started and committed, or retried when needed. In the future the @AtomicMethod annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time, propagation etc.
 
 It is also important to realize that not every method needs to be @AtomicMethod; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
+
+All instance methods of an AtomicObject are by default update-AtomicMethods.
 
 == Readonly transactions ==
 
