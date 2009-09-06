@@ -43,13 +43,15 @@ The advantage of readonly transactions is that a readonly transaction doesn't ne
 
 == Retry Count ==
 
-The number of times a transaction is retries can be set like this (default is Integer.MAX_VALUE)
+The number of times a transaction is retried can be set like this (default is Integer.MAX_VALUE)
 {{{
 @AtomicMethod(retryCount = 10)
 public int execute(int newAge){
     return person.setAge(newAge)
 }
 }}}
+
+The problem of setting the retryCount too low is that you get a TooManyRetriesException, so you need to deal with this. And the problem of setting the retryCount to high is that the system could suffer from livelocking and starvation. For the time being the default works, but in the future this is something needs further inspection.
 
 == Family Name ==
 Each transaction can have a family name that is sort of an identifier. This identifier can be used to classify the transaction (and this can be used for various techniques like profiling/determining the optimal transaction size/logging etc). Default the complete classname.methodDescriptor is used as the familyName.
