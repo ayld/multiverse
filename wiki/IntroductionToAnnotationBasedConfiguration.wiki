@@ -4,44 +4,36 @@
 
 = Transaction =
 
-If a method needs to be transactional, this can be done with the @AtomicMethod annotation, example:
+A transactional method that can be used for updates, can be created with the @AtomicMethod annotation, example:
 
 {{{
-import org.multiverse.datastructures.collections.DoubleLinkedQueue;
-
-...
-
-private DoubleLinkedQueue<String> queueHandle;
-
 @AtomicMethod
-public void createQueue(){
-    queue = new DoubleLinkedQueue();
+public void transfer(Account from, Account to, int amount){
+   from.dec(amount);
+   to.inc(amount);
 }
-
-@AtomicMethod
-public void storeItem(String item){
-    queue.push(item);
-}
-
 }}}
 
-This annotation will make sure that an update transaction is started and committed, or retried when needed. In the future the @AtomicMethod annotation will contain all kinds of configuration options like the maximum number of retries, delays between retries, total timeout time, propagation etc.
+(where Account is an AtomicObject)
+
+This annotation will make sure that an update transaction is started and committed, or retried when needed. 
 
 It is also important to realize that not every method needs to be @AtomicMethod; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
 
-All instance methods of an AtomicObject are by default update-AtomicMethods.
+All instance methods of an AtomicObject are by default update-AtomicMethods. If you know that a method is readonly, mark it as readonly. In the future some kind of infer mechanism might be added.
 
 == Readonly transactions ==
 
 A readonly transaction can be created like this
+
 {{{
 @AtomicMethod(readonly = true)
-public int execute(){
-    return person.getAge();
+public int sum(Account account1, Account account2){
+    return account1.getBalance() + account2.getBalance();
 }
 }}}
 
-The advantage of readonly transactions is that a readonly transaction doesn't need to do readtracking, so the size of a transaction will not grow, and the time it takes to commit is constant instead of linear.
+The advantage of readonly transactions is that a readonly transaction doesn't need to do readtracking, so the size of a transaction will not grow, and the time it takes to commit is constant instead of linear. Also the amount of object creation is a lot smaller, so a readonly transaction is a lot faster. 
 
 == Retry Count ==
 
