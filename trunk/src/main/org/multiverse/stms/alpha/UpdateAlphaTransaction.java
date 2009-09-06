@@ -31,7 +31,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
     private final AlphaStmStatistics statistics;
 
     //the attached set contains the Translocals loaded and attached.
-    private Map<AlphaAtomicObject, AlphaTranlocal> attached = new IdentityHashMap(2);
+    private Map<AlphaAtomicObject, AlphaTranlocal> attached = new IdentityHashMap<AlphaAtomicObject, AlphaTranlocal>(2);
 
     private SnapshotStack snapshotStack;
 
@@ -150,7 +150,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
     }
 
     private long doCommit() {
-        //System.out.println("starting commit");
         AlphaTranlocal[] writeSet = createWriteSet();
         if (nothingToLock(writeSet)) {
             //if there is nothing to commit, we are done.
@@ -158,19 +157,18 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                 statistics.incTransactionEmptyCommitCount();
             }
             return readVersion;
-        } else {
+        }
 
-            boolean success = false;
-            try {
-                acquireLocksAndCheckForConflicts(writeSet);
-                long writeVersion = clock.incrementAndGet();
-                storeAll(writeSet, writeVersion);
-                success = true;
-                return writeVersion;
-            } finally {
-                if (!success) {
-                    releaseLocks(writeSet, this);
-                }
+        boolean success = false;
+        try {
+            acquireLocksAndCheckForConflicts(writeSet);
+            long writeVersion = clock.incrementAndGet();
+            storeAll(writeSet, writeVersion);
+            success = true;
+            return writeVersion;
+        } finally {
+            if (!success) {
+                releaseLocks(writeSet, this);
             }
         }
     }

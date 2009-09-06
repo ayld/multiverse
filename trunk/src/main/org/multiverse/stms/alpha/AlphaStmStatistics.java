@@ -24,6 +24,25 @@ public final class AlphaStmStatistics {
     private final AtomicLong updateTransactionPendingRetryCount = new AtomicLong();
     private final AtomicLong lockAcquiredCount = new AtomicLong();
     private final AtomicLong readonlyTransactionStartedCount = new AtomicLong();
+    private final AtomicLong readonlyTransactionCommittedCount = new AtomicLong();
+    private final AtomicLong readonlyTransactionAbortedCount = new AtomicLong();
+
+    public void incReadonlyTransactionCommittedCount() {
+        readonlyTransactionCommittedCount.incrementAndGet();
+    }
+
+    public long getReadonlyTransactionCommittedCount() {
+        return readonlyTransactionCommittedCount.get();
+    }
+
+    public void incReadonlyTransactionAbortedCount() {
+        readonlyTransactionAbortedCount.incrementAndGet();
+    }
+
+    public long getReadonlyTransactionAbortedCount() {
+        return readonlyTransactionAbortedCount.get();
+    }
+
 
     public void incReadonlyTransactionStartedCount() {
         readonlyTransactionStartedCount.incrementAndGet();
@@ -174,8 +193,17 @@ public final class AlphaStmStatistics {
     public String toString() {
         StringBuffer sb = new StringBuffer();
 
+        long committedCount = updateTransactionCommittedCount.get() + readonlyTransactionCommittedCount.get();
+
+        sb.append(format("stm.readonlytransaction.percentage %s\n", toPercentage(readonlyTransactionCommittedCount.get(), committedCount)));
         sb.append(format("stm.readonlytransaction.started.count %s\n", readonlyTransactionStartedCount.get()));
+        sb.append(format("stm.readonlytransaction.committed.count %s\n", readonlyTransactionCommittedCount.get()));
+        sb.append(format("stm.readonlytransaction.committed.percentage %s\n", toPercentage(readonlyTransactionCommittedCount, readonlyTransactionStartedCount)));
+        sb.append(format("stm.readonlytransaction.aborted.percentage %s\n", toPercentage(readonlyTransactionAbortedCount, readonlyTransactionStartedCount)));
+
+        sb.append(format("stm.readonlytransaction.committed.percentage %s \n", toPercentage(readonlyTransactionCommittedCount.get(), committedCount)));
         sb.append(format("stm.readonlypercentage %s\n", toPercentage(readonlyTransactionStartedCount.get(), readonlyTransactionStartedCount.get() + updateTransactionStartedCount.get())));
+
         sb.append(format("stm.updatetransaction.started.count %s\n", updateTransactionStartedCount.get()));
         sb.append(format("stm.updatetransaction.committed.count %s\n", updateTransactionCommittedCount.get()));
         sb.append(format("stm.updatetransaction.committed.percentage %s\n", toPercentage(updateTransactionCommittedCount, updateTransactionStartedCount)));

@@ -1,10 +1,12 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.internalFormToDescriptor;
 import org.multiverse.utils.TodoException;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -229,7 +231,7 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
 
     @Override
     public void visitFieldInsn(int opcode, String owner, String name, String valueDesc) {
-        String ownerTranlocal = metadataService.getTranlocalName(owner);
+        String tranlocalName = metadataService.getTranlocalName(owner);
 
         if (metadataService.isManagedInstanceField(owner, name)) {
             switch (opcode) {
@@ -239,7 +241,7 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
 
                     //[owner(translocal),..
 
-                    mv.visitFieldInsn(GETFIELD, ownerTranlocal, name, valueDesc);
+                    mv.visitFieldInsn(GETFIELD, tranlocalName, name, valueDesc);
                     //[value(atomicobject),..
 
                     if (isAtomicObject(valueDesc)) {
@@ -252,6 +254,24 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
                     //It is a write done on a managed field of a managed object.
                     //The write needs to be done on the tranlocal.
 
+                    //check for committed.
+                    Label continueWithPut = new Label();
+
+                    copyOwnerOfPutOnTop(valueDesc);
+                    mv.visitFieldInsn(GETFIELD, tranlocalName, "committed", "Z");
+                    //if committed equals 0 then continueWithPut ( 0 is false, 1 is true)
+                    mv.visitJumpInsn(IFEQ, continueWithPut);
+
+                    mv.visitTypeInsn(NEW, Type.getInternalName(ReadonlyException.class));
+                    mv.visitInsn(DUP);
+                    String msg = format("Can't write on committed field %s.%s. The cause of this error is probably an update" +
+                            "in a readonly transaction", tranlocalName, name);
+
+                    mv.visitLdcInsn(msg);
+                    mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(ReadonlyException.class), "<init>", "(Ljava/lang/String;)V");
+                    mv.visitInsn(ATHROW);
+                    mv.visitLabel(continueWithPut);
+
                     //[value(tranlocal), owner(tranlocal),..
                     if (isAtomicObject(valueDesc)) {
                         String topType = Type.getType(valueDesc).getInternalName();
@@ -259,7 +279,7 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
                     }
                     //[value(atomicobject), owner(tranlocal),..
 
-                    mv.visitFieldInsn(PUTFIELD, ownerTranlocal, name, valueDesc);
+                    mv.visitFieldInsn(PUTFIELD, tranlocalName, name, valueDesc);
                     //[..
                     break;
                 case GETSTATIC:
@@ -349,6 +369,28 @@ public class ManagedFieldRemappingMethodAdapter extends RemappingMethodAdapter i
     // =================== areturn =================
     // a return also needs to be fixed if the return type of the method
     // is of type AtomicObject.
+
+    public void copyOwnerOfPutOnTop(String valueDesc) {
+        if (isCategory2(valueDesc)) {
+            //de stack ziet er als volgt uit [value64bits, target, ...]
+
+            mv.visitInsn(DUP2_X1);
+            //[value64bits, target, value64bits,...]
+
+            mv.visitInsn(POP2);
+            //[target, value64bits, ...]
+
+            mv.visitInsn(DUP_X2);
+            //[target, value64bits, target, ...]
+        } else {
+            mv.visitInsn(DUP2);
+            mv.visitInsn(POP);
+        }
+    }
+
+    private boolean isCategory2(String valueDesc) {
+        return valueDesc.equals("J") || valueDesc.equals("D");
+    }
 
     @Override
     public void visitInsn(int opcode) {

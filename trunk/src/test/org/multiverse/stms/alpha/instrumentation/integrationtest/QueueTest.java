@@ -1,12 +1,11 @@
 package org.multiverse.stms.alpha.instrumentation.integrationtest;
 
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
-import org.multiverse.stms.alpha.instrumentation.asm.MetadataService;
 import org.multiverse.utils.GlobalStmInstance;
 
 /**
@@ -28,9 +27,18 @@ public class QueueTest {
     }
 
     @Test
+    public void testIsNotTransformedToAlphaAtomicObject() {
+        Queue queue = new Queue();
+
+        assertFalse(((Object) queue) instanceof AlphaAtomicObject);
+    }
+
+    @Test
     public void testConstruction() {
-        MetadataService s = MetadataService.INSTANCE;
+        long version = stm.getClockVersion();
         Queue queue = new Queue(100);
+
+        assertEquals(version + 1, stm.getClockVersion());
         assertEquals(0, queue.size());
         assertTrue(queue.isEmpty());
     }

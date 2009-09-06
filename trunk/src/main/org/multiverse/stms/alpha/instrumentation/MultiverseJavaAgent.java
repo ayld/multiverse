@@ -60,7 +60,7 @@ public class MultiverseJavaAgent {
             ClassNode original = loadAsClassNode(originalBytecode);
             MetadataExtractor transformer = new MetadataExtractor(original);
             transformer.extract();
-            AsmUtils.writeToFileInTmpDirectory(className + "__Original" + ".class", originalBytecode);
+//            AsmUtils.writeToFileInTmpDirectory(className + "__Original" + ".class", originalBytecode);
             return null;
         }
     }
@@ -79,8 +79,7 @@ public class MultiverseJavaAgent {
                 AtomicObjectTransformer transformer = new AtomicObjectTransformer(original, mixin);
                 ClassNode result = transformer.transform();
                 byte[] resultCode = toBytecode(result);
-                AsmUtils.writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
-//                AsmUtils.verify(result);
+//                AsmUtils.writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
                 return resultCode;
             }
 
@@ -100,7 +99,7 @@ public class MultiverseJavaAgent {
                 TranlocalSnapshotFactory factory = new TranlocalSnapshotFactory(original);
                 ClassNode result = factory.create();
                 byte[] resultBytecode = toBytecode(result);
-                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+//                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 MultiverseClassLoader.INSTANCE.defineClass(result.name, resultBytecode);
 
             }
@@ -122,7 +121,7 @@ public class MultiverseJavaAgent {
                 ClassNode result = transformer.create();
 
                 byte[] resultBytecode = toBytecode(result);
-                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+//                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 MultiverseClassLoader.INSTANCE.defineClass(result.name, resultBytecode);
             }
 
@@ -144,14 +143,12 @@ public class MultiverseJavaAgent {
                 AtomicMethodTransformer transformer = new AtomicMethodTransformer(original);
                 ClassNode result = transformer.transform();
                 byte[] resultBytecode = toBytecode(result);
-                AsmUtils.writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
+//                AsmUtils.writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
                 for (ClassNode innerClass : transformer.getInnerClasses()) {
                     byte[] templateBytecode = toBytecode(innerClass);
-                    AsmUtils.writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
+                    //                  AsmUtils.writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
                     MultiverseClassLoader.INSTANCE.defineClass(innerClass.name, templateBytecode);
                 }
-
-                AsmUtils.verify(resultBytecode);
 
                 return resultBytecode;
             }

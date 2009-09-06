@@ -9,15 +9,12 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
 
     private final static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
 
-    private final AtomicLong logIdGenerator;
-
     private final long logId;
 
-    public LoggingReadonlyAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, AtomicLong logIdGenerator) {
+    public LoggingReadonlyAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, long logId) {
         super(familyName, statistics, clock);
 
-        this.logIdGenerator = logIdGenerator;
-        this.logId = logIdGenerator.incrementAndGet();
+        this.logId = logId;
 
         if (logger.isLoggable(Level.FINE)) {
             logger.fine(format("ReadonlyTransaction%s and readversion %s started", logId, getReadVersion()));

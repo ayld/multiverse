@@ -2,9 +2,9 @@
 todo engine
 ---------------------------------------------------------------
 
-- readonly advice moet weer op de tranlocal gezet worden
+- writing instrumented class to the out should be configurable.
 
-- controleren of readonly transacties ook worden voorzien van statistics
+- readonly advice moet weer op de tranlocal gezet worden
 
 - javadoc publishen op de site
 
@@ -169,4 +169,6 @@ done
 ---------------------------------------------------------------
 
 - logging op readonly transactie
+
+- controleren of readonly transacties ook worden voorzien van statistics
 

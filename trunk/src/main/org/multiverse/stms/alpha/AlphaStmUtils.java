@@ -21,7 +21,7 @@ public final class AlphaStmUtils {
      * Attaches a Tranlocal to a transaction. The transaction is retrieved from the
      * TransactionThreadLocal. If no transaction is found, a RuntimeException is thrown.
      * <p/>
-     * For more information see
+     * This method is called by instrumented atomicobjects.
      *
      * @param tranlocal the AlphaTranlocal to attach.
      */
@@ -39,7 +39,8 @@ public final class AlphaStmUtils {
      * TransactionThreadLocal. If no transaction is found, a RuntimeException is thrown.
      * <p/>
      * For more information see {@link AlphaTransaction#load(AlphaAtomicObject)}
-     * for more info.
+     * <p/>
+     * This method is called by instrumented atomicobjects.
      *
      * @param atomicObject the AlphaAtomicObject.
      * @return the AlphaTranlocal
@@ -53,7 +54,7 @@ public final class AlphaStmUtils {
         return t.load((AlphaAtomicObject) atomicObject);
     }
 
-
+    //we don't want instances
     private AlphaStmUtils() {
     }
 }

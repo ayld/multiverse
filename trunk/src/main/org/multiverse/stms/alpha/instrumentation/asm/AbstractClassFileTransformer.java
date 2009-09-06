@@ -19,7 +19,7 @@ import java.security.ProtectionDomain;
  */
 public abstract class AbstractClassFileTransformer implements ClassFileTransformer {
 
-    public MetadataService metadataService  = MetadataService.INSTANCE;
+    public MetadataService metadataService = MetadataService.INSTANCE;
 
     private final String name;
 
@@ -31,12 +31,16 @@ public abstract class AbstractClassFileTransformer implements ClassFileTransform
      *
      * @param name a descriptor logging purposes.
      */
-    public AbstractClassFileTransformer(String name){
+    public AbstractClassFileTransformer(String name) {
         this.name = name;
     }
 
     @Override
     public final byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        //    if(className.contains("multiverse")) {
+        //        System.out.println("Found: "+className);
+        //    }
+
         try {
             if (isIgnoredPackage(className)) {
                 return null;
@@ -45,12 +49,12 @@ public abstract class AbstractClassFileTransformer implements ClassFileTransform
             return doTransform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         } catch (RuntimeException ex) {
             InstrumentationProblemMonitor.INSTANCE.signalProblem();
-            System.out.println("Failed while instrumenting class: " + className+" in transformer: "+name);
+            System.out.println("Failed while instrumenting class: " + className + " in transformer: " + name);
             ex.printStackTrace();
             throw ex;
         } catch (Error e) {
             InstrumentationProblemMonitor.INSTANCE.signalProblem();
-            System.out.println("Failed while instrumenting class: " + className+" in transformer: "+name);
+            System.out.println("Failed while instrumenting class: " + className + " in transformer: " + name);
             e.printStackTrace();
             throw e;
         }

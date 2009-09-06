@@ -31,7 +31,7 @@ public abstract class AlphaTranlocal implements CommitLock {
      * This field should only be set by the STM. It can be used to make the object
      * immutable after it has been committed.
      */
-    public boolean committed;
+    public boolean committed = false;
 
     /**
      * Is called just before this tranlocal commits. It allows the Tranlocal to do needed cleanup.
@@ -49,6 +49,11 @@ public abstract class AlphaTranlocal implements CommitLock {
      */
     public abstract void prepareForCommit(long writeVersion);
 
+    /**
+     * Returns the AlphaAtomicObject that belongs to this AlphaTranlocal.
+     *
+     * @return the AlphaAtomicObject that belongs to this AlphaTranlocal
+     */
     public abstract AlphaAtomicObject getAtomicObject();
 
     /**

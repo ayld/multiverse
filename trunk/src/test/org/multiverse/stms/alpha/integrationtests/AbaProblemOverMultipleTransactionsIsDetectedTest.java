@@ -55,7 +55,6 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
             t1.commit();
             fail();
         } catch (WriteConflictException er) {
-
         }
     }
 }

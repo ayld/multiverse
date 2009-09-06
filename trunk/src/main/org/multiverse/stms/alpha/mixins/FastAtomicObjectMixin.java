@@ -131,6 +131,8 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
 
         //it is very important that the tranlocal write is is done before the lock release.
         //it also is very important that the commit and version are set, before the tranlocal write.
+        //the tranlocal write also creates a happens before relation between the changes made on the
+        //tranlocal, and the read on the tranlocal.
         tranlocal.prepareForCommit(writeVersion);
 
         tranlocalUpdater.set(this, tranlocal);

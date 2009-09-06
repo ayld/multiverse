@@ -58,8 +58,26 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
     }
 
     @Override
+    protected long onCommit() {
+        long value = super.onCommit();
+        if (statistics != null) {
+            statistics.incReadonlyTransactionCommittedCount();
+        }
+        return value;
+    }
+
+    @Override
     public void attachNew(AlphaTranlocal tranlocal) {
         throw new ReadonlyException();
+    }
+
+    @Override
+    protected void onAbort() {
+        super.onAbort();
+
+        if (statistics != null) {
+            statistics.incReadonlyTransactionAbortedCount();
+        }
     }
 
     @Override

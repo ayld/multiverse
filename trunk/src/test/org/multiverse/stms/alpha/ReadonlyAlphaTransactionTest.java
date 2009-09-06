@@ -84,6 +84,7 @@ public class ReadonlyAlphaTransactionTest {
 
         AlphaTransaction t2 = startReadonlyTransaction();
         IntRefTranlocal found = (IntRefTranlocal) t2.load(value);
+        assertTrue(found.committed);
         assertSame(expected, found);
     }
 
@@ -386,4 +387,6 @@ public class ReadonlyAlphaTransactionTest {
         assertEquals(version, stm.getClockVersion());
         assertIsActive(t);
     }
+
+
 }

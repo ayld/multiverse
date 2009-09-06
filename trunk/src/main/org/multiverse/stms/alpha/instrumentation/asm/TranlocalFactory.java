@@ -288,11 +288,11 @@ public final class TranlocalFactory implements Opcodes {
 
         m.visitVarInsn(ALOAD, 0);
         m.visitInsn(ICONST_1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "committed", Type.BOOLEAN_TYPE.getDescriptor());
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "committed", "Z");
 
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(LLOAD, 1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "version", Type.LONG_TYPE.getDescriptor());
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "version", "J");
 
         m.visitVarInsn(ALOAD, 0);
         m.visitInsn(ACONST_NULL);
