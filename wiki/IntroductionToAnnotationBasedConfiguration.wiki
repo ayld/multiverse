@@ -4,7 +4,7 @@
 
 = Transaction =
 
-A transactional method that can be used for updates, can be created with the @AtomicMethod annotation, example:
+A transactional method that can be used for updates, can be created with the AtomicMethod annotation, example:
 
 {{{
 @AtomicMethod
@@ -18,7 +18,7 @@ public void transfer(Account from, Account to, int amount){
 
 This annotation will make sure that an update transaction is started and committed, or retried when needed. 
 
-It is also important to realize that not every method needs to be @AtomicMethod; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
+It is also important to realize that not every method needs to be an AtomicMethod; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
 
 All instance methods of an AtomicObject are by default update-AtomicMethods. If you know that a method is readonly, mark it as readonly. In the future some kind of infer mechanism might be added.
 
@@ -60,7 +60,7 @@ public int execute(int newAge){
 
 = Mapping an AtomicObject =
 
-An AtomicObject (an object that lives in STM space) can be configured by placing an @AtomicObject annotation, example:
+An AtomicObject (an object that lives in STM space) can be configured by placing an AtomicObject annotation, example:
 
 {{{
 @AtomicObject
@@ -84,7 +84,7 @@ public class Person{
 
 All changes made on AtomicObject within the context of a transaction, will automatically be persisted when the transaction commits if there are no conflicts. So just as with a database, a lot of responsibilities have shifted from the developer to the environment. And only in corner cases you need to influence the implementation.
 
-If a field is not an atomic object and not a primitive, the reference itself is managed, by the STM, but the object is not. So if you are using a standard LinkedList for example, you still could have concurrency problems. But this doesn't have to be a bad thing if you can make sure that the object is touched by at most 1 thread at a time. This technique can be used for example to pass a normal pojo through the stm from one thread to another.
+If a field is not an atomic object and not a primitive, the reference itself is managed, by the STM, but the object is not. So if you are using a standard java.util.LinkedList for example, you still could have concurrency problems. But this doesn't have to be a bad thing if you can make sure that the object is touched by at most 1 thread at a time. This technique can be used for example to pass a normal pojo through the stm from one thread to another.
 
 = Final fields and AtomicObjects =
 
@@ -92,7 +92,7 @@ Final fields in AtomicObjects are completely ignored by the STM. If an AtomicObj
 
 = Excluding fields = 
 
-Normally all fields of an object will be stored in STM space. But in some cases it is better to exclude a field. This can be done with the @Exclude annotation, example:
+Normally all fields of an object will be stored in STM space. But in some cases it is better to exclude a field. This can be done with the Exclude annotation, example:
 
 {{{
 @AtomicObject
@@ -109,10 +109,10 @@ public class Person{
 
 In this case the firstname is ignored and the lastname is not ignored.
 
-The @Exclude annotation can be compared to the @Transient annotation from JPA.
+The Exclude annotation can be compared to the Transient annotation from JPA.
 
 = Annotations planned =
 
 Annotations planned for future releases:
-  # @Lock(mode=LockMode.exclusive), @Lock(mode=LockMode.shared) 
+  # Lock(mode=LockMode.exclusive), Lock(mode=LockMode.shared) 
   # Eager for eager loading of references when lazy loading is not needed
