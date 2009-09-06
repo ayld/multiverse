@@ -29,6 +29,39 @@ This annotation will make sure that a transaction is started and committed, or r
 
 It is also important to realize that not every method needs to be @AtomicMethod; only the 'outer' methods of your system. Exactly the same as with classic database transactions where, in most cases, you only make the methods of the service layer transactional.
 
+== Readonly transactions ==
+
+A readonly transaction can be created like this
+{{{
+@AtomicMethod(readonly=true)
+public int execute(){
+    return person.getAge();
+}
+}}}
+
+The advantage of readonly transactions is that a readonly transaction doesn't need to do readtracking, so the size of a transaction will not grow, and the time it takes to commit is constant instead of linear.
+
+== Retry Count ==
+
+The number of times a transaction is retries can be set like this (default is Integer.MAX_VALUE)
+{{{
+@AtomicMethod(retryCount = 10)
+public int execute(int newAge){
+    return person.setAge(newAge)
+}
+}}}
+
+== Family Name ==
+Each transaction can have a family name that is sort of an identifier. This identifier can be used to classify the transaction (this can be used for identification purposes.. and this can be used for various techniques like profiling or determining the optimal transaction size). Default the complete classname.methoddescriptor is the familyName.
+
+{{{
+@AtomicMethod(familyName = "setAge")
+public int execute(int newAge){
+    return person.setAge(newAge)
+}
+}}}
+
+
 = Mapping an AtomicObject =
 
 An AtomicObject (an object that lives in STM space) can be configured by placing an @AtomicObject annotation, example:
