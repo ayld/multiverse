@@ -33,7 +33,7 @@ It is also important to realize that not every method needs to be @AtomicMethod;
 
 A readonly transaction can be created like this
 {{{
-@AtomicMethod(readonly=true)
+@AtomicMethod(readonly = true)
 public int execute(){
     return person.getAge();
 }
