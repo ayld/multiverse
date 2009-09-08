@@ -19,8 +19,8 @@ public class LongRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                LongRefTranlocal tranlocalThis = new LongRefTranlocal(LongRef.this, value);
-                ((AlphaTransaction) t).attachNew(tranlocalThis);
+                LongRefTranlocal tranlocal = new LongRefTranlocal(LongRef.this, value);
+                ((AlphaTransaction) t).attachNew(tranlocal);
                 return null;
             }
         }.execute();
@@ -29,44 +29,43 @@ public class LongRef extends FastAtomicObjectMixin {
     @AtomicMethod
     public void await(long expectedValue) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
-        tranlocalThis.await(expectedValue);
+        LongRefTranlocal tranlocal = (LongRefTranlocal) t.load(LongRef.this);
+        await(tranlocal, expectedValue);
     }
 
     @AtomicMethod
-    public void set(final long value) {
+    public void set(long value) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
-        tranlocalThis.set(value);
+        LongRefTranlocal tranlocal = (LongRefTranlocal) t.load(LongRef.this);
+        set(tranlocal, value);
     }
 
     @AtomicMethod
     public long get() {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
-        return tranlocalThis.get();
+        LongRefTranlocal tranlocal = (LongRefTranlocal) t.load(LongRef.this);
+        return get(tranlocal);
     }
 
     @AtomicMethod
     public void inc() {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
-        tranlocalThis.inc();
+        LongRefTranlocal tranlocal = (LongRefTranlocal) t.load(LongRef.this);
+        inc(tranlocal);
     }
 
     @AtomicMethod
     public void dec() {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
-        tranlocalThis.dec();
-
+        LongRefTranlocal tranlocal = (LongRefTranlocal) t.load(LongRef.this);
+        dec(tranlocal);
     }
 
     @AtomicMethod
     public LongRef add(LongRef ref) {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        LongRefTranlocal tranlocalThis = (LongRefTranlocal) t.load(LongRef.this);
-        return tranlocalThis.add(ref);
+        LongRefTranlocal tranlocal = (LongRefTranlocal) t.load(LongRef.this);
+        return tranlocal.add(ref);
     }
 
     @Override
@@ -76,6 +75,40 @@ public class LongRef extends FastAtomicObjectMixin {
             throw new LoadUncommittedException();
         }
         return new LongRefTranlocal(origin);
+    }
+
+    public void set(LongRefTranlocal tranlocal, long newValue) {
+        if (tranlocal.committed) {
+            throw new ReadonlyException();
+        } else {
+            tranlocal.value = newValue;
+        }
+    }
+
+    public long get(LongRefTranlocal tranlocal) {
+        return tranlocal.value;
+    }
+
+    public void inc(LongRefTranlocal tranlocal) {
+        if (tranlocal.committed) {
+            throw new ReadonlyException();
+        } else {
+            tranlocal.value++;
+        }
+    }
+
+    public void dec(LongRefTranlocal tranlocal) {
+        if (tranlocal.committed) {
+            throw new ReadonlyException();
+        } else {
+            tranlocal.value--;
+        }
+    }
+
+    public void await(LongRefTranlocal tranlocal, long expectedValue) {
+        if (tranlocal.value != expectedValue) {
+            retry();
+        }
     }
 }
 
@@ -102,39 +135,6 @@ class LongRefTranlocal extends AlphaTranlocal {
         return atomicObject;
     }
 
-    public void set(long newValue) {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            this.value = newValue;
-        }
-    }
-
-    public long get() {
-        return value;
-    }
-
-    public void inc() {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            value++;
-        }
-    }
-
-    public void dec() {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            value--;
-        }
-    }
-
-    public void await(long expectedValue) {
-        if (value != expectedValue) {
-            retry();
-        }
-    }
 
     @Override
     public void prepareForCommit(long writeVersion) {

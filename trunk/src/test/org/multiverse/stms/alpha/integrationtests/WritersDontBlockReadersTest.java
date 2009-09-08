@@ -12,14 +12,14 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 
 public class WritersDontBlockReadersTest {
     private AlphaStm stm;
-    private IntRef value;
+    private IntRef ref;
 
     @Before
     public void setUp() {
         stm = new AlphaStm();
         GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
-        value = new IntRef(0);
+        ref = new IntRef(0);
     }
 
     @Test
@@ -30,12 +30,12 @@ public class WritersDontBlockReadersTest {
     @Test
     public void testBothTransactionsAreWriteTransactions() {
         AlphaTransaction writeTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.load(value);
-        writtenValue.inc();
+        IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.load(ref);
+        ref.inc(writtenValue);
 
         AlphaTransaction readTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal readValue = (IntRefTranlocal) readTransaction.load(value);
-        int value = readValue.get();
+        IntRefTranlocal readValue = (IntRefTranlocal) readTransaction.load(ref);
+        int value = ref.get(readValue);
         readTransaction.commit();
 
         assertEquals(0, value);

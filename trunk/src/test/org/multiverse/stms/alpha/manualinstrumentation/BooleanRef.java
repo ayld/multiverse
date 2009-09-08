@@ -28,12 +28,14 @@ public class BooleanRef extends FastAtomicObjectMixin {
 
     @AtomicMethod
     public void set(boolean value) {
-        ((BooleanRefTranlocal) AlphaStmUtils.load(this)).set(value);
+        BooleanRefTranlocal tranlocal = ((BooleanRefTranlocal) AlphaStmUtils.load(this));
+        set(tranlocal, value);
     }
 
     @AtomicMethod
     public boolean get() {
-        return ((BooleanRefTranlocal) AlphaStmUtils.load(this)).get();
+        BooleanRefTranlocal tranlocal = ((BooleanRefTranlocal) AlphaStmUtils.load(this));
+        return get(tranlocal);
     }
 
     @Override
@@ -43,6 +45,18 @@ public class BooleanRef extends FastAtomicObjectMixin {
             throw new LoadUncommittedException();
         }
         return new BooleanRefTranlocal(origin);
+    }
+
+    public void set(BooleanRefTranlocal tranlocal, boolean newValue) {
+        if (tranlocal.committed) {
+            throw new ReadonlyException();
+        } else {
+            tranlocal.value = newValue;
+        }
+    }
+
+    public boolean get(BooleanRefTranlocal tranlocal) {
+        return tranlocal.value;
     }
 }
 
@@ -65,18 +79,6 @@ class BooleanRefTranlocal extends AlphaTranlocal {
     @Override
     public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
-    }
-
-    public void set(boolean newValue) {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            this.value = newValue;
-        }
-    }
-
-    public boolean get() {
-        return value;
     }
 
     @Override

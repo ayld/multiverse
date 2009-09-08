@@ -19,14 +19,14 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
     private static final int C = 3;
 
     private AlphaStm stm;
-    private IntRef handle;
+    private IntRef ref;
 
     @Before
     public void setUp() {
         stm = new AlphaStm();
         GlobalStmInstance.set(stm);
         setThreadLocalTransaction(null);
-        handle = new IntRef(A);
+        ref = new IntRef(A);
     }
 
     public AlphaTransaction startUpdateTransaction() {
@@ -38,19 +38,19 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
     @Test
     public void test() {
         AlphaTransaction t1 = startUpdateTransaction();
-        IntRefTranlocal r1 = (IntRefTranlocal) t1.load(handle);
+        IntRefTranlocal r1 = (IntRefTranlocal) t1.load(ref);
 
         AlphaTransaction t2 = startUpdateTransaction();
-        IntRefTranlocal r2 = (IntRefTranlocal) t2.load(handle);
-        r2.set(B);
+        IntRefTranlocal r2 = (IntRefTranlocal) t2.load(ref);
+        ref.set(r2, B);
         t2.commit();
 
         AlphaTransaction t3 = startUpdateTransaction();
-        IntRefTranlocal r3 = (IntRefTranlocal) t3.load(handle);
-        r3.set(B);
+        IntRefTranlocal r3 = (IntRefTranlocal) t3.load(ref);
+        ref.set(r3, B);
         t3.commit();
 
-        r1.set(C);
+        ref.set(r1, C);
         try {
             t1.commit();
             fail();

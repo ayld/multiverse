@@ -1,7 +1,5 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
@@ -32,38 +30,6 @@ public final class IntStackTranlocal extends AlphaTranlocal {
         return atomicObject;
     }
 
-    public int size() {
-        return size;
-    }
-
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    public void push(int value) {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            head = new IntNode(value, head);
-            size++;
-        }
-    }
-
-    public int pop() {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            if (head == null) {
-                retry();
-            }
-
-            size--;
-            IntNode oldHead = head;
-            head = oldHead.next;
-            return oldHead.value;
-        }
-    }
-
     public static class IntNode {
         final int value;
         final IntNode next;
@@ -83,7 +49,7 @@ public final class IntStackTranlocal extends AlphaTranlocal {
 
     @Override
     public AlphaTranlocalSnapshot takeSnapshot() {
-        return new TranlocalIntStackSnapshot(this);
+        return new IntStackTranlocalSnapshot(this);
     }
 
     @Override
@@ -100,12 +66,12 @@ public final class IntStackTranlocal extends AlphaTranlocal {
     }
 }
 
-final class TranlocalIntStackSnapshot extends AlphaTranlocalSnapshot {
+final class IntStackTranlocalSnapshot extends AlphaTranlocalSnapshot {
     public final IntStackTranlocal tranlocal;
     public final int size;
     public final IntNode head;
 
-    TranlocalIntStackSnapshot(IntStackTranlocal tranlocal) {
+    IntStackTranlocalSnapshot(IntStackTranlocal tranlocal) {
         this.tranlocal = tranlocal;
         this.size = tranlocal.size;
         this.head = tranlocal.head;

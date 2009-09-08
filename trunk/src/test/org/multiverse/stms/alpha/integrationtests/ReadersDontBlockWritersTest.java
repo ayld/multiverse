@@ -17,13 +17,13 @@ import org.multiverse.utils.GlobalStmInstance;
 public class ReadersDontBlockWritersTest {
 
     private AlphaStm stm;
-    private IntRef intValue;
+    private IntRef ref;
 
     @Before
     public void setUp() {
         stm = new AlphaStm();
         GlobalStmInstance.set(stm);
-        intValue = new IntRef(0);
+        ref = new IntRef(0);
     }
 
     @Test
@@ -34,12 +34,12 @@ public class ReadersDontBlockWritersTest {
     @Test
     public void testWriteWrite() {
         AlphaTransaction readTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal r1 = (IntRefTranlocal) readTransaction.load(intValue);
-        r1.get();
+        IntRefTranlocal r1 = (IntRefTranlocal) readTransaction.load(ref);
+        ref.get(r1);
 
         AlphaTransaction writeTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.load(intValue);
-        writtenValue.inc();
+        IntRefTranlocal writtenValue = (IntRefTranlocal) writeTransaction.load(ref);
+        ref.inc(writtenValue);
         writeTransaction.commit();
     }
 }

@@ -41,8 +41,8 @@ public class Ref<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-                return tranlocalRef.get();
+                RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+                return get(tranlocal);
             }
         }.execute();
     }
@@ -51,8 +51,8 @@ public class Ref<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-                tranlocalRef.set(newValue);
+                RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+                set(tranlocal, newValue);
                 return null;
             }
         }.execute();
@@ -62,8 +62,8 @@ public class Ref<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<Boolean>() {
             @Override
             public Boolean execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-                return tranlocalRef.isNull();
+                RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+                return isNull(tranlocal);
             }
         }.execute();
     }
@@ -72,8 +72,8 @@ public class Ref<E> extends FastAtomicObjectMixin {
         return new AtomicTemplate<E>() {
             @Override
             public E execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-                return tranlocalRef.clear();
+                RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+                return clear(tranlocal);
             }
         }.execute();
     }
@@ -85,6 +85,28 @@ public class Ref<E> extends FastAtomicObjectMixin {
             throw new LoadUncommittedException();
         }
         return new RefTranlocal(origin);
+    }
+
+
+    public E clear(RefTranlocal<E> tranlocal) {
+        E oldValue = tranlocal.value;
+        tranlocal.value = null;
+        return oldValue;
+    }
+
+    public boolean isNull(RefTranlocal<E> tranlocal) {
+        return tranlocal.value == null;
+    }
+
+    public E get(RefTranlocal<E> tranlocal) {
+        return tranlocal.value;
+    }
+
+    public void set(RefTranlocal<E> tranlocal, E newValue) {
+        if (tranlocal.committed) {
+            throw new ReadonlyException();
+        }
+        tranlocal.value = newValue;
     }
 }
 
@@ -113,27 +135,6 @@ class RefTranlocal<E> extends AlphaTranlocal {
     @Override
     public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
-    }
-
-    public E clear() {
-        E oldValue = value;
-        value = null;
-        return oldValue;
-    }
-
-    public boolean isNull() {
-        return value == null;
-    }
-
-    public E get() {
-        return value;
-    }
-
-    public void set(E newValue) {
-        if (committed) {
-            throw new ReadonlyException();
-        }
-        this.value = newValue;
     }
 
     @Override

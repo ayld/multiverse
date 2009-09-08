@@ -1,7 +1,5 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
@@ -33,53 +31,6 @@ public class IntRefTranlocal extends AlphaTranlocal {
         return atomicObject;
     }
 
-    public IntRefTranlocal(int value) {
-        this.value = value;
-    }
-
-    public void loopInc(int amount) {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            for (int k = 0; k < amount; k++) {
-                inc();
-            }
-        }
-    }
-
-    public void set(int newValue) {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            this.value = newValue;
-        }
-    }
-
-    public int get() {
-        return value;
-    }
-
-    public void inc() {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            value++;
-        }
-    }
-
-    public void dec() {
-        if (committed) {
-            throw new ReadonlyException();
-        } else {
-            value--;
-        }
-    }
-
-    public void await(int expectedValue) {
-        if (value != expectedValue) {
-            retry();
-        }
-    }
 
     @Override
     public void prepareForCommit(long writeVersion) {

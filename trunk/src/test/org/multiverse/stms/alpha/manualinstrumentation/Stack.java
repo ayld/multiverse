@@ -25,7 +25,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
             @Override
             public Integer execute(Transaction t) {
                 StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
-                return tranlocal.size();
+                return size(tranlocal);
             }
         }.execute();
     }
@@ -35,7 +35,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
             @Override
             public Boolean execute(Transaction t) {
                 StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
-                return tranlocal.isEmpty();
+                return isEmpty(tranlocal);
             }
         }.execute();
     }
@@ -45,7 +45,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
             @Override
             public Integer execute(Transaction t) {
                 StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
-                tranlocal.push(item);
+                push(tranlocal, item);
                 return null;
             }
         }.execute();
@@ -56,7 +56,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
             @Override
             public E execute(Transaction t) {
                 StackTranlocal<E> tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
-                return tranlocal.pop();
+                return pop(tranlocal);
             }
         }.execute();
     }
@@ -66,7 +66,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
             @Override
             public Integer execute(Transaction t) {
                 StackTranlocal tranlocal = (StackTranlocal) ((AlphaTransaction) t).load(Stack.this);
-                tranlocal.clear();
+                clear(tranlocal);
                 return null;
             }
         }.execute();
@@ -80,53 +80,18 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         }
         return new StackTranlocal<E>(origin);
     }
-}
 
-final class StackTranlocal<E> extends AlphaTranlocal {
-    private final Stack<E> atomicObject;
-    int size;
-    Node<E> head;
-    private StackTranlocal<E> origin;
-
-    /**
-     * Makes an initial version.
-     *
-     * @param atomicObject
-     */
-    StackTranlocal(Stack<E> atomicObject) {
-        this.atomicObject = atomicObject;
-        this.version = Long.MIN_VALUE;
-    }
-
-    /**
-     * Makes a clone.
-     *
-     * @param origin
-     */
-    StackTranlocal(StackTranlocal<E> origin) {
-        this.origin = origin;
-        this.atomicObject = origin.atomicObject;
-        this.size = origin.size;
-        this.head = origin.head;
-        this.version = origin.version;
-    }
-
-    @Override
-    public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
-    }
-
-    public void clear() {
-        if (committed) {
+    public void clear(StackTranlocal<E> tranlocal) {
+        if (tranlocal.committed) {
             throw new ReadonlyException();
         }
 
-        size = 0;
-        head = null;
+        tranlocal.size = 0;
+        tranlocal.head = null;
     }
 
-    public void push(E item) {
-        if (committed) {
+    public void push(StackTranlocal<E> tranlocal, E item) {
+        if (tranlocal.committed) {
             throw new ReadonlyException();
         }
 
@@ -134,34 +99,34 @@ final class StackTranlocal<E> extends AlphaTranlocal {
             throw new NullPointerException();
         }
 
-        head = new Node<E>(head, item);
-        size++;
+        tranlocal.head = new Node<E>(tranlocal.head, item);
+        tranlocal.size++;
     }
 
-    public E pop() {
-        if (committed) {
+    public E pop(StackTranlocal<E> tranlocal) {
+        if (tranlocal.committed) {
             throw new ReadonlyException();
         }
 
-        if (size == 0) {
+        if (tranlocal.size == 0) {
             retry();
         }
 
-        size--;
-        Node<E> oldHead = head;
-        head = oldHead.next;
+        tranlocal.size--;
+        Node<E> oldHead = tranlocal.head;
+        tranlocal.head = oldHead.next;
         return oldHead.value;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
+    public boolean isEmpty(StackTranlocal<E> tranlocal) {
+        return tranlocal.size == 0;
     }
 
-    public int size() {
-        return size;
+    public int size(StackTranlocal<E> tranlocal) {
+        return tranlocal.size;
     }
 
-    static class Node<E> {
+    public static class Node<E> {
         final Node<E> next;
         final E value;
 
@@ -171,30 +136,66 @@ final class StackTranlocal<E> extends AlphaTranlocal {
         }
     }
 
-    @Override
-    public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
-        this.origin = null;
-    }
+    public static final class StackTranlocal<E> extends AlphaTranlocal {
+        private final Stack<E> atomicObject;
+        int size;
+        Node<E> head;
+        private StackTranlocal<E> origin;
 
-    @Override
-    public AlphaTranlocalSnapshot takeSnapshot() {
-        throw new RuntimeException();
-    }
+        /**
+         * Makes an initial version.
+         *
+         * @param atomicObject
+         */
+        StackTranlocal(Stack<E> atomicObject) {
+            this.atomicObject = atomicObject;
+            this.version = Long.MIN_VALUE;
+        }
 
-    @Override
-    public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
-            return DirtinessStatus.fresh;
-        } else if (origin.size != this.size) {
-            return DirtinessStatus.dirty;
-        } else if (origin.head != this.head) {
-            return DirtinessStatus.dirty;
-        } else {
-            return DirtinessStatus.clean;
+        /**
+         * Makes a clone.
+         *
+         * @param origin
+         */
+        StackTranlocal(StackTranlocal<E> origin) {
+            this.origin = origin;
+            this.atomicObject = origin.atomicObject;
+            this.size = origin.size;
+            this.head = origin.head;
+            this.version = origin.version;
+        }
+
+        @Override
+        public AlphaAtomicObject getAtomicObject() {
+            return atomicObject;
+        }
+
+        @Override
+        public void prepareForCommit(long writeVersion) {
+            this.version = writeVersion;
+            this.committed = true;
+            this.origin = null;
+        }
+
+        @Override
+        public AlphaTranlocalSnapshot takeSnapshot() {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public DirtinessStatus getDirtinessStatus() {
+            if (committed) {
+                return DirtinessStatus.committed;
+            } else if (origin == null) {
+                return DirtinessStatus.fresh;
+            } else if (origin.size != this.size) {
+                return DirtinessStatus.dirty;
+            } else if (origin.head != this.head) {
+                return DirtinessStatus.dirty;
+            } else {
+                return DirtinessStatus.clean;
+            }
         }
     }
 }
+

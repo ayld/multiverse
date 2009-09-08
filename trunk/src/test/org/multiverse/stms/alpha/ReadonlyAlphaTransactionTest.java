@@ -90,15 +90,15 @@ public class ReadonlyAlphaTransactionTest {
 
     @Test
     public void readDoesNotObserveChangesMadeByOtherTransactions() {
-        IntRef value = new IntRef(0);
+        IntRef ref = new IntRef(0);
 
         AlphaTransaction readonlyTransaction = stm.startReadOnlyTransaction(null);
         AlphaTransaction updateTransaction = stm.startUpdateTransaction(null);
-        IntRefTranlocal tranlocal = (IntRefTranlocal) updateTransaction.load(value);
-        tranlocal.inc();
+        IntRefTranlocal tranlocal = (IntRefTranlocal) updateTransaction.load(ref);
+        ref.inc(tranlocal);
 
-        IntRefTranlocal tranlocalIntValue = (IntRefTranlocal) readonlyTransaction.load(value);
-        assertEquals(0, tranlocalIntValue.get());
+        IntRefTranlocal tranlocalIntValue = (IntRefTranlocal) readonlyTransaction.load(ref);
+        assertEquals(0, ref.get(tranlocalIntValue));
     }
 
     @Test

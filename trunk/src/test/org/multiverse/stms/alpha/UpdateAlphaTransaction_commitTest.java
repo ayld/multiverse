@@ -42,20 +42,20 @@ public class UpdateAlphaTransaction_commitTest {
 
     @Test
     public void commitFailsIfWriteConflictIsEncountered() {
-        IntRef value = new IntRef(0);
+        IntRef ref = new IntRef(0);
 
         AlphaTransaction t1 = stm.startUpdateTransaction(null);
-        IntRefTranlocal tranlocalIntValueR1 = (IntRefTranlocal) t1.load(value);
+        IntRefTranlocal tranlocalIntValueR1 = (IntRefTranlocal) t1.load(ref);
 
         AlphaTransaction t2 = stm.startUpdateTransaction(null);
-        IntRefTranlocal tranlocalIntValueR2 = (IntRefTranlocal) t2.load(value);
-        tranlocalIntValueR2.inc();
+        IntRefTranlocal tranlocalIntValueR2 = (IntRefTranlocal) t2.load(ref);
+        ref.inc(tranlocalIntValueR2);
         t2.commit();
 
         long version = stm.getClockVersion();
-        IntRefTranlocal committed = (IntRefTranlocal) value.load(version);
+        IntRefTranlocal committed = (IntRefTranlocal) ref.load(version);
 
-        tranlocalIntValueR1.inc();
+        ref.inc(tranlocalIntValueR1);
 
         try {
             t1.commit();
@@ -64,7 +64,7 @@ public class UpdateAlphaTransaction_commitTest {
         }
 
         assertIsAborted(t1);
-        assertSame(committed, value.load(version));
+        assertSame(committed, ref.load(version));
         assertEquals(version, stm.getClockVersion());
     }
 

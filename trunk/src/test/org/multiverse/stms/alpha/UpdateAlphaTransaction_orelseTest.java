@@ -74,7 +74,7 @@ public class UpdateAlphaTransaction_orelseTest {
         assertSame(tranlocal, t.load(atomicObject));
 
         //now do an increase that is going to be rolled back.
-        tranlocal.inc();
+        atomicObject.inc(tranlocal);
 
         //now do a rollback.
         t.endOrAndStartElse();

@@ -37,11 +37,11 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
     }
 
     public E get() {
-        return new AtomicTemplate<E>() {
+        return new AtomicTemplate<E>(true) {
             @Override
             public E execute(Transaction t) throws Exception {
                 AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).load(AbaRef.this);
-                return tranlocal.get();
+                return get(tranlocal);
             }
         }.execute();
     }
@@ -51,18 +51,18 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
             @Override
             public E execute(Transaction t) throws Exception {
                 AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).load(AbaRef.this);
-                tranlocal.set(newValue);
+                set(tranlocal, newValue);
                 return null;
             }
         }.execute();
     }
 
     public boolean isNull() {
-        return new AtomicTemplate<Boolean>() {
+        return new AtomicTemplate<Boolean>(true) {
             @Override
             public Boolean execute(Transaction t) throws Exception {
                 AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).load(AbaRef.this);
-                return tranlocal.isNull();
+                return isNull(tranlocal);
             }
         }.execute();
     }
@@ -72,8 +72,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
             @Override
             public E execute(Transaction t) throws Exception {
                 AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).load(AbaRef.this);
-                tranlocal.clear();
-                return null;
+                return clear(tranlocal);
             }
         }.execute();
     }
@@ -85,6 +84,28 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
             throw new LoadUncommittedException();
         }
         return new AbaRefTranlocal(origin);
+    }
+
+    public E clear(AbaRefTranlocal<E> tranlocal) {
+        E oldValue = tranlocal.value;
+        set(tranlocal, null);
+        return oldValue;
+    }
+
+    public boolean isNull(AbaRefTranlocal<E> tranlocal) {
+        return tranlocal.value == null;
+    }
+
+    public E get(AbaRefTranlocal<E> tranlocal) {
+        return tranlocal.value;
+    }
+
+    public void set(AbaRefTranlocal<E> tranlocal, E newValue) {
+        if (tranlocal.committed) {
+            throw new ReadonlyException();
+        }
+        tranlocal.value = newValue;
+        tranlocal.writeVersion++;
     }
 }
 
@@ -117,29 +138,6 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
     public AlphaAtomicObject getAtomicObject() {
         return atomicObject;
     }
-
-    public E clear() {
-        E oldValue = value;
-        set(null);
-        return oldValue;
-    }
-
-    public boolean isNull() {
-        return value == null;
-    }
-
-    public E get() {
-        return value;
-    }
-
-    public void set(E newValue) {
-        if (committed) {
-            throw new ReadonlyException();
-        }
-        this.value = newValue;
-        this.writeVersion++;
-    }
-
 
     @Override
     public void prepareForCommit(long writeVersion) {

@@ -61,12 +61,12 @@ public class AbaProblemIsNotDetectedTest {
 
         AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal r2 = (IntRefTranlocal) t2.load(intValue);
-        r2.set(B);
-        r2.set(A);
+        intValue.set(r2, B);
+        intValue.set(r2, A);
         t2.commit();
 
         //todo: as soon as the isDirty functionality is available, this test will succeed
-        r1.set(C);
+        intValue.set(r1, C);
         t1.commit();
     }
 }
