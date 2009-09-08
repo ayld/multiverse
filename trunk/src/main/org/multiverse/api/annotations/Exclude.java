@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Can be placed on a field of an AtomicObject to exclude it. So this field is for the
+ * Can be placed on a field of an {@link AtomicObject} to exclude it. So this field is for the
  * stm completely invisible; as if it doesn't exist.
  *
  * @author Peter Veentjer

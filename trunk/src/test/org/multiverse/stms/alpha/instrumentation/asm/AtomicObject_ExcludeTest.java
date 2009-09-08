@@ -9,6 +9,7 @@ import org.multiverse.api.annotations.Exclude;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
+import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -20,13 +21,13 @@ public class AtomicObject_ExcludeTest {
     public void setUp() {
         stm = new AlphaStm();
         GlobalStmInstance.set(stm);
+        setThreadLocalTransaction(null);
     }
 
     @After
     public void tearDown() {
         //assertNoInstrumentationProblems();
     }
-
 
     @Test
     public void excludeOneOfTheFields() {

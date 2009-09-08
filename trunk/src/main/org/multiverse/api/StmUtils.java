@@ -3,7 +3,7 @@ package org.multiverse.api;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
 /**
- * A utility class with convenience methods to access {@link org.multiverse.api.Stm} or
+ * A utility class with convenience methods to access the {@link org.multiverse.api.Stm} or
  * {@link Transaction}.
  *
  * @author Peter Veentjer.

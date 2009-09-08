@@ -2,10 +2,6 @@
 todo engine
 ---------------------------------------------------------------
 
-- writing instrumented class to the out should be configurable.
-
-- readonly advice moet weer op de tranlocal gezet worden
-
 - javadoc publishen op de site
 
 - FastTom.registerRetryListener en de noProgressPossibleException
@@ -78,6 +74,8 @@ in de mixin zit.
 ---------------------------------------------------------------
 todo features
 ---------------------------------------------------------------
+
+- writing instrumented class to the out should be configurable.
 
 - excluded packages in the AbstractClassFileTransformer should be configurable
 
@@ -172,3 +170,6 @@ done
 
 - controleren of readonly transacties ook worden voorzien van statistics
 
+- readonly advice moet weer op de tranlocal gezet worden
+
+- agent doesn't write to classfile anymore

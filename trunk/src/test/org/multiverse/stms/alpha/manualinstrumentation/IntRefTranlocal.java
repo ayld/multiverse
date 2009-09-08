@@ -102,17 +102,17 @@ public class IntRefTranlocal extends AlphaTranlocal {
     }
 
     @Override
-    public TranlocalIntValueSnapshot takeSnapshot() {
-        return new TranlocalIntValueSnapshot(this);
+    public IntRefTranlocalSnapshot takeSnapshot() {
+        return new IntRefTranlocalSnapshot(this);
     }
 }
 
-class TranlocalIntValueSnapshot extends AlphaTranlocalSnapshot {
+class IntRefTranlocalSnapshot extends AlphaTranlocalSnapshot {
 
     final IntRefTranlocal tranlocal;
     final int value;
 
-    public TranlocalIntValueSnapshot(IntRefTranlocal tranlocal) {
+    public IntRefTranlocalSnapshot(IntRefTranlocal tranlocal) {
         this.tranlocal = tranlocal;
         this.value = tranlocal.value;
     }

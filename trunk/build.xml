@@ -235,8 +235,6 @@
 
         <copy todir="${target}/${application.name}-${application.version}-r${revision}/javadoc">
             <fileset dir="${javadoc}">
-                <exclude name="**/.svn"/>
-                <exclude name="**/*.txt"/>
             </fileset>
         </copy>
 
