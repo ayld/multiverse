@@ -26,6 +26,10 @@ import java.util.Map;
 
 public final class AsmUtils implements Opcodes {
 
+    public static boolean isCategory2(String valueDesc) {
+        return valueDesc.equals("J") || valueDesc.equals("D");
+    }
+
     public static int upgradeToPublic(int access) {
         if (isPublic(access)) {
             return access;
@@ -88,9 +92,10 @@ public final class AsmUtils implements Opcodes {
 
     /**
      * A new constructor descriptor is created by adding the extraArgType
-     * as the first argument (so the other arguments all shift one pos).
+     * as the first argument (so the other arguments all shift one pos to the right).
      *
-     * @param oldDesc the old method description
+     * @param oldDesc      the old method description
+     * @param extraArgType the internal name of the type to introduce
      * @return the new method description.
      */
     public static String createShiftedMethodDescriptor(String oldDesc, String extraArgType) {
@@ -108,7 +113,7 @@ public final class AsmUtils implements Opcodes {
     public static Map<String, String> createRemapperMapForManagedObject(ClassNode classNode) {
         Map<String, String> map = new HashMap<String, String>();
 
-        MetadataService prepareInfoMap = MetadataService.INSTANCE;
+        MetadataRepository prepareInfoMap = MetadataRepository.INSTANCE;
 
         String originalName = classNode.name;
         String tranlocalName = prepareInfoMap.getTranlocalName(classNode);

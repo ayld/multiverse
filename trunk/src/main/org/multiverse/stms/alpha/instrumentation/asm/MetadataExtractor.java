@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * An Extractor responsible for collecting information about a ClassNode and
- * store it in the {@link MetadataService}. This is one of the first things
+ * store it in the {@link MetadataRepository}. This is one of the first things
  * that should be run, so that the other transformers/factories have their
  * information in place.
  * <p/>
@@ -26,15 +26,15 @@ public final class MetadataExtractor implements Opcodes {
     private boolean isAtomicObject = false;
     private boolean hasAtomicMethods = false;
     private ClassNode classNode;
-    private MetadataService metadataService;
+    private MetadataRepository metadataRepository;
 
     public MetadataExtractor(ClassNode classNode) {
         this.classNode = classNode;
-        this.metadataService = MetadataService.INSTANCE;
+        this.metadataRepository = MetadataRepository.INSTANCE;
     }
 
     public void extract() {
-        metadataService.signalLoaded(classNode);
+        metadataRepository.signalLoaded(classNode);
 
         if (isAtomicObject()) {
             isAtomicObject = true;
@@ -43,13 +43,13 @@ public final class MetadataExtractor implements Opcodes {
         extractFieldMetadata();
         extractMethodMetadata();
 
-        metadataService.setIsAtomicObject(classNode, isAtomicObject);
-        metadataService.setIsRealAtomicObject(classNode, hasManagedFields);
-        metadataService.setHasAtomicMethods(classNode, hasAtomicMethods);
+        metadataRepository.setIsAtomicObject(classNode, isAtomicObject);
+        metadataRepository.setIsRealAtomicObject(classNode, hasManagedFields);
+        metadataRepository.setHasAtomicMethods(classNode, hasAtomicMethods);
 
         if (isAtomicObject) {
-            metadataService.setTranlocalName(classNode, classNode.name + "__Tranlocal");
-            metadataService.setTranlocalSnapshotName(classNode, classNode.name + "__TranlocalSnapshot");
+            metadataRepository.setTranlocalName(classNode, classNode.name + "__Tranlocal");
+            metadataRepository.setTranlocalSnapshotName(classNode, classNode.name + "__TranlocalSnapshot");
         }
     }
 
@@ -71,7 +71,7 @@ public final class MetadataExtractor implements Opcodes {
             isManagedField = true;
         }
 
-        metadataService.setIsManagedInstanceField(classNode, field, isManagedField);
+        metadataRepository.setIsManagedInstanceField(classNode, field, isManagedField);
     }
 
     private boolean isManagedField(FieldNode field) {
@@ -113,10 +113,10 @@ public final class MetadataExtractor implements Opcodes {
             hasAtomicMethods = true;
         }
 
-        metadataService.setIsAtomicMethod(classNode, method, isAtomicMethod);
+        metadataRepository.setIsAtomicMethod(classNode, method, isAtomicMethod);
 
         if (isAtomicMethod) {
-            metadataService.setAtomicMethodParams(classNode, method, params);
+            metadataRepository.setAtomicMethodParams(classNode, method, params);
         }
     }
 

@@ -1,14 +1,13 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
 import org.multiverse.api.exceptions.LoadUncommittedException;
-import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.multiverse.utils.TodoException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import static org.objectweb.asm.Type.*;
+import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.tree.*;
@@ -27,8 +26,8 @@ import java.util.Set;
  * It does the following things:
  * <ol>
  * <li>All managed fields are removed (copied to the tranlocal).</li>
- * <li>All methods become atomic.</li>
- * <li>All method content is moved to the tranlocal</li>
+ * <li>All instance methods become atomic.</li>
+ * <li>All method content is moved to the tranlocal version of the method</li>
  * </ol>
  * <p/>
  * An instance should not be reused.
@@ -39,13 +38,14 @@ public class AtomicObjectTransformer implements Opcodes {
 
     private final ClassNode atomicObject;
     private final ClassNode mixin;
-    private String tranlocalName;
-    private MetadataService metadataService;
+    private final MetadataRepository metadataService;
+    private final String tranlocalName;
 
     public AtomicObjectTransformer(ClassNode atomicObject, ClassNode mixin) {
         this.atomicObject = atomicObject;
         this.mixin = mixin;
-        this.metadataService = MetadataService.INSTANCE;
+        this.metadataService = MetadataRepository.INSTANCE;
+        this.tranlocalName = metadataService.getTranlocalName(atomicObject);
     }
 
     public ClassNode transform() {
@@ -55,27 +55,23 @@ public class AtomicObjectTransformer implements Opcodes {
 
         if (metadataService.isRealAtomicObject(atomicObject.superName)) {
             String message = format(
-                    "Subclassing an another atomicobject is not allowed. Subclass is %s and the superclass is %s", atomicObject.name, atomicObject.superName);
+                    "Subclassing an atomicobject is not allowed. Subclass is %s and the superclass is %s",
+                    atomicObject.name, atomicObject.superName);
             throw new TodoException(message);
         }
-
-        tranlocalName = metadataService.getTranlocalName(atomicObject);
 
         removeManagedFields();
 
         fixUnmanagedFields();
 
-        //removePrivateAtomicMethods();
-
         fixMethods();
 
         mergeMixin();
 
-        addPrivatizeMethod();
+        atomicObject.methods.add(createPrivatizeMethod());
 
         return atomicObject;
     }
-
 
     /**
      * All unmanaged fiels are fixed so that the final access modifier is removed and
@@ -85,7 +81,7 @@ public class AtomicObjectTransformer implements Opcodes {
     private void fixUnmanagedFields() {
         for (FieldNode field : (List<FieldNode>) atomicObject.fields) {
             if (!metadataService.isManagedInstanceField(atomicObject.name, field.name)) {
-                field.access = AsmUtils.upgradeToPublic(field.access);
+                field.access = upgradeToPublic(field.access);
                 if (isFinal(field.access)) {
                     field.access -= ACC_FINAL;
                 }
@@ -98,22 +94,30 @@ public class AtomicObjectTransformer implements Opcodes {
     }
 
     private void fixMethods() {
-        for (MethodNode atomicMethod : (List<MethodNode>) atomicObject.methods) {
-            if (metadataService.isAtomicMethod(atomicObject, atomicMethod)) {
-                if (isConstructor(atomicMethod)) {
-                    fixConstructor(atomicMethod);
-                } else if (isStaticConstructor(atomicMethod)) {
-                    fixStaticInitializer(atomicMethod);
-                } else if (isStatic(atomicMethod)) {
-                    fixStaticMethod(atomicMethod);
+        List<MethodNode> methods = new LinkedList<MethodNode>();
+
+        for (MethodNode originalMethod : (List<MethodNode>) atomicObject.methods) {
+            MethodNode fixedMethod = originalMethod;
+
+            if (metadataService.isAtomicMethod(atomicObject, originalMethod)) {
+                if (isConstructor(originalMethod)) {
+                    fixedMethod = fixConstructor(originalMethod);
+                } else if (isStaticInitializer(originalMethod)) {
+                    fixedMethod = fixStaticInitializer(originalMethod);
+                } else if (isStatic(originalMethod)) {
+                    fixedMethod = fixStaticMethod(originalMethod);
                 } else {
-                    fixInstanceMethod(atomicMethod);
+                    fixedMethod = fixInstanceMethod(originalMethod);
                 }
             }
+
+            methods.add(fixedMethod);
         }
+
+        atomicObject.methods = methods;
     }
 
-    private boolean isStaticConstructor(MethodNode m) {
+    private boolean isStaticInitializer(MethodNode m) {
         return m.name.equals("<clinit>");
     }
 
@@ -121,41 +125,32 @@ public class AtomicObjectTransformer implements Opcodes {
         return method.name.equals("<init>");
     }
 
-    private void fixInstanceMethod(MethodNode m) {
-        m.instructions.clear();
-        m.visitVarInsn(ALOAD, 0);
+    /**
+     * To fix the instance method, the call must be forwarded to the 'tranlocal' method.
+     * So if there is a method employee.raiseSalary(1)
+     * The call is forwarded to employee.raiseSalary(employeeTranlocal, 1).
+     *
+     * @param m
+     */
+    private MethodNode fixInstanceMethod(MethodNode m) {
+        MethodNode enhancedMethod = new MethodNode();
+        enhancedMethod.access = m.access;
+        enhancedMethod.localVariables = new LinkedList();
+        enhancedMethod.name = m.name;
+        enhancedMethod.desc = m.desc;
+        enhancedMethod.exceptions = m.exceptions;
+        enhancedMethod.tryCatchBlocks = m.tryCatchBlocks;
 
-        String argDesc = getDescriptor(Object.class);
-        String returnDesc = getDescriptor(AlphaTranlocal.class);
-        String loadDesc = format("(%s)%s", argDesc, returnDesc);
-        m.visitMethodInsn(
-                INVOKESTATIC,
-                getInternalName(AlphaStmUtils.class),
-                "load",
-                loadDesc);
-        m.visitTypeInsn(CHECKCAST, tranlocalName);
+        m.accept(new AtomicObjectRemappingMethodAdapter(enhancedMethod, atomicObject, m));
 
-        Type[] argTypes = getArgumentTypes(m.desc);
-        int index = 1;
-        for (Type argType : argTypes) {
-            int loadCode = getLoadOpcode(argType);
-            m.visitVarInsn(loadCode, index);
-            index += argType.getSize();
-        }
-
-        m.visitMethodInsn(INVOKEVIRTUAL, tranlocalName, m.name, m.desc);
-
-        Type returnType = getReturnType(m.desc);
-        m.visitInsn(getReturnOpcode(returnType));
-        m.visitMaxs(0, 0);
-        m.visitEnd();
+        return enhancedMethod;
     }
 
-    private void fixStaticMethod(MethodNode atomicMethod) {
-        //      throw new TodoException();
+    private MethodNode fixStaticMethod(MethodNode atomicMethod) {
+        return atomicMethod;
     }
 
-    private void fixStaticInitializer(MethodNode atomicMethod) {
+    private MethodNode fixStaticInitializer(MethodNode atomicMethod) {
         throw new TodoException();
     }
 
@@ -164,41 +159,24 @@ public class AtomicObjectTransformer implements Opcodes {
      * the tranlocal constructor is called with the this, and the original
      * arguments. The original logic is completely moved to the tranlocal.
      *
-     * @param m the constructor.
+     * @param originalConstructor the constructor.
      */
-    private void fixConstructor(MethodNode m) {
+    private MethodNode fixConstructor(MethodNode originalConstructor) {
+        MethodNode m = fixInstanceMethod(originalConstructor);
+
+        //inject extra code for tranlocal creation
+        InsnList addedInstructions = new InsnList();
+        addedInstructions.add(new TypeInsnNode(NEW, tranlocalName));
+        addedInstructions.add(new VarInsnNode(ALOAD, 0));
+        Type atomicObjectType = Type.getObjectType(atomicObject.name);
+        String initialConstructorDesc = Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{atomicObjectType});
+
+        addedInstructions.add(new MethodInsnNode(INVOKESPECIAL, tranlocalName, "<init>", initialConstructorDesc));
         //the original code in front of the constructor call can remain.
-        int indexOf = AsmUtils.findIndexOfFirstInstructionAfterSuper(atomicObject.superName, m);
-        InsnList newConstructorCode = new InsnList();
-        for (int k = 0; k < indexOf; k++) {
-            newConstructorCode.add(m.instructions.get(k));
-        }
+        AbstractInsnNode firstInstructionAfterSuper = findFirstInstructionAfterSuper(atomicObject.superName, m);
 
-        m.instructions.clear();
-        m.instructions.add(newConstructorCode);
-
-        m.visitTypeInsn(NEW, tranlocalName);
-        //[new
-
-        m.visitVarInsn(ALOAD, 0);
-        //[this, new
-        //all the constructor values can now be handed over to the constructor of the Tranlocal
-        Type[] argTypes = getArgumentTypes(m.desc);
-        int index = 1;
-        for (Type argType : argTypes) {
-            int loadOpcode = getLoadOpcode(argType);
-            m.visitVarInsn(loadOpcode, index);
-            index += argType.getSize();
-        }
-        //[args (including this) , new....
-        String newMethodDesc = createShiftedMethodDescriptor(m.desc, atomicObject.name);
-        m.visitMethodInsn(INVOKESPECIAL, tranlocalName, "<init>", newMethodDesc);
-        //[
-
-        //and we are done.
-        m.visitMaxs(0, 0);
-        m.visitInsn(RETURN);
-        m.visitEnd();
+        m.instructions.insertBefore(firstInstructionAfterSuper, addedInstructions);
+        return m;
     }
 
     private void mergeMixin() {
@@ -234,7 +212,7 @@ public class AtomicObjectTransformer implements Opcodes {
         }
     }
 
-    private void addPrivatizeMethod() {
+    private MethodNode createPrivatizeMethod() {
         String desc = "(J)" + Type.getDescriptor(AlphaTranlocal.class);
 
         MethodNode m = new MethodNode(ACC_PUBLIC + ACC_SYNTHETIC, "privatize", desc, null, new String[]{});
@@ -269,6 +247,6 @@ public class AtomicObjectTransformer implements Opcodes {
         m.visitInsn(ARETURN);
         m.visitLabel(end.getLabel());
 
-        atomicObject.methods.add(m);
+        return m;
     }
 }

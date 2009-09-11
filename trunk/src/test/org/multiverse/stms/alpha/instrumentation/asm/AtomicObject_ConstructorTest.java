@@ -305,7 +305,7 @@ public class AtomicObject_ConstructorTest {
 
         long startVersion = stm.getClockVersion();
 
-        MetadataService s = MetadataService.INSTANCE;
+        MetadataRepository s = MetadataRepository.INSTANCE;
 
         CreateAtomicObjectInConstructor o = new CreateAtomicObjectInConstructor(10);
 

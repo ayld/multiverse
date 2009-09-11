@@ -28,11 +28,11 @@ public final class AtomicMethodTransformer implements Opcodes {
 
     private final ClassNode classNode;
     private final List<ClassNode> innerClasses = new LinkedList<ClassNode>();
-    private final MetadataService metadataService;
+    private final MetadataRepository metadataService;
 
     public AtomicMethodTransformer(ClassNode classNode) {
         this.classNode = classNode;
-        this.metadataService = MetadataService.INSTANCE;
+        this.metadataService = MetadataRepository.INSTANCE;
     }
 
     public ClassNode transform() {

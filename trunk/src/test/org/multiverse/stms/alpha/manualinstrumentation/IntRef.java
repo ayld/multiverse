@@ -54,7 +54,6 @@ public final class IntRef extends FastAtomicObjectMixin {
                 return null;
             }
         }.execute();
-
     }
 
     public int get() {

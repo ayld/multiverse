@@ -10,7 +10,7 @@ import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
-import org.multiverse.stms.alpha.instrumentation.asm.MetadataService;
+import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
@@ -29,7 +29,7 @@ public class ReadonlyTransactionTest {
         Ref ref = new Ref();
         System.out.println("--- " + ref.getClass());
 
-        MetadataService s = MetadataService.INSTANCE;
+        MetadataRepository s = MetadataRepository.INSTANCE;
         assertTrue(((Object) ref) instanceof AlphaAtomicObject);
     }
 

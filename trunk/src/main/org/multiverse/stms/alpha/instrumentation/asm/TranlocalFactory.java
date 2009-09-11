@@ -1,25 +1,23 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
-import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.*;
-import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
+import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.internalFormToDescriptor;
+import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.upgradeToPublic;
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
-import org.objectweb.asm.commons.AdviceAdapter;
-import org.objectweb.asm.commons.RemappingMethodAdapter;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import static java.lang.String.format;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
- * On Factory responsible for creating the {@link org.multiverse.stms.alpha.AlphaTranlocal} class belongs to an
- * {@link org.multiverse.stms.alpha.AlphaAtomicObject}.
+ * A factory responsible for creating the {@link AlphaTranlocal} class based on an
+ * {@link AlphaAtomicObject}.
  * <p/>
  * TranlocalClassNodeFactory should not be reused.
  *
@@ -29,11 +27,11 @@ public final class TranlocalFactory implements Opcodes {
     private final ClassNode atomicObject;
     private String tranlocalSnapshotName;
     private String tranlocalName;
-    private MetadataService metadataService;
+    private MetadataRepository metadataService;
 
     public TranlocalFactory(ClassNode atomicObject) {
         this.atomicObject = atomicObject;
-        this.metadataService = MetadataService.INSTANCE;
+        this.metadataService = MetadataRepository.INSTANCE;
     }
 
     public ClassNode create() {
@@ -55,169 +53,30 @@ public final class TranlocalFactory implements Opcodes {
         result.fields.add(createOriginField());
         result.fields.add(createAtomicObjectField());
         result.fields.addAll(remapInstanceFields());
-        result.methods.addAll(remapInstanceMethods());
-        result.methods.add(createPrivatizeConstrutor());
+        result.methods.add(createPrivatizeConstructor());
         result.methods.add(createPrepareForCommitMethod());
         result.methods.add(createGetDirtinessStatusMethod());
         result.methods.add(createGetAtomicObjectMethod());
         result.methods.add(createTakeSnapshotMethod());
+        result.methods.add(createInitialConstructor());
+
         return result;
     }
 
     private List<FieldNode> remapInstanceFields() {
         List<FieldNode> result = new LinkedList<FieldNode>();
-        for (FieldNode managedField : metadataService.getManagedInstanceFields(atomicObject)) {
+        for (FieldNode originalField : metadataService.getManagedInstanceFields(atomicObject)) {
+
             FieldNode remappedField = new FieldNode(
-                    managedField.access,
-                    managedField.name,
-                    managedField.desc,
-                    managedField.signature,
-                    managedField.value);
+                    upgradeToPublic(originalField.access),
+                    originalField.name,
+                    originalField.desc,
+                    originalField.signature,
+                    originalField.value);
             result.add(remappedField);
         }
 
         return result;
-    }
-
-    public List<MethodNode> remapInstanceMethods() {
-        List<MethodNode> result = new LinkedList<MethodNode>();
-        for (MethodNode atomicMethod : metadataService.getAtomicMethods(atomicObject)) {
-
-            //only the instance methods need to be moved that are not private
-            if (!isStatic(atomicMethod)) {
-                MethodNode remappedMethod = remap(atomicMethod);
-                result.add(remappedMethod);
-            }
-        }
-        return result;
-    }
-
-    public MethodNode remap(MethodNode originalMethod) {
-        if (originalMethod.name.equals("<init>")) {
-            return fixConstructor(originalMethod);
-        } else {
-            return fixInstanceMethod(originalMethod);
-        }
-    }
-
-    private MethodNode fixConstructor(MethodNode originalConstructor) {
-        MethodNode x = fixInstanceMethod(originalConstructor);
-        MethodNode result = introduceAtomicObjectVar(x);
-        result.access = upgradeToPublic(result.access);
-        //the first thing that needs to be done after the super/this constructor
-        //has been called, is the assigmnent of the AtomicObject by
-
-        InsnList i = new InsnList();
-        i.add(new VarInsnNode(ALOAD, 0));
-        i.add(new MethodInsnNode(INVOKESPECIAL, getInternalName(AlphaTranlocal.class), "<init>", "()V"));
-
-        i.add(new VarInsnNode(ALOAD, 0));
-        i.add(new VarInsnNode(ALOAD, 1));
-        i.add(new FieldInsnNode(PUTFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name)));
-
-        String attachAsNewDesc = format("(%s)V", getDescriptor(AlphaTranlocal.class));
-        i.add(new VarInsnNode(ALOAD, 0));
-        i.add(new MethodInsnNode(INVOKESTATIC, getInternalName(AlphaStmUtils.class), "attachAsNew", attachAsNewDesc));
-
-
-        //since the constructor owner already has been transformed 
-        AbstractInsnNode first = findFirstInstructionAfterSuper(atomicObject.superName, result);
-        boolean constructorFinished = false;
-        for (ListIterator<AbstractInsnNode> it = result.instructions.iterator(); it.hasNext();) {
-            AbstractInsnNode node = it.next();
-            if (node == first) {
-                constructorFinished = true;
-            }
-
-            if (constructorFinished) {
-                i.add(node);
-            }
-        }
-
-        result.instructions = i;
-        return result;
-    }
-
-    private MethodNode introduceAtomicObjectVar(MethodNode originalMethod) {
-        String[] exceptions = getExceptions(originalMethod);
-
-        String newMethodDesc = createShiftedMethodDescriptor(originalMethod.desc, atomicObject.name);
-
-        MethodNode newMethod = new MethodNode(
-                originalMethod.access,
-                originalMethod.name,
-                newMethodDesc,
-                null,
-                exceptions);
-
-        ShiftArgsToTheRightMethodAdapter shiftVisitor = new ShiftArgsToTheRightMethodAdapter(newMethod);
-        originalMethod.accept(shiftVisitor);
-
-        //the extra variable should be added after the shift has been done,
-        //else it also will be shifted.
-        LabelNode start = new LabelNode();
-        LabelNode end = new LabelNode();
-
-        newMethod.visitLocalVariable(
-                "atomicObject",
-                internalFormToDescriptor(atomicObject.name),
-                null,
-                start.getLabel(),
-                end.getLabel(),
-                1);
-        newMethod.instructions.insertBefore(newMethod.instructions.getFirst(), start);
-        newMethod.instructions.add(end);
-        return newMethod;
-    }
-
-    /**
-     * Fixes the instance methods (also constructors). It upgrades the method to
-     * public, and for the internals about the instruction fix, see the
-     * {@link ManagedFieldRemappingMethodAdapter}.
-     *
-     * @param originalMethod the instance method to fix.
-     * @return a new fixed method.
-     */
-    private MethodNode fixInstanceMethod(MethodNode originalMethod) {
-        //System.out.println("fixing method: " + originalMethod.name + "." + originalMethod.desc);
-
-        MethodNode mappedMethod = new MethodNode(
-                originalMethod.access,
-                originalMethod.name,
-                originalMethod.desc,
-                originalMethod.signature,
-                getExceptions(originalMethod));
-
-        RemappingMethodAdapter remapVisitor = new ManagedFieldRemappingMethodAdapter(
-                mappedMethod, atomicObject, originalMethod);
-
-        originalMethod.accept(remapVisitor);
-        //todo: the  readonly stuff moet er nog bij
-        //todo: whatch out with constructor.. they don't need readonly
-        return mappedMethod;
-    }
-
-
-    class ReadonlyCheckAdviceAdapter extends AdviceAdapter {
-        ReadonlyCheckAdviceAdapter(MethodVisitor mv, int access, String name, String desc) {
-            super(mv, access, name, desc);
-        }
-
-        @Override
-        protected void onMethodEnter() {
-            mv.visitVarInsn(ALOAD, 0);
-            //[this,...
-            mv.visitFieldInsn(GETFIELD, tranlocalName, "committed", Type.BOOLEAN_TYPE.getDescriptor());
-            //[value,...
-            Label notCommitted = new Label();
-            mv.visitJumpInsn(IFEQ, notCommitted);
-            //[..
-            mv.visitTypeInsn(NEW, getInternalName(ReadonlyException.class));
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, getInternalName(ReadonlyException.class), "<init>", "()V");
-            mv.visitInsn(ATHROW);
-            mv.visitLabel(notCommitted);
-        }
     }
 
     private FieldNode createOriginField() {
@@ -229,13 +88,41 @@ public final class TranlocalFactory implements Opcodes {
 
     private FieldNode createAtomicObjectField() {
         return new FieldNode(
-                ACC_PUBLIC + ACC_SYNTHETIC,
+                ACC_PUBLIC + ACC_SYNTHETIC + ACC_FINAL,
                 "atomicObject",
                 internalFormToDescriptor(atomicObject.name), null, null);
     }
 
+    private MethodNode createInitialConstructor() {
+        MethodNode m = new MethodNode(
+                ACC_PUBLIC + ACC_SYNTHETIC,
+                "<init>",
+                format("(%s)V", internalFormToDescriptor(atomicObject.name)),
+                null,
+                new String[]{});
 
-    private MethodNode createPrivatizeConstrutor() {
+        //init
+        m.visitVarInsn(ALOAD, 0);
+        m.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(AlphaTranlocal.class), "<init>", "()V");
+
+        //put the atomicobject
+        m.visitVarInsn(ALOAD, 0);
+        m.visitVarInsn(ALOAD, 1);
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name));
+
+        //attach this newly created tranlocal to the transaction.
+        String attachAsNewDesc = format("(%s)V", getDescriptor(AlphaTranlocal.class));
+        m.visitVarInsn(ALOAD, 0);
+        m.visitMethodInsn(INVOKESTATIC, getInternalName(AlphaStmUtils.class), "attachAsNew", attachAsNewDesc);
+
+        m.visitInsn(RETURN);
+        m.visitMaxs(0, 0);//value's don't matter, will be reculculated, but call is needed
+        m.visitEnd();
+
+        return m;
+    }
+
+    private MethodNode createPrivatizeConstructor() {
         MethodNode m = new MethodNode(
                 ACC_PUBLIC + ACC_SYNTHETIC,
                 "<init>",
@@ -261,8 +148,8 @@ public final class TranlocalFactory implements Opcodes {
         //placement of the version
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "version", Type.LONG_TYPE.getDescriptor());
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "version", Type.LONG_TYPE.getDescriptor());
+        m.visitFieldInsn(GETFIELD, tranlocalName, "version", "J");
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "version", "J");
 
         //placement of the rest of the fields.
         for (FieldNode managedField : metadataService.getManagedInstanceFields(atomicObject)) {

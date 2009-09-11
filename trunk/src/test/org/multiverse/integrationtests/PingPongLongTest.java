@@ -22,7 +22,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  * @author Peter Veentjer.
  */
 public class PingPongLongTest {
-    private int pingPongCount = 5 * 1000 * 1000;
+    private int pingPongCount = 1 * 1000 * 1000;
     private int threadCount = 2;
     private IntRef intValue;
 

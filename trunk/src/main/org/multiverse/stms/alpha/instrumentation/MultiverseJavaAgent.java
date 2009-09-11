@@ -38,7 +38,8 @@ public class MultiverseJavaAgent {
         }
 
         @Override
-        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                  ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
             ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
             JSRInlineClassAdapter inlineAdapter = new JSRInlineClassAdapter(writer);
             ClassReader reader = new ClassReader(classfileBuffer);
@@ -55,7 +56,8 @@ public class MultiverseJavaAgent {
 
 
         @Override
-        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] originalBytecode) throws IllegalClassFormatException {
+        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                  ProtectionDomain protectionDomain, byte[] originalBytecode) throws IllegalClassFormatException {
             //System.out.println("Extracting metadata from class: " + className);
             ClassNode original = loadAsClassNode(originalBytecode);
             MetadataExtractor transformer = new MetadataExtractor(original);
@@ -72,14 +74,15 @@ public class MultiverseJavaAgent {
         }
 
         @Override
-        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] bytecode) throws IllegalClassFormatException {
-            if (metadataService.isRealAtomicObject(className)) {
+        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                  ProtectionDomain protectionDomain, byte[] bytecode) throws IllegalClassFormatException {
+            if (metadataRepository.isRealAtomicObject(className)) {
                 ClassNode mixin = loadAsClassNode(FastAtomicObjectMixin.class);
                 ClassNode original = loadAsClassNode(bytecode);
                 AtomicObjectTransformer transformer = new AtomicObjectTransformer(original, mixin);
                 ClassNode result = transformer.transform();
                 byte[] resultCode = toBytecode(result);
-//                AsmUtils.writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
+                AsmUtils.writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
                 return resultCode;
             }
 
@@ -93,13 +96,14 @@ public class MultiverseJavaAgent {
         }
 
         @Override
-        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] bytecode) throws IllegalClassFormatException {
-            if (metadataService.isRealAtomicObject(className)) {
+        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                  ProtectionDomain protectionDomain, byte[] bytecode) throws IllegalClassFormatException {
+            if (metadataRepository.isRealAtomicObject(className)) {
                 ClassNode original = loadAsClassNode(bytecode);
                 TranlocalSnapshotFactory factory = new TranlocalSnapshotFactory(original);
                 ClassNode result = factory.create();
                 byte[] resultBytecode = toBytecode(result);
-//                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 MultiverseClassLoader.INSTANCE.defineClass(result.name, resultBytecode);
 
             }
@@ -114,14 +118,15 @@ public class MultiverseJavaAgent {
         }
 
         @Override
-        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] bytecode) throws IllegalClassFormatException {
-            if (metadataService.isRealAtomicObject(className)) {
+        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                  ProtectionDomain protectionDomain, byte[] bytecode) throws IllegalClassFormatException {
+            if (metadataRepository.isRealAtomicObject(className)) {
                 ClassNode original = loadAsClassNode(bytecode);
                 TranlocalFactory transformer = new TranlocalFactory(original);
                 ClassNode result = transformer.create();
 
                 byte[] resultBytecode = toBytecode(result);
-//                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 MultiverseClassLoader.INSTANCE.defineClass(result.name, resultBytecode);
             }
 
@@ -136,9 +141,9 @@ public class MultiverseJavaAgent {
         }
 
         @Override
-        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-
-            if (metadataService.hasAtomicMethods(className)) {
+        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                  ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+            if (metadataRepository.hasAtomicMethods(className)) {
                 ClassNode original = loadAsClassNode(classfileBuffer);
                 AtomicMethodTransformer transformer = new AtomicMethodTransformer(original);
                 ClassNode result = transformer.transform();

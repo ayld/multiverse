@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A Service (singleton) that stores alle metadata needed for the instrumentation
+ * A repository (singleton) that stores alle metadata needed for the instrumentation
  * process.
  *
  * @author Peter Veentjer
  */
-public final class MetadataService {
+public final class MetadataRepository {
 
-    public final static MetadataService INSTANCE = new MetadataService();
+    public final static MetadataRepository INSTANCE = new MetadataRepository();
 
     private final Map<String, Object> infoMap = new HashMap<String, Object>();
 

@@ -9,7 +9,7 @@ import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
-import org.multiverse.stms.alpha.instrumentation.asm.MetadataService;
+import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
 import org.multiverse.templates.AtomicTemplate;
 import org.multiverse.utils.GlobalStmInstance;
 
@@ -93,7 +93,7 @@ public class StackTest {
 
     @Test
     public void test() {
-        MetadataService s = MetadataService.INSTANCE;
+        MetadataRepository s = MetadataRepository.INSTANCE;
 
         Stack stack = new Stack();
         assertTrue(stack.isEmpty());

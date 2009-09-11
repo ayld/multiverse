@@ -19,7 +19,7 @@ import java.security.ProtectionDomain;
  */
 public abstract class AbstractClassFileTransformer implements ClassFileTransformer {
 
-    public MetadataService metadataService = MetadataService.INSTANCE;
+    public MetadataRepository metadataRepository = MetadataRepository.INSTANCE;
 
     private final String name;
 
@@ -37,10 +37,6 @@ public abstract class AbstractClassFileTransformer implements ClassFileTransform
 
     @Override
     public final byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        //    if(className.contains("multiverse")) {
-        //        System.out.println("Found: "+className);
-        //    }
-
         try {
             if (isIgnoredPackage(className)) {
                 return null;

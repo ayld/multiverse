@@ -26,11 +26,11 @@ public class TranlocalSnapshotFactory implements Opcodes {
     private ClassNode original;
     private String tranlocalName;
     private String tranlocalSnapshotName;
-    private MetadataService metadataService;
+    private MetadataRepository metadataService;
 
     public TranlocalSnapshotFactory(ClassNode original) {
         this.original = original;
-        this.metadataService = MetadataService.INSTANCE;
+        this.metadataService = MetadataRepository.INSTANCE;
         this.tranlocalName = metadataService.getTranlocalName(original);
         this.tranlocalSnapshotName = metadataService.getTranlocalSnapshotName(original);
     }
