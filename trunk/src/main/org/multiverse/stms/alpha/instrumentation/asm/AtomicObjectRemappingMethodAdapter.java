@@ -1,11 +1,10 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.isCategory2;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.*;
 import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.tree.ClassNode;
@@ -37,29 +36,56 @@ public class AtomicObjectRemappingMethodAdapter extends MethodAdapter implements
                     mv.visitFieldInsn(GETFIELD, tranlocalName, name, valueDesc);
                     break;
                 case PUTFIELD:
-                    //It is a write done on a managed field of a managed object.
-                    //The write needs to be done on the tranlocal.
+                    if (isCategory2(valueDesc)) {
+                        //value(category2), owner(atomicobject),..
 
-                    //check for committed.
-                    //Label continueWithPut = new Label();
+                        mv.visitInsn(DUP2_X1);
+                        //[value(category2), owner(atomicobject), value(category2),...]
 
-                    ownerOfPutToTranlocalForm(owner, valueDesc);
+                        mv.visitInsn(POP2);
+                        //[owner(atomicobject), value(category2), ...]
+                    } else {
+                        //[value(category1), owner(atomicobject),..
+                        mv.visitInsn(SWAP);
+                        //[owner(atomicobject), value(category1),..
 
-                    //mv.visitFieldInsn(GETFIELD, tranlocalName, "committed", "Z");
+                    }
+
+                    atomicObjectOnTopToTranlocal(owner);
+
+                    Label continueWithPut = new Label();
+                    mv.visitInsn(DUP);
+                    mv.visitFieldInsn(GETFIELD, tranlocalName, "committed", "Z");
                     //if committed equals 0 then continueWithPut ( 0 is false, 1 is true)
-                    //mv.visitJumpInsn(IFEQ, continueWithPut);
+                    mv.visitJumpInsn(IFEQ, continueWithPut);
 
-                    //mv.visitTypeInsn(NEW, Type.getInternalName(ReadonlyException.class));
-                    //mv.visitInsn(DUP);
-                    //String msg = format("Can't write on committed field %s.%s. The cause of this error is probably an update" +
-                    //        "in a readonly transaction", tranlocalName, name);
+                    mv.visitTypeInsn(NEW, Type.getInternalName(ReadonlyException.class));
+                    mv.visitInsn(DUP);
+                    String msg = format("Can't write on committed field %s.%s. The cause of this error is probably an update" +
+                            "in a readonly transaction", tranlocalName, name);
                     //
-                    //mv.visitLdcInsn(msg);
-                    //mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(ReadonlyException.class), "<init>", "(Ljava/lang/String;)V");
-                    //mv.visitInsn(ATHROW);
-                    //mv.visitLabel(continueWithPut);
+                    mv.visitLdcInsn(msg);
+                    mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(ReadonlyException.class), "<init>", "(Ljava/lang/String;)V");
+                    mv.visitInsn(ATHROW);
+                    mv.visitLabel(continueWithPut);
 
                     //[value(atomicobject), owner(tranlocal),..
+
+                    if (isCategory2(valueDesc)) {
+                        //[owner(tranlocal), value(category2),..
+
+                        mv.visitInsn(DUP_X2);
+                        //[owner(tranlocal), value(category2), owner(tranlocal)
+
+                        mv.visitInsn(POP);
+                        //[value(category2), owner(tranlocal),..
+
+
+                    } else {
+                        //[value(category1), owner(atomicobject),..
+                        mv.visitInsn(SWAP);
+                        //[owner(atomicobject), value(category1),..
+                    }
 
                     mv.visitFieldInsn(PUTFIELD, tranlocalName, name, valueDesc);
                     //[..
@@ -71,40 +97,13 @@ public class AtomicObjectRemappingMethodAdapter extends MethodAdapter implements
                 default:
                     throw new RuntimeException();
             }
-        } else {
+        } else
+
+        {
             //fields of unmanaged objects can be used as is, no need for change.
             mv.visitFieldInsn(opcode, owner, name, valueDesc);
         }
-    }
 
-    private void ownerOfPutToTranlocalForm(String owner, String valueDesc) {
-        if (isCategory2(valueDesc)) {
-            //value(category2), owner(atomicobject),..
-
-            mv.visitInsn(DUP2_X1);
-            //[value(category2), owner(atomicobject), value(category2),...]
-
-            mv.visitInsn(POP2);
-            //[owner(atomicobject), value(category2), ...]
-
-            atomicObjectOnTopToTranlocal(owner);
-            //[owner(tranlocal), value(category2),..
-
-            mv.visitInsn(DUP_X2);
-            //[owner(tranlocal), value(category2), owner(tranlocal)
-
-            mv.visitInsn(POP);
-            //[value(category2), owner(tranlocal),..
-        } else {
-            //[value(category1), owner(atomicobject),..
-            mv.visitInsn(SWAP);
-            //[owner(atomicobject), value(category1),..
-
-            atomicObjectOnTopToTranlocal(owner);
-
-            mv.visitInsn(SWAP);
-            //[value(category1), owner(tranlocal),..
-        }
     }
 
     private void atomicObjectOnTopToTranlocal(String atomicObjectName) {
