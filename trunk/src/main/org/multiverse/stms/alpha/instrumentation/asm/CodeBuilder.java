@@ -29,7 +29,6 @@ public class CodeBuilder implements Opcodes {
         instructions.add(instruction);
     }
 
-
     public void addBeforeLast(LabelNode labelNode) {
         instructions.insertBefore(instructions.getLast(), labelNode);
     }

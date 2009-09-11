@@ -140,7 +140,7 @@
 
         <jarjar jarfile="${target}/${application.name}-${application.version}.jar"
                 basedir="${classes.main}">
-            <zipfileset src="lib/provided/asm-all-3.1.jar"/>
+            <zipfileset src="lib/provided/asm-debug-all-3.2.jar"/>
             <rule pattern="org.objectweb.asm..**" result="org.multiverse.objectweb.asm..@1"/>
             <manifest>
                 <attribute name="Premain-Class"
