@@ -10,7 +10,7 @@ import org.multiverse.stms.alpha.ReadonlyAlphaTransaction;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
-public class AtomicMethod_ReadonlyTest {
+public class AtomicMethod_ReadonlyUpdateTransactionTest {
 
     private AlphaStm stm;
 

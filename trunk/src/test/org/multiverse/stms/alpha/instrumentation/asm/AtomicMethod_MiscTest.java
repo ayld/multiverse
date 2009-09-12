@@ -139,7 +139,7 @@ public class AtomicMethod_MiscTest {
     @AtomicObject
     public static class ObjectWithAtomicMethodAndAtomicTemplate {
 
-        private int value;
+        public int value;
 
         public ObjectWithAtomicMethodAndAtomicTemplate() {
         }

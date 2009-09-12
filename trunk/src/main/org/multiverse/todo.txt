@@ -2,6 +2,10 @@
 todo engine
 ---------------------------------------------------------------
 
+- this calling constructor
+
+- non static inner classes
+
 - javadoc publishen op de site
 
 - FastTom.registerRetryListener en de noProgressPossibleException
@@ -24,18 +28,7 @@ todo instrumentation
 - there is a difference in using an instrumented IntRef or an manual instrumented IntRef.
 Some integration tests fail while using the former one.
 
-- detection
-
-    - this calling constructor should be detected.
-
-    - non static inner classes should be detected
-
 - testCreateAtomicObjectInConstructor
-
-- swappen bij de managedfieldremappingadapter kan voor problemen zorgen bij longs/doubles
-
-- vanuit een aangepaste method gaan de calls naar in tranlocalform, terwijl
-de callee's in atomicobject vorm verwacht.
 
 - cycles tussen classes, instrumentatie kan daar nog niet goed mee om gaan.
 
@@ -48,8 +41,6 @@ de outerclass nog steeds naar de AtomicObject, en niet naar de Tranlocal
 
 
 - constructors & atomic
-
-    - constructors en atomic kunnen niet goed omgaan met  this calls
 
     - gewoon de waarde van de argumenten evalueren en die voor zowel de echte class
     als de translocal gebruikt worden om de constructor aan te roepen.
@@ -68,8 +59,6 @@ de mixin zit.
 
 - testen wat er gebeurd bij een duplicate method... dus als een method toevoegd doe ook al
 in de mixin zit.
-
-- stm exectutor aanpassen zodat hij op de instrumentatie werkt.
 
 ---------------------------------------------------------------
 todo features

@@ -3,7 +3,6 @@ package org.multiverse.stms.alpha;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.stms.AbstractTransaction;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,10 +25,6 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
     }
 
     protected void onInit() {
-        if (clock == null) {
-            throw new ResetFailureException("Can't reset a flashback query");
-        }
-
         if (statistics != null) {
             statistics.incReadonlyTransactionStartedCount();
         }

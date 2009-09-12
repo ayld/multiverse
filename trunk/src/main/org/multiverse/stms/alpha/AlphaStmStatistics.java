@@ -43,7 +43,6 @@ public final class AlphaStmStatistics {
         return readonlyTransactionAbortedCount.get();
     }
 
-
     public void incReadonlyTransactionStartedCount() {
         readonlyTransactionStartedCount.incrementAndGet();
     }

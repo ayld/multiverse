@@ -6,9 +6,9 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.api.annotations.AtomicObject;
+import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
-import org.multiverse.datastructures.refs.IntRef;
 
 /**
  * @author Peter Veentjer
@@ -494,9 +494,6 @@ public class AtomicObject_MethodTest {
         runtimeKnownArg.doIt(secondValue);
         assertSame(secondValue, runtimeKnownArg.getArg());
         assertEquals(1, secondValue.getValue());
-
-        runtimeKnownArg.doIt(null);
-        assertNull(runtimeKnownArg.getArg());
     }
 
     @AtomicObject
@@ -572,7 +569,7 @@ public class AtomicObject_MethodTest {
         AtomicObjectArgProblem o = new AtomicObjectArgProblem();
         AtomicObjectArgProblem o2 = new AtomicObjectArgProblem();
 
-        o.method1(o2);        
+        o.method1(o2);
     }
 
     @AtomicObject

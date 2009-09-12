@@ -199,23 +199,29 @@ public abstract class AtomicTemplate<E> {
                 attemptCount = 1;
                 while (attemptCount - 1 <= retryCount) {
                     boolean abort = true;
+                    boolean reset = false;
                     try {
                         E result = execute(t);
                         t.commit();
                         abort = false;
+                        reset = false;
                         return result;
                     } catch (RetryError e) {
                         t.abortAndWaitForRetry();
                         //since the abort is already done, no need to do it again.
                         abort = false;
                     } catch (CommitFailureException ex) {
+                        reset = true;
                         //ignore, just retry the transaction
                     } catch (LoadException ex) {
+                        reset = true;
                         //ignore, just retry the transaction
                     } finally {
                         if (abort) {
                             t.abort();
-                            t.reset();
+                            if (reset) {
+                                t.reset();
+                            }
                         }
                     }
                     attemptCount++;

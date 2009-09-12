@@ -18,6 +18,7 @@ import java.security.ProtectionDomain;
  */
 public class MultiverseJavaAgent {
 
+
     public static void premain(String agentArgs, Instrumentation inst) throws UnmodifiableClassException {
         System.out.println("Starting the Multiverse JavaAgent");
 
@@ -82,7 +83,7 @@ public class MultiverseJavaAgent {
                 AtomicObjectTransformer transformer = new AtomicObjectTransformer(original, mixin);
                 ClassNode result = transformer.transform();
                 byte[] resultCode = toBytecode(result);
-                AsmUtils.writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
+//                AsmUtils.writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
                 return resultCode;
             }
 
@@ -103,7 +104,7 @@ public class MultiverseJavaAgent {
                 TranlocalSnapshotFactory factory = new TranlocalSnapshotFactory(original);
                 ClassNode result = factory.create();
                 byte[] resultBytecode = toBytecode(result);
-                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+//               AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 MultiverseClassLoader.INSTANCE.defineClass(result.name, resultBytecode);
 
             }
@@ -126,7 +127,7 @@ public class MultiverseJavaAgent {
                 ClassNode result = transformer.create();
 
                 byte[] resultBytecode = toBytecode(result);
-                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+//                AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 MultiverseClassLoader.INSTANCE.defineClass(result.name, resultBytecode);
             }
 
@@ -151,7 +152,7 @@ public class MultiverseJavaAgent {
 //                AsmUtils.writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
                 for (ClassNode innerClass : transformer.getInnerClasses()) {
                     byte[] templateBytecode = toBytecode(innerClass);
-                    //                  AsmUtils.writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
+                    //AsmUtils.writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
                     MultiverseClassLoader.INSTANCE.defineClass(innerClass.name, templateBytecode);
                 }
 
