@@ -27,3 +27,4 @@
   * Transaction level statistics containing information about which transactions are causing problems
   * Class level statistics containing information about which classes are cause problems
   * Compile-time instrumentation 
+  * Striping: technique to reduce write-conflicts and therefore create better scaling components.
