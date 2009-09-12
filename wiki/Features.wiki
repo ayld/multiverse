@@ -2,25 +2,25 @@
 
 = Features =
   * Normal POJO's can participate in STM space. This is done through instrumentation based on annotation. But the same could be achieved by implementing some interface. 
+  * Readonly transactions (another thread notification construct).
   * Multi version concurrency control (the same mechanism Oracle, Postgresql and other databases use). So readers don't block writers, and writers don't block readers. And transactions with non conflicting writes can be committed in parallel.
-  * No overhead on reads/writes of object fields that point to primitives or non stm objects. Instead of working with a transaction log, or storing the information in the transaction,the object is checked for dirtyness when the commit happens. So all classic compiler optimisations are not obstructed in any way.
-  * Small overhead (for lazy loading purposes) on mutable stm references.   
   * Non managed stm objects can flow through stm space (for example for handing over an object from one thread to another).
   * Transaction level read consistency (the same isolation Oracle provides, so not 100% serialized)
-  * Supports the retry (the conditional variable for the stm).
   * No zombie threads; so a thread can't get in an inconsistent state because it observes isolation problems and therefore therefore there is no need to 'kill' zombie threads.
   * Multiverse doesn't touch classes from the Java API (unlike Terracotta).
+  * Supports the retry  (a thread notification construct).
+  * Support for orelse (a thread notification construct).
 
 = Planned =
   * Pessimistic locking
   * Deadlock detection for the pessimistic locking
-  * A lot of statistics to help developers figure out what goes on and how to improve performance.
-  * Support for orelse.
-  * Support for readonly transactions (optimisations).
   * Nested transactions
   * Detachment and reattachment of stm objects
   * A distributed version
   * Durable state (state that is persisted to disk for example).
   * Control history length of previous committed data (needed for MVCC).
-  * Special optimisations for immutable structures so that loading gets really cheap (O(c)) no matter the size of the structure.
   * Statistics to design better performing data structures.
+  * Complete serialized behavior instead of the Oracle version
+  * Configurable history of old data
+  * Transaction level statistics containing information about which transactions are causing problems
+  * Class level statistics containing information about which classes are cause problems
