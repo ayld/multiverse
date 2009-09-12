@@ -26,3 +26,4 @@
   * Configurable history of old data
   * Transaction level statistics containing information about which transactions are causing problems
   * Class level statistics containing information about which classes are cause problems
+  * Compile-time instrumentation 
