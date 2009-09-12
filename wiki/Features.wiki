@@ -2,8 +2,8 @@
 
 = Features =
   * 2 programming models:
-     *Normal POJO's can participate in STM space. This is done through instrumentation based on annotation. But the same could be achieved by implementing some interface. 
-     * Ref based approach that doesn't rely on instrumentation. It is similar to clojure its ref based approach.
+     * POJO programming model in combination with annotations/instrumentation.
+     * Ref based approach that doesn't rely on instrumentation. It is similar to Clojure its ref based approach.
   * Readonly transactions (another thread notification construct).  
   * Multi version concurrency control (the same mechanism Oracle, Postgresql and other databases use). So readers don't block writers, and writers don't block readers. And transactions with non conflicting writes can be committed in parallel.
   * Non managed stm objects can flow through stm space (for example for handing over an object from one thread to another).
