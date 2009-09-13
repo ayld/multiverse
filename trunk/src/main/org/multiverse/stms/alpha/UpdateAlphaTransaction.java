@@ -31,7 +31,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
     private final AlphaStmStatistics statistics;
 
     //the attached set contains the Translocals loaded and attached.
-    private Map<AlphaAtomicObject, AlphaTranlocal> attached = new IdentityHashMap<AlphaAtomicObject, AlphaTranlocal>(2);
+    private final Map<AlphaAtomicObject, AlphaTranlocal> attached = new IdentityHashMap<AlphaAtomicObject, AlphaTranlocal>(2);
 
     private SnapshotStack snapshotStack;
 
@@ -59,14 +59,14 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
     public void attachNew(AlphaTranlocal tranlocal) {
         switch (status) {
             case active:
-                //System.out.println("attachNew is called");
-
                 if (tranlocal == null) {
                     throw new NullPointerException();
                 }
 
                 if (SANITY_CHECKS_ENABLED) {
-                    if (tranlocal.getAtomicObject() == null) {
+                    AlphaAtomicObject atomicObject = tranlocal.getAtomicObject();
+
+                    if (atomicObject == null) {
                         throw new PanicError();
                     }
 
@@ -78,14 +78,17 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     if (dirtinessStatus != DirtinessStatus.fresh && dirtinessStatus != DirtinessStatus.clean) {
                         throw new PanicError("Found dirtinessState: " + dirtinessStatus);
                     }
+
+                    AlphaTranlocal found = attached.get(atomicObject);
+                    if (found != null && found != tranlocal) {
+                        throw new PanicError("Duplicate attachment for atomicobject " + atomicObject.getClass());
+                    }
                 }
 
                 attached.put(tranlocal.getAtomicObject(), tranlocal);
-
                 if (statistics != null) {
                     statistics.incAttachNewCount();
                 }
-
                 break;
             case committed:
                 throw new DeadTransactionException("Can't call attachNew on a committed transaction");
@@ -96,6 +99,23 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
         }
     }
 
+    @Override
+    public boolean isAttached(AlphaAtomicObject atomicObject) {
+        switch (status) {
+            case active:
+                if (atomicObject == null) {
+                    throw new NullPointerException();
+                }
+
+                return attached.containsKey(atomicObject);
+            case committed:
+                throw new DeadTransactionException("Can't call isAttached on a committed transaction: " + getFamilyName());
+            case aborted:
+                throw new DeadTransactionException("Can't call isAttached on an aborted transaction: " + getFamilyName());
+            default:
+                throw new RuntimeException();
+        }
+    }
 
     @Override
     public AlphaTranlocal load(AlphaAtomicObject atomicObject) {
@@ -320,11 +340,9 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
 
             if (!atLeastOne) {
                 throw new NoProgressPossibleException();
-            } else {
-
-                //wait for the other transactions to do a write we are interested in.
-                listener.awaitUninterruptible();
             }
+            //wait for the other transactions to do a write we are interested in.
+            listener.awaitUninterruptible();
         } finally {
             if (statistics != null) {
                 statistics.decTransactionPendingRetryCount();
@@ -364,7 +382,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
         AlphaTranlocalSnapshot snapshot = snapshotStack.snapshot;
         snapshotStack = snapshotStack.next;
         restoreSnapshot(snapshot);
-
     }
 
     private void restoreSnapshot(AlphaTranlocalSnapshot snapshot) {

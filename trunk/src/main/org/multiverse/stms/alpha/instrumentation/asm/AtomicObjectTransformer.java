@@ -1,12 +1,15 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
 import org.multiverse.api.exceptions.LoadUncommittedException;
+import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.multiverse.utils.TodoException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
@@ -130,7 +133,8 @@ public class AtomicObjectTransformer implements Opcodes {
      * So if there is a method employee.raiseSalary(1)
      * The call is forwarded to employee.raiseSalary(employeeTranlocal, 1).
      *
-     * @param m
+     * @param m the instance method to fix.
+     * @return a newly created method that contains the fix
      */
     private MethodNode fixInstanceMethod(MethodNode m) {
         MethodNode enhancedMethod = new MethodNode();
@@ -160,22 +164,41 @@ public class AtomicObjectTransformer implements Opcodes {
      * arguments. The original logic is completely moved to the tranlocal.
      *
      * @param originalConstructor the constructor.
+     * @return a newly created constructor that contains the fix.
      */
     private MethodNode fixConstructor(MethodNode originalConstructor) {
         MethodNode m = fixInstanceMethod(originalConstructor);
 
-        //inject extra code for tranlocal creation
-        InsnList addedInstructions = new InsnList();
-        addedInstructions.add(new TypeInsnNode(NEW, tranlocalName));
-        addedInstructions.add(new VarInsnNode(ALOAD, 0));
+        //operandstack.push isAttached(this)
+        InsnList newCode = new InsnList();
+        newCode.add(new VarInsnNode(ALOAD, 0));
+        String desc = Type.getMethodDescriptor(Type.BOOLEAN_TYPE, new Type[]{Type.getType(AlphaAtomicObject.class)});
+        String owner = Type.getInternalName(AlphaStmUtils.class);
+        newCode.add(new MethodInsnNode(INVOKESTATIC, owner, "isAttached", desc));
+
+        LabelNode alreadyConstructedLabel = new LabelNode();
+        //1 is true, 0 is false, als het goed is staat nu op de stack een 0 om aan te geven dat er nog geen tranlocal is
+        //ifne die branched naar de already
+        //the actual creation
+        newCode.add(new JumpInsnNode(IFNE, alreadyConstructedLabel));
+        newCode.add(new TypeInsnNode(NEW, tranlocalName));
+        newCode.add(new InsnNode(DUP));
+
+        newCode.add(new VarInsnNode(ALOAD, 0));
         Type atomicObjectType = Type.getObjectType(atomicObject.name);
         String initialConstructorDesc = Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{atomicObjectType});
+        newCode.add(new MethodInsnNode(INVOKESPECIAL, tranlocalName, "<init>", initialConstructorDesc));
 
-        addedInstructions.add(new MethodInsnNode(INVOKESPECIAL, tranlocalName, "<init>", initialConstructorDesc));
-        //the original code in front of the constructor call can remain.
-        AbstractInsnNode firstInstructionAfterSuper = findFirstInstructionAfterSuper(atomicObject.superName, m);
+        //attach this newly created tranlocal to the transaction.
+        String attachAsNewDesc = format("(%s)V", getDescriptor(AlphaTranlocal.class));
+        newCode.add(new MethodInsnNode(INVOKESTATIC, getInternalName(AlphaStmUtils.class), "attachAsNew", attachAsNewDesc));
 
-        m.instructions.insertBefore(firstInstructionAfterSuper, addedInstructions);
+        //this is where the branches join
+        newCode.add(alreadyConstructedLabel);
+
+        //inject the newCode in front of the other code that follows the construction
+        AbstractInsnNode firstInstructionAfterSuper = findFirstInstructionAfterSuper(atomicObject.superName, atomicObject.name, m);
+        m.instructions.insertBefore(firstInstructionAfterSuper, newCode);
         return m;
     }
 

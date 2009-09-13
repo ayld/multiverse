@@ -384,7 +384,31 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void constructorThatCallsThis() {
-        //todo
+        long version = stm.getClockVersion();
+        ThisCallingConstructor c = new ThisCallingConstructor();
+        assertEquals(25, c.getValue());
+        assertEquals(version + 1, stm.getClockVersion());
+    }
+
+    @AtomicObject
+    static class ThisCallingConstructor {
+        int value;
+
+        public ThisCallingConstructor() {
+            this(25);
+        }
+
+        public ThisCallingConstructor(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
     }
 
     //test inner classes

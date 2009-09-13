@@ -44,8 +44,8 @@ public final class AsmUtils implements Opcodes {
         return access + ACC_PUBLIC;
     }
 
-    public static AbstractInsnNode findFirstInstructionAfterSuper(String superClass, MethodNode constructor) {
-        int index = findIndexOfFirstInstructionAfterSuper(superClass, constructor);
+    public static AbstractInsnNode findFirstInstructionAfterSuper(String superClass, String thisClass, MethodNode constructor) {
+        int index = findIndexOfFirstInstructionAfterConstructor(superClass, thisClass, constructor);
         return constructor.instructions.get(index);
     }
 
@@ -57,7 +57,7 @@ public final class AsmUtils implements Opcodes {
      * @param constructor
      * @return
      */
-    public static int findIndexOfFirstInstructionAfterSuper(String superClass, MethodNode constructor) {
+    public static int findIndexOfFirstInstructionAfterConstructor(String superClass, String thisClass, MethodNode constructor) {
         if (!constructor.name.equals("<init>")) {
             throw new RuntimeException();
         }
@@ -74,9 +74,7 @@ public final class AsmUtils implements Opcodes {
             if (insnNode.getType() == AbstractInsnNode.METHOD_INSN) {
 
                 MethodInsnNode m = (MethodInsnNode) insnNode;
-                //System.out.println("at method: "+m.owner+"."+m.name+m.desc);
-                if (m.owner.equals(superClass) && m.name.equals("<init>")) {
-
+                if (m.name.equals("<init>") && (m.owner.equals(superClass) || m.owner.equals(thisClass))) {
                     //it is the instruction after the <init> call we are interested in
                     index++;
                     return index;

@@ -1,6 +1,9 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
-import org.multiverse.stms.alpha.*;
+import org.multiverse.stms.alpha.AlphaAtomicObject;
+import org.multiverse.stms.alpha.AlphaTranlocal;
+import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
+import org.multiverse.stms.alpha.DirtinessStatus;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.internalFormToDescriptor;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.upgradeToPublic;
 import org.objectweb.asm.Label;
@@ -109,11 +112,6 @@ public final class TranlocalFactory implements Opcodes {
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
         m.visitFieldInsn(PUTFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name));
-
-        //attach this newly created tranlocal to the transaction.
-        String attachAsNewDesc = format("(%s)V", getDescriptor(AlphaTranlocal.class));
-        m.visitVarInsn(ALOAD, 0);
-        m.visitMethodInsn(INVOKESTATIC, getInternalName(AlphaStmUtils.class), "attachAsNew", attachAsNewDesc);
 
         m.visitInsn(RETURN);
         m.visitMaxs(0, 0);//value's don't matter, will be reculculated, but call is needed

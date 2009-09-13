@@ -26,6 +26,8 @@ public final class AlphaStmUtils {
      * @param tranlocal the AlphaTranlocal to attach.
      */
     public static void attachAsNew(AlphaTranlocal tranlocal) {
+        System.out.println("attachAsNew.atomicObject " + tranlocal.getAtomicObject());
+
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
@@ -33,6 +35,25 @@ public final class AlphaStmUtils {
 
         t.attachNew(tranlocal);
     }
+
+    /**
+     * Checks if there already is a tranlocal attached for the atomicobject.
+     * <p/>
+     * This method is called by instrumented atomicobjects.
+     *
+     * @param atomicObject the AtomicObject to check
+     */
+    public static boolean isAttached(AlphaAtomicObject atomicObject) {
+        AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
+        if (t == null) {
+            throw new RuntimeException("No Transaction available");
+        }
+
+        boolean result = t.isAttached(atomicObject);
+        System.out.printf("isAttached(atomicObject=%s) is %s\n", atomicObject, result);
+        return result;
+    }
+
 
     /**
      * Loads a Tranlocal using a transaction. The transaction is retrieved from the

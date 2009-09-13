@@ -83,7 +83,7 @@ public final class AtomicMethodTransformer implements Opcodes {
     }
 
     private InsnList getCodeAfterSuperCallisDone(MethodNode method) {
-        AbstractInsnNode first = findFirstInstructionAfterSuper(classNode.superName, method);
+        AbstractInsnNode first = findFirstInstructionAfterSuper(classNode.superName, classNode.name, method);
 
         InsnList instructions = method.instructions;
 
@@ -113,7 +113,7 @@ public final class AtomicMethodTransformer implements Opcodes {
         Type[] argTypes = getArgumentTypes(atomicMethod.desc);
 
         if (atomicMethod.name.equals("<init>")) {
-            int first = findIndexOfFirstInstructionAfterSuper(classNode.superName, atomicMethod);
+            int first = findIndexOfFirstInstructionAfterConstructor(classNode.superName, classNode.name, atomicMethod);
             for (int k = 0; k < first; k++) {
                 cb.add(atomicMethod.instructions.get(k));
             }

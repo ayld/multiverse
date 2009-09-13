@@ -63,7 +63,14 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
 
     @Override
     public void attachNew(AlphaTranlocal tranlocal) {
-        throw new ReadonlyException();
+        throw new ReadonlyException("Can't attach newly created atomicobject to a readonly transaction, " +
+                "atomicObject: " + tranlocal.getAtomicObject().getClass());
+    }
+
+    @Override
+    public boolean isAttached(AlphaAtomicObject atomicObject) {
+        throw new ReadonlyException("Can't attach newly created atomicobject to a readonly transaction, " +
+                "atomicObject: " + atomicObject.getClass());
     }
 
     @Override

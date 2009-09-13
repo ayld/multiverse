@@ -50,4 +50,10 @@ public interface AlphaTransaction extends Transaction {
      *                              if this transaction already is committed or aborted.
      */
     void attachNew(AlphaTranlocal tranlocal);
+
+    /**
+     * @param atomicObject
+     * @return
+     */
+    boolean isAttached(AlphaAtomicObject atomicObject);
 }
