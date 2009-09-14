@@ -10,7 +10,7 @@ import org.multiverse.utils.GlobalStmInstance;
 /**
  * @author Peter Veentjer
  */
-public class LinkedQueueTest {
+public class StrictLinkedBlockingQueueTest {
     private Stm stm;
 
     @Before
@@ -25,15 +25,15 @@ public class LinkedQueueTest {
 
     @Test
     public void complexPushPopScenario() {
-        LinkedQueue<String> queue = new LinkedQueue<String>();
-        queue.push("1");
-        queue.push("2");
-        queue.push("3");
+        StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
+        queue.put("1");
+        queue.put("2");
+        queue.put("3");
         assertEquals("1", queue.take());
-        queue.push("4");
+        queue.put("4");
         assertEquals("2", queue.take());
         assertEquals("3", queue.take());
-        queue.push("5");
+        queue.put("5");
         assertEquals("4", queue.take());
         assertEquals("5", queue.take());
         assertEquals(0, queue.size());
@@ -41,9 +41,9 @@ public class LinkedQueueTest {
 
     @Test
     public void clear() {
-        LinkedQueue<String> queue = new LinkedQueue<String>();
-        queue.push("foo");
-        queue.push("bar");
+        StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
+        queue.put("foo");
+        queue.put("bar");
         queue.take();
 
         queue.clear();
@@ -55,17 +55,17 @@ public class LinkedQueueTest {
 
     @Test
     public void isEmpty() {
-        LinkedQueue<String> queue = new LinkedQueue<String>();
+        StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
         assertTrue(queue.isEmpty());
 
-        queue.push("foo");
-        queue.push("bar");
+        queue.put("foo");
+        queue.put("bar");
 
         assertFalse(queue.isEmpty());
     }
 
     public void testToString() {
-        LinkedQueue<String> queue = new LinkedQueue<String>();
+        StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
         assertEquals("[]", queue.toString());
     }
 }

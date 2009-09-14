@@ -26,8 +26,6 @@ public final class AlphaStmUtils {
      * @param tranlocal the AlphaTranlocal to attach.
      */
     public static void attachAsNew(AlphaTranlocal tranlocal) {
-        System.out.println("attachAsNew.atomicObject " + tranlocal.getAtomicObject());
-
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         if (t == null) {
             throw new RuntimeException("No Transaction available");
@@ -49,9 +47,7 @@ public final class AlphaStmUtils {
             throw new RuntimeException("No Transaction available");
         }
 
-        boolean result = t.isAttached(atomicObject);
-        System.out.printf("isAttached(atomicObject=%s) is %s\n", atomicObject, result);
-        return result;
+        return t.isAttached(atomicObject);
     }
 
 

@@ -14,7 +14,7 @@ import java.util.Iterator;
 /**
  * @author Peter Veentjer
  */
-public class SingleLinkedStackTest {
+public class StrictSingleLinkedBlockingStackTest {
     private Stm stm;
 
     @Before
@@ -31,7 +31,7 @@ public class SingleLinkedStackTest {
 
     @Test
     public void constructionNoArg() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         assertEquals(0, s.size());
         assertEquals(Integer.MAX_VALUE, s.getMaximumCapacity());
     }
@@ -39,14 +39,14 @@ public class SingleLinkedStackTest {
     @Test
     public void constructionWithMaximumCapacity() {
         int maxCapacity = 10;
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>(maxCapacity);
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>(maxCapacity);
         assertEquals(0, s.size());
         assertEquals(maxCapacity, s.getMaximumCapacity());
     }
 
     @Test
     public void testScenario() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         s.push("foo");
         s.push("bar");
         assertEquals(2, s.size());
@@ -62,7 +62,7 @@ public class SingleLinkedStackTest {
 
     @Test
     public void clear() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         s.push("foo");
         s.push("bar");
         s.clear();
@@ -74,7 +74,7 @@ public class SingleLinkedStackTest {
 
     @Test
     public void isEmpty() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         assertTrue(s.isEmpty());
 
         s.push("foo");
@@ -84,7 +84,7 @@ public class SingleLinkedStackTest {
 
     @Test
     public void testToString() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         assertEquals("[]", s.toString());
 
         s.push("1");
@@ -96,7 +96,7 @@ public class SingleLinkedStackTest {
 
     @Test
     public void peek() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         assertNull(s.peek());
 
         s.push("1");
@@ -108,13 +108,13 @@ public class SingleLinkedStackTest {
 
     @Test
     public void testEmptyIterator() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         assertFalse(s.iterator().hasNext());
     }
 
     @Test
     public void testSingleItemIterator() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         s.push("1");
 
         Iterator<String> it = s.iterator();
@@ -125,7 +125,7 @@ public class SingleLinkedStackTest {
 
     @Test
     public void testMultipleItemsIterator() {
-        SingleLinkedStack<String> s = new SingleLinkedStack<String>();
+        StrictSingleLinkedBlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
         s.push("1");
         s.push("2");
         s.push("3");

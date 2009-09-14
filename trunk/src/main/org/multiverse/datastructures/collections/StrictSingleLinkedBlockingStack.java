@@ -9,14 +9,14 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * A Stack that uses a single linked list to store the element.
+ * A {@link BlockingStack} implementation that uses a single linked list to store the elements.
  * <p/>
  * A SingleLinkedStack is not very concurrency friendly since there will be a lot of contention on the head.
  *
  * @author Peter Veentjer
  */
 @AtomicObject
-public final class SingleLinkedStack<E> extends AbstractCollection<E> {
+public final class StrictSingleLinkedBlockingStack<E> extends AbstractCollection<E> implements BlockingStack<E> {
 
     private final int maximumCapacity;
     private int size;
@@ -25,7 +25,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
     /**
      * Creates a new SingleLinkedList with Integer.MAX_VALUE as capacity.
      */
-    public SingleLinkedStack() {
+    public StrictSingleLinkedBlockingStack() {
         maximumCapacity = Integer.MAX_VALUE;
     }
 
@@ -35,7 +35,7 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
      * @param maxCapacity the maximum capacity of this stack
      * @throws IllegalArgumentException if maxCapacity is smaller than zero.
      */
-    public SingleLinkedStack(int maxCapacity) {
+    public StrictSingleLinkedBlockingStack(int maxCapacity) {
         if (maxCapacity < 0) {
             throw new IllegalArgumentException();
         }
@@ -53,31 +53,16 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
         return maximumCapacity;
     }
 
-    /**
-     * Returns the number of elements in the stack.
-     *
-     * @return the number of element in the stack.
-     */
     @AtomicMethod(readonly = true)
     public int size() {
         return size;
     }
 
-    /**
-     * Looks at the top element of the stack. The stack itself remains unchanged.
-     *
-     * @return the top element, or null if no such item exists.
-     */
     @AtomicMethod(readonly = true)
     public E peek() {
         return head == null ? null : head.value;
     }
 
-    /**
-     * Pops an item of the stack. If the stack is empty, a retry is executed.
-     *
-     * @return the popped item.
-     */
     public E pop() {
         if (head == null) {
             retry();
@@ -89,13 +74,6 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
         return oldHead.value;
     }
 
-    /**
-     * Pushes an item on the stack. If the maximum capacity has been reached already, a
-     * retry is executed.
-     *
-     * @param item the item to push.
-     * @throws NullPointerException if item is null.
-     */
     public void push(E item) {
         if (item == null) {
             throw new NullPointerException();
@@ -109,9 +87,6 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
         size++;
     }
 
-    /**
-     * Clears this stack.
-     */
     public void clear() {
         size = 0;
         head = null;
@@ -159,11 +134,11 @@ public final class SingleLinkedStack<E> extends AbstractCollection<E> {
             return true;
         }
 
-        if (!(thatObj instanceof SingleLinkedStack)) {
+        if (!(thatObj instanceof StrictSingleLinkedBlockingStack)) {
             return false;
         }
 
-        SingleLinkedStack that = (SingleLinkedStack) thatObj;
+        StrictSingleLinkedBlockingStack that = (StrictSingleLinkedBlockingStack) thatObj;
         if (that.size != this.size) {
             return false;
         }
