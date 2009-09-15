@@ -24,7 +24,7 @@ public class StrictLinkedBlockingQueueTest {
     }
 
     @Test
-    public void complexPushPopScenario() {
+    public void complexPushPopScenario() throws InterruptedException {
         StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
         queue.put("1");
         queue.put("2");
@@ -40,7 +40,7 @@ public class StrictLinkedBlockingQueueTest {
     }
 
     @Test
-    public void clear() {
+    public void clear() throws InterruptedException {
         StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
         queue.put("foo");
         queue.put("bar");
@@ -54,7 +54,7 @@ public class StrictLinkedBlockingQueueTest {
     }
 
     @Test
-    public void isEmpty() {
+    public void isEmpty() throws InterruptedException {
         StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
         assertTrue(queue.isEmpty());
 

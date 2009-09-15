@@ -1,5 +1,6 @@
 package org.multiverse.datastructures.collections;
 
+import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.utils.TodoException;
@@ -45,13 +46,24 @@ public final class StrictSingleLinkedBlockingStack<E> extends AbstractCollection
     }
 
     /**
-     * \
+     * Returns the maximum capacity of this stack.
      *
-     * @return
+     * @return the maximum capacity of this stack. The returned value will always be equal or larger than 0.
      */
     @AtomicMethod(readonly = true)
     public int getMaximumCapacity() {
         return maximumCapacity;
+    }
+
+    @Override
+    public void clear() {
+        this.size = 0;
+        this.head = null;
+    }
+
+    @AtomicMethod(readonly = true)
+    private boolean isFull() {
+        return maximumCapacity == size;
     }
 
     @Override
@@ -79,12 +91,26 @@ public final class StrictSingleLinkedBlockingStack<E> extends AbstractCollection
 
     @Override
     public E pop() {
-        throw new TodoException();
+        if (isEmpty()) {
+            retry();
+        }
+
+        return doRemove();
+    }
+
+    private E doRemove() {
+        size--;
+        E result = head.value;
+        head = head.next;
+        return result;
     }
 
     @Override
     public E poll() {
-        throw new TodoException();
+        if (isEmpty()) {
+            return null;
+        }
+        return doRemove();
     }
 
     @Override
@@ -92,7 +118,17 @@ public final class StrictSingleLinkedBlockingStack<E> extends AbstractCollection
         if (item == null) {
             throw new NullPointerException();
         }
-        throw new TodoException();
+
+        if (isFull()) {
+            throw new IllegalStateException();
+        }
+
+        doAdd(item);
+    }
+
+    private void doAdd(E item) {
+        head = new Node<E>(head, item);
+        size++;
     }
 
     @Override
@@ -100,7 +136,12 @@ public final class StrictSingleLinkedBlockingStack<E> extends AbstractCollection
         if (item == null) {
             throw new NullPointerException();
         }
-        throw new TodoException();
+
+        if (isFull()) {
+            retry();
+        }
+
+        doAdd(item);
     }
 
     @Override
@@ -108,7 +149,13 @@ public final class StrictSingleLinkedBlockingStack<E> extends AbstractCollection
         if (item == null) {
             throw new NullPointerException();
         }
-        throw new TodoException();
+
+        if (isFull()) {
+            return false;
+        }
+
+        doAdd(item);
+        return true;
     }
 
     @Override

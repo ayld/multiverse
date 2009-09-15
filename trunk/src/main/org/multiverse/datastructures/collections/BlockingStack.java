@@ -4,12 +4,17 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A BlockingStack interface similar to the {@link java.util.concurrent.BlockingQueue} and the {@link java.util.concurrent.BlockingDeque}
- * interface.
+ * A BlockingStack interface similar to the {@link java.util.concurrent.BlockingQueue} and the
+ * {@link java.util.concurrent.BlockingDeque} interface.
  * <p/>
  * The java.util.Stack class has no interface and there is no explicit BlockingStack interface (there is a
  * {@link java.util.concurrent.BlockingDeque} that can be used as a Stack interface. That is why one was created for the Multiverse
  * project so that different stack implementations can be used without changing (too much) code.
+ * <p/>
+ * <p>Memory consistency effects: As with other concurrent collections, actions in a thread prior to placing an object into a
+ * {@code BlockingStack}
+ * <a href="package-summary.html#MemoryVisibility"><i>happen-before</i></a> actions subsequent to the access or removal
+ * of that element from the {@code BlockingStack} in another thread.
  *
  * @param <E>
  */
