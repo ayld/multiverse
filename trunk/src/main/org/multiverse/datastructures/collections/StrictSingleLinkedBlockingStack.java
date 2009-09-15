@@ -1,15 +1,17 @@
 package org.multiverse.datastructures.collections;
 
-import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
+import org.multiverse.utils.TodoException;
 
 import java.util.AbstractCollection;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link BlockingStack} implementation that uses a single linked list to store the elements.
+ * A strict LIFO {@link BlockingStack} implementation that uses a single linked list to store the elements.
  * <p/>
  * A SingleLinkedStack is not very concurrency friendly since there will be a lot of contention on the head.
  *
@@ -43,65 +45,98 @@ public final class StrictSingleLinkedBlockingStack<E> extends AbstractCollection
     }
 
     /**
-     * Returns the maximum capacity of this Stack. The returned value will always be equal or larger
-     * than zero.
+     * \
      *
-     * @return the maximum capacity of this Stack.
+     * @return
      */
     @AtomicMethod(readonly = true)
     public int getMaximumCapacity() {
         return maximumCapacity;
     }
 
+    @Override
+    //@AtomicMethod(readonly = true
+    public Iterator<E> iterator() {
+        return new IteratorImpl<E>(head);
+    }
+
+    @Override
     @AtomicMethod(readonly = true)
     public int size() {
         return size;
     }
 
+    @Override
+    public int getRemainingCapacity() {
+        throw new TodoException();
+    }
+
+    @Override
     @AtomicMethod(readonly = true)
     public E peek() {
         return head == null ? null : head.value;
     }
 
+    @Override
     public E pop() {
-        if (head == null) {
-            retry();
-        }
-
-        size--;
-        Node<E> oldHead = head;
-        head = head.next;
-        return oldHead.value;
+        throw new TodoException();
     }
 
+    @Override
+    public E poll() {
+        throw new TodoException();
+    }
+
+    @Override
     public void push(E item) {
         if (item == null) {
             throw new NullPointerException();
         }
-
-        if (size == maximumCapacity) {
-            retry();
-        }
-
-        head = new Node<E>(head, item);
-        size++;
-    }
-
-    public void clear() {
-        size = 0;
-        head = null;
+        throw new TodoException();
     }
 
     @Override
-    @AtomicMethod(readonly = true)
-    public Iterator<E> iterator() {
-        return new NodeIterator<E>(head);
+    public void put(E item) throws InterruptedException {
+        if (item == null) {
+            throw new NullPointerException();
+        }
+        throw new TodoException();
     }
 
-    static class NodeIterator<E> implements Iterator<E> {
+    @Override
+    public boolean offer(E item) {
+        if (item == null) {
+            throw new NullPointerException();
+        }
+        throw new TodoException();
+    }
+
+    @Override
+    public boolean offer(E item, long timeout, TimeUnit unit) throws InterruptedException {
+        throw new TodoException();
+    }
+
+    @Override
+    public int drainTo(Collection<? super E> c) {
+        int drained = size;
+        for (E item : this) {
+            c.add(item);
+        }
+
+        clear();
+        return drained;
+    }
+
+    @Override
+    public int drainTo(Collection<? super E> c, int maxElements) {
+        throw new TodoException();
+    }
+
+    @AtomicObject
+    static final class IteratorImpl<E> implements Iterator<E> {
         Node<E> current;
 
-        NodeIterator(Node<E> current) {
+        IteratorImpl(Node<E> current) {
             this.current = current;
         }
 

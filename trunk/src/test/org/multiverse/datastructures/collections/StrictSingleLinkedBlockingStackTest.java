@@ -9,7 +9,10 @@ import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
+import static java.util.Arrays.asList;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Peter Veentjer
@@ -139,6 +142,31 @@ public class StrictSingleLinkedBlockingStackTest {
         assertEquals("1", it.next());
         assertFalse(it.hasNext());
     }
+
+    // ============================ drainTo =================================
+
+    @Test
+    public void drainToEmty() {
+        BlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
+        List<String> drain = new LinkedList<String>();
+        int result = s.drainTo(drain);
+        assertEquals(0, result);
+        assertTrue(drain.isEmpty());
+    }
+
+    @Test
+    public void drainToNonEmty() {
+        BlockingStack<String> s = new StrictSingleLinkedBlockingStack<String>();
+        s.push("1");
+        s.push("2");
+        s.push("3");
+        List<String> drain = new LinkedList<String>();
+        int result = s.drainTo(drain);
+        assertEquals(3, result);
+        assertEquals(asList("3", "2", "1"), drain);
+    }
+
+    // ===========================================================================
 
 
     @Test
