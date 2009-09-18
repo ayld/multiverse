@@ -118,7 +118,7 @@ public class SimpleProfiler implements Profiler {
 
         @Override
         public String toString() {
-            return key1 + "." + key2;
+            return key1 + "#" + key2;
         }
 
         @Override

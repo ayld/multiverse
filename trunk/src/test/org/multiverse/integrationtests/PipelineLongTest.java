@@ -9,9 +9,12 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
+import org.multiverse.stms.alpha.AlphaStmConfig;
 import org.multiverse.stms.alpha.manualinstrumentation.IntQueue;
 import org.multiverse.templates.AtomicTemplate;
+import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import org.multiverse.utils.profiling.Profiler;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -34,16 +37,22 @@ public class PipelineLongTest {
     private int produceCount = 5000;
     private int delayMs = 5;
     private AlphaStm stm;
+    private Profiler profiler;
 
     @Before
     public void setUp() {
+        AlphaStmConfig config = AlphaStmConfig.createDebugConfig();
+        profiler = config.profiler;
+        stm = new AlphaStm(config);
         setThreadLocalTransaction(null);
-        //GlobalStmInstance.set(stm);
+        GlobalStmInstance.set(stm);
     }
 
     @After
     public void tearDown() {
-    //    stm.getStatistics().print();
+        if (profiler != null) {
+            profiler.print();
+        }
     }
 
     @Test

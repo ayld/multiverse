@@ -134,9 +134,11 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                         try {
                             tranlocal = atomicObject.privatize(readVersion);
                         } catch (LoadTooOldVersionException e) {
+                            profiler.incCounter("class.snapshottooold.count", atomicObject.getClass().getName());
                             profiler.incCounter(getFamilyName(), "updatetransaction.snapshottooold.count");
                             throw e;
                         } catch (LoadLockedException e) {
+                            profiler.incCounter("class.lockedload.count", atomicObject.getClass().getName());
                             profiler.incCounter(getFamilyName(), "updatetransaction.failedtolock.count");
                             throw e;
                         }
@@ -145,6 +147,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     attached.put(atomicObject, tranlocal);
 
                     if (profiler != null) {
+                        profiler.incCounter("class.loadedinstance.count", atomicObject.getClass().getName());
                         profiler.incCounter(getFamilyName(), "updatetransaction.loaded.count");
                     }
                 }
@@ -219,6 +222,10 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                 case fresh:
                     //fall through
                 case dirty:
+                    if (profiler != null) {
+                        profiler.incCounter("class.dirty.count", tranlocal.getAtomicObject().getClass().getName());
+                    }
+
                     if (writeSet == null) {
                         writeSet = new AlphaTranlocal[attached.size() - skipped];
                     }
@@ -229,7 +236,8 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     //if we can already determine that the write can never happen, start a write conflict
                     //and fail immediately.
                     if (profiler != null) {
-                        profiler.incCounter("getFamilyName", "updatetransaction.writeconflict.count");
+                        profiler.incCounter("class.conflict.count", tranlocal.getAtomicObject().getClass().getName());
+                        profiler.incCounter(getFamilyName(), "updatetransaction.writeconflict.count");
                     }
                     throw WriteConflictException.create();
                 default:
