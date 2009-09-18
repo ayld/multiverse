@@ -179,5 +179,7 @@ public interface Transaction {
      * @throws org.multiverse.api.exceptions.DeadTransactionException
      *                              if transaction already is aborted or committed.
      */
-    void executePostCommit(Runnable task);
+    void deferredExecute(Runnable task);
+
+    void compensatingExecute(Runnable task);
 }

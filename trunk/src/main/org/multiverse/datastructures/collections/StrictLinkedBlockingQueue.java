@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * A strict FIFO {@link BlockingQueue} implementation that used STM as concurrency control mechanism. In the future also less
- * strict implementations will be added that have improved concurrency.
+ * A strict FIFO {@link BlockingQueue} implementation that used STM as concurrency control mechanism. In the future
+ * also less strict implementations will be added that have improved concurrency.
  * <p/>
  * Implementation details:
  * This queue uses 2 {@link BlockingStack}s:
@@ -127,6 +127,7 @@ public final class StrictLinkedBlockingQueue<E> extends AbstractBlockingQueue<E>
         throw new TodoException();
     }
 
+    @AtomicObject
     static class IteratorImpl<E> implements Iterator<E> {
 
         @Override

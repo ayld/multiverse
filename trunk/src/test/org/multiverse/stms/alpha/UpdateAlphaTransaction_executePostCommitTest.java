@@ -42,8 +42,8 @@ public class UpdateAlphaTransaction_executePostCommitTest {
         TestTask task2 = new TestTask();
 
         Transaction t = stm.startUpdateTransaction(null);
-        t.executePostCommit(task1);
-        t.executePostCommit(task2);
+        t.deferredExecute(task1);
+        t.deferredExecute(task2);
 
         assertEquals(0, task1.executionCount);
         assertEquals(0, task2.executionCount);
@@ -60,8 +60,8 @@ public class UpdateAlphaTransaction_executePostCommitTest {
         TestTask task2 = new TestTask();
 
         Transaction t = stm.startUpdateTransaction(null);
-        t.executePostCommit(task1);
-        t.executePostCommit(task2);
+        t.deferredExecute(task1);
+        t.deferredExecute(task2);
 
         assertEquals(0, task1.executionCount);
         assertEquals(0, task2.executionCount);
@@ -77,7 +77,7 @@ public class UpdateAlphaTransaction_executePostCommitTest {
         Transaction t = stm.startUpdateTransaction(null);
 
         try {
-            t.executePostCommit(null);
+            t.deferredExecute(null);
             fail();
         } catch (NullPointerException ex) {
         }
@@ -92,7 +92,7 @@ public class UpdateAlphaTransaction_executePostCommitTest {
 
         TestTask task = new TestTask();
         try {
-            t.executePostCommit(task);
+            t.deferredExecute(task);
             fail();
         } catch (DeadTransactionException ex) {
         }
@@ -108,7 +108,7 @@ public class UpdateAlphaTransaction_executePostCommitTest {
 
         TestTask task = new TestTask();
         try {
-            t.executePostCommit(task);
+            t.deferredExecute(task);
             fail();
         } catch (DeadTransactionException ex) {
         }

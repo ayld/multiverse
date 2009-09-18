@@ -151,7 +151,7 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> {
 
     @AtomicObject
     static class Node<E> {
-        E value;
+        final E value;
         Node<E> next;
         Node<E> prev;
 

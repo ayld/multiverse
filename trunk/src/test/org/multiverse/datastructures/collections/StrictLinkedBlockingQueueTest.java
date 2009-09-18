@@ -7,6 +7,8 @@ import org.junit.Test;
 import org.multiverse.api.Stm;
 import org.multiverse.utils.GlobalStmInstance;
 
+import java.util.concurrent.BlockingQueue;
+
 /**
  * @author Peter Veentjer
  */
@@ -22,6 +24,20 @@ public class StrictLinkedBlockingQueueTest {
     public void tearDown() {
         //assertNoInstrumentationProblems();
     }
+
+    // ========================= peek ================================
+
+    @Test
+    public void peekOnEmptyQueue() {
+
+    }
+
+    @Test
+    public void peekOnNonEmptyQueue() {
+
+    }
+
+    // ========================== pop ================================
 
     @Test
     public void complexPushPopScenario() throws InterruptedException {
@@ -39,6 +55,28 @@ public class StrictLinkedBlockingQueueTest {
         assertEquals(0, queue.size());
     }
 
+    // =================== put ======================================
+
+    @Test
+    public void putNullFails() throws InterruptedException {
+        BlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
+
+        long version = stm.getClockVersion();
+        try {
+            queue.put(null);
+            fail();
+        } catch (NullPointerException expected) {
+        }
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[]", queue.toString());
+    }
+
+    // =================== offer ====================================
+
+    // ==================== offer(Object, long, TimeUnit) ===========
+
+    // ==================== clear ===================================
+
     @Test
     public void clear() throws InterruptedException {
         StrictLinkedBlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
@@ -52,6 +90,8 @@ public class StrictLinkedBlockingQueueTest {
         queue.clear();
         assertEquals(0, queue.size());
     }
+
+    // ================================================================
 
     @Test
     public void isEmpty() throws InterruptedException {

@@ -9,7 +9,9 @@ import java.util.*;
 
 /**
  * An {@link java.util.List} implementation that uses an array to store the items underneath and
- * uses STM for concurrency control.
+ * uses STM for concurrency control. The array has a fixed capacity, so it can't grow. It is the first
+ * structure that is used to experiment with arrays being used in the STM. Atm an array of refs is
+ * used, but using instrumentation in the future this could be a basic array enhanced by instrumentation.
  * <p/>
  * The behavior is similar to the {@link ArrayList} except that this structure is transactional
  * and has a fixed capacity. In the future this class will be replaced by a growing array. The
@@ -20,6 +22,11 @@ import java.util.*;
  * add write/write conflict detection is something that needs some thought because it could reduce
  * concurrency because of an increase in conflicts. It also could decrease performance within a
  * single transaction.
+ * <p/>
+ * <p>Memory consistency effects: As with other concurrent collections, actions in a thread prior to
+ * placing an object into a {@code FixedLengthArrayList}
+ * <a href="package-summary.html#MemoryVisibility"><i>happen-before</i></a> actions subsequent to the
+ * access or removal of that element from the {@code FixedLengthArrayList} in another thread.
  *
  * @param <E>
  */

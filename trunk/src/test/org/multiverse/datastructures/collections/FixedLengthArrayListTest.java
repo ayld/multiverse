@@ -17,7 +17,7 @@ public class FixedLengthArrayListTest {
         GlobalStmInstance.set(stm);
     }
 
-    // ==================================
+    // ============ add ======================
 
     @Test
     public void addOnEmptyList() {
@@ -48,6 +48,64 @@ public class FixedLengthArrayListTest {
         assertEquals("3", list.get(2));
     }
 
+    // ==============indexOf====================
 
-    // ==================================
+    @Test
+    public void indexOfOnEmptyList() {
+
+    }
+
+    @Test
+    public void indexOfOnNonEmptyListAndNotFound() {
+
+    }
+
+    @Test
+    public void indexOfNonEmptyListAndFound() {
+
+    }
+
+    // ===========lastIndexOf=======================
+
+    @Test
+    public void lastIndexOfOnEmptyList() {
+
+    }
+
+    @Test
+    public void lastIndexfOnNonEmptyListAndNotFound() {
+
+    }
+
+    @Test
+    public void lastIndexOfNonEmptyListAndFound() {
+
+    }
+
+    // ================= set =========================
+
+    @Test
+    public void setIndexTooSmall() {
+
+    }
+
+    @Test
+    public void setIndexTooLarge() {
+
+    }
+
+    @Test
+    public void setNull() {
+
+    }
+
+    @Test
+    public void setFirstTime() {
+
+    }
+
+    @Test
+    public void setOverwrite() {
+
+    }
 }

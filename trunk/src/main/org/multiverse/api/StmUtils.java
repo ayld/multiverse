@@ -23,7 +23,7 @@ public final class StmUtils {
     }
 
     /**
-     * See {@link Transaction#executePostCommit(Runnable)}
+     * See {@link Transaction#deferredExecute(Runnable)}
      *
      * @param task the task to execute postcommit.
      */
@@ -33,7 +33,7 @@ public final class StmUtils {
             throw new RuntimeException("No Transaction available");
         }
 
-        t.executePostCommit(task);
+        t.deferredExecute(task);
     }
 
     //we don't want instances.

@@ -14,7 +14,7 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
-    public void executePostCommit(Runnable r) {
+    public void deferredExecute(Runnable r) {
         throw new RuntimeException();
     }
 
@@ -65,6 +65,11 @@ public class DummyTransaction implements Transaction {
 
     @Override
     public void abortAndWaitForRetry() {
+        throw new RuntimeException();
+    }
+
+    @Override
+    public void compensatingExecute(Runnable task) {
         throw new RuntimeException();
     }
 }

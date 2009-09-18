@@ -4,6 +4,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.ResetFailureException;
+import org.multiverse.utils.TodoException;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 
 import java.util.LinkedList;
@@ -53,7 +54,7 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     @Override
-    public void executePostCommit(Runnable task) {
+    public void deferredExecute(Runnable task) {
         switch (status) {
             case active:
                 if (task == null) {
@@ -64,9 +65,23 @@ public abstract class AbstractTransaction implements Transaction {
                 postCommitTasks.add(task);
                 break;
             case committed:
-                throw new DeadTransactionException("Can't add afterCommit task on a committed transaction");
+                throw new DeadTransactionException("Can't add deferredExecute task on a committed transaction");
             case aborted:
-                throw new DeadTransactionException("Can't add afterCommit task on an aborted transaction");
+                throw new DeadTransactionException("Can't add deferredExecute task on an aborted transaction");
+            default:
+                throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public void compensatingExecute(Runnable task) {
+        switch (status) {
+            case active:
+                throw new TodoException();
+            case committed:
+                throw new DeadTransactionException("Can't add deferredExecute task on a committed transaction");
+            case aborted:
+                throw new DeadTransactionException("Can't add deferredExecute task on an aborted transaction");
             default:
                 throw new RuntimeException();
         }

@@ -121,13 +121,13 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
     }
 
     @Override
-    public void executePostCommit(Runnable task) {
+    public void deferredExecute(Runnable task) {
         if (!logger.isLoggable(Level.FINER)) {
-            super.executePostCommit(task);
+            super.deferredExecute(task);
         } else {
             boolean success = false;
             try {
-                super.executePostCommit(task);
+                super.deferredExecute(task);
                 success = true;
             } finally {
                 if (success) {
