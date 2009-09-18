@@ -25,8 +25,8 @@ public class IntRefPerformanceLongTest {
     @After
     public void tearDown() {
         setThreadLocalTransaction(null);
-        if (stm.getStatistics() != null) {
-            stm.getStatistics().print();
+        if (stm.getProfiler() != null) {
+            stm.getProfiler().print();
         }
     }
 

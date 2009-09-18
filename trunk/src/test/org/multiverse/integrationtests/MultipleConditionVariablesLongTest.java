@@ -45,7 +45,7 @@ public class MultipleConditionVariablesLongTest {
 
     @After
     public void tearDown() {
-        stm.getStatistics().print();
+        stm.getProfiler().print();
     }
 
     @Test

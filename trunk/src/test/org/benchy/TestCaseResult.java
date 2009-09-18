@@ -22,7 +22,8 @@ public class TestCaseResult {
      * Creates a new TestResult for a specific testcase. This instance can
      * be used to add all kinds of properties and measurements.
      *
-     * @param testCase the TestCase this TestResult is for.
+     * @param benchmark
+     * @param testCase  the TestCase this TestResult is for.
      * @param attempt
      * @throws NullPointerException     if testCase is null.
      * @throws IllegalArgumentException if attempt smaller than 1.

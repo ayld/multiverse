@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
     private AlphaStm stm;
     private IntRef[] values;
-    private int threadCount = 4;// * Runtime.getRuntime().availableProcessors();
+    private int threadCount = Runtime.getRuntime().availableProcessors() * 4;
     private int updateCountPerThread = 2 * 1000 * 1000;
 
     @Before
@@ -31,8 +31,8 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
 
     @After
     public void tearDown() {
-        if (stm.getStatistics() != null) {
-            stm.getStatistics().print();
+        if (stm.getProfiler() != null) {
+            stm.getProfiler().print();
         }
     }
 
@@ -50,8 +50,8 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
         double transactionPerSecond = (updateCountPerThread * threadCount * 1.0d * TimeUnit.SECONDS.toNanos(1)) / periodNs;
         System.out.printf("%s Transaction/second\n", transactionPerSecond);
 
-        assertEquals(0, stm.getStatistics().getUpdateTransactionLockAcquireFailureCount());
-        assertEquals(0, stm.getStatistics().getUpdateTransactionWriteConflictCount());
+        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.failedtoacquirelocks.count"));
+        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.writeconflict.count"));
     }
 
     private void createValues() {

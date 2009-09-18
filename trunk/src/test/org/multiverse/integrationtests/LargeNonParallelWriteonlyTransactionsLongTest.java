@@ -26,7 +26,7 @@ public class LargeNonParallelWriteonlyTransactionsLongTest {
 
     @After
     public void tearDown() {
-        stm.getStatistics().print();
+        stm.getProfiler().print();
     }
 
     @Test
@@ -85,9 +85,9 @@ public class LargeNonParallelWriteonlyTransactionsLongTest {
         }.execute();
 
         //todo: do statistics
-        assertEquals(0, stm.getStatistics().getUpdateTransactionLockAcquireFailureCount());
-        assertEquals(0, stm.getStatistics().getUpdateTransactionWriteConflictCount());
-        assertEquals(1, stm.getStatistics().getUpdateTransactionCommittedCount());
-        assertEquals(0, stm.getStatistics().getUpdateTransactionRetriedCount());
+        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.failedtoacquirelocks.count"));
+        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.writeconflict.count"));
+        assertEquals(1, stm.getProfiler().countOnKey2("updatetransaction.committed.count"));
+        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.retried.count"));
     }
 }

@@ -125,7 +125,6 @@ public class AtomicMethod_MiscTest {
         }
     }
 
-
     @Test
     public void atomicMethodWithAtomicTemplateDoesntCauseHarm() {
         ObjectWithAtomicMethodAndAtomicTemplate o = new ObjectWithAtomicMethodAndAtomicTemplate();

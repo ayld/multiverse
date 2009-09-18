@@ -3,9 +3,9 @@ package org.multiverse.integrationtests;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-import org.multiverse.stms.alpha.AlphaStm;
 
 /**
  * @author Peter Veentjer
@@ -22,7 +22,7 @@ public class IsDirtyLongTest {
 
     @After
     public void tearDown() {
-        stm.getStatistics().print();
+        stm.getProfiler().print();
     }
 
     @Test

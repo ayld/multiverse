@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public interface BlockingStack<E> extends Collection<E> {
 
     /**
-     * Returns the number of additional elements that this queue can ideally
+     * Returns the number of additional elements that this stack can ideally
      * (in the absence of memory or resource constraints) accept without
      * blocking, or <tt>Integer.MAX_VALUE</tt> if there is no intrinsic
      * limit.
@@ -52,8 +52,7 @@ public interface BlockingStack<E> extends Collection<E> {
     /**
      * Retrieves and removes most recently added item.
      *
-     * @return the first element of this deque, or <tt>null</tt> if
-     *         this stack is empty
+     * @return the first element of this stack, or <tt>null</tt> if this stack is empty
      */
     E poll();
 
@@ -90,19 +89,19 @@ public interface BlockingStack<E> extends Collection<E> {
 
     /**
      * Removes all available elements from this stack and adds them to the given collection.  This operation may be more
-     * efficient than repeatedly polling this queue.  A failure encountered while attempting to add elements to
+     * efficient than repeatedly polling this stack.  A failure encountered while attempting to add elements to
      * collection <tt>c</tt> may result in elements being in neither, either or both collections when the associated exception is
-     * thrown.  Attempts to drain a queue to itself result in <tt>IllegalArgumentException</tt>.
+     * thrown.  Attempts to drain a stack to itself result in <tt>IllegalArgumentException</tt>.
      *
      * @param c the collection to transfer elements into
      * @return the number of elements transferred
      * @throws UnsupportedOperationException if addition of elements
      *                                       is not supported by the specified collection
-     * @throws ClassCastException            if the class of an element of this queue
+     * @throws ClassCastException            if the class of an element of this stack
      *                                       prevents it from being added to the specified collection
      * @throws NullPointerException          if the specified collection is null
      * @throws IllegalArgumentException      if the specified collection is this
-     *                                       queue, or some property of an element of this queue prevents
+     *                                       stack, or some property of an element of this stack prevents
      *                                       it from being added to the specified collection
      */
     int drainTo(Collection<? super E> c);
@@ -110,7 +109,7 @@ public interface BlockingStack<E> extends Collection<E> {
     /**
      * Removes at most the given number of available elements from this stack and adds them to the given collection.  A failure
      * encountered while attempting to add elements to collection <tt>c</tt> may result in elements being in neither,
-     * either or both collections when the associated exception is thrown.  Attempts to stack a queue to itself result in
+     * either or both collections when the associated exception is thrown.  Attempts to stack a stack to itself result in
      * <tt>IllegalArgumentException</tt>.
      *
      * @param c           the collection to transfer elements into
@@ -118,11 +117,11 @@ public interface BlockingStack<E> extends Collection<E> {
      * @return the number of elements transferred
      * @throws UnsupportedOperationException if addition of elements
      *                                       is not supported by the specified collection
-     * @throws ClassCastException            if the class of an element of this queue
+     * @throws ClassCastException            if the class of an element of this stack
      *                                       prevents it from being added to the specified collection
      * @throws NullPointerException          if the specified collection is null
      * @throws IllegalArgumentException      if the specified collection is this
-     *                                       queue, or some property of an element of this queue prevents
+     *                                       stack, or some property of an element of this stack prevents
      *                                       it from being added to the specified collection
      */
     int drainTo(Collection<? super E> c, int maxElements);

@@ -71,6 +71,11 @@ public class StrictLinkedBlockingQueueTest {
         assertEquals("[]", queue.toString());
     }
 
+    public void putOnFullQueue() {
+        BlockingQueue<String> queue = new StrictLinkedBlockingQueue<String>();
+        //todo
+    }
+
     // =================== offer ====================================
 
     // ==================== offer(Object, long, TimeUnit) ===========

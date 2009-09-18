@@ -43,7 +43,7 @@ public class DiningPhilosophersLongTest {
 
     @After
     public void tearDown() {
-        stm.getStatistics().print();
+        stm.getProfiler().print();
     }
 
     @Test

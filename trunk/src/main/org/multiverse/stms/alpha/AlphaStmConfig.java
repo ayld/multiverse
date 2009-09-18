@@ -2,6 +2,8 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
+import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.SimpleProfiler;
 
 /**
  * An Object responsible for storing the configuration for an {@link AlphaStm}. So instead
@@ -32,12 +34,12 @@ public final class AlphaStmConfig {
 
     public static AlphaStmConfig createFastConfig() {
         AlphaStmConfig config = new AlphaStmConfig();
-        config.statistics = null;
+        config.profiler = null;
         config.loggingPossible = false;
         return config;
     }
 
-    public AlphaStmStatistics statistics = new AlphaStmStatistics();
+    public Profiler profiler = new SimpleProfiler();
 
     public boolean loggingPossible = true;
 

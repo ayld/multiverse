@@ -4,6 +4,7 @@ import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.AbstractTransaction;
+import org.multiverse.utils.profiling.Profiler;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -15,18 +16,18 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Peter Veentjer.
  */
 public class ReadonlyAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
-    private final AlphaStmStatistics statistics;
+    private final Profiler profiler;
 
-    public ReadonlyAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock) {
+    public ReadonlyAlphaTransaction(String familyName, Profiler profiler, AtomicLong clock) {
         super(familyName, clock, null);
-        this.statistics = statistics;
+        this.profiler = profiler;
 
         init();
     }
 
     protected void onInit() {
-        if (statistics != null) {
-            statistics.incReadonlyTransactionStartedCount();
+        if (profiler != null) {
+            profiler.incCounter(getFamilyName(), "readonlytransaction.started.count");
         }
     }
 
@@ -55,8 +56,8 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
     @Override
     protected long onCommit() {
         long value = super.onCommit();
-        if (statistics != null) {
-            statistics.incReadonlyTransactionCommittedCount();
+        if (profiler != null) {
+            profiler.incCounter(getFamilyName(), "readonlytransaction.committed.count");
         }
         return value;
     }
@@ -77,8 +78,8 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
     protected void onAbort() {
         super.onAbort();
 
-        if (statistics != null) {
-            statistics.incReadonlyTransactionAbortedCount();
+        if (profiler != null) {
+            profiler.incCounter(getFamilyName(), "readonlytransaction.aborted.count");
         }
     }
 

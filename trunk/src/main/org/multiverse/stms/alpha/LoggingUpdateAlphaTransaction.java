@@ -1,6 +1,7 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.utils.commitlock.CommitLockPolicy;
+import org.multiverse.utils.profiling.Profiler;
 
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
@@ -13,8 +14,8 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
     private final long logId;
 
-    public LoggingUpdateAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, CommitLockPolicy writeSetLockPolicy, long logId) {
-        super(familyName, statistics, clock, writeSetLockPolicy);
+    public LoggingUpdateAlphaTransaction(String familyName, Profiler profiler, AtomicLong clock, CommitLockPolicy writeSetLockPolicy, long logId) {
+        super(familyName, profiler, clock, writeSetLockPolicy);
 
         this.logId = logId;
 

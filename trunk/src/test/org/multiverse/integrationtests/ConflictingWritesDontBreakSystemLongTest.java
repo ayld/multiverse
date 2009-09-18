@@ -32,7 +32,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
 
     @After
     public void tearDown() {
-        stm.getStatistics().print();
+        stm.getProfiler().print();
         setThreadLocalTransaction(null);
     }
 
@@ -46,7 +46,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
         joinAll(threads);
 
         //the 10 is quite arbitrary.. but we should have quite a number of conflicts.
-        stm.getStatistics().print();
+        stm.getProfiler().print();
         //assertTrue(stm.getStatistics().getUpdateTransactionWriteConflictCount() > 10);
         assertValues(transactionCount);
     }

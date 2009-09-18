@@ -2,6 +2,7 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Stm;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
+import org.multiverse.utils.profiling.Profiler;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,13 +29,13 @@ public final class AlphaStm implements Stm {
 
     private final AtomicLong clock = new AtomicLong();
 
-    private final AlphaStmStatistics statistics;
+    private final Profiler profiler;
 
     private final boolean loggingPossible;
 
     private final AtomicLong logIdGenerator;
 
-    private volatile CommitLockPolicy lockPolicy;
+    private final CommitLockPolicy lockPolicy;
 
     /**
      * Creates a new AlphaStm that keeps track of statistics and where logging is possible.
@@ -57,7 +58,7 @@ public final class AlphaStm implements Stm {
 
         config.ensureValid();
 
-        this.statistics = config.statistics;
+        this.profiler = config.profiler;
         this.loggingPossible = config.loggingPossible;
         this.logIdGenerator = loggingPossible ? new AtomicLong() : null;
         this.lockPolicy = config.commitLockPolicy;
@@ -73,34 +74,21 @@ public final class AlphaStm implements Stm {
     }
 
     /**
-     * Sets the new WriteSetLockPolicy.
-     *
-     * @param newLockPolicy the new WriteSetLockPolicy.
-     * @throws NullPointerException if newWriteSetLockPolicy is null.
-     */
-    public void setAtomicObjectLockPolicy(CommitLockPolicy newLockPolicy) {
-        if (newLockPolicy == null) {
-            throw new NullPointerException();
-        }
-        this.lockPolicy = newLockPolicy;
-    }
-
-    /**
      * Returns the DefaultStmStatistics or null if the Stm is running without statistics.
      *
      * @return return the TL2StmStatistics.
      */
-    public AlphaStmStatistics getStatistics() {
-        return statistics;
+    public Profiler getProfiler() {
+        return profiler;
     }
 
     @Override
     public AlphaTransaction startUpdateTransaction(String familyName) {
         if (loggingPossible) {
             return new LoggingUpdateAlphaTransaction(
-                    familyName, statistics, clock, lockPolicy, logIdGenerator.incrementAndGet());
+                    familyName, profiler, clock, lockPolicy, logIdGenerator.incrementAndGet());
         } else {
-            return new UpdateAlphaTransaction(familyName, statistics, clock, lockPolicy);
+            return new UpdateAlphaTransaction(familyName, profiler, clock, lockPolicy);
         }
     }
 
@@ -108,9 +96,9 @@ public final class AlphaStm implements Stm {
     public AlphaTransaction startReadOnlyTransaction(String familyName) {
         if (loggingPossible) {
             return new LoggingReadonlyAlphaTransaction(
-                    familyName, statistics, clock, logIdGenerator.incrementAndGet());
+                    familyName, profiler, clock, logIdGenerator.incrementAndGet());
         } else {
-            return new ReadonlyAlphaTransaction(familyName, statistics, clock);
+            return new ReadonlyAlphaTransaction(familyName, profiler, clock);
         }
     }
 

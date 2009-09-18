@@ -34,7 +34,7 @@ public class ConcurrentUpdateLongTest {
 
     @After
     public void tearDown() {
-        stm.getStatistics().print();
+        stm.getProfiler().print();
     }
 
     @Test

@@ -1,5 +1,7 @@
 package org.multiverse.stms.alpha;
 
+import org.multiverse.utils.profiling.Profiler;
+
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -11,8 +13,8 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
 
     private final long logId;
 
-    public LoggingReadonlyAlphaTransaction(String familyName, AlphaStmStatistics statistics, AtomicLong clock, long logId) {
-        super(familyName, statistics, clock);
+    public LoggingReadonlyAlphaTransaction(String familyName, Profiler profiler, AtomicLong clock, long logId) {
+        super(familyName, profiler, clock);
 
         this.logId = logId;
 

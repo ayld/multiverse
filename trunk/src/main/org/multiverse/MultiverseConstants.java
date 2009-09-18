@@ -15,5 +15,28 @@ import static java.lang.Boolean.parseBoolean;
  */
 public interface MultiverseConstants {
 
-    boolean SANITY_CHECKS_ENABLED = parseBoolean(System.getProperty("multiverse.sanitychecks.enabled", "true"));
+    /**
+     * A flag that enables the sanity check build in the system.
+     * <p/>
+     * If sanity checks are enabled, the system can check all kinds of design by contract
+     * violations using pre/post condition checks and checking the invariants. It could
+     * be that these checks are costly so as end used you want to turn this off. For
+     * the time being it is true by default.
+     * <p/>
+     * <p/>
+     * If the sanity checks are disabled, the JIT is completely removing
+     */
+    boolean SANITY_CHECKS_ENABLED =
+            parseBoolean(System.getProperty("multiverse.sanitychecks.enabled", "true"));
+
+    /**
+     * A flag that activates profiling. Normally programming would be added by some form of
+     * javaagent. But we need to gather all kinds of stm related statistics like where writeconflicts
+     * keep happening, something custom needs to be made.
+     * <p/>
+     * The simplest approach is just to add the instrumentation logic using this flag, and if
+     * it is disabled, the jit is completely removing the profiling logic.
+     */
+    boolean PROFILING_ENABLED =
+            parseBoolean(System.getProperty("multiverse.profiling.enabled", "false"));
 }
