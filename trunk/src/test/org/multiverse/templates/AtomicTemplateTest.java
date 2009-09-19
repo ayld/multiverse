@@ -79,7 +79,7 @@ public class AtomicTemplateTest {
         Transaction t = startUpdateTransaction();
 
         long startVersion = stm.getClockVersion();
-        long startedCount = stm.getProfiler().countOnKey2("updatetransaction.started.count");
+        long startedCount = stm.getProfiler().sumKey1("updatetransaction.started.count");
 
         new AtomicTemplate() {
             @Override
@@ -92,7 +92,7 @@ public class AtomicTemplateTest {
         assertSame(t, getThreadLocalTransaction());
         assertIsActive(t);
         assertEquals(startVersion, stm.getClockVersion());
-        assertEquals(startedCount, stm.getProfiler().countOnKey2("updatetransaction.started.count"));
+        assertEquals(startedCount, stm.getProfiler().sumKey1("updatetransaction.started.count"));
 
         t.commit();
         assertEquals(startVersion + 1, stm.getClockVersion());
@@ -122,7 +122,7 @@ public class AtomicTemplateTest {
 
         }
 
-        assertEquals(1, stm.getProfiler().countOnKey2("updatetransaction.aborted.count"));
+        assertEquals(1, stm.getProfiler().sumKey1("updatetransaction.aborted.count"));
         assertNull(getThreadLocalTransaction());
         assertEquals(version, stm.getClockVersion());
         assertEquals(0, value.get());
@@ -193,12 +193,12 @@ public class AtomicTemplateTest {
     @Test
     public void testRecursionDoesntCallProblems() {
         long version = stm.getClockVersion();
-        long startedCount = stm.getProfiler().countOnKey2("updatetransaction.started.count");
+        long startedCount = stm.getProfiler().sumKey1("updatetransaction.started.count");
 
         run(100);
 
         assertEquals(version + 1, stm.getClockVersion());
-        assertEquals(startedCount + 1, stm.getProfiler().countOnKey2("updatetransaction.started.count"));
+        assertEquals(startedCount + 1, stm.getProfiler().sumKey1("updatetransaction.started.count"));
     }
 
 

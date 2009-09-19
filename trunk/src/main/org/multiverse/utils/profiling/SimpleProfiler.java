@@ -6,8 +6,17 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * A simple {@link Profiler} implementation.
+ * <p/>
+ * Improvements needed:
+ * <ol>
+ * <li>composedkey is created even for lookup. Object creation is slow so this unwanted
+ * object creation should be removed</li>
+ * <li>The ConcurrentHashMap still needs locking (even though it used striped locks), so
+ * perhaps a non blocking version could improve performance</li>
+ * </ol>
  *
- *
+ * @author Peter Veentjer.
  */
 public class SimpleProfiler implements Profiler {
 
@@ -58,21 +67,11 @@ public class SimpleProfiler implements Profiler {
     }
 
     @Override
-    public void startEvent(String key1, String key2) {
-        //todo
-    }
-
-    @Override
-    public void endEvent(String key1, String key2) {
-        //todo
-    }
-
-    @Override
-    public long countOnKey1(String key1) {
+    public long sumKey2(String key2) {
         long result = 0;
 
         for (Map.Entry<ComposedKey, AtomicLong> entry : map.entrySet()) {
-            if (entry.getKey().key1.equals(key1)) {
+            if (entry.getKey().key2.equals(key2)) {
                 result += entry.getValue().get();
             }
         }
@@ -81,11 +80,11 @@ public class SimpleProfiler implements Profiler {
     }
 
     @Override
-    public long countOnKey2(String key2) {
+    public long sumKey1(String key1) {
         long result = 0;
 
         for (Map.Entry<ComposedKey, AtomicLong> entry : map.entrySet()) {
-            if (entry.getKey().key2.equals(key2)) {
+            if (entry.getKey().key1.equals(key1)) {
                 result += entry.getValue().get();
             }
         }

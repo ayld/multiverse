@@ -85,9 +85,9 @@ public class LargeNonParallelWriteonlyTransactionsLongTest {
         }.execute();
 
         //todo: do statistics
-        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.failedtoacquirelocks.count"));
-        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.writeconflict.count"));
-        assertEquals(1, stm.getProfiler().countOnKey2("updatetransaction.committed.count"));
-        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.retried.count"));
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.failedtoacquirelocks.count"));
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.writeconflict.count"));
+        assertEquals(1, stm.getProfiler().sumKey1("updatetransaction.committed.count"));
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.retried.count"));
     }
 }

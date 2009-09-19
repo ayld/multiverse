@@ -111,7 +111,7 @@ public class CycleHandlingTest {
         final int nodeCount = 100000;
 
         long oldVersion = stm.getClockVersion();
-        long oldWriteCount = stm.getProfiler().countOnKey2("updatetransaction.individualwrite.count");
+        long oldWriteCount = stm.getProfiler().sumKey1("updatetransaction.individualwrite.count");
 
         new AtomicTemplate() {
             @Override
@@ -122,7 +122,7 @@ public class CycleHandlingTest {
         }.execute();
 
         //multiply by 3 because each complexnode needs 3 references
-        assertEquals(oldWriteCount + 3 * nodeCount, stm.getProfiler().countOnKey2("updatetransaction.individualwrite.count"));
+        assertEquals(oldWriteCount + 3 * nodeCount, stm.getProfiler().sumKey1("updatetransaction.individualwrite.count"));
         assertEquals(oldVersion + 1, stm.getClockVersion());
     }
 
@@ -133,7 +133,7 @@ public class CycleHandlingTest {
 
 
         long oldVersion = stm.getClockVersion();
-        long oldWriteCount = stm.getProfiler().countOnKey2("updatetransaction.individualwrite.count");
+        long oldWriteCount = stm.getProfiler().sumKey1("updatetransaction.individualwrite.count");
 
         new AtomicTemplate() {
             @Override
@@ -144,7 +144,7 @@ public class CycleHandlingTest {
         }.execute();
 
         //multiply by 3 because each complexnode needs 3 references
-        assertEquals(oldWriteCount + 3 * nodeCount, stm.getProfiler().countOnKey2("updatetransaction.individualwrite.count"));
+        assertEquals(oldWriteCount + 3 * nodeCount, stm.getProfiler().sumKey1("updatetransaction.individualwrite.count"));
         assertEquals(oldVersion + 1, stm.getClockVersion());
     }
 

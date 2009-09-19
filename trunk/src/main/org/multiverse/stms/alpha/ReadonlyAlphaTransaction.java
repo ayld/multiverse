@@ -27,7 +27,7 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
 
     protected void onInit() {
         if (profiler != null) {
-            profiler.incCounter(getFamilyName(), "readonlytransaction.started.count");
+            profiler.incCounter("readonlytransaction.started.count", getFamilyName());
         }
     }
 
@@ -57,7 +57,7 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
     protected long onCommit() {
         long value = super.onCommit();
         if (profiler != null) {
-            profiler.incCounter(getFamilyName(), "readonlytransaction.committed.count");
+            profiler.incCounter("readonlytransaction.committed.count", getFamilyName());
         }
         return value;
     }
@@ -79,7 +79,7 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
         super.onAbort();
 
         if (profiler != null) {
-            profiler.incCounter(getFamilyName(), "readonlytransaction.aborted.count");
+            profiler.incCounter("readonlytransaction.aborted.count", getFamilyName());
         }
     }
 

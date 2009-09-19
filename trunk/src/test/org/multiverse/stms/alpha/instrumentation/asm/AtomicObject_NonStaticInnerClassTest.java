@@ -21,7 +21,6 @@ public class AtomicObject_NonStaticInnerClassTest {
         GlobalStmInstance.set(stm);
     }
 
-
     @Test
     public void nonStaticAtomicObject() {
         long version = stm.getClockVersion();

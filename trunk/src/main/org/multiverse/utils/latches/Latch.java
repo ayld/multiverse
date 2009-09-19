@@ -3,9 +3,10 @@ package org.multiverse.utils.latches;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A structure that can be used as a waiting point. As long as it is closed, the thread waits (unless it is
- * interrupted or a timeout occurs). As soon as it opens, all waiting threads can pass. Threads that call the
- * wait after the Latch is opened, can continue. Once the Latch has been opened, it can never be closed.
+ * A structure that can be used as a waiting point. As long as it is closed, the thread
+ * waits (unless it is interrupted or a timeout occurs). As soon as it opens, all waiting
+ * threads can pass. Threads that call the wait after the Latch is opened, can continue. Once
+ * the Latch has been opened, it can never be closed.
  * <p/>
  * A Latch is thread-safe to use.
  *

@@ -50,8 +50,8 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
         double transactionPerSecond = (updateCountPerThread * threadCount * 1.0d * TimeUnit.SECONDS.toNanos(1)) / periodNs;
         System.out.printf("%s Transaction/second\n", transactionPerSecond);
 
-        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.failedtoacquirelocks.count"));
-        assertEquals(0, stm.getProfiler().countOnKey2("updatetransaction.writeconflict.count"));
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.failedtoacquirelocks.count"));
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.writeconflict.count"));
     }
 
     private void createValues() {

@@ -47,7 +47,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
         this.attached.clear();
 
         if (profiler != null) {
-            profiler.incCounter(getFamilyName(), "updatetransaction.started");
+            profiler.incCounter("updatetransaction.started", getFamilyName());
         }
     }
 
@@ -88,7 +88,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
 
                 attached.put(tranlocal.getAtomicObject(), tranlocal);
                 if (profiler != null) {
-                    profiler.incCounter(getFamilyName(), "updatetransaction.attachAsNew");
+                    profiler.incCounter("updatetransaction.attachAsNew", getFamilyName());
                 }
                 break;
             case committed:
@@ -134,12 +134,12 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                         try {
                             tranlocal = atomicObject.privatize(readVersion);
                         } catch (LoadTooOldVersionException e) {
-                            profiler.incCounter("class.snapshottooold.count", atomicObject.getClass().getName());
-                            profiler.incCounter(getFamilyName(), "updatetransaction.snapshottooold.count");
+                            profiler.incCounter("atomicobject.snapshottooold.count", atomicObject.getClass().getName());
+                            profiler.incCounter("updatetransaction.snapshottooold.count", getFamilyName());
                             throw e;
                         } catch (LoadLockedException e) {
-                            profiler.incCounter("class.lockedload.count", atomicObject.getClass().getName());
-                            profiler.incCounter(getFamilyName(), "updatetransaction.failedtolock.count");
+                            profiler.incCounter("atomicobject.lockedload.count", atomicObject.getClass().getName());
+                            profiler.incCounter("updatetransaction.failedtolock.count", getFamilyName());
                             throw e;
                         }
                     }
@@ -147,8 +147,13 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     attached.put(atomicObject, tranlocal);
 
                     if (profiler != null) {
-                        profiler.incCounter("class.loadedinstance.count", atomicObject.getClass().getName());
-                        profiler.incCounter(getFamilyName(), "updatetransaction.loaded.count");
+                        profiler.incCounter("atomicobject.load.count", atomicObject.getClass().getName());
+                        profiler.incCounter("updatetransaction.load.count", getFamilyName());
+                    }
+                } else {
+                    if (profiler != null) {
+                        profiler.incCounter("atomicobject.uselessload.count", atomicObject.getClass().getName());
+                        profiler.incCounter("updatetransaction.uselessload.count", getFamilyName());
                     }
                 }
 
@@ -166,7 +171,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
     protected long onCommit() {
         long commitVersion = doCommit();
         if (profiler != null) {
-            profiler.incCounter(getFamilyName(), "updatetransaction.committed.count");
+            profiler.incCounter("updatetransaction.committed.count", getFamilyName());
         }
         attached.clear();
         return commitVersion;
@@ -177,7 +182,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
         if (nothingToLock(writeSet)) {
             //if there is nothing to commit, we are done.
             if (profiler != null) {
-                profiler.incCounter(getFamilyName(), "updatetransaction.emptycommit.count");
+                profiler.incCounter("updatetransaction.emptycommit.count", getFamilyName());
             }
             return readVersion;
         }
@@ -223,7 +228,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     //fall through
                 case dirty:
                     if (profiler != null) {
-                        profiler.incCounter("class.dirty.count", tranlocal.getAtomicObject().getClass().getName());
+                        profiler.incCounter("atomicobject.dirty.count", tranlocal.getAtomicObject().getClass().getName());
                     }
 
                     if (writeSet == null) {
@@ -236,8 +241,8 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     //if we can already determine that the write can never happen, start a write conflict
                     //and fail immediately.
                     if (profiler != null) {
-                        profiler.incCounter("class.conflict.count", tranlocal.getAtomicObject().getClass().getName());
-                        profiler.incCounter(getFamilyName(), "updatetransaction.writeconflict.count");
+                        profiler.incCounter("atomicobject.conflict.count", tranlocal.getAtomicObject().getClass().getName());
+                        profiler.incCounter("updatetransaction.writeconflict.count", getFamilyName());
                     }
                     throw WriteConflictException.create();
                 default:
@@ -254,18 +259,18 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                 //todo: problem is that if the locks are not acquired successfully, it isn't clear
                 //how many locks were acquired.
                 if (profiler != null) {
-                    profiler.incCounter(getFamilyName(), "updatetransaction.acquirelocks.count");
+                    profiler.incCounter("updatetransaction.acquirelocks.count", getFamilyName());
                 }
                 break;
             case failure:
                 if (profiler != null) {
-                    profiler.incCounter(getFamilyName(), "updatetransaction.failedtoacquirelocks.count");
+                    profiler.incCounter("updatetransaction.failedtoacquirelocks.count", getFamilyName());
                 }
 
                 throw FailedToObtainLocksException.create();
             case conflict:
                 if (profiler != null) {
-                    profiler.incCounter(getFamilyName(), "updatetransaction.writeconflict.count");
+                    profiler.incCounter("updatetransaction.writeconflict.count", getFamilyName());
                 }
                 throw WriteConflictException.create();
             default:
@@ -287,7 +292,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
 
         } finally {
             if (profiler != null) {
-                profiler.incCounter(getFamilyName(), "updatetransaction.individualwrite.count", attached.size());
+                profiler.incCounter("updatetransaction.individualwrite.count", getFamilyName(), attached.size());
             }
         }
     }
@@ -296,7 +301,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
     protected void onAbort() {
         attached.clear();
         if (profiler != null) {
-            profiler.incCounter(getFamilyName(), "updatetransaction.aborted.count");
+            profiler.incCounter("updatetransaction.aborted.count", getFamilyName());
         }
     }
 
@@ -311,7 +316,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
             success = true;
 
             if (profiler != null) {
-                profiler.incCounter(getFamilyName(), "updatetransaction.retried.count");
+                profiler.incCounter("updatetransaction.retried.count", getFamilyName());
             }
         } finally {
             if (!success) {
@@ -327,7 +332,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
         }
 
         if (profiler != null) {
-            profiler.incCounter(getFamilyName(), "updatetransaction.waiting.count");
+            profiler.incCounter("updatetransaction.waiting.count", getFamilyName());
         }
 
         try {
@@ -353,7 +358,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
             listener.awaitUninterruptible();
         } finally {
             if (profiler != null) {
-                profiler.decCounter(getFamilyName(), "updatetransaction.waiting.count");
+                profiler.decCounter("updatetransaction.waiting.count", getFamilyName());
             }
         }
     }

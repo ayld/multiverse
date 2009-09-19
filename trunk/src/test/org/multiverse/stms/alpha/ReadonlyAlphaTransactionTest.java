@@ -51,7 +51,7 @@ public class ReadonlyAlphaTransactionTest {
         Transaction t = stm.startReadOnlyTransaction(null);
         assertIsActive(t);
         assertEquals(version, stm.getClockVersion());
-        assertEquals(1, stm.getProfiler().countOnKey2("updatetransaction.writeconflict.count"));
+        assertEquals(1, stm.getProfiler().sumKey1("updatetransaction.writeconflict.count"));
     }
 
     @Test

@@ -31,16 +31,16 @@ public class AtomicMethod_ReadonlyTransactionTest {
         IntRef ref = new IntRef(10);
 
         long version = stm.getClockVersion();
-        long readonlyTransactionStarted = profiler.countOnKey2("readonlytransaction.started.count");
-        long readonlyTransactionAborted = profiler.countOnKey2("readonlytransaction.aborted.count");
-        long readonlyTransactionCommitted = profiler.countOnKey2("readonlytransaction.committed.count");
+        long readonlyTransactionStarted = profiler.sumKey1("readonlytransaction.started.count");
+        long readonlyTransactionAborted = profiler.sumKey1("readonlytransaction.aborted.count");
+        long readonlyTransactionCommitted = profiler.sumKey1("readonlytransaction.committed.count");
 
         int value = ref.get();
         assertEquals(10, value);
         assertEquals(version, stm.getClockVersion());
-        assertEquals(readonlyTransactionStarted + 1, profiler.countOnKey2("readonlytransaction.started.count"));
-        assertEquals(readonlyTransactionAborted, profiler.countOnKey2("readonlytransaction.aborted.count"));
-        assertEquals(readonlyTransactionCommitted + 1, profiler.countOnKey2("readonlytransaction.committed.count"));
+        assertEquals(readonlyTransactionStarted + 1, profiler.sumKey1("readonlytransaction.started.count"));
+        assertEquals(readonlyTransactionAborted, profiler.sumKey1("readonlytransaction.aborted.count"));
+        assertEquals(readonlyTransactionCommitted + 1, profiler.sumKey1("readonlytransaction.committed.count"));
 
     }
 
@@ -49,9 +49,9 @@ public class AtomicMethod_ReadonlyTransactionTest {
         IntRef ref = new IntRef(10);
 
         long version = stm.getClockVersion();
-        long readonlyTransactionStarted = profiler.countOnKey2("readonlytransaction.started.count");
-        long readonlyTransactionAborted = profiler.countOnKey2("readonlytransaction.aborted.count");
-        long readonlyTransactionCommitted = profiler.countOnKey2("readonlytransaction.committed.count");
+        long readonlyTransactionStarted = profiler.sumKey1("readonlytransaction.started.count");
+        long readonlyTransactionAborted = profiler.sumKey1("readonlytransaction.aborted.count");
+        long readonlyTransactionCommitted = profiler.sumKey1("readonlytransaction.committed.count");
 
         try {
 
@@ -61,9 +61,9 @@ public class AtomicMethod_ReadonlyTransactionTest {
         }
 
         assertEquals(version, stm.getClockVersion());
-        assertEquals(readonlyTransactionStarted + 1, profiler.countOnKey2("readonlytransaction.started.count"));
-        assertEquals(readonlyTransactionAborted + 1, profiler.countOnKey2("readonlytransaction.aborted.count"));
-        assertEquals(readonlyTransactionCommitted, profiler.countOnKey2("readonlytransaction.committed.count"));
+        assertEquals(readonlyTransactionStarted + 1, profiler.sumKey1("readonlytransaction.started.count"));
+        assertEquals(readonlyTransactionAborted + 1, profiler.sumKey1("readonlytransaction.aborted.count"));
+        assertEquals(readonlyTransactionCommitted, profiler.sumKey1("readonlytransaction.committed.count"));
         assertEquals(10, ref.get());
     }
 
@@ -83,7 +83,7 @@ public class AtomicMethod_ReadonlyTransactionTest {
 
         @AtomicMethod(readonly = true)
         public void readonlySet(int value) {
-            System.out.println(profiler.countOnKey2("readonlytransaction.started.count"));
+            System.out.println(profiler.sumKey1("readonlytransaction.started.count"));
             this.value = value;
         }
 
