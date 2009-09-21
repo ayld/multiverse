@@ -9,6 +9,7 @@ import org.multiverse.utils.GlobalStmInstance;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingDeque;
 
@@ -20,6 +21,147 @@ public class StrictLinkedBlockingDequeTest {
         stm = new AlphaStm();
         GlobalStmInstance.set(stm);
     }
+
+    // ============ add ================================
+
+    // ============ indexOf(Object) ====================
+
+    @Test
+    public void indexOfNullFails() {
+        List<String> deque = new StrictLinkedBlockingDeque<String>();
+
+        long version = stm.getClockVersion();
+        try {
+            deque.indexOf(null);
+            fail();
+        } catch (NullPointerException ex) {
+        }
+
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[]", deque.toString());
+    }
+
+    @Test
+    public void indexOf() {
+        List<String> deque = new StrictLinkedBlockingDeque<String>();
+        deque.add("1");
+        deque.add("2");
+        deque.add("3");
+        deque.add("1");
+
+        long version = stm.getClockVersion();
+        assertEquals(0, deque.indexOf("1"));
+        assertEquals(1, deque.indexOf("2"));
+        assertEquals(2, deque.indexOf("3"));
+        assertEquals(-1, deque.indexOf("a"));
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[1, 2, 3, 1]", deque.toString());
+    }
+
+    // ============ lastIndexOf(Object) ====================
+
+    @Test
+    public void lastIndexOfNullFails() {
+        List<String> deque = new StrictLinkedBlockingDeque<String>();
+
+        long version = stm.getClockVersion();
+        try {
+            deque.lastIndexOf(null);
+            fail();
+        } catch (NullPointerException ex) {
+        }
+
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[]", deque.toString());
+    }
+
+    @Test
+    public void lastIndexOf() {
+        List<String> deque = new StrictLinkedBlockingDeque<String>();
+        deque.add("1");
+        deque.add("2");
+        deque.add("3");
+        deque.add("1");
+
+        long version = stm.getClockVersion();
+        assertEquals(3, deque.lastIndexOf("1"));
+        assertEquals(1, deque.lastIndexOf("2"));
+        assertEquals(2, deque.lastIndexOf("3"));
+        assertEquals(-1, deque.lastIndexOf("a"));
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[1, 2, 3, 1]", deque.toString());
+    }
+
+
+    // ============ get(int) ================================
+
+    @Test
+    public void getTooSmallIndex() {
+        StrictLinkedBlockingDeque<String> deque = new StrictLinkedBlockingDeque<String>();
+        long version = stm.getClockVersion();
+        try {
+            deque.get(-1);
+            fail();
+        } catch (IndexOutOfBoundsException ex) {
+        }
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[]", deque.toString());
+    }
+
+    @Test
+    public void getTooLargeIndex() {
+        StrictLinkedBlockingDeque<String> deque = new StrictLinkedBlockingDeque<String>();
+        deque.add("1");
+
+        long version = stm.getClockVersion();
+        try {
+            deque.get(1);
+            fail();
+        } catch (IndexOutOfBoundsException ex) {
+        }
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[1]", deque.toString());
+    }
+
+    @Test
+    public void get() {
+        StrictLinkedBlockingDeque<String> deque = new StrictLinkedBlockingDeque<String>();
+        deque.add("1");
+        deque.add("2");
+        deque.add("3");
+
+        long version = stm.getClockVersion();
+        assertEquals("1", deque.get(0));
+        assertEquals("2", deque.get(1));
+        assertEquals("3", deque.get(2));
+        assertEquals(version, stm.getClockVersion());
+        assertEquals("[1, 2, 3]", deque.toString());
+    }
+
+    // ============ set(int index, E item) =============
+
+    @Test
+    public void setFailsIfIndexOutOfBounds() {
+        StrictLinkedBlockingDeque<String> deque = new StrictLinkedBlockingDeque<String>();
+        deque.add("1");
+
+        setFailsIfIndexOutOfBounds(deque, -1);
+        setFailsIfIndexOutOfBounds(deque, 1);
+        setFailsIfIndexOutOfBounds(deque, 2);
+    }
+
+    private void setFailsIfIndexOutOfBounds(StrictLinkedBlockingDeque<String> deque, int index) {
+        String original = deque.toString();
+        long version = stm.getClockVersion();
+        try {
+            deque.get(index);
+            fail();
+        } catch (IndexOutOfBoundsException ex) {
+        }
+        assertEquals(version, stm.getClockVersion());
+        assertEquals(original, deque.toString());
+    }
+
 
     // ============ getFirst ===========================
 

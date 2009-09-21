@@ -4,8 +4,7 @@ import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.utils.TodoException;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 /**
@@ -14,7 +13,7 @@ import java.util.concurrent.BlockingDeque;
  * @param <E>
  */
 @AtomicObject
-public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> {
+public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> implements List<E> {
     private final int maxCapacity;
 
     private int size;
@@ -149,15 +148,107 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> {
         throw new TodoException();
     }
 
-    @AtomicObject
-    static class Node<E> {
-        final E value;
-        Node<E> next;
-        Node<E> prev;
+    @Override
+    public boolean addAll(int index, Collection<? extends E> c) {
+        throw new TodoException();
+    }
 
-        Node(E value) {
-            this.value = value;
+    @Override
+    @AtomicMethod(readonly = true)
+    public E get(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
         }
+
+        Node<E> node;
+        if (index < size / 2) {
+            node = head;
+            for (int k = 0; k < index; k++) {
+                node = node.next;
+            }
+        } else {
+            node = tail;
+            for (int k = size - 1; k > index; k--) {
+                node = node.prev;
+            }
+        }
+
+        return node.value;
+    }
+
+    @Override
+    public E set(int index, E element) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if (element == null) {
+            throw new NullPointerException();
+        }
+        throw new TodoException();
+    }
+
+    @Override
+    public void add(int index, E element) {
+        throw new TodoException();
+    }
+
+    @Override
+    public E remove(int index) {
+        throw new TodoException();
+    }
+
+    @Override
+    @AtomicMethod(readonly = true)
+    public int indexOf(Object o) {
+        if (o == null) {
+            throw new NullPointerException();
+        }
+
+        int index = 0;
+        for (Node node = head; node != null; node = node.next) {
+            if (node.value.equals(o)) {
+                return index;
+            } else {
+                index++;
+            }
+        }
+
+        return -1;
+    }
+
+    @Override
+    @AtomicMethod(readonly = true)
+    public int lastIndexOf(Object o) {
+        if (o == null) {
+            throw new NullPointerException();
+        }
+
+        int index = size - 1;
+        for (Node node = tail; node != null; node = node.prev) {
+            if (node.value.equals(o)) {
+                return index;
+            } else {
+                index--;
+            }
+        }
+
+        return -1;
+    }
+
+    @Override
+    public ListIterator<E> listIterator() {
+        throw new TodoException();
+    }
+
+    @Override
+    public ListIterator<E> listIterator(int index) {
+        throw new TodoException();
+    }
+
+    @Override
+    public List<E> subList(int fromIndex, int toIndex) {
+        throw new TodoException();
     }
 
     @AtomicObject
@@ -188,6 +279,17 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> {
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    @AtomicObject
+    static class Node<E> {
+        final E value;
+        Node<E> next;
+        Node<E> prev;
+
+        Node(E value) {
+            this.value = value;
         }
     }
 }
