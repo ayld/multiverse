@@ -6,7 +6,7 @@ Concurrency control is one of the most complex programming tasks and with the in
 
 Transactional Memory takes a different approach. Instead requiring imperative concurrency control (e.g. explicitly locking resources), declarative concurrency control can be applied through transactions. Essentially you could see Transactional Memory as a very fast in memory database where one is not limited by the data structures (e.g. a b-tree for the index) provided by the database.
 
-= Different forms of Transactional Memory =
+== Different forms of Transactional Memory ==
 
 There are different forms of Transactional Memory:
   * *Software Transactional Memory:* all the concurrency control is done in the software. The advantage is there is no limit on the functionality that needs to be added. The disadvantage is that is not as fast as it could be. 
