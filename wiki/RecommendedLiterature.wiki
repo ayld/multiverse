@@ -3,11 +3,12 @@
 = Recommended literature =
 
 STM literature:
+  * [http://transact09.cs.washington.edu/25_paper.pdf Anatomy of a Scalable Software Transactional Memory]
   * [https://urresearch.rochester.edu/handle/1802/4051 What Really Makes Transactions Faster?]
   * [http://research.sun.com/scalable/pubs/DISC2006.pdf Transactional Locking 2]
   * [http://www.amazon.com/Transactional-Synthesis-Lectures-Computer-Architecture/dp/1598291246/ref=sr_1_1?ie=UTF8&s=books&qid=1242680680&sr=1-1 Transactional Memory (Synthesis Lectures on Computer Architecture)]
   * [http://www.amazon.com/Art-Multiprocessor-Programming-Maurice-Herlihy/dp/0123705916 The Art of Multiprocessor Programming]
-  * [http://transact09.cs.washington.edu/25_paper.pdf Anatomy of a Scalable Software Transactional Memory]
+
 
 General purpose concurrency literature:
   * [http://www.amazon.com/Concurrent-Programming-Java-TM-Principles/dp/0201310090/ref=sr_1_1?ie=UTF8&s=books&qid=1244896138&sr=8-1 Concurrent Programming in Java(TM): Design Principles and Pattern (2nd Edition)]
