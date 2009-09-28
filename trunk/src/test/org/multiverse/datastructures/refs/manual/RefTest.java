@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import org.multiverse.datastructures.refs.Ref;
+import org.multiverse.datastructures.refs.manual.Ref;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
