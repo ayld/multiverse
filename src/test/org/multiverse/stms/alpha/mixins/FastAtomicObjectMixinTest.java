@@ -38,10 +38,12 @@ public class FastAtomicObjectMixinTest {
 
     @Test
     public void loadEqualVersion() {
+        Transaction lockOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin atomicObject = new DummyFastAtomicObjectMixin();
 
         DummyTranlocal tranlocal = new DummyTranlocal(atomicObject);
         long writeVersion = 10;
+        atomicObject.tryLock(lockOwner);
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
 
         AlphaTranlocal result = atomicObject.load(writeVersion);
@@ -50,10 +52,12 @@ public class FastAtomicObjectMixinTest {
 
     @Test
     public void loadWithNewVersion() {
+        Transaction lockOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin atomicObject = new DummyFastAtomicObjectMixin();
 
         DummyTranlocal tranlocal = new DummyTranlocal(atomicObject);
         long writeVersion = 10;
+        atomicObject.tryLock(lockOwner);
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
 
         AlphaTranlocal result = atomicObject.load(writeVersion + 1);
@@ -202,6 +206,7 @@ public class FastAtomicObjectMixinTest {
         }
     }
 
+    // TODO: merge with org.multiverse.DummyTranlocal?
     static class DummyTranlocal extends AlphaTranlocal {
 
         private AlphaAtomicObject atomicObject;
@@ -212,7 +217,7 @@ public class FastAtomicObjectMixinTest {
 
         @Override
         public void prepareForCommit(long writeVersion) {
-            throw new RuntimeException();
+            committed = true;
         }
 
         @Override
