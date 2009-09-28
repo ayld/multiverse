@@ -13,7 +13,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 
 /**
  * A Template that handles the boilerplate code for transactions. A transaction will be placed if
- * none if available around a section and if all goes right, commits at the end.
+ * none is available around a section and if all goes right, commits at the end.
  * <p/>
  * example:
  * <pre>
