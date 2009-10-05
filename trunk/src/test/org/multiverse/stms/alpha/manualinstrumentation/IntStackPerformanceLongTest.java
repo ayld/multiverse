@@ -10,7 +10,7 @@ import org.multiverse.stms.alpha.AlphaStmConfig;
 import static org.multiverse.stms.alpha.AlphaStmConfig.createDebugConfig;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,7 +19,7 @@ public class IntStackPerformanceLongTest {
     private int count = 3 * 1000 * 1000;
 
     private Stm stm;
-    private Profiler profiler;
+    private ProfileDataRepository profiler;
 
     @Before
     public void setUp() {
@@ -33,7 +33,7 @@ public class IntStackPerformanceLongTest {
     @After
     public void tearDown() {
         if (profiler != null) {
-            profiler.print();
+            //profiler.print();
         }
     }
 

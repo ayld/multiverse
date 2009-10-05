@@ -9,7 +9,7 @@ import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.utils.GlobalStmInstance;
-import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
 
 /**
  * @author Peter Veentjer
@@ -17,7 +17,7 @@ import org.multiverse.utils.profiling.Profiler;
 public class AtomicMethod_ReadonlyTransactionTest {
 
     private AlphaStm stm;
-    static private Profiler profiler;
+    static private ProfileDataRepository profiler;
 
     @Before
     public void setUp() {

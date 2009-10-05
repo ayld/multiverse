@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
 
 import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
@@ -13,7 +13,7 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
 
     private final long logId;
 
-    public LoggingReadonlyAlphaTransaction(String familyName, Profiler profiler, AtomicLong clock, long logId) {
+    public LoggingReadonlyAlphaTransaction(String familyName, ProfileDataRepository profiler, AtomicLong clock, long logId) {
         super(familyName, profiler, clock);
 
         this.logId = logId;

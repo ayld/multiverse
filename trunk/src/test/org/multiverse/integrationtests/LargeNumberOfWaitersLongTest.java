@@ -50,7 +50,7 @@ public class LargeNumberOfWaitersLongTest {
 
     @After
     public void tearDown() {
-        stm.getProfiler().print();
+        // stm.getProfiler().print();
     }
 
     @Test

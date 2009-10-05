@@ -59,7 +59,8 @@ public abstract class AbstractTransaction implements Transaction {
             case active:
                 if (task == null) {
                     throw new NullPointerException();
-                } else if (postCommitTasks == null) {
+                }
+                if (postCommitTasks == null) {
                     postCommitTasks = new LinkedList<Runnable>();
                 }
                 postCommitTasks.add(task);
@@ -77,6 +78,10 @@ public abstract class AbstractTransaction implements Transaction {
     public void compensatingExecute(Runnable task) {
         switch (status) {
             case active:
+                if (task == null) {
+                    throw new NullPointerException();
+                }
+
                 throw new TodoException();
             case committed:
                 throw new DeadTransactionException("Can't add deferredExecute task on a committed transaction");
@@ -139,7 +144,7 @@ public abstract class AbstractTransaction implements Transaction {
                 doAbort();
                 break;
             case committed:
-                throw new DeadTransactionException("Can't call abort on a committed transaction");
+                throw new DeadTransactionException("Can't abort a committed transaction");
             case aborted:
                 //ignore
                 break;

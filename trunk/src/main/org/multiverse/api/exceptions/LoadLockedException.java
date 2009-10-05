@@ -11,7 +11,7 @@ public class LoadLockedException extends LoadException {
 
     public final static LoadLockedException INSTANCE = new LoadLockedException();
 
-    private final static boolean reuse = parseBoolean(System.getProperty(LoadLockedException.class.getName(), "true"));
+    private final static boolean reuse = parseBoolean(System.getProperty("reuse." + LoadLockedException.class.getName(), "true"));
 
     public static LoadLockedException create() {
         if (reuse) {

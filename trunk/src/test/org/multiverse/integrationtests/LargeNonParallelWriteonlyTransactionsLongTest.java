@@ -26,7 +26,7 @@ public class LargeNonParallelWriteonlyTransactionsLongTest {
 
     @After
     public void tearDown() {
-        stm.getProfiler().print();
+        //  stm.getProfiler().print();
     }
 
     @Test

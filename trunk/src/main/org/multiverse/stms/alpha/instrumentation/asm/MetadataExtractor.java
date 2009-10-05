@@ -150,7 +150,7 @@ public final class MetadataExtractor implements Opcodes {
     }
 
     private String createDefaultFamilyName(MethodNode method) {
-        return classNode.name + "." + method.desc;
+        return classNode.name + "." + method.name + method.desc;
     }
 
     private Object getValue(AnnotationNode node, String name, Object defaultValue) {

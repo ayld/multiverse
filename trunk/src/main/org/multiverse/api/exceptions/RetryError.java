@@ -14,7 +14,7 @@ import static java.lang.Boolean.parseBoolean;
  */
 public class RetryError extends Error {
 
-    private final static boolean reuse = parseBoolean(System.getProperty(RetryError.class.getName(), "true"));
+    private final static boolean reuse = parseBoolean(System.getProperty("reuse" + RetryError.class.getName(), "true"));
 
     public final static RetryError INSTANCE = new RetryError();
 

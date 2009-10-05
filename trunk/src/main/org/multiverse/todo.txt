@@ -2,6 +2,9 @@
 todo engine
 ---------------------------------------------------------------
 
+- a transaction that only does no updates but writes instead: does this transactionneed to increase
+the clock?
+
 - this calling constructor
     - atomicmethod
 
@@ -25,6 +28,9 @@ todo engine
 
 - cycles tussen classes, instrumentatie kan daar nog niet goed mee om gaan.
 
+- profiler: the profile thread is not started
+
+- profiler: do something with interning transaction family names?
 ---------------------------------------------------------------
 todo instrumentation
 ---------------------------------------------------------------
@@ -79,6 +85,8 @@ parts for example) which class/method it was.. for debugging purposes of course
 
 - a performance comparison between 'uninstrumented' code and instrumented code.
 
+- a performance comparison between profiled and unprofiled code.
+
 - statistics about number of loads that could get information from the transaction instead
 of loading from main memory. This is also needed for optimizing bytecode.
 
@@ -95,8 +103,6 @@ wait/notify.
 all objects loaded by a transaction are a reason to wake up (cause a change happens on them). But
 what if you are only interested in a specific field... this could reduce the stress on the mechanism
 
-- transaction level statistics
-
 - door onderscheid te maken tussen attachednew en loaded, zou je eventueel nog optimalisaties kunnen doen:
      - op nieuw objecten hoef je geen lock aan te vragen
      - op nieuw objecten hoef je niet te valideren
@@ -104,8 +110,6 @@ what if you are only interested in a specific field... this could reduce the str
      - op nieuw objecten hoef je je niet druk te maken over retrylisteners
 
 - online pessimistic locking
-
-- Optimization for transaction usage
 
 - bloomfilter
 
@@ -144,3 +148,7 @@ done
 - retry limit on atomictemplate.
 
 - retry limit in instrumentation needs to be added
+
+- the name of the method is missing in the transactionfamilyname
+
+- gebruik maken van java.lang.logging in the profile thread

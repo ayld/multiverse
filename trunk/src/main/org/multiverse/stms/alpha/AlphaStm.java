@@ -2,34 +2,43 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Stm;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
-import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
+import org.multiverse.utils.profiling.ProfilerAware;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Default {@link org.multiverse.api.Stm} implementation.
+ * Default {@link Stm} implementation that provides the most complete set of features. Like
+ * retry/orelse, profiling, etc. It can be configured through the {@link AlphaStmConfig}.
  * <p/>
- * Statistics:
- * This implementation can use {@link AlphaStmStatistics}. This choice needs to be made
- * when the TL2Stm is constructed, so that the JIT can remove calls to the statistics completely if
+ * <h3>Statistics</h3>
+ * This implementation can use {@link ProfileDataRepository}. This choice needs to be made
+ * when the STM is constructed, so that the JIT can remove calls to the Profiler completely if
  * a null value is passed. The JIT is able to completely remove the following:
  * <pre>
- * if(statistics!=null){
- *      statistics.incSomeCounter();
+ * if(profiler!=null){
+ *      profiler.incSomeCounter();
  * }
  * </pre>
- * So if you are not using the statistics, you don't need to pay for it.
+ * So if you are not using the profiler, you don't need to pay for it.
+ * <p/>
+ * The instrumentation is added directly to the code. Although it is less pretty, adding
+ * some form of external mechanism to add this functionality is going to complicate matters
+ * (not at least deployment issues).
+ * <p/>
+ * <h3>Logging</h3>
+ * Logging to java.logging can be enabled through the constructor.
  * <p/>
  * The logging can be completely removed by the JIT if the loggingPossible flag is set to false.
  * No additional checks are done.. so you don't need to pay the price for it if you don't use it.
  *
  * @author Peter Veentjer.
  */
-public final class AlphaStm implements Stm {
+public final class AlphaStm implements Stm, ProfilerAware {
 
     private final AtomicLong clock = new AtomicLong();
 
-    private final Profiler profiler;
+    private final ProfileDataRepository profiler;
 
     private final boolean loggingPossible;
 
@@ -78,7 +87,7 @@ public final class AlphaStm implements Stm {
      *
      * @return return the TL2StmStatistics.
      */
-    public Profiler getProfiler() {
+    public ProfileDataRepository getProfiler() {
         return profiler;
     }
 

@@ -1,12 +1,15 @@
 package org.multiverse.utils.profiling;
 
+import org.multiverse.utils.TodoException;
+
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * A simple {@link Profiler} implementation.
+ * A simple {@link ProfileDataRepository} implementation.
  * <p/>
  * Improvements needed:
  * <ol>
@@ -18,30 +21,23 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-public class SimpleProfiler implements Profiler {
+public class SimpleProfileDataRepository implements ProfileDataRepository {
 
     private final ConcurrentMap<ComposedKey, AtomicLong> map = new ConcurrentHashMap<ComposedKey, AtomicLong>();
 
     @Override
+    public void incCounter(String key) {
+        throw new TodoException();
+    }
+
+    @Override
+    public void incCounter(String key, int amount) {
+        throw new TodoException();
+    }
+
+    @Override
     public void reset() {
         map.clear();
-    }
-
-    @Override
-    public void print() {
-        System.out.print(getProfileInfo());
-    }
-
-    @Override
-    public String getProfileInfo() {
-        StringBuffer sb = new StringBuffer();
-        for (Map.Entry<ComposedKey, AtomicLong> entry : map.entrySet()) {
-            sb.append(entry.getKey());
-            sb.append("=");
-            sb.append(entry.getValue());
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 
     @Override
@@ -53,6 +49,11 @@ public class SimpleProfiler implements Profiler {
     public void incCounter(String key1, String key2, long count) {
         AtomicLong counter = getCounter(key1, key2);
         counter.incrementAndGet();
+    }
+
+    @Override
+    public Iterator<String> getKey1Iterator() {
+        throw new RuntimeException();
     }
 
     @Override

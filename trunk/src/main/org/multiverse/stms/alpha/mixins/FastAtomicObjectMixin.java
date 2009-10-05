@@ -109,6 +109,9 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
 
     @Override
     public final void releaseLock(Transaction expectedLockOwner) {
+        //todo: here is where contention could happen.. 
+        //idea for performance improvement based on 'the art of multiprocessor programming
+        //chapter 7.2 change to: TTAS (Test-Test-And-Swap) 
         lockOwnerUpdater.compareAndSet(this, expectedLockOwner, null);
     }
 

@@ -12,7 +12,7 @@ public class LoadTooOldVersionException extends LoadException {
 
     public final static LoadTooOldVersionException INSTANCE = new LoadTooOldVersionException();
 
-    private final static boolean reuse = parseBoolean(System.getProperty(LoadTooOldVersionException.class.getName(), "true"));
+    private final static boolean reuse = parseBoolean(System.getProperty("reuse." + LoadTooOldVersionException.class.getName(), "true"));
 
     public static LoadTooOldVersionException create() {
         if (reuse) {

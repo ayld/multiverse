@@ -1,15 +1,15 @@
 package org.multiverse.api.exceptions;
 
 /**
- * A {@link StmException} that indicates that a retry is done, without the possibility of
- * progress.
+ * An {@link IllegalStateException} that indicates that a retry is done, without the possibility of
+ * progress, for example when the readset is empty.
  * <p/>
  * No reason to create a singleton for performance reasons since this exception should not
  * occur. So if it does, we want a complete stacktrace.
  *
  * @author Peter Veentjer.
  */
-public class NoProgressPossibleException extends StmException {
+public class NoProgressPossibleException extends IllegalStateException {
 
     public NoProgressPossibleException() {
     }

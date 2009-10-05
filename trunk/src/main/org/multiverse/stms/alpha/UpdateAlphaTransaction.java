@@ -8,7 +8,7 @@ import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
 import static org.multiverse.utils.commitlock.CommitLockUtils.releaseLocks;
 import org.multiverse.utils.latches.CheapLatch;
 import org.multiverse.utils.latches.Latch;
-import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -29,14 +29,14 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
 
     private final static AlphaTranlocal[] EMPTY_WRITESET = new AlphaTranlocal[0];
 
-    private final Profiler profiler;
+    private final ProfileDataRepository profiler;
 
     //the attached set contains the Translocals loaded and attached.
     private final Map<AlphaAtomicObject, AlphaTranlocal> attached = new IdentityHashMap<AlphaAtomicObject, AlphaTranlocal>(2);
 
     private SnapshotStack snapshotStack;
 
-    public UpdateAlphaTransaction(String familyName, Profiler profiler, AtomicLong clock, CommitLockPolicy writeSetLockPolicy) {
+    public UpdateAlphaTransaction(String familyName, ProfileDataRepository profiler, AtomicLong clock, CommitLockPolicy writeSetLockPolicy) {
         super(familyName, clock, writeSetLockPolicy);
         this.profiler = profiler;
         init();
@@ -86,9 +86,11 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                     }
                 }
 
-                attached.put(tranlocal.getAtomicObject(), tranlocal);
+                AlphaAtomicObject atomicObject = tranlocal.getAtomicObject();
+                attached.put(atomicObject, tranlocal);
                 if (profiler != null) {
-                    profiler.incCounter("updatetransaction.attachAsNew", getFamilyName());
+                    profiler.incCounter("updatetransaction.attachAsNew.count", getFamilyName());
+                    profiler.incCounter("atomicobject.attachAsNew.count", atomicObject.getClass().getName());
                 }
                 break;
             case committed:
@@ -323,7 +325,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction implements Alpha
                 doAbort();
             }
         }
-
     }
 
     private void awaitInterestingWrite() {

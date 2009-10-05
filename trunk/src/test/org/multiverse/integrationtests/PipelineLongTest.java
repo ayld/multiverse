@@ -7,14 +7,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.Transaction;
+import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaStmConfig;
 import org.multiverse.stms.alpha.manualinstrumentation.IntQueue;
-import org.multiverse.templates.AtomicTemplate;
 import org.multiverse.utils.GlobalStmInstance;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -37,7 +36,7 @@ public class PipelineLongTest {
     private int produceCount = 5000;
     private int delayMs = 5;
     private AlphaStm stm;
-    private Profiler profiler;
+    private ProfileDataRepository profiler;
 
     @Before
     public void setUp() {
@@ -51,7 +50,7 @@ public class PipelineLongTest {
     @After
     public void tearDown() {
         if (profiler != null) {
-            profiler.print();
+            //profiler.print();
         }
     }
 
@@ -161,16 +160,10 @@ public class PipelineLongTest {
             }
         }
 
-        //@Atomic
+        @AtomicMethod
         public void moveOneItem() {
-            new AtomicTemplate() {
-                @Override
-                public Object execute(Transaction t) throws Exception {
-                    int item = from.pop();
-                    to.push(item);
-                    return null;  //todo
-                }
-            }.execute();
+            int item = from.pop();
+            to.push(item);
         }
     }
 }

@@ -32,7 +32,7 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
     @After
     public void tearDown() {
         if (stm.getProfiler() != null) {
-            stm.getProfiler().print();
+            //stm.getProfiler().print();
         }
     }
 

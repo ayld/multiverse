@@ -1,5 +1,7 @@
 package org.multiverse.utils.profiling;
 
+import java.util.Iterator;
+
 /**
  * A repository for profiling information.
  * <p/>
@@ -8,11 +10,17 @@ package org.multiverse.utils.profiling;
  *
  * @author Peter Veentjer.
  */
-public interface Profiler {
+public interface ProfileDataRepository {
+
+    void incCounter(String key);
+
+    void incCounter(String key, int amount);
 
     void incCounter(String key1, String key2);
 
     void incCounter(String key1, String key2, long count);
+
+    Iterator<String> getKey1Iterator();
 
     long getCount(String key1, String key2);
 
@@ -23,8 +31,4 @@ public interface Profiler {
     void decCounter(String key1, String key2);
 
     void reset();
-
-    String getProfileInfo();
-
-    void print();
 }

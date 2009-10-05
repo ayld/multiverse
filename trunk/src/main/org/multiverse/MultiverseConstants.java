@@ -28,15 +28,4 @@ public interface MultiverseConstants {
      */
     boolean SANITY_CHECKS_ENABLED =
             parseBoolean(System.getProperty("multiverse.sanitychecks.enabled", "true"));
-
-    /**
-     * A flag that activates profiling. Normally programming would be added by some form of
-     * javaagent. But we need to gather all kinds of stm related statistics like where writeconflicts
-     * keep happening, something custom needs to be made.
-     * <p/>
-     * The simplest approach is just to add the instrumentation logic using this flag, and if
-     * it is disabled, the jit is completely removing the profiling logic.
-     */
-    boolean PROFILING_ENABLED =
-            parseBoolean(System.getProperty("multiverse.profiling.enabled", "false"));
 }

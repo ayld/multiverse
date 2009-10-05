@@ -2,8 +2,8 @@ package org.multiverse.stms.alpha;
 
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
-import org.multiverse.utils.profiling.Profiler;
-import org.multiverse.utils.profiling.SimpleProfiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
+import org.multiverse.utils.profiling.SimpleProfileDataRepository;
 
 /**
  * An Object responsible for storing the configuration for an {@link AlphaStm}. So instead
@@ -39,7 +39,7 @@ public final class AlphaStmConfig {
         return config;
     }
 
-    public Profiler profiler = new SimpleProfiler();
+    public ProfileDataRepository profiler = new SimpleProfileDataRepository();
 
     public boolean loggingPossible = true;
 

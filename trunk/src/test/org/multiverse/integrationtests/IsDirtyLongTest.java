@@ -22,7 +22,7 @@ public class IsDirtyLongTest {
 
     @After
     public void tearDown() {
-        stm.getProfiler().print();
+        //    stm.getProfiler().print();
     }
 
     @Test

@@ -1,12 +1,12 @@
 package org.multiverse.api.exceptions;
 
 /**
- * A {@link StmException} that indicates that an action is executed on a transaction
+ * An {@link IllegalStateException} that indicates that an action is executed on a transaction
  * that is not active.
  *
  * @author Peter Veentjer.
  */
-public class DeadTransactionException extends StmException {
+public class DeadTransactionException extends IllegalStateException {
 
     public DeadTransactionException() {
     }

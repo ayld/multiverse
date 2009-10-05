@@ -3,6 +3,8 @@ package org.multiverse.api;
 /**
  * The main interface for software transactional memory. Updates/reads in the stm should
  * only be done through the {@link Transaction} interface. So see that for more details.
+ * <p/>
+ * Essentially the Stm is a transaction factory.
  *
  * @author Peter Veentjer.
  */

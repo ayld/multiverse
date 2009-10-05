@@ -10,7 +10,7 @@ public class FailedToObtainLocksException extends CommitFailureException {
 
     public final static FailedToObtainLocksException INSTANCE = new FailedToObtainLocksException();
 
-    private final static boolean reuse = Boolean.parseBoolean(System.getProperty(FailedToObtainLocksException.class.getName(), "true"));
+    private final static boolean reuse = Boolean.parseBoolean(System.getProperty("reuse." + FailedToObtainLocksException.class.getName(), "true"));
 
     public static FailedToObtainLocksException create() {
         if (reuse) {

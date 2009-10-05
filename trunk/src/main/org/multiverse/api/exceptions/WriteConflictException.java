@@ -14,7 +14,6 @@ public class WriteConflictException extends CommitFailureException {
 
     private final static boolean reuse = parseBoolean(System.getProperty(WriteConflictException.class.getName(), "true"));
 
-
     public static WriteConflictException create() {
         if (reuse) {
             return WriteConflictException.INSTANCE;

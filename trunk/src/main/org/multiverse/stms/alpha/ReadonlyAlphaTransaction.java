@@ -4,7 +4,7 @@ import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.AbstractTransaction;
-import org.multiverse.utils.profiling.Profiler;
+import org.multiverse.utils.profiling.ProfileDataRepository;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -16,9 +16,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Peter Veentjer.
  */
 public class ReadonlyAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
-    private final Profiler profiler;
+    private final ProfileDataRepository profiler;
 
-    public ReadonlyAlphaTransaction(String familyName, Profiler profiler, AtomicLong clock) {
+    public ReadonlyAlphaTransaction(String familyName, ProfileDataRepository profiler, AtomicLong clock) {
         super(familyName, clock, null);
         this.profiler = profiler;
 

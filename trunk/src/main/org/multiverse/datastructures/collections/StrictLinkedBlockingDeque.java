@@ -8,7 +8,8 @@ import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 /**
- * A {@link BlockingDeque} implementation that used STM as concurrency control mechanism.
+ * A {@link BlockingDeque} and {@link List} implementation that used STM as concurrency
+ * control mechanism.
  *
  * @param <E>
  */
@@ -160,20 +161,7 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> imple
             throw new IndexOutOfBoundsException();
         }
 
-        Node<E> node;
-        if (index < size / 2) {
-            node = head;
-            for (int k = 0; k < index; k++) {
-                node = node.next;
-            }
-        } else {
-            node = tail;
-            for (int k = size - 1; k > index; k--) {
-                node = node.prev;
-            }
-        }
-
-        return node.value;
+        return getNode(index).value;
     }
 
     @Override
@@ -195,7 +183,28 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> imple
 
     @Override
     public E remove(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+
         throw new TodoException();
+    }
+
+    private Node<E> getNode(int index) {
+        Node<E> node;
+        if (index < size / 2) {
+            node = head;
+            for (int k = 0; k < index; k++) {
+                node = node.next;
+            }
+        } else {
+            node = tail;
+            for (int k = size - 1; k > index; k--) {
+                node = node.prev;
+            }
+        }
+
+        return node;
     }
 
     @Override
@@ -238,11 +247,15 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> imple
 
     @Override
     public ListIterator<E> listIterator() {
-        throw new TodoException();
+        return listIterator(0);
     }
 
     @Override
     public ListIterator<E> listIterator(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+
         throw new TodoException();
     }
 
