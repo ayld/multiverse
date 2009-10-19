@@ -17,7 +17,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-     <build>
+    <build>
         <plugins>
             <!-- plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
@@ -28,14 +28,14 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-javaagent:${project.build.outputDirectory}/../alphaagent.jar</argLine>
+                    <argLine>-javaagent:${project.build.directory}/${multiverse.agentname}.jar</argLine>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>failsafe-maven-plugin</artifactId>
                 <configuration>
-                    <argLine>-javaagent:${project.build.outputDirectory}/../alphaagent.jar</argLine>
+                    <argLine>-javaagent:${project.build.directory}/${multiverse.agentname}.jar</argLine>
                 </configuration>
             </plugin>
 
@@ -51,7 +51,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>alphaagent</finalName>
+                            <finalName>${multiverse.agentname}</finalName>
                             <attach>false</attach>
                             <descriptors>
                                 <descriptor>src/main/assembly/test-assembly.xml</descriptor>
@@ -95,6 +95,10 @@
         </plugins>
     </build>
 
+    <properties>
+      <multiverse.agentname>alphaagent</multiverse.agentname>
+    </properties>
+    
     <dependencies>
         <!-- Multiverse dependencies -->
         <dependency>
