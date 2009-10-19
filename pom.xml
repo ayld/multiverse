@@ -40,6 +40,15 @@
                 <role>Despot</role>
             </roles>
         </developer>
+        <developer>
+            <id>aphillips</id>
+            <name>Andrew Phillips</name>
+            <timezone>+1</timezone>
+            <email>aphillips AT qrmedia DOTCOM</email>
+            <roles>
+                <role>Apprentice</role>
+            </roles>
+        </developer>            
     </developers>
 
     <repositories>
