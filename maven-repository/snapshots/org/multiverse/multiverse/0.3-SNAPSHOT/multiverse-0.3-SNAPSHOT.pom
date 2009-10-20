@@ -185,6 +185,10 @@
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-scm</artifactId>
             </extension>
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-manager-plexus</artifactId>
+            </extension>
             <!-- using the latest version (1.2) with the wagon plugin causes a linkage error -->
             <extension>
                 <groupId>org.apache.maven.scm</groupId>
