@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.testIncomplete;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.datastructures.refs.IntRef;
@@ -19,7 +19,7 @@ public class LargeNonParallelWriteonlyTransactionsLongTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
     }
 

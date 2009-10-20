@@ -1,6 +1,7 @@
 package org.multiverse.api.exceptions;
 
 import static java.lang.Boolean.parseBoolean;
+import static java.lang.System.getProperty;
 
 /**
  * An Error dat indicates that a retry should be done.
@@ -14,7 +15,7 @@ import static java.lang.Boolean.parseBoolean;
  */
 public class RetryError extends Error {
 
-    private final static boolean reuse = parseBoolean(System.getProperty("reuse" + RetryError.class.getName(), "true"));
+    private final static boolean reuse = parseBoolean(getProperty(RetryError.class.getName()+".reuse", "true"));
 
     public final static RetryError INSTANCE = new RetryError();
 

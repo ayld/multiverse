@@ -3,10 +3,11 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
+import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
 
 /**
  * @author Peter Veentjer
@@ -18,11 +19,22 @@ public class AtomicObject_NonStaticInnerClassTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
     }
 
     @Test
-    public void nonStaticAtomicObject() {
+    public void nonStaticStructure(){
+        assertFalse(existsField(NonStaticAtomicObject.class,"value"));
+
+        assertTrue(existsTranlocalClass(NonStaticAtomicObject.class));
+        assertTrue(existsTranlocalField(NonStaticAtomicObject.class,"value"));
+
+        assertTrue(existsTranlocalSnapshotClass(NonStaticAtomicObject.class));
+        assertTrue(existsTranlocalSnapshotField(NonStaticAtomicObject.class,"value"));
+    }
+
+    @Test
+    public void nonStaticAtomicObjectUsage() {
         long version = stm.getClockVersion();
 
         NonStaticAtomicObject innerClass = new NonStaticAtomicObject(10);

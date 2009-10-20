@@ -6,7 +6,8 @@
     <artifactId>multiverse-alpha</artifactId>
     <name>Alpha Multiverse STM engine</name>
     <description>
-        Contains the main Multiverse STM Implementation: the Alpha Engine.
+        Contains the main Multiverse STM Implementation: the Alpha Engine. The Alpha engine supports
+        readonly and update transactions. It also supports the retry/or else mechanism. 
     </description>
     <packaging>jar</packaging>
 
@@ -25,6 +26,20 @@
                 <version>0.0.4</version>
             </plugin -->
             <!-- fixes the surefire plugin so that the javaagent is set -->
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>

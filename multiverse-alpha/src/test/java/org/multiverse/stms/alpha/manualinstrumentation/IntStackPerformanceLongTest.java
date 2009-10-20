@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
@@ -26,7 +26,7 @@ public class IntStackPerformanceLongTest {
         AlphaStmConfig config = createDebugConfig();
         profiler = config.profiler;
         stm = new AlphaStm(config);
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 

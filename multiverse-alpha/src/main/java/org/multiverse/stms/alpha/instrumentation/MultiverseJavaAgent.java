@@ -14,11 +14,13 @@ import org.multiverse.stms.alpha.instrumentation.asm.TranlocalFactory;
 import org.multiverse.stms.alpha.instrumentation.asm.TranlocalSnapshotFactory;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.utils.instrumentation.ClassUtils;
+import static org.multiverse.utils.instrumentation.ClassUtils.defineClass;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
 import static java.lang.Boolean.parseBoolean;
+import static java.lang.System.getProperty;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -32,7 +34,7 @@ import java.security.ProtectionDomain;
 public class MultiverseJavaAgent {
 
     public final static boolean DUMP_BYTECODE = parseBoolean(
-            System.getProperty(MultiverseJavaAgent.class.getName()+".dumpbytecode","false"));
+            getProperty(MultiverseJavaAgent.class.getName()+".dumpBytecode","false"));
 
     public static void premain(String agentArgs, Instrumentation inst) throws UnmodifiableClassException {
         printInfo();
@@ -114,7 +116,7 @@ public class MultiverseJavaAgent {
             ClassNode transformed = transformer.transform();
             byte[] transformedBytecode = toBytecode(transformed);
             if (DUMP_BYTECODE) {
-                AsmUtils.writeToFileInTmpDirectory(transformed.name + "_FixedFields.class", transformedBytecode);
+                writeToFileInTmpDirectory(transformed.name + "_FixedFields.class", transformedBytecode);
             }
             return transformedBytecode;
         }
@@ -137,7 +139,7 @@ public class MultiverseJavaAgent {
                 ClassNode result = transformer.transform();
                 byte[] resultCode = toBytecode(result);
                 if (DUMP_BYTECODE) {
-                    AsmUtils.writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
+                    writeToFileInTmpDirectory(result.name + "__AtomicObject.class", resultCode);
                 }
                 return resultCode;
             }
@@ -162,9 +164,9 @@ public class MultiverseJavaAgent {
                 ClassNode result = factory.create();
                 byte[] resultBytecode = toBytecode(result);
                 if (DUMP_BYTECODE) {
-                    AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+                    writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 }
-                ClassUtils.defineClass(loader, result.name, resultBytecode);
+                defineClass(loader, result.name, resultBytecode);
             }
 
             return null;
@@ -188,9 +190,9 @@ public class MultiverseJavaAgent {
 
                 byte[] resultBytecode = toBytecode(result);
                 if (DUMP_BYTECODE) {
-                    AsmUtils.writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
+                    writeToFileInTmpDirectory(result.name + ".class", resultBytecode);
                 }
-                ClassUtils.defineClass(loader, result.name, resultBytecode);
+                defineClass(loader, result.name, resultBytecode);
             }
 
             return null;
@@ -214,15 +216,15 @@ public class MultiverseJavaAgent {
                 byte[] resultBytecode = toBytecode(result);
 
                 if (DUMP_BYTECODE) {
-                    AsmUtils.writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
+                    writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
                 }
 
                 for (ClassNode innerClass : transformer.getInnerClasses()) {
                     byte[] templateBytecode = toBytecode(innerClass);
                     if (DUMP_BYTECODE) {
-                        AsmUtils.writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
+                        writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
                     }
-                    ClassUtils.defineClass(loader, innerClass.name, templateBytecode);
+                    defineClass(loader, innerClass.name, templateBytecode);
                 }
 
                 return resultBytecode;

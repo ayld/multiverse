@@ -1,6 +1,6 @@
 package org.multiverse.templates;
 
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
@@ -58,11 +58,11 @@ public abstract class AtomicTemplate<E> {
      * works the the {@link org.multiverse.utils.TransactionThreadLocal}.
      */
     public AtomicTemplate() {
-        this(GlobalStmInstance.get());
+        this(getGlobalStmInstance());
     }
 
     public AtomicTemplate(boolean readonly) {
-        this(GlobalStmInstance.get(), null, false, readonly, Integer.MAX_VALUE);
+        this(getGlobalStmInstance(), null, false, readonly, Integer.MAX_VALUE);
     }
 
     /**
@@ -77,7 +77,7 @@ public abstract class AtomicTemplate<E> {
     }
 
     public AtomicTemplate(String familyName, boolean readonly, int retryCount) {
-        this(GlobalStmInstance.get(), familyName, false, readonly, retryCount);
+        this(getGlobalStmInstance(), familyName, false, readonly, retryCount);
     }
 
     /**

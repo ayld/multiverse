@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -18,7 +18,7 @@ public class AbaRefTest {
     public void setUp() {
         stm = new AlphaStm();
         setThreadLocalTransaction(null);
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
     }
 
     public Transaction startTransaction() {

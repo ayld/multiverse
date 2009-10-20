@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.TestUtils.assertIsCommitted;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.api.exceptions.DeadTransactionException;
@@ -26,7 +26,7 @@ public class UpdateAlphaTransaction_commitTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 

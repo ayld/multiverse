@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsAborted;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -20,7 +20,7 @@ public class UpdateAlphaTransaction_abortTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 

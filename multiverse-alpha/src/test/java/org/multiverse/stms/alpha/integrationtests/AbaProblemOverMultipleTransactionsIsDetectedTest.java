@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.integrationtests;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.exceptions.WriteConflictException;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
@@ -24,7 +24,7 @@ public class AbaProblemOverMultipleTransactionsIsDetectedTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
         ref = new IntRef(A);
     }

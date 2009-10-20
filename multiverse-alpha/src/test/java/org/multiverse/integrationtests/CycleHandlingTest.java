@@ -6,7 +6,7 @@ import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.testIncomplete;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
@@ -31,7 +31,7 @@ public class CycleHandlingTest {
     @Before
     public void setUp() {
         setThreadLocalTransaction(null);
-        stm = GlobalStmInstance.get();
+        stm = getGlobalStmInstance();
     }
 
     public Transaction startUpdateTransaction() {
@@ -170,7 +170,7 @@ public class CycleHandlingTest {
         // The workList contains all generated ComplexNodes that have no child nodes yet
         // and are waiting for processing.
         LinkedList<ComplexNode> workList = new LinkedList<ComplexNode>();
-        // The backreferences contains the list of ComplexNodes that can get referenced by
+        // The backreferences contains the list of ComplexNodes that can getGlobalStmInstance referenced by
         // a ComplexNode that is processed.
         LinkedList<ComplexNode> backreferences = new LinkedList<ComplexNode>();
 
@@ -208,7 +208,7 @@ public class CycleHandlingTest {
         }
 
         // After the loop, it could be that the workList is not empty and still many ComplexNodes would
-        // like to get processed. We can safely ignore these nodes, as their children are initialized to null
+        // like to getGlobalStmInstance processed. We can safely ignore these nodes, as their children are initialized to null
         // (terminator node) by default.
         // Another option is that the workList is empty, but not enough nodes are generated. This could happen
         // if the null probability is set high and a lot of terminators are generated. In that case, we choose to

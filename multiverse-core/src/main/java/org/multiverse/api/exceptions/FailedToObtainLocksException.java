@@ -1,5 +1,8 @@
 package org.multiverse.api.exceptions;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.System.getProperty;
+
 /**
  * A {@link CommitFailureException} that indicates that
  * the locks could not be acquired while doing a {@link org.multiverse.api.Transaction#commit}.
@@ -10,7 +13,7 @@ public class FailedToObtainLocksException extends CommitFailureException {
 
     public final static FailedToObtainLocksException INSTANCE = new FailedToObtainLocksException();
 
-    private final static boolean reuse = Boolean.parseBoolean(System.getProperty("reuse." + FailedToObtainLocksException.class.getName(), "true"));
+    private final static boolean reuse = parseBoolean(getProperty(FailedToObtainLocksException.class.getName()+".reuse", "true"));
 
     public static FailedToObtainLocksException create() {
         if (reuse) {

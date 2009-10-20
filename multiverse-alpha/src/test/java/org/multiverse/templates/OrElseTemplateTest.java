@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsAborted;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
@@ -20,8 +20,7 @@ public class OrElseTemplateTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
-        GlobalStmInstance.set(stm);
+        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
     }
 

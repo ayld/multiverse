@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  */
 public final class GlobalStmInstance {
 
-    private static final String KEY = GlobalStmInstance.class.getName() + ".factorymethod";
+    private static final String KEY = GlobalStmInstance.class.getName() + ".factoryMethod";
 
     private static final String DEFAULT_FACTORY_METHOD = "org.multiverse.stms.alpha.AlphaStm.createDebug";
 
@@ -31,7 +31,7 @@ public final class GlobalStmInstance {
 
     static {
         String factoryMethod = System.getProperty(KEY, DEFAULT_FACTORY_METHOD);
-        logger.info(format("Initializing GlobalStmInstance using factorymethod '%s'.", factoryMethod));
+        logger.info(format("Initializing GlobalStmInstance using factoryMethod '%s'.", factoryMethod));
         try {
             Method method = getMethod(factoryMethod);
             instance = (Stm) method.invoke(null);
@@ -73,7 +73,7 @@ public final class GlobalStmInstance {
             clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
         } catch (ClassNotFoundException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
-                    "'%s' is not an existing class (it can't be found through the Thread.currentThread.getContextClassLoader).",
+                    "'%s' is not an existing class (it can't be found using the Thread.currentThread.getContextClassLoader).",
                     KEY, className, factoryMethod);
             logger.info(msg);
             throw new IllegalArgumentException(msg, e);
@@ -107,7 +107,7 @@ public final class GlobalStmInstance {
      *
      * @return the global STM instance.
      */
-    public static Stm get() {
+    public static Stm getGlobalStmInstance() {
         return instance;
     }
 
@@ -117,7 +117,7 @@ public final class GlobalStmInstance {
      * @param newInstance the instance to set.
      * @throws NullPointerException if newInstance is null. No need to allow for an illegal reference.
      */
-    public static void set(Stm newInstance) {
+    public static void setGlobalStmInstance(Stm newInstance) {
         if (newInstance == null) {
             throw new NullPointerException();
         }

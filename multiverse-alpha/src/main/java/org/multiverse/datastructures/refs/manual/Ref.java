@@ -1,6 +1,7 @@
 package org.multiverse.datastructures.refs.manual;
 
 import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
@@ -38,7 +39,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
      * @see #createCommittedRef(org.multiverse.api.Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef() {
-        return createCommittedRef(GlobalStmInstance.get(), null);
+        return createCommittedRef(getGlobalStmInstance(), null);
     }
 
     /**
@@ -61,7 +62,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
      * @see #createCommittedRef(org.multiverse.api.Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef(E value) {
-        return createCommittedRef(GlobalStmInstance.get(), value);
+        return createCommittedRef(getGlobalStmInstance(), value);
     }
 
     /**

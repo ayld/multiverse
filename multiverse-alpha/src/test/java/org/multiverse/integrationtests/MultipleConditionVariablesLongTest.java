@@ -7,12 +7,12 @@ import org.multiverse.TestThread;
 import org.multiverse.TestUtils;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.TransactionThreadLocal.clearThreadLocalTransaction;
 
 /**
  * The goal of this test is to see if the system is able to deal with multiple objects
@@ -33,8 +33,8 @@ public class MultipleConditionVariablesLongTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
-        setThreadLocalTransaction(null);
+        stm = getGlobalStmInstance();
+        clearThreadLocalTransaction();
 
         values = new IntRef[objectCount];
         for (int k = 0; k < objectCount; k++) {

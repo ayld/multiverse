@@ -4,12 +4,10 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.testIncomplete;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.api.annotations.Exclude;
-import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.existsTranlocalSnapshotClass;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.existsTranlocalSnapshotField;
@@ -17,9 +15,8 @@ import org.multiverse.templates.AtomicTemplate;
 import org.multiverse.templates.OrElseTemplate;
 
 /**
- * Integration test for TranlocalSnapshot functionality. This behavior
- * is needed for e.g. the orelse mechanism so that state on objects can be restored
- * after a rollback within a transaction is done.
+ * Integration test for TranlocalSnapshot functionality. This behavior is needed for e.g. the orelse mechanism so that
+ * state on objects can be restored after a rollback within a transaction is done.
  *
  * @author Peter Veentjer
  */
@@ -30,7 +27,7 @@ public class TranlocalSnapshotTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
     }
 
 
@@ -68,6 +65,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class intObject {
+
         int value;
 
         intObject(int value) {
@@ -113,6 +111,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class booleanObject {
+
         boolean value;
 
         booleanObject(boolean value) {
@@ -157,6 +156,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class shortObject {
+
         short value;
 
         shortObject(short value) {
@@ -201,6 +201,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class charObject {
+
         char value;
 
         charObject(char value) {
@@ -245,6 +246,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class longObject {
+
         long value;
 
         longObject(long value) {
@@ -289,6 +291,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class doubleObject {
+
         double value;
 
         doubleObject(double value) {
@@ -334,6 +337,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class floatObject {
+
         float value;
 
         floatObject(float value) {
@@ -378,6 +382,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class arrayObject {
+
         int[] value;
 
         arrayObject(int[] value) {
@@ -422,6 +427,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class StringObject {
+
         String value;
 
         StringObject(String value) {
@@ -439,8 +445,7 @@ public class TranlocalSnapshotTest {
 
     @Test
     public void AtomicObjectField() {
-       testIncomplete();
-        /*final IntValue oldValue = "foo";
+        final String oldValue = "foo";
         final String newValue = "bar";
         final AtomicObjectFieldObject i = new AtomicObjectFieldObject(oldValue);
 
@@ -462,22 +467,23 @@ public class TranlocalSnapshotTest {
                 }.execute();
                 return null;
             }
-        }.execute();*/
+        }.execute();
     }
 
     @AtomicObject
     private static class AtomicObjectFieldObject {
-        IntRef value;
 
-        AtomicObjectFieldObject(IntRef value) {
+        Object value;
+
+        AtomicObjectFieldObject(Object value) {
             this.value = value;
         }
 
-        public IntRef getValue() {
+        public Object getValue() {
             return value;
         }
 
-        public void setValue(IntRef value) {
+        public void setValue(Object value) {
             this.value = value;
         }
     }
@@ -518,6 +524,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     private static class MultipleFieldsObject {
+
         int value1;
         int value2;
         int value3;
@@ -584,6 +591,7 @@ public class TranlocalSnapshotTest {
 
     @AtomicObject
     static class PrivateField {
+
         private int value;
 
         PrivateField(int value) {
@@ -627,6 +635,7 @@ public class TranlocalSnapshotTest {
     }
 
     class PublicField {
+
         public int value;
 
         PublicField(int value) {
@@ -670,6 +679,7 @@ public class TranlocalSnapshotTest {
     }
 
     class ProtectedField {
+
         protected int value;
 
         ProtectedField(int value) {
@@ -713,6 +723,7 @@ public class TranlocalSnapshotTest {
     }
 
     class PackageFriendlyField {
+
         int value;
 
         PackageFriendlyField(int value) {
@@ -758,6 +769,7 @@ public class TranlocalSnapshotTest {
     }
 
     class GenericField<E> {
+
         E value;
 
         GenericField(E value) {
@@ -774,25 +786,47 @@ public class TranlocalSnapshotTest {
     }
 
     @Test
-    public void testFinalField(){
-        testIncomplete();
-    }
-
-    //@Test
-    public void testExcludedField(){
-        assertTrue(existsTranlocalSnapshotClass(WithExcludedField.class));
-        assertTrue(existsTranlocalSnapshotField(WithExcludedField.class,"included"));
-        assertFalse(existsTranlocalSnapshotField(WithExcludedField.class,"excluded"));
+    public void testFinalField() {
+        assertTrue(existsTranlocalSnapshotClass(WithFinalField.class));
+        assertTrue(existsTranlocalSnapshotField(WithFinalField.class, "included"));
+        assertFalse(existsTranlocalSnapshotField(WithFinalField.class, "excluded"));
     }
 
     @AtomicObject
-    static class WithExcludedField{
+    static class WithFinalField {
+
+        int included;
+
+        final int excluded = 0;
+    }
+
+
+    @Test
+    public void testExcludedField() {
+        assertTrue(existsTranlocalSnapshotClass(WithExcludedField.class));
+        assertTrue(existsTranlocalSnapshotField(WithExcludedField.class, "included"));
+        assertFalse(existsTranlocalSnapshotField(WithExcludedField.class, "excluded"));
+    }
+
+    @AtomicObject
+    static class WithExcludedField {
+
         int included;
 
         @Exclude
         int excluded;
     }
 
-    //excluded fields test
+    @Test
+    public void testMultipleFields() {
+        assertTrue(existsTranlocalSnapshotClass(TestMultipleFields.class));
+        assertTrue(existsTranlocalSnapshotField(TestMultipleFields.class, "field1"));
+        assertTrue(existsTranlocalSnapshotField(TestMultipleFields.class, "field2"));
+        assertTrue(existsTranlocalSnapshotField(TestMultipleFields.class, "field3"));
+    }
 
+    @AtomicObject
+    static class TestMultipleFields {
+        int field1, field2, field3;
+    }
 }
