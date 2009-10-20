@@ -52,11 +52,11 @@
     </developers>
 
     <repositories>
-        <!-- repository>
+        <repository>
             <id>maven.atlassian.com</id>
             <name>Attlassian Repository</name>
             <url>http://repository.atlassian.com/maven2/</url>
-        </repository   -->
+        </repository>
         <repository>
             <id>repo1.maven</id>
             <name>Maven Main Repository</name>
@@ -179,6 +179,19 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-scm</artifactId>
+            </extension>
+            <!-- using the latest version (1.2) with the wagon plugin causes a linkage error -->
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-provider-svnexe</artifactId>
+                <version>1.1</version>
+            </extension>
+        </extensions>
     </build>
 
     <dependencies>
@@ -196,12 +209,11 @@
         </dependency>
     </dependencies>
 
-    <!-- scm>
-     <connection>scm:git:git://github.com/jboner/akka.git</connection>
-     <developerConnection>scm:git:git@github.com:jboner/akka.git</developerConnection>
-     <url>http://github.com/jboner/akka</url>
-   </scm -->
-
+    <scm>
+        <connection>scm:svn:https://multiverse.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://multiverse.googlecode.com/svn/trunk</developerConnection>
+        <url>http://code.google.com/p/multiverse/source/browse/trunk</url>
+    </scm>
 
     <reporting>
         <plugins>
@@ -278,6 +290,16 @@
     </reporting>
 
     <distributionManagement>
+        <repository>
+            <id>multiverse-releases</id>
+            <url>scm:svn:https://multiverse.googlecode.com/svn/maven-repository/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>multiverse-snapshots</id>
+            <url>scm:svn:https://multiverse.googlecode.com/svn/maven-repository/snapshots</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <downloadUrl>http://code.google.com/p/multiverse/downloads</downloadUrl>
     </distributionManagement>
 
     <!-- profiles>
