@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.multiverse</groupId>
+  <artifactId>multiverse-core</artifactId>
+  <version>0.3-SNAPSHOT</version>
+  <versioning>
+    <versions>
+      <version>0.3-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20091020183936</lastUpdated>
+  </versioning>
+</metadata>
