@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.testIncomplete;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadLockedException;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
@@ -22,7 +22,7 @@ public class FastAtomicObjectMixinTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
     }
 
     // ================ storeAndReleaseLock ========================

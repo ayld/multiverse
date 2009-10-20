@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.integrationtests;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.Ref;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
@@ -21,7 +21,7 @@ public class LoadTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         intRef = new Ref<Integer>(0);
         setThreadLocalTransaction(null);
     }

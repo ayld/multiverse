@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
@@ -18,7 +18,7 @@ public class IntRefTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 

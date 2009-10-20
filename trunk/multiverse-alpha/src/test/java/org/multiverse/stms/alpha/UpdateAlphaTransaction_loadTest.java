@@ -6,13 +6,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.api.exceptions.LoadLockedException;
+import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import org.multiverse.utils.clock.Clock;
 
 /**
  * @author Peter Veentjer
@@ -20,11 +23,14 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 public class UpdateAlphaTransaction_loadTest {
 
     private AlphaStm stm;
+    private Clock clock;
 
     @Before
     public void setUp() {
-        stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        AlphaStmConfig config = new AlphaStmConfig();
+        clock = config.clock;
+        stm = new AlphaStm(config);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 
@@ -40,14 +46,54 @@ public class UpdateAlphaTransaction_loadTest {
     }
 
     @Test
-    public void loadFailsIfLocked() {
-        IntRef value = new IntRef(0);
+    public void loadSucceedsIfLockedButVersionIsStillExactMatch() {
+        IntRef ref = new IntRef(0);
         Transaction owner = new DummyTransaction();
-        value.tryLock(owner);
+        ref.tryLock(owner);
 
         AlphaTransaction t = startUpdateTransaction();
-        IntRefTranlocal read = (IntRefTranlocal) t.load(value);
-        testIncomplete();
+        IntRefTranlocal read = (IntRefTranlocal) t.load(ref);
+        assertSame(0, read.value);
+        assertIsActive(t);
+    }
+
+    @Test
+    public void loadFailsIfVersionIsTooNew() {
+        IntRef ref = new IntRef(0);
+
+        AlphaTransaction t1 = stm.startUpdateTransaction("");
+
+        AlphaTransaction t2 = stm.startUpdateTransaction("");
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t2.load(ref);
+        tranlocal.value++;
+        t2.commit();
+
+        try {
+            t1.load(ref);
+            fail();
+        } catch (LoadTooOldVersionException ex) {
+        }
+
+        assertIsActive(t1);
+    }
+
+    @Test
+    public void loadFailsIfLocked() {
+        IntRef ref = new IntRef(0);
+
+        clock.tick();
+
+        Transaction owner = new DummyTransaction();
+        ref.tryLock(owner);
+
+        AlphaTransaction t = stm.startUpdateTransaction("");
+        try {
+            t.load(ref);
+            fail();
+        } catch (LoadLockedException ex) {
+        }
+
+        assertIsActive(t);
     }
 
     @Test

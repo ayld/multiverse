@@ -1,6 +1,7 @@
 package org.multiverse.api.exceptions;
 
 import static java.lang.Boolean.parseBoolean;
+import static java.lang.System.getProperty;
 
 /**
  * A {@link LoadException} that indicates that a load was done, but the version needed could not
@@ -15,7 +16,7 @@ public class LoadTooOldVersionException extends LoadException {
 
     public final static LoadTooOldVersionException INSTANCE = new LoadTooOldVersionException();
 
-    private final static boolean reuse = parseBoolean(System.getProperty("reuse." + LoadTooOldVersionException.class.getName(), "true"));
+    private final static boolean reuse = parseBoolean(getProperty(LoadTooOldVersionException.class.getName()+".reuse", "true"));
 
     public static LoadTooOldVersionException create() {
         if (reuse) {

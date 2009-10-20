@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaStmConfig;
@@ -44,7 +44,7 @@ public class PipelineLongTest {
         profiler = config.profiler;
         stm = new AlphaStm(config);
         setThreadLocalTransaction(null);
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
     }
 
     @After

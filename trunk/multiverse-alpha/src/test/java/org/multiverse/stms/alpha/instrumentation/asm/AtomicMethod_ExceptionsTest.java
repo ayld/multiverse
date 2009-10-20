@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
@@ -17,7 +17,7 @@ public class AtomicMethod_ExceptionsTest {
     @Before
     public void setUp() {
         stm = AlphaStm.createDebug();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
     }
 
     @Test

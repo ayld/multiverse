@@ -4,7 +4,7 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
@@ -16,7 +16,7 @@ public class RefTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
     }
 

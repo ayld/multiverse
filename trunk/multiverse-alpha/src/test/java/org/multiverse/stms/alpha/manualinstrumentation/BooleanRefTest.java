@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
@@ -19,7 +19,7 @@ public class BooleanRefTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 

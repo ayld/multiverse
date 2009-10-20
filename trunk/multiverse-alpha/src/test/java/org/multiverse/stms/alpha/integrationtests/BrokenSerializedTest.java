@@ -4,7 +4,7 @@ import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStack;
@@ -33,7 +33,7 @@ public class BrokenSerializedTest {
     @Before
     public void setUp() {
         stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
         stack1 = new IntStack();
         stack2 = new IntStack();

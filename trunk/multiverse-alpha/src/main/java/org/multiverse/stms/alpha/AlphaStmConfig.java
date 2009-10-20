@@ -60,5 +60,9 @@ public final class AlphaStmConfig {
         if (commitLockPolicy == null) {
             throw new IllegalStateException("commitLockPolicy can't be null");
         }
+
+        if(clock == null){
+            throw new IllegalStateException("clock can't be null");
+        }
     }
 }

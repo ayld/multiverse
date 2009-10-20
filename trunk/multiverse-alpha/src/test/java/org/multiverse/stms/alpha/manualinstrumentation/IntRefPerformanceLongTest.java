@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.AlphaStmConfig.createFastConfig;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
@@ -18,7 +18,7 @@ public class IntRefPerformanceLongTest {
     @Before
     public void setUp() {
         stm = new AlphaStm(createFastConfig());
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 

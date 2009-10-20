@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
@@ -35,7 +35,7 @@ public class IsolatedBehaviorLongTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
         intValue = new IntRef(0);
     }

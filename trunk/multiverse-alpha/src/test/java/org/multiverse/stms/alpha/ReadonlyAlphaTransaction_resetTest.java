@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
@@ -19,7 +19,7 @@ public class ReadonlyAlphaTransaction_resetTest {
     @Before
     public void setUp() {
         stm = AlphaStm.createDebug();
-        GlobalStmInstance.set(stm);
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 

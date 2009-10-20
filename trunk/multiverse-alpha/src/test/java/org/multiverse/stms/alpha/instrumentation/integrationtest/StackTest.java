@@ -4,7 +4,7 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
@@ -24,8 +24,8 @@ public class StackTest {
 
     @Before
     public void setUp() {
-        stm = new AlphaStm();
-        GlobalStmInstance.set(stm);
+        stm = AlphaStm.createDebug();
+        setGlobalStmInstance(stm);
     }
 
     @After

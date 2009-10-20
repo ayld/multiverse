@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.testIncomplete;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
@@ -23,7 +23,7 @@ public class StrictLinkedBlockingDequeTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
     }
 

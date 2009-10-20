@@ -17,6 +17,7 @@
 
     <build>
          <plugins>
+            <!-- creates a jar containing the test-code so that this can be reused --> 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

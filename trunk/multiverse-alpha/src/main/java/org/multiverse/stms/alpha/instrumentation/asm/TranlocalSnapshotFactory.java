@@ -87,6 +87,9 @@ public class TranlocalSnapshotFactory implements Opcodes {
                 new String[]{});
 
         m.visitVarInsn(ALOAD, 0);
+        m.visitMethodInsn(INVOKESPECIAL, getInternalName(AlphaTranlocalSnapshot.class),"<init>","()V");
+
+        m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
         m.visitFieldInsn(PUTFIELD, tranlocalSnapshotName, "tranlocal", internalFormToDescriptor(tranlocalName));
 
@@ -128,10 +131,18 @@ public class TranlocalSnapshotFactory implements Opcodes {
                 new String[]{});
 
         for (FieldNode managedField : metadataService.getManagedInstanceFields(original)) {
+            //[..
             m.visitVarInsn(ALOAD, 0);
+            //[this, ..
+            m.visitFieldInsn(GETFIELD, tranlocalSnapshotName, "tranlocal", internalFormToDescriptor(tranlocalName));
+
+            //[tranlocal
             m.visitVarInsn(ALOAD, 0);
-            m.visitFieldInsn(GETFIELD, tranlocalName, managedField.name, managedField.desc);
-            m.visitFieldInsn(PUTFIELD, tranlocalSnapshotName, managedField.name, managedField.desc);
+            //[this, tranlocal, ...
+            m.visitFieldInsn(GETFIELD, tranlocalSnapshotName, managedField.name, managedField.desc);
+            //[value, tranlocal, ..
+            m.visitFieldInsn(PUTFIELD, tranlocalName, managedField.name, managedField.desc);
+            //[..
         }
 
         m.visitInsn(RETURN);

@@ -1,25 +1,28 @@
-#a flag that is used to enable sanity checks.
-sanitychecks.enabled default=true
+# This file contains all System properties for multiverse. The properties can be set on the
+# commandline using -Dfoo=bar
+
+# a flag that is used to enable sanity checks.
+org.multiverse.MuliverseConstants.sanityChecks=boolean default=true
+
+# a flag that enables to dump of bytecode of the instrumented classes to the tmp directory
+# This is very interesting feature for debugging of the instrumentation
+org.multiverse.stms.alpha.instrumentation.MultiverseJavaAgent.dumpBytecode=boolean default=false
+
+# a string containing the full path to a static no-arg factory method that is used to create the global stm.
+org.multiverse.api.GlobalStmInstance.factorymethod=string  default = org.multiverse.stms.alpha.AlphaStm.createDebug
 
 # a flag that enables the reuse of the FailedToObtainLocksException exception instance
-reuse.org.multiverse.api.exceptions.FailedToObtainLocksException default = true
+org.multiverse.api.exceptions.FailedToObtainLocksException.reuse=boolean default = true
 
 # a flag that enables the reuse of the LoadLockedException exception instance
-reuse.org.multiverse.api.exceptions.LoadLockedException default = true
+org.multiverse.api.exceptions.LoadLockedException.reuse=boolean default = true
+
+# a flag that enables the reuse of the LoadLockedException exception instance
+org.multiverse.api.exceptions.LoadTooOldVersionException.reuse=boolean default = true
 
 # a flag that enables the reuse of the RetryError exception instance
-reuse.org.multiverse.api.exceptions.RetryError default = true
-
-# a flag that enables the reuse of the LoadTooOldVersionException exception instance
-reuse.org.multiverse.api.exceptions.LoadTooOldVersionException default = true
+org.multiverse.api.exceptions.RetryError.reuse=boolean default = true
 
 # a flag that enables the reuse of the WriteConflictException exception instance
-reuse.org.multiverse.api.exceptions.WriteConflictException default = true
+org.multiverse.api.exceptions.WriteConflictException.reuse=boolean default = true
 
-# a flag that enables automatic printing of the Profiler information (if available)
-# of the stm stores in GlobalStmInstance.
-multiverse.profiler.printthread.enabled default = false
-# the delay in miliseconds between prints
-multiverse.profiler.printthread.delayms default = 2000
-# the location to write to
-multiverse.profiler.printthread.location =

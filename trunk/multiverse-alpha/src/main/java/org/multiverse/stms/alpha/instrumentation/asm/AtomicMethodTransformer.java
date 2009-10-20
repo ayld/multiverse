@@ -71,7 +71,12 @@ public final class AtomicMethodTransformer implements Opcodes {
         }
 
         //todo: synthetic
-        MethodNode delegateMethod = new MethodNode(upgradeToPublic(atomicMethod.access), name, atomicMethod.desc, atomicMethod.signature, AsmUtils.getExceptions(atomicMethod));
+        MethodNode delegateMethod = new MethodNode(
+                upgradeToPublic(atomicMethod.access),
+                name,
+                atomicMethod.desc,
+                atomicMethod.signature,
+                getExceptions(atomicMethod));
         atomicMethod.accept(delegateMethod);
         delegateMethod.visitEnd();
 

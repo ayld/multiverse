@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import org.multiverse.api.GlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
@@ -36,7 +36,7 @@ public class DiningPhilosophersLongTest {
 
     @Before
     public void setUp() {
-        stm = GlobalStmInstance.get();
+        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
     }
 
