@@ -1,21 +1,26 @@
 package org.multiverse.templates;
 
-import org.junit.After;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.multiverse.TestUtils.assertIsActive;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+
+import java.io.IOException;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-
-import java.io.IOException;
 
 public class AtomicTemplateTest {
     private AlphaStm stm;
@@ -101,6 +106,52 @@ public class AtomicTemplateTest {
         assertEquals(1, value.get());
     }
 
+    /**
+     * Verifies that ignoring the thread-local transaction disables lifting.
+     * <p>
+     * FIXME: Broken because value.inc() starts its *own* transaction which does
+     * not use the "ignore thread-local" param. So you're actually getting a
+     * normal lifting transaction.
+     */
+    @Ignore("ignoreThreadLocalTransaction model is broken. See test comment.")
+    @Test
+    public void testIgnoringThreadLocalTransactionPreventsLifting() {
+        final IntRef value = new IntRef(0);
+
+        Transaction t = startUpdateTransaction();
+
+        long startVersion = stm.getClockVersion();
+        long startedCount = stm.getProfiler().sumKey1("updatetransaction.started.count");
+
+        new AtomicTemplate(stm, "dummy", true, false, Integer.MAX_VALUE) {
+            @Override
+            public Object execute(Transaction t) throws Exception {
+                value.inc();
+                return null;
+            }
+        }.execute();
+
+        // the thread-local transaction should *not* have been reset
+        assertSame(t, getThreadLocalTransaction());
+        assertIsActive(t);
+        
+        // the AtomicTemplate should have committed its transaction
+        setThreadLocalTransaction(null);
+        assertEquals(1, value.get());
+        setThreadLocalTransaction(t);
+
+        // ignoring the thread local transaction disables lifting
+        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startedCount + 1, stm.getProfiler().sumKey1("updatetransaction.started.count"));
+
+        // committing the "top-level" transaction should not change the value
+        t.commit();
+        assertEquals(startVersion + 2, stm.getClockVersion());
+        assertSame(t, getThreadLocalTransaction());
+        setThreadLocalTransaction(null);
+        assertEquals(1, value.get());
+    }
+    
     @Test
     public void testExplicitAbort() {
         final IntRef value = new IntRef(0);
