@@ -119,7 +119,7 @@ public class AtomicTemplateTest {
         long startVersion = stm.getClockVersion();
         long startedCount = stm.getProfiler().sumKey1("updatetransaction.started.count");
 
-        new AtomicTemplate(stm, "dummy", true, false, Integer.MAX_VALUE) {
+        new AtomicTemplate(stm, null, true, false, Integer.MAX_VALUE) {
             @Override
             public Object execute(Transaction t) throws Exception {
                 value.inc();

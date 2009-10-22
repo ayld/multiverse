@@ -75,7 +75,5 @@ public class Queue<E> {
                 return pushedStack.isEmpty() && readyToPopStack.isEmpty();
             }
         }.execute();
-
-
     }
 }
