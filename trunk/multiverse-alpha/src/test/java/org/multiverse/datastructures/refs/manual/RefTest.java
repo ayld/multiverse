@@ -79,13 +79,16 @@ public class RefTest {
     }
 
     @Test
-    public void createCommittedIsNull() {
+    public void createCommittedDoesntCareAboutAlreadyAvailableTransaction() {
+        long version = stm.getClockVersion();
+
         Transaction t = stm.startUpdateTransaction("outer");
         setThreadLocalTransaction(t);
         Ref<String> ref = Ref.createCommittedRef(stm, null);
         t.abort();
 
         assertTrue(ref.isNull());
+        assertEquals(version+1, stm.getClockVersion());
 
         ref.set("bar");
         assertEquals("bar", ref.get());

@@ -5,8 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
-import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 
@@ -25,14 +23,10 @@ public class BankTransactionLongTest {
     private final int accountCount = 10;
     private BankAccount[] bankAccounts;
     private final int transferCount = 1000;
-
-    private Stm stm;
     private TransferThread[] threads;
 
     @Before
     public void setUp() {
-        stm = getGlobalStmInstance();
-
         bankAccounts = new BankAccount[accountCount];
 
         for (int k = 0; k < accountCount; k++) {

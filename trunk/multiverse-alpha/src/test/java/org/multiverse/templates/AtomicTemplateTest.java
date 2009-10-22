@@ -1,26 +1,22 @@
 package org.multiverse.templates;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
-import static org.multiverse.TestUtils.assertIsActive;
-import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-
-import java.io.IOException;
-
 import org.junit.After;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import static org.multiverse.TestUtils.assertIsActive;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
+import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+
+import java.io.IOException;
 
 public class AtomicTemplateTest {
     private AlphaStm stm;

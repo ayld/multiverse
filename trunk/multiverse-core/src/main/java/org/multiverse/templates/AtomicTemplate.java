@@ -12,10 +12,11 @@ import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransact
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
 import static java.lang.String.format;
+import java.util.logging.Logger;
 
 /**
- * A Template that handles the boilerplate code for transactions. A transaction will be placed if
- * none is available around a section and if all goes right, commits at the end.
+ * A Template that handles the boilerplate code for transactions. A transaction will be placed if none is available
+ * around a section and if all goes right, commits at the end.
  * <p/>
  * example:
  * <pre>
@@ -27,25 +28,28 @@ import static java.lang.String.format;
  * }.execute();
  * </pre>
  * <p/>
- * It could also be that the transaction is retried (e.g. caused by optimistic locking failures). This is also a
- * task for template. In the future this retry behavior will be customizable.
+ * It could also be that the transaction is retried (e.g. caused by optimistic locking failures). This is also a task
+ * for template. In the future this retry behavior will be customizable.
  * <p/>
- * If a transaction already is available on the TransactionThreadLocal, no new transaction is started
- * and essentially the whole AtomicTemplate is ignored.
+ * If a transaction already is available on the TransactionThreadLocal, no new transaction is started and essentially
+ * the whole AtomicTemplate is ignored.
  * <p/>
- * If no transaction is available on the TransactionThreadLocal, a new one will be created and used
- * during the execution of the AtomicTemplate and will be removed once the AtomicTemplate finishes.
+ * If no transaction is available on the TransactionThreadLocal, a new one will be created and used during the execution
+ * of the AtomicTemplate and will be removed once the AtomicTemplate finishes.
  * <p/>
  * All uncaught throwable's lead to a rollback of the transaction.
  * <p/>
  * AtomicTemplates are not thread-safe to use.
  * <p/>
- * AtomicTemplates can completely work without threadlocals. See the
- * {@link AtomicTemplate#AtomicTemplate(org.multiverse.api.Stm ,String, boolean, boolean, int)} for more information.
+ * AtomicTemplates can completely work without threadlocals. See the {@link AtomicTemplate#AtomicTemplate(org.multiverse.api.Stm
+ * ,String, boolean, boolean, int)} for more information.
  *
  * @author Peter Veentjer
  */
 public abstract class AtomicTemplate<E> {
+
+    private final static Logger logger = Logger.getLogger(AtomicTemplate.class.getName());
+
     private final Stm stm;
     private final boolean ignoreThreadLocalTransaction;
     private final int retryCount;
@@ -54,8 +58,8 @@ public abstract class AtomicTemplate<E> {
     private final String familyName;
 
     /**
-     * Creates a new AtomicTemplate that uses the STM stored in the GlobalStm and
-     * works the the {@link org.multiverse.utils.TransactionThreadLocal}.
+     * Creates a new AtomicTemplate that uses the STM stored in the GlobalStm and works the the {@link
+     * org.multiverse.utils.TransactionThreadLocal}.
      */
     public AtomicTemplate() {
         this(getGlobalStmInstance());
@@ -66,8 +70,8 @@ public abstract class AtomicTemplate<E> {
     }
 
     /**
-     * Creates a new AtomicTemplate using the provided stm. The transaction used
-     * is stores/retrieved from the {@link org.multiverse.utils.TransactionThreadLocal}.
+     * Creates a new AtomicTemplate using the provided stm. The transaction used is stores/retrieved from the {@link
+     * org.multiverse.utils.TransactionThreadLocal}.
      *
      * @param stm the stm to use for transactions.
      * @throws NullPointerException if stm is null.
@@ -81,17 +85,17 @@ public abstract class AtomicTemplate<E> {
     }
 
     /**
-     * Creates a new AtomicTemplate that uses the provided STM. This method is provided
-     * to make Multiverse easy to integrate with environment that don't want to depend on
-     * threadlocals.
+     * Creates a new AtomicTemplate that uses the provided STM. This method is provided to make Multiverse easy to
+     * integrate with environment that don't want to depend on threadlocals.
      *
      * @param stm                          the stm to use for transactions.
-     * @param ignoreThreadLocalTransaction true if this Template should completely ignore
-     *                                     the ThreadLocalTransaction. This is useful for using the AtomicTemplate in other
-     *                                     environments that don't want to depend on threadlocals but do want to use the AtomicTemplate.
+     * @param ignoreThreadLocalTransaction true if this Template should completely ignore the ThreadLocalTransaction.
+     *                                     This is useful for using the AtomicTemplate in other environments that don't
+     *                                     want to depend on threadlocals but do want to use the AtomicTemplate.
      * @throws NullPointerException if stm is null.
      */
-    public AtomicTemplate(Stm stm, String familyName, boolean ignoreThreadLocalTransaction, boolean readonly, int retryCount) {
+    public AtomicTemplate(Stm stm, String familyName, boolean ignoreThreadLocalTransaction, boolean readonly,
+                          int retryCount) {
         if (stm == null) {
             throw new NullPointerException();
         }
@@ -110,8 +114,8 @@ public abstract class AtomicTemplate<E> {
     }
 
     /**
-     * Returns the current attempt. Value will always be larger than zero and increases
-     * everytime the transaction needs to be retried.
+     * Returns the current attempt. Value will always be larger than zero and increases everytime the transaction needs
+     * to be retried.
      *
      * @return the current attempt count.
      */
@@ -120,8 +124,8 @@ public abstract class AtomicTemplate<E> {
     }
 
     /**
-     * Returns the number of retries that this AtomicTemplate is allowed to do. The returned
-     * value will always be equal or larger than 0.
+     * Returns the number of retries that this AtomicTemplate is allowed to do. The returned value will always be equal
+     * or larger than 0.
      *
      * @return the number of retries.
      */
@@ -161,6 +165,7 @@ public abstract class AtomicTemplate<E> {
      *
      * @param t the transaction used for this execution.
      * @return the result of the execution.
+     *
      * @throws Exception the Exception thrown
      */
     public abstract E execute(Transaction t) throws Exception;
@@ -169,9 +174,13 @@ public abstract class AtomicTemplate<E> {
      * Executes the template.
      *
      * @return the result of the {@link #execute(org.multiverse.api.Transaction)} method.
-     * @throws InvisibleCheckedException if a checked exception was thrown while executing the
-     *                                   {@link #execute(org.multiverse.api.Transaction)} method.
-     * @throws AbortedException if the exception was explicitly aborted.
+     *
+     * @throws InvisibleCheckedException if a checked exception was thrown while executing the {@link
+     *                                   #execute(org.multiverse.api.Transaction)} method.
+     * @throws AbortedException          if the exception was explicitly aborted.
+     * @throws TooManyRetriesException   if the template retried the transaction too many times. The cause of the last
+     *                                   failure (also an exception) is included as cause. So you have some idea where
+     *                                   to look for problems
      */
     public final E execute() {
         try {
@@ -186,13 +195,16 @@ public abstract class AtomicTemplate<E> {
     }
 
     /**
-     * Executes the Template and rethrows the checked exception instead of wrapping it
-     * in a InvisibleCheckedException.
+     * Executes the Template and rethrows the checked exception instead of wrapping it in a InvisibleCheckedException.
      *
      * @return the result
-     * @throws Exception the Exception thrown inside the {@link #execute(org.multiverse.api.Transaction)}
-     *                   method.
-     * @throws AbortedException if the exception was explicitly aborted.
+     *
+     * @throws Exception               the Exception thrown inside the {@link #execute(org.multiverse.api.Transaction)}
+     *                                 method.
+     * @throws AbortedException        if the exception was explicitly aborted.
+     * @throws TooManyRetriesException if the template retried the transaction too many times. The cause of the last
+     *                                 failure (also an exception) is included as cause. So you have some idea where to
+     *                                 look for problems
      */
     public final E executeChecked() throws Exception {
         Transaction t = getTransaction();
@@ -201,12 +213,13 @@ public abstract class AtomicTemplate<E> {
             setTransaction(t);
             try {
                 attemptCount = 1;
+                Exception lastRetryCause = null;
                 while (attemptCount - 1 <= retryCount) {
                     boolean abort = true;
                     boolean reset = false;
                     try {
                         E result = execute(t);
-                        if(t.getStatus().equals(TransactionStatus.aborted)){
+                        if (t.getStatus().equals(TransactionStatus.aborted)) {
                             String msg = format("Transaction with familyname %s is aborted", t.getFamilyName());
                             throw new AbortedException(msg);
                         }
@@ -219,9 +232,11 @@ public abstract class AtomicTemplate<E> {
                         //since the abort is already done, no need to do it again.
                         abort = false;
                     } catch (CommitFailureException ex) {
+                        lastRetryCause = ex;
                         reset = true;
                         //ignore, just retry the transaction
                     } catch (LoadException ex) {
+                        lastRetryCause = ex;
                         reset = true;
                         //ignore, just retry the transaction
                     } finally {
@@ -235,7 +250,7 @@ public abstract class AtomicTemplate<E> {
                     attemptCount++;
                 }
 
-                throw new TooManyRetriesException();
+                throw new TooManyRetriesException("Too many retries", lastRetryCause);
             } finally {
                 setTransaction(null);
             }
@@ -255,8 +270,7 @@ public abstract class AtomicTemplate<E> {
     /**
      * Gets the current Transaction stored in the TransactionThreadLocal.
      * <p/>
-     * If the ignoreThreadLocalTransaction is set, the threadlocal stuff
-     * is completeley ignored.
+     * If the ignoreThreadLocalTransaction is set, the threadlocal stuff is completeley ignored.
      *
      * @return the found transaction, or null if none is found.
      */
@@ -278,6 +292,7 @@ public abstract class AtomicTemplate<E> {
     }
 
     public static class InvisibleCheckedException extends RuntimeException {
+
         public InvisibleCheckedException(Exception cause) {
             super(cause);
         }

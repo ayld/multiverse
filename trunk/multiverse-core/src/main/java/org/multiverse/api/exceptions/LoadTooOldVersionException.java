@@ -16,13 +16,13 @@ public class LoadTooOldVersionException extends LoadException {
 
     public final static LoadTooOldVersionException INSTANCE = new LoadTooOldVersionException();
 
-    private final static boolean reuse = parseBoolean(getProperty(LoadTooOldVersionException.class.getName()+".reuse", "true"));
+    private final static boolean reuse = parseBoolean(getProperty(LoadTooOldVersionException.class.getName()+".reuse", "false"));
 
-    public static LoadTooOldVersionException create() {
+    public static LoadTooOldVersionException create(String msg) {
         if (reuse) {
             return LoadTooOldVersionException.INSTANCE;
         } else {
-            return new LoadTooOldVersionException();
+            return new LoadTooOldVersionException(msg);
         }
     }
 

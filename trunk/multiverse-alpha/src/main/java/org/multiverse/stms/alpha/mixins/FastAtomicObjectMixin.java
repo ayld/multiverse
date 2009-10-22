@@ -65,7 +65,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
         } else if (tranlocalTime1.version > readVersion) {
             //the current tranlocal it too new to return, so we fail. In the future this would
             //be the location to search for tranlocal with the correct version.
-            throw LoadTooOldVersionException.create();
+            throw LoadTooOldVersionException.create(getClass().getName());
         } else {
             Transaction lockOwner = lockOwnerUpdater.get(this);
 
@@ -88,7 +88,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
                 //we were not able to find the version we are looking for. It could be tranlocalT1
                 //or tranlocalT2 but it could also have been a write we didn't notice. So lets
                 //fails to indicate that we didn't find it.
-                throw LoadTooOldVersionException.create();
+                throw LoadTooOldVersionException.create(getClass().getName());
             } else {
                 //the tranlocal has not changed and it was unlocked. This means that we read
                 //an old version that we can use.
