@@ -77,7 +77,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
      * the transaction this atomicobject is created in is aborted (or hasn't committed) yet,
      * you will get the dreaded {@link org.multiverse.api.exceptions.LoadUncommittedException}.
      *
-     * @param stm   the {@Stm} used for committing the ref.
+     * @param stm   the {@link @Stm} used for committing the ref.
      * @param value the initial value of the ref. The value is allowed to be null.
      * @return the created ref.
      */
