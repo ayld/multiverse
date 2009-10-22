@@ -1,6 +1,7 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.api.Transaction;
+import org.multiverse.templates.AtomicTemplate;
 
 public final class IntQueue {
 
@@ -25,33 +26,50 @@ public final class IntQueue {
         return maxCapacity;
     }
 
-    @AtomicMethod
     public void push(final int item) {
-        if (size() > maxCapacity) {
-            throw new IllegalStateException();
-        }
-
-        pushedStack.push(item);
-    }
-
-    @AtomicMethod
-    public int pop() {
-        if (readyToPopStack.isEmpty()) {
-            while (!pushedStack.isEmpty()) {
-                readyToPopStack.push(pushedStack.pop());
+        new AtomicTemplate() {
+            @Override
+            public Object execute(Transaction t) {
+                if (size() > maxCapacity) {
+                    throw new IllegalStateException();
+                }
+                
+                pushedStack.push(item);
+                return null;
             }
-        }
-
-        return readyToPopStack.pop();
+        }.execute();
     }
 
-    @AtomicMethod
+    public int pop() {
+        return new AtomicTemplate<Integer>() {
+            @Override
+            public Integer execute(Transaction t) {
+                if (readyToPopStack.isEmpty()) {
+                    while (!pushedStack.isEmpty()) {
+                        readyToPopStack.push(pushedStack.pop());
+                    }
+                }
+                
+                return readyToPopStack.pop();
+            }
+        }.execute();        
+    }
+
     public int size() {
-        return pushedStack.size() + readyToPopStack.size();
+        return new AtomicTemplate<Integer>() {
+            @Override
+            public Integer execute(Transaction t) {        
+                return pushedStack.size() + readyToPopStack.size();
+            }
+        }.execute();        
     }
 
-    @AtomicMethod
     public boolean isEmpty() {
-        return pushedStack.isEmpty() && readyToPopStack.isEmpty();
+        return new AtomicTemplate<Boolean>() {
+            @Override
+            public Boolean execute(Transaction t) {        
+                return pushedStack.isEmpty() && readyToPopStack.isEmpty();
+            }
+        }.execute();          
     }
 }
