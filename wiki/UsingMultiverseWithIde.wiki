@@ -14,7 +14,7 @@ This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse 
 Use the following snippet to run an application from the commandline:
 
 {{{
-java -Xbootclasspath/a:/to/multiverse/boot.jar -javaagent:/to/multiverse/multiverse.jar your.Main
+java -javaagent:/somerootdir/alphaagent.jar your.Main
 }}}
 
 For more information about the parameters, check the [http://java.sun.com/javase/6/docs/technotes/tools/windows/java.html the Java application launcher] page.
