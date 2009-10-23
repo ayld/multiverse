@@ -1,13 +1,13 @@
 package org.multiverse.integrationtests;
 
+import static junit.framework.Assert.assertEquals;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.testIncomplete;
-import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
-import org.multiverse.api.Stm;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.templates.AtomicTemplate;
 import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
 
@@ -15,11 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LargeNonParallelWriteonlyTransactionsLongTest {
-    private Stm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
-        stm = getGlobalStmInstance();
+        stm = AlphaStm.createDebug();
+        setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 
@@ -83,12 +84,10 @@ public class LargeNonParallelWriteonlyTransactionsLongTest {
             }
         }.execute();
 
-        //todo: do statistics
-        //assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.failedtoacquirelocks.count"));
-        //assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.writeconflict.count"));
-        //assertEquals(1, stm.getProfiler().sumKey1("updatetransaction.committed.count"));
-        //assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.retried.count"));
-        testIncomplete();
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.failedtoacquirelocks.count"));
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.writeconflict.count"));
+        assertEquals(1, stm.getProfiler().sumKey1("updatetransaction.committed.count"));
+        assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.retried.count"));
     }
 
 }
