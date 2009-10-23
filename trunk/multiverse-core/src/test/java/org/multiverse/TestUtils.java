@@ -132,7 +132,7 @@ public class TestUtils {
                 thread.join();
                 if (thread.getThrowable() != null) {
                     thread.getThrowable().printStackTrace();
-                    fail();
+                    fail("Unable to join thread " + thread.getName());
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
