@@ -57,7 +57,7 @@ public final class IntRef extends FastAtomicObjectMixin {
     }
 
     public int get() {
-        return new AtomicTemplate<Integer>() {
+        return new AtomicTemplate<Integer>(true) {
             @Override
             public Integer execute(Transaction t) {
                 IntRefTranlocal tranlocal = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
