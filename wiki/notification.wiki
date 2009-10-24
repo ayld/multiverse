@@ -47,7 +47,7 @@ I won't provide the same example build the java.util.concurrent.locks.Lock, beca
 
 The same example in Multiverse:
 {{{
-@TmEntity
+@AtomicObject
 public class Latch{
    private isOpen = false;
 
@@ -67,7 +67,7 @@ public class Latch{
 }
 }}}
 
-As you can see there is no concurrency logic here. The retry aborts the current transaction (all changes won't be committed) and registers itself as a listener to all (non immutable) TmEntities it has read.
+As you can see there is no concurrency logic here. The retry aborts the current transaction (all changes won't be committed) and registers itself as a listener to all (non immutable) AtomicObjects it has read.
 
 Another difference is that the while loop in the await from the first version has been replaced by an if statement. If you want to use a condition variable, the Java says that you should be prepared to deal with spurious wakeups. This is why the condition needs to be checked in a loop. With Multiverse this is not needed (todo: explanation).
 
