@@ -2,6 +2,7 @@ package org.multiverse.utils.profiling;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -126,7 +127,27 @@ public final class SimpleProfileRepository implements ProfileRepository {
 
     @Override
     public String toString(){
-        return map.toString();
+        return map.toString() + ", " + singleKeyMap.toString();
+    }
+    
+    public String toPrettyString() {
+        StringBuilder pretty = new StringBuilder("Profiler data\n=============\n");
+        appendPrettyString(pretty, singleKeyMap, "Single keys");
+        appendPrettyString(pretty, map, "Composed keys");
+        return pretty.toString();
+    }
+    
+    // TODO: move to some utility class (?)
+    private static StringBuilder appendPrettyString(StringBuilder builder, Map<?, ?> map, String title) {
+        if (map.isEmpty()) {
+            builder.append("<no ").append(title.toLowerCase()).append(">\n");
+        } else {
+            builder.append(title).append("\n").append(title.replaceAll(".", "-")).append("\n");
+            for (Entry<?, ?> stat : map.entrySet()) {
+                builder.append(stat.getKey()).append(" = ").append(stat.getValue()).append("\n");
+            }
+        }
+        return builder.append("\n");
     }
 
     private AtomicLong getOrCreateCounter(String key1, String key2) {
