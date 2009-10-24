@@ -37,7 +37,7 @@ public class BooleanRef extends FastAtomicObjectMixin {
         set(tranlocal, value);
     }
 
-    @AtomicMethod
+    @AtomicMethod(readonly = true)
     public boolean get() {
         BooleanRefTranlocal tranlocal = ((BooleanRefTranlocal) AlphaStmUtils.load(this));
         return get(tranlocal);

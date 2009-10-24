@@ -60,7 +60,7 @@ public class Queue<E> {
     }
 
     public int size() {
-        return new AtomicTemplate<Integer>() {
+        return new AtomicTemplate<Integer>(true) {
             @Override
             public Integer execute(Transaction t) throws Exception {
                 return pushedStack.size() + readyToPopStack.size();
@@ -69,7 +69,7 @@ public class Queue<E> {
     }
 
     public boolean isEmpty() {
-        return new AtomicTemplate<Boolean>() {
+        return new AtomicTemplate<Boolean>(true) {
             @Override
             public Boolean execute(Transaction t) throws Exception {
                 return pushedStack.isEmpty() && readyToPopStack.isEmpty();
