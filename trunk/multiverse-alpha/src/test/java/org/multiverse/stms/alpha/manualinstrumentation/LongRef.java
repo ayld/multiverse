@@ -44,7 +44,7 @@ public class LongRef extends FastAtomicObjectMixin {
         set(tranlocal, value);
     }
 
-    @AtomicMethod
+    @AtomicMethod(readonly = true)
     public long get() {
         AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
         LongRefTranlocal tranlocal = (LongRefTranlocal) t.load(LongRef.this);

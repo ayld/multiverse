@@ -23,7 +23,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     public int size() {
-        return new AtomicTemplate<Integer>() {
+        return new AtomicTemplate<Integer>(true) {
             @Override
             public Integer execute(Transaction t) {
                 IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);
@@ -33,7 +33,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     public boolean isEmpty() {
-        return new AtomicTemplate<Boolean>() {
+        return new AtomicTemplate<Boolean>(true) {
             @Override
             public Boolean execute(Transaction t) {
                 IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);

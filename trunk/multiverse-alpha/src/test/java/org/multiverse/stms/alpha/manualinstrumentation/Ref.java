@@ -42,7 +42,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
     }
 
     public E get() {
-        return new AtomicTemplate<E>() {
+        return new AtomicTemplate<E>(true) {
             @Override
             public E execute(Transaction t) throws Exception {
                 RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
@@ -63,7 +63,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
     }
 
     public boolean isNull() {
-        return new AtomicTemplate<Boolean>() {
+        return new AtomicTemplate<Boolean>(true) {
             @Override
             public Boolean execute(Transaction t) throws Exception {
                 RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);

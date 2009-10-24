@@ -56,7 +56,7 @@ public final class IntQueue {
     }
 
     public int size() {
-        return new AtomicTemplate<Integer>() {
+        return new AtomicTemplate<Integer>(true) {
             @Override
             public Integer execute(Transaction t) {        
                 return pushedStack.size() + readyToPopStack.size();
@@ -65,7 +65,7 @@ public final class IntQueue {
     }
 
     public boolean isEmpty() {
-        return new AtomicTemplate<Boolean>() {
+        return new AtomicTemplate<Boolean>(true) {
             @Override
             public Boolean execute(Transaction t) {        
                 return pushedStack.isEmpty() && readyToPopStack.isEmpty();
