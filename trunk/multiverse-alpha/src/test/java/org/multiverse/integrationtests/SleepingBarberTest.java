@@ -76,7 +76,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.Stack;
  * <p>
  * So, instead, we'll here implement the &quot;canonical&quot; solution given in the
  * Wikipedia article, which uses two flags to coordinate handover. The third semaphore
- * of the canonical solution is replaced by a transaction, which after all is the point
+ * of the canonical solution is replaced by transactions, which after all is the point
  * of this example.
  * 
  * @author Andrew Phillips
