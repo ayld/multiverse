@@ -60,7 +60,7 @@ public class CigaretteSmokersProblemSimplifiedTest {
             this.resource = resource;
         }
 
-        @Test
+        @Override
         public void doRun() {
             for (int k = 0; k < cigarettesToSmoke; k++) {
                 giveResource();
