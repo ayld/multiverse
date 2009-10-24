@@ -21,9 +21,14 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
         this.level = level;
 
         if (logger.isLoggable(level)) {
-            logger.log(level,format("ReadonlyTransaction%s and readversion %s started", logId, getReadVersion()));
+            logger.log(level, format("%s started", toLogString()));
         }
     }
+
+    private String toLogString() {
+        return format("ReadonlyTransaction '%s-%s' with readversion '%s' ", getFamilyName(), logId, readVersion);
+    }
+
 
     @Override
     public long commit() {
@@ -38,9 +43,9 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
                 return version;
             } finally {
                 if (success) {
-                    logger.log(level,format("ReadonlyTransaction%s committed with version %s", logId, version));
+                    logger.log(level, format("%s committed with version %s", toLogString(), version));
                 } else {
-                    logger.log(level,format("ReadonlyTransaction%s aborted", logId));
+                    logger.log(level, format("%s aborted", toLogString()));
                 }
             }
         }
@@ -57,9 +62,9 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level,format("ReadonlyTransaction%s aborted", logId));
+                    logger.log(level, format("%s aborted", toLogString()));
                 } else {
-                    logger.log(level,format("ReadonlyTransaction%s abort failed", logId));
+                    logger.log(level, format("%s abort failed", toLogString()));
                 }
             }
         }
@@ -71,14 +76,53 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
             super.reset();
         } else {
             boolean success = false;
+            String oldLogString = toLogString();
             try {
                 super.reset();
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level,format("ReadonlyTransaction%s reset", logId));
+                    logger.log(level, format("%s reset to readversion %s", oldLogString, readVersion));
                 } else {
-                    logger.log(level,format("ReadonlyTransaction%s reset failed", logId));
+                    logger.log(level, format("%s reset failed", oldLogString));
+                }
+            }
+        }
+    }
+
+    @Override
+    public void deferredExecute(Runnable task) {
+        if (!logger.isLoggable(level)) {
+            super.deferredExecute(task);
+        } else {
+            boolean success = false;
+            try {
+                super.deferredExecute(task);
+                success = true;
+            } finally {
+                if (success) {
+                    logger.log(level, format("%s deferredExecute %s", toLogString(), task));
+                } else {
+                    logger.log(level, format("%s deferredExecute %s failed", toLogString(), task));
+                }
+            }
+        }
+    }
+
+    @Override
+    public void compensatingExecute(Runnable task) {
+        if (!logger.isLoggable(level)) {
+            super.compensatingExecute(task);
+        } else {
+            boolean success = false;
+            try {
+                super.compensatingExecute(task);
+                success = true;
+            } finally {
+                if (success) {
+                    logger.log(level, format("%s compensatingExecute %s", toLogString(), task));
+                } else {
+                    logger.log(level, format("%s compensatingExecute %s failed", toLogString(), task));
                 }
             }
         }
@@ -86,6 +130,6 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
 
     @Override
     public String toString() {
-        return "ReadonlyTransaction" + logId;
+        return toLogString();
     }
 }

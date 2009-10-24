@@ -136,7 +136,7 @@ public class ReadersWritersProblemLongTest {
     @AtomicObject
     static class UnfairReadWriteLock implements ReadWriteLock {
 
-        //-1
+        //-1  is write lock, 0 = free, positive number is readLock count.
         private int readerCount;
 
         @Override
@@ -178,7 +178,7 @@ public class ReadersWritersProblemLongTest {
 
         @Override
         public void acquireReadLock() {
-            if(pendingWriteLock){
+            if (pendingWriteLock) {
                 retry();
             }
 

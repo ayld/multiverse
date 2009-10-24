@@ -5,11 +5,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.stms.alpha.AlphaTranlocal;
-import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
-import org.multiverse.stms.alpha.AlphaTransaction;
-import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
@@ -76,7 +72,7 @@ public class LongRef extends FastAtomicObjectMixin {
     public LongRefTranlocal privatize(long version) {
         LongRefTranlocal origin = (LongRefTranlocal) load(version);
         if (origin == null) {
-            throw new LoadUncommittedException();
+            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
         }
         return new LongRefTranlocal(origin);
     }

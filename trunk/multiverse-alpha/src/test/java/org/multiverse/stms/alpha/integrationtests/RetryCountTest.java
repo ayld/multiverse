@@ -39,7 +39,7 @@ public class RetryCountTest {
         @AtomicMethod(retryCount = 0)
         public void execute() {
             count++;
-            throw WriteConflictException.create();
+            throw new WriteConflictException();
         }
     }
 
@@ -62,7 +62,7 @@ public class RetryCountTest {
         @AtomicMethod(retryCount = 1)
         public void execute() {
             count++;
-            throw WriteConflictException.create();
+            throw new WriteConflictException();
         }
     }
 
@@ -85,7 +85,7 @@ public class RetryCountTest {
         @AtomicMethod(retryCount = 10)
         public void execute() {
             count++;
-            throw WriteConflictException.create();
+            throw new WriteConflictException();
         }
     }
 }

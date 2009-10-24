@@ -83,11 +83,11 @@ public interface AlphaAtomicObject {
      * concurrency structure that can be used to let a thread (transaction) wait for a specific event.
      * In this case we use it to notify the Transaction that the desired update has taken place.
      *
-     * @param listener       the Latch to register.
-     * @param minimumVersion the minimum version of the data
+     * @param listener             the Latch to register.
+     * @param minimumWakeupVersion the minimum version of the data
      * @return true if the listener was registered on a committed object, false otherwise.
      */
-    boolean registerRetryListener(Latch listener, long minimumVersion);
+    boolean registerRetryListener(Latch listener, long minimumWakeupVersion);
 
     /**
      * Returns the current owner of the lock, or null if AtomicObject is not locked.

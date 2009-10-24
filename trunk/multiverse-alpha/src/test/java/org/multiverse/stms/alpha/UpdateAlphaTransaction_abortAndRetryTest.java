@@ -53,7 +53,6 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
             t.abortAndWaitForRetry();
             fail();
         } catch (NoProgressPossibleException ex) {
-
         }
 
         assertIsAborted(t);

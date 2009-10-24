@@ -165,7 +165,6 @@ public abstract class AtomicTemplate<E> {
      *
      * @param t the transaction used for this execution.
      * @return the result of the execution.
-     *
      * @throws Exception the Exception thrown
      */
     public abstract E execute(Transaction t) throws Exception;
@@ -174,7 +173,6 @@ public abstract class AtomicTemplate<E> {
      * Executes the template.
      *
      * @return the result of the {@link #execute(org.multiverse.api.Transaction)} method.
-     *
      * @throws InvisibleCheckedException if a checked exception was thrown while executing the {@link
      *                                   #execute(org.multiverse.api.Transaction)} method.
      * @throws AbortedException          if the exception was explicitly aborted.
@@ -198,7 +196,6 @@ public abstract class AtomicTemplate<E> {
      * Executes the Template and rethrows the checked exception instead of wrapping it in a InvisibleCheckedException.
      *
      * @return the result
-     *
      * @throws Exception               the Exception thrown inside the {@link #execute(org.multiverse.api.Transaction)}
      *                                 method.
      * @throws AbortedException        if the exception was explicitly aborted.
@@ -220,7 +217,7 @@ public abstract class AtomicTemplate<E> {
                     try {
                         E result = execute(t);
                         if (t.getStatus().equals(TransactionStatus.aborted)) {
-                            String msg = format("Transaction with familyname %s is aborted", t.getFamilyName());
+                            String msg = format("Transaction with familyName '%s' is aborted", t.getFamilyName());
                             throw new AbortedException(msg);
                         }
                         t.commit();

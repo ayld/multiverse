@@ -1,5 +1,6 @@
 package org.multiverse.stms.alpha;
 
+import static org.multiverse.stms.alpha.AlphaStmUtils.toAtomicObjectString;
 import org.multiverse.utils.clock.Clock;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import org.multiverse.utils.profiling.ProfileRepository;
@@ -11,7 +12,7 @@ import java.util.logging.Logger;
 public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
     private final static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
-    
+
     private final long logId;
     private final Level level;
 
@@ -21,8 +22,13 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
         this.level = level;
 
         if (logger.isLoggable(level)) {
-            logger.log(level, format("UpdateTransaction-%s with readversion %s started", logId, getReadVersion()));
+            logger.log(level, format("%s started", toLogString()));
         }
+    }
+
+
+    private String toLogString() {
+        return format("UpdateTransaction '%s-%s' with readversion '%s' ", getFamilyName(), logId, readVersion);
     }
 
     @Override
@@ -36,10 +42,12 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 success = true;
             } finally {
                 if (success) {
-                    String msg = format("UpdateTransaction-%s attachNew %s", logId, System.identityHashCode(tranlocal));
+                    String msg = format("%s attachNew %s",
+                            toLogString(), toAtomicObjectString(tranlocal.getAtomicObject()));
                     logger.log(level, msg);
                 } else {
-                    String msg = format("UpdateTransaction-%s attachNew %s failed", logId,System.identityHashCode(tranlocal));
+                    String msg = format("%s attachNew %s failed",
+                            toLogString(), toAtomicObjectString(tranlocal.getAtomicObject()));
                     logger.log(level, msg);
                 }
             }
@@ -58,10 +66,10 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 return tranlocal;
             } finally {
                 if (success) {
-                    String msg = format("UpdateTransaction-%s load %s", logId, System.identityHashCode(atomicObject));
+                    String msg = format("%s load %s", toLogString(), toAtomicObjectString(atomicObject));
                     logger.log(level, msg);
                 } else {
-                    String msg = format("UpdateTransaction-%s load %s failed", logId,System.identityHashCode(atomicObject));
+                    String msg = format("%s load %s failed", toLogString(), toAtomicObjectString(atomicObject));
                     logger.log(level, msg);
                 }
             }
@@ -81,9 +89,9 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 return version;
             } finally {
                 if (success) {
-                    logger.log(level, format("UpdateTransaction-%s committed with version %s", logId, version));
+                    logger.log(level, format("%s committed with version %s", toLogString(), version));
                 } else {
-                    logger.log(level, format("UpdateTransaction-%s aborted", logId));
+                    logger.log(level, format("%s aborted", toLogString()));
                 }
             }
         }
@@ -100,9 +108,9 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level, format("UpdateTransaction-%s aborted", logId));
+                    logger.log(level, format("%s aborted", toLogString()));
                 } else {
-                    logger.log(level, format("UpdateTransaction-%s abort failed", logId));
+                    logger.log(level, format("%s abort failed", toLogString()));
                 }
             }
         }
@@ -113,15 +121,16 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
         if (!logger.isLoggable(level)) {
             super.reset();
         } else {
+            String oldLogString = toLogString();
             boolean success = false;
             try {
                 super.reset();
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level, format("UpdateTransaction-%s reset", logId));
+                    logger.log(level, format("%s reset to version '%s'", oldLogString, readVersion));
                 } else {
-                    logger.log(level, format("UpdateTransaction-%s reset failed", logId));
+                    logger.log(level, format("%s reset failed", oldLogString));
                 }
             }
         }
@@ -138,9 +147,9 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level, format("UpdateTransaction-%s abortedAndRetry successfully", logId));
+                    logger.log(level, format("%s abortedAndRetry successfully", toLogString()));
                 } else {
-                    logger.log(level, format("UpdateTransaction-%s abortedAndRetry failed", logId));
+                    logger.log(level, format("%s abortedAndRetry failed", toLogString()));
                 }
             }
         }
@@ -157,9 +166,28 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level, format("UpdateTransaction-%s executePostCommit %s", logId, task));
+                    logger.log(level, format("%s deferredExecute %s", toLogString(), task));
                 } else {
-                    logger.log(level, format("UpdateTransaction-%s executePostCommit %s failed", logId, task));
+                    logger.log(level, format("%s deferredExecute %s failed", toLogString(), task));
+                }
+            }
+        }
+    }
+
+    @Override
+    public void compensatingExecute(Runnable task) {
+        if (!logger.isLoggable(level)) {
+            super.compensatingExecute(task);
+        } else {
+            boolean success = false;
+            try {
+                super.compensatingExecute(task);
+                success = true;
+            } finally {
+                if (success) {
+                    logger.log(level, format("%s compensatingExecute %s", toLogString(), task));
+                } else {
+                    logger.log(level, format("%s compensatingExecute %s failed", toLogString(), task));
                 }
             }
         }
@@ -167,6 +195,6 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
     @Override
     public String toString() {
-        return "UpdateTransaction" + logId;
+        return format("UpdateTransaction %s-%s", getFamilyName(), logId);
     }
 }

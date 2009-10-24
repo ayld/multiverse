@@ -1,14 +1,9 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.MultiverseConstants;
-import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.api.exceptions.FailedToObtainLocksException;
-import org.multiverse.api.exceptions.LoadLockedException;
-import org.multiverse.api.exceptions.LoadTooOldVersionException;
-import org.multiverse.api.exceptions.NoProgressPossibleException;
-import org.multiverse.api.exceptions.PanicError;
-import org.multiverse.api.exceptions.WriteConflictException;
+import org.multiverse.api.exceptions.*;
 import org.multiverse.stms.AbstractTransaction;
+import static org.multiverse.stms.alpha.AlphaStmUtils.toAtomicObjectString;
 import org.multiverse.utils.clock.Clock;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
@@ -88,7 +83,9 @@ public class UpdateAlphaTransaction extends AbstractTransaction
 
                     AlphaTranlocal found = attached.get(atomicObject);
                     if (found != null && found != tranlocal) {
-                        throw new PanicError("Duplicate attachment for atomicobject " + atomicObject.getClass());
+                        String msg = format("Duplicate but different attachment for atomicobject '%s'",
+                                toAtomicObjectString(atomicObject));
+                        throw new PanicError(msg);
                     }
                 }
 
@@ -100,11 +97,13 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                 }
                 break;
             case committed: {
-                String msg = format("Can't call attachNew with on committed transaction '%s'.", familyName);
+                String msg = format("Can't call attachNew with atomicobject '%s' on committed transaction '%s'.",
+                        toAtomicObjectString(tranlocal), familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't call attachNew on an aborted transaction '%s'.", familyName);
+                String msg = format("Can't call attachNew with atomicobject '%s' on an aborted transaction '%s'.",
+                        toAtomicObjectString(tranlocal), familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -122,11 +121,15 @@ public class UpdateAlphaTransaction extends AbstractTransaction
 
                 return attached.containsKey(atomicObject);
             case committed: {
-                String msg = format("Can't call isAttached on committed transaction '%s'.", getFamilyName());
+                String msg = format("Can't call isAttached with atomicobject '%s' on committed transaction '%s'.",
+                        toAtomicObjectString(atomicObject),
+                        getFamilyName());
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't call isAttached on aborted transaction '%s'.", getFamilyName());
+                String msg = format("Can't call isAttached with atomicobject '%s' on aborted transaction '%s'.",
+                        toAtomicObjectString(atomicObject),
+                        getFamilyName());
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -175,13 +178,13 @@ public class UpdateAlphaTransaction extends AbstractTransaction
 
                 return tranlocal;
             case committed: {
-                String msg = format("Can't call load with atomicobject of class '%s' on committed transaction '%s'.",
-                        atomicObject.getClass().getName(), familyName);
+                String msg = format("Can't call load with atomicobject '%s' on committed transaction '%s'.",
+                        toAtomicObjectString(atomicObject), familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't call load with atomicObject of class '%s' aborted transaction '%s'.",
-                        atomicObject.getClass().getName(), familyName);
+                String msg = format("Can't call load with atomicObject '%s' on aborted transaction '%s'.",
+                        toAtomicObjectString(atomicObject), familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -214,8 +217,8 @@ public class UpdateAlphaTransaction extends AbstractTransaction
             acquireLocksAndCheckForConflicts(writeSet);
             long writeVersion = clock.tick();
 
-            if(SANITY_CHECKS_ENABLED){
-                if(writeVersion<=readVersion){
+            if (SANITY_CHECKS_ENABLED) {
+                if (writeVersion <= readVersion) {
                     throw new PanicError("The clock went back in time");
                 }
             }
@@ -273,7 +276,14 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                         profiler.incCounter("atomicobject.conflict.count", tranlocal.getAtomicObject().getClass().getName());
                         profiler.incCounter("updatetransaction.writeconflict.count", getFamilyName());
                     }
-                    throw WriteConflictException.create();
+
+                    if (WriteConflictException.reuse) {
+                        throw WriteConflictException.INSTANCE;
+                    } else {
+                        String msg = format("There was a writeconflict in transaction with familyname '%s' on atomicobject '%s'",
+                                getFamilyName(), toAtomicObjectString(tranlocal));
+                        throw new WriteConflictException(msg);
+                    }
                 default:
                     throw new RuntimeException();
             }
@@ -296,12 +306,24 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                     profiler.incCounter("updatetransaction.failedtoacquirelocks.count", getFamilyName());
                 }
 
-                throw FailedToObtainLocksException.create();
+                if (FailedToObtainLocksException.reuse) {
+                    throw FailedToObtainLocksException.INSTANCE;
+                } else {
+                    String msg = format("Failed to obtain all locks needed for commit on transaction wuth familyname '%s'",
+                            getFamilyName());
+                    throw new FailedToObtainLocksException(msg);
+                }
             case conflict:
                 if (profiler != null) {
                     profiler.incCounter("updatetransaction.writeconflict.count", getFamilyName());
                 }
-                throw WriteConflictException.create();
+                if (WriteConflictException.reuse) {
+                    throw WriteConflictException.INSTANCE;
+                } else {
+                    String msg = format("There was a writeconflict in transaction with familyname '%s'", getFamilyName());
+                    throw new WriteConflictException(msg);
+                }
+
             default:
                 throw new RuntimeException();
         }

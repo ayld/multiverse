@@ -3,7 +3,7 @@ package org.multiverse.stms.alpha;
 import org.multiverse.api.Transaction;
 
 /**
- * A {@link Transaction} interface tailored for the alpha STM.
+ * A {@link Transaction} interface tailored for the Alpha STM.
  * <p/>
  * AlphaTransaction is just like the Transaction not thread safe.
  *

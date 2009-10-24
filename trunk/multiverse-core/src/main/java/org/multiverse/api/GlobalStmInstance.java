@@ -3,6 +3,7 @@ package org.multiverse.api;
 import static java.lang.String.format;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import static java.lang.reflect.Modifier.isStatic;
 import java.util.logging.Logger;
 
 /**
@@ -45,13 +46,13 @@ public final class GlobalStmInstance {
         } catch (ClassCastException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "'%s' is not accessable (it should be public)').",
-                    KEY, factoryMethod,factoryMethod);
+                    KEY, factoryMethod, factoryMethod);
             logger.severe(msg);
             throw new IllegalArgumentException(msg, e);
         } catch (InvocationTargetException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "'%s' failed to be invoked.",
-                    KEY, factoryMethod,factoryMethod);
+                    KEY, factoryMethod, factoryMethod);
             logger.severe(msg);
             throw new IllegalArgumentException(msg, e);
         }
@@ -99,6 +100,14 @@ public final class GlobalStmInstance {
             throw new IllegalArgumentException(msg, e);
         }
 
+        if (!isStatic(method.getModifiers())) {
+            String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
+                    "The factory method is not static.",
+                    KEY, factoryMethod);
+            logger.info(msg);
+            throw new IllegalArgumentException(msg);
+        }
+
         return method;
     }
 
@@ -121,7 +130,20 @@ public final class GlobalStmInstance {
         if (newInstance == null) {
             throw new NullPointerException();
         }
+
+        doSomeLogging();
         instance = newInstance;
+    }
+
+    private static void doSomeLogging() {
+        Stm oldInstance = instance;
+        if (oldInstance != null && oldInstance.getClockVersion() > 0) {
+            logger.warning("Replacing a used global STM instance. The old STM instance already has commits " +
+                    "and this could lead to strange concurrency bugs. Normally this situation should be prevented. " +
+                    "The safest thing to do is to drop all atomicobjects that have been created while using that STM.");
+        } else {
+            logger.info("Replacing unused GlobalStmInstance");
+        }
     }
 
     //we don't want instances.

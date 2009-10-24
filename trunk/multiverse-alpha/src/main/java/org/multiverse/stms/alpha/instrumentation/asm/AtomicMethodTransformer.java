@@ -3,7 +3,6 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 import org.multiverse.api.Transaction;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.multiverse.templates.AtomicTemplate;
-import org.multiverse.utils.TodoException;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
@@ -12,6 +11,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
+import static java.lang.String.format;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -61,14 +61,7 @@ public final class AtomicMethodTransformer implements Opcodes {
     }
 
     private MethodNode createDelegateMethod(MethodNode atomicMethod) {
-        String name;
-        if (atomicMethod.name.equals("<init>")) {
-            name = "initdelegate";
-        } else if (atomicMethod.name.equals("<clinit")) {
-            throw new TodoException();
-        } else {
-            name = atomicMethod.name + "delegate";
-        }
+        String name = createDelegateMethodName(atomicMethod);
 
         //todo: synthetic
         MethodNode delegateMethod = new MethodNode(
@@ -85,6 +78,18 @@ public final class AtomicMethodTransformer implements Opcodes {
         }
 
         return delegateMethod;
+    }
+
+    private String createDelegateMethodName(MethodNode atomicMethod) {
+        if (atomicMethod.name.equals("<init>")) {
+            return "initdelegate";
+        } else if (atomicMethod.name.equals("<clinit")) {
+            String msg = format("static initializer in class '%s' can't possibly have an AtomicMethod annotation",
+                    atomicMethod.name);
+            throw new IllegalArgumentException(msg);
+        } else {
+            return atomicMethod.name + "delegate";
+        }
     }
 
     private InsnList getCodeAfterSuperCallisDone(MethodNode method) {

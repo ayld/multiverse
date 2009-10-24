@@ -179,6 +179,7 @@ public class UpdateAlphaTransaction_loadTest {
             t.load(value);
             fail();
         } catch (LoadUncommittedException ex) {
+            ex.printStackTrace();
         }
 
         assertIsActive(t);

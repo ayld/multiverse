@@ -3,7 +3,6 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 import org.multiverse.api.Transaction;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.multiverse.templates.AtomicTemplate;
-import org.multiverse.utils.TodoException;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
@@ -18,15 +17,15 @@ import java.util.List;
  * Transforms AtomicMethods. The first generation of atomicmethod transformers created an instance
  * of the AtomicTemplate that forwards the call. This transformer 'only' transforms the methods so
  * that the atomictemplate logic is added. This prevents creating another object.
- *
+ * <p/>
  * The question is how to transform.
  * The code needs to be placed around the original code. In principle this is no problem (can
  * be done with a try finally clause?). But the question is if this can cause problems with
  * constructors.
- *
+ * <p/>
  * If is is placed around the constructor, the constructor will be re-executed on the same
  * atomicobject.
- *
+ * <p/>
  * Another reason to drop the template approach is that a lot of boxing/unboxing goes on
  * with primitive return types of the atomicmethod.
  *
@@ -34,7 +33,7 @@ import java.util.List;
  */
 public class ImprovedAtomicMethodTransformer {
 
-     private static final String CALLEE = "callee";
+    private static final String CALLEE = "callee";
 
     private final ClassNode classNode;
     private final List<ClassNode> innerClasses = new LinkedList<ClassNode>();
@@ -91,9 +90,9 @@ public class ImprovedAtomicMethodTransformer {
         if (atomicMethod.name.equals("<init>")) {
             return "initdelegate";
         } else if (atomicMethod.name.equals("<clinit")) {
-            String msg = format("Static initializer on class '%s' can't be enhanced " +
-                    "with transactional logic for the moment",classNode.name);
-            throw new TodoException(msg);
+            String msg = format("static initializer in class '%s' can't possibly have an AtomicMethod annotation",
+                    atomicMethod.name);
+            throw new IllegalArgumentException(msg);
         } else {
             return atomicMethod.name + "delegate";
         }
@@ -102,7 +101,7 @@ public class ImprovedAtomicMethodTransformer {
     /**
      * Transforms the original method so that it creates an atomictemplate, calls the execute
      * (which in turn will call the delegate method) and returns.
-     *
+     * <p/>
      * The trick is to leave the stack as it is.
      *
      * @param atomicMethod
@@ -143,7 +142,7 @@ public class ImprovedAtomicMethodTransformer {
         //[.., template, template, this?, arg1, arg2, arg3]
 
         String constructorDescriptor = getConstructorDescriptorForTransactionTemplate(atomicMethod);
-        
+
         cb.INVOKESPECIAL(transactionTemplateClass, "<init>", constructorDescriptor);
 
         //[.., template]

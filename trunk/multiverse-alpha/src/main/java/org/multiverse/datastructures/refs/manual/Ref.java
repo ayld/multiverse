@@ -8,11 +8,8 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.datastructures.refs.ManagedRef;
-import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.stms.alpha.AlphaTranlocal;
-import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
-import org.multiverse.stms.alpha.AlphaTransaction;
-import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.*;
+import static org.multiverse.stms.alpha.AlphaStmUtils.getLoadUncommittedMessage;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -119,7 +116,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     public E get() {
         return new AtomicTemplate<E>(true) {
             @Override
-            public E execute(Transaction t){
+            public E execute(Transaction t) {
                 return get(t);
             }
         }.execute();
@@ -211,7 +208,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     public RefTranlocal<E> privatize(long readVersion) {
         RefTranlocal<E> origin = (RefTranlocal<E>) load(readVersion);
         if (origin == null) {
-            throw new LoadUncommittedException();
+            throw new LoadUncommittedException(getLoadUncommittedMessage(this));
         }
         return new RefTranlocal<E>(origin);
     }
