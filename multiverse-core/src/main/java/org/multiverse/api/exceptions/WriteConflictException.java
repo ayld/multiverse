@@ -13,13 +13,20 @@ public class WriteConflictException extends CommitFailureException {
 
     public final static WriteConflictException INSTANCE = new WriteConflictException();
 
-    private final static boolean reuse = parseBoolean(getProperty(WriteConflictException.class.getName()+".reuse", "true"));
+    public final static boolean reuse = parseBoolean(getProperty(WriteConflictException.class.getName() + ".reuse", "true"));
 
-    public static WriteConflictException create() {
-        if (reuse) {
-            return WriteConflictException.INSTANCE;
-        } else {
-            return new WriteConflictException();
-        }
+    public WriteConflictException() {
+    }
+
+    public WriteConflictException(String message) {
+        super(message);
+    }
+
+    public WriteConflictException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public WriteConflictException(Throwable cause) {
+        super(cause);
     }
 }

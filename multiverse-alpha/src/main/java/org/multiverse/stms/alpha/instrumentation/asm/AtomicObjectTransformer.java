@@ -13,18 +13,7 @@ import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.SimpleRemapper;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 
 import static java.lang.String.format;
 import java.util.HashSet;
@@ -45,6 +34,9 @@ import java.util.Set;
  * </ol>
  * <p/>
  * An instance should not be reused.
+ * <p/>
+ * The constructor of the donor is not copied. So what out with relying on a constructor
+ * in the donor.
  *
  * @author Peter Veentjer
  */
@@ -225,7 +217,16 @@ public class AtomicObjectTransformer implements Opcodes {
         m.visitJumpInsn(IFNONNULL, notNull);
         m.visitTypeInsn(NEW, getInternalName(LoadUncommittedException.class));
         m.visitInsn(DUP);
-        m.visitMethodInsn(INVOKESPECIAL, getInternalName(LoadUncommittedException.class), "<init>", "()V");
+        m.visitVarInsn(ALOAD, 0);
+        String getLoadUncommittedMessageSig = Type.getMethodDescriptor(
+                Type.getType(String.class),
+                new Type[]{Type.getType(AlphaAtomicObject.class)});
+        m.visitMethodInsn(
+                INVOKESTATIC,
+                getInternalName(AlphaStmUtils.class),
+                "getLoadUncommittedMessage",
+                getLoadUncommittedMessageSig);
+        m.visitMethodInsn(INVOKESPECIAL, getInternalName(LoadUncommittedException.class), "<init>", "(Ljava/lang/String;)V");
         m.visitInsn(ATHROW);
 
         m.visitLabel(notNull);

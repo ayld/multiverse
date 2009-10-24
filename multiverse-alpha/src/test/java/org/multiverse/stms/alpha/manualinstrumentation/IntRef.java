@@ -4,6 +4,7 @@ import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
@@ -103,7 +104,7 @@ public final class IntRef extends FastAtomicObjectMixin {
     public IntRefTranlocal privatize(long version) {
         IntRefTranlocal origin = (IntRefTranlocal) load(version);
         if (origin == null) {
-            throw new LoadUncommittedException();
+            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
         }
         return new IntRefTranlocal(origin);
     }

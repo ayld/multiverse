@@ -3,11 +3,7 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.stms.alpha.AlphaTranlocal;
-import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
-import org.multiverse.stms.alpha.AlphaTransaction;
-import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -85,7 +81,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
     public AbaRefTranlocal<E> privatize(long readVersion) {
         AbaRefTranlocal<E> origin = (AbaRefTranlocal) load(readVersion);
         if (origin == null) {
-            throw new LoadUncommittedException();
+            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
         }
         return new AbaRefTranlocal(origin);
     }

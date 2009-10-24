@@ -2,10 +2,40 @@ package org.multiverse.stms.alpha;
 
 import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
 
+import static java.lang.String.format;
+
 /**
  * @author Peter Veentjer
  */
 public final class AlphaStmUtils {
+
+    public static String getLoadUncommittedMessage(AlphaAtomicObject atomicObject) {
+        return format("Load uncommitted on atomicobject '%s' ", toAtomicObjectString(atomicObject));
+    }
+
+    /**
+     * Debug string representation of the atomicobject that belongs to the tranlocal.
+     *
+     * @param tranlocal
+     * @return
+     */
+    public static String toAtomicObjectString(AlphaTranlocal tranlocal) {
+        return toAtomicObjectString(tranlocal.getAtomicObject() == null ? null : tranlocal.getAtomicObject());
+    }
+
+
+    /**
+     * Debug representation of the atomicobject.
+     *
+     * @param atomicObject
+     * @return
+     */
+    public static String toAtomicObjectString(AlphaAtomicObject atomicObject) {
+        if (atomicObject == null) {
+            return "null";
+        }
+        return format("%s@%s", atomicObject.getClass().getName(), System.identityHashCode(atomicObject));
+    }
 
     /**
      * Gets the AtomicObject for the provided AlphaTranlocal.

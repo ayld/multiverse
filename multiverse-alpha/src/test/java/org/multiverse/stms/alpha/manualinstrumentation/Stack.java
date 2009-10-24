@@ -4,11 +4,7 @@ import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.stms.alpha.AlphaTranlocal;
-import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
-import org.multiverse.stms.alpha.AlphaTransaction;
-import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -80,7 +76,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     public AlphaTranlocal privatize(long version) {
         StackTranlocal<E> origin = (StackTranlocal<E>) load(version);
         if (origin == null) {
-            throw new LoadUncommittedException();
+            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
         }
         return new StackTranlocal<E>(origin);
     }

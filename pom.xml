@@ -36,8 +36,6 @@
             <email>alarmnummer AT gmail DOTCOM</email>
             <roles>
                 <role>Founder</role>
-                <role>Hacker</role>
-                <role>Despot</role>
             </roles>
         </developer>
         <developer>
@@ -48,7 +46,7 @@
             <roles>
                 <role>Apprentice</role>
             </roles>
-        </developer>            
+        </developer>
     </developers>
 
     <repositories>
@@ -182,9 +180,9 @@
 
         <extensions>
             <extension>
-                  <groupId>org.apache.maven.wagon</groupId>
-                  <artifactId>wagon-webdav</artifactId>
-                  <version>1.0-beta-2</version>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav</artifactId>
+                <version>1.0-beta-2</version>
             </extension>
         </extensions>
     </build>
@@ -199,7 +197,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.8.0</version>            
+            <version>1.8.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

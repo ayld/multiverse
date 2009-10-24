@@ -4,6 +4,8 @@ import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.AbstractTransaction;
+import static org.multiverse.stms.alpha.AlphaStmUtils.getLoadUncommittedMessage;
+import static org.multiverse.stms.alpha.AlphaStmUtils.toAtomicObjectString;
 import org.multiverse.utils.clock.Clock;
 import org.multiverse.utils.profiling.ProfileRepository;
 
@@ -42,17 +44,17 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
 
                 AlphaTranlocal result = atomicObject.load(readVersion);
                 if (result == null) {
-                    throw new LoadUncommittedException();
+                    throw new LoadUncommittedException(getLoadUncommittedMessage(atomicObject));
                 }
                 return result;
             case committed: {
-                String msg = format("Can't load atomicObject of class '%s' from already committed transaction '%s'.",
-                        atomicObject.getClass(),familyName);
+                String msg = format("Can't load atomicObject '%s' from already committed transaction '%s'.",
+                        toAtomicObjectString(atomicObject), familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't load atomicObject of class '%s' from already aborted transaction '%s'.",
-                        atomicObject.getClass(),familyName);
+                String msg = format("Can't load atomicObject '%s' from already aborted transaction '%s'.",
+                        toAtomicObjectString(atomicObject), familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -71,8 +73,8 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
 
     @Override
     public void attachNew(AlphaTranlocal tranlocal) {
-        String msg = format("Can't attach tranlocal of class '%s' to readonly transaction '%s'.",
-                tranlocal.getAtomicObject().getClass(), familyName);
+        String msg = format("Can't attach atomicobject '%s' to readonly transaction '%s'.",
+                toAtomicObjectString(tranlocal), familyName);
         throw new ReadonlyException(msg);
     }
 

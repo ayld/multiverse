@@ -4,6 +4,7 @@ import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
+import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal.IntNode;
@@ -77,7 +78,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     public AlphaTranlocal privatize(long version) {
         IntStackTranlocal origin = (IntStackTranlocal) load(version);
         if (origin == null) {
-            throw new LoadUncommittedException();
+            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
         }
         return new IntStackTranlocal(origin);
     }

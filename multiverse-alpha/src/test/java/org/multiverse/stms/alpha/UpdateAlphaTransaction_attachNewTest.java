@@ -70,7 +70,7 @@ public class UpdateAlphaTransaction_attachNewTest {
 
         assertIsActive(t);
         assertEquals(version, stm.getClockVersion());
-   }
+    }
 
     @Test
     public void attachNewCommittedObject() {
@@ -129,8 +129,11 @@ public class UpdateAlphaTransaction_attachNewTest {
         AlphaTransaction t = startUpdateTransaction();
         t.abort();
 
+        IntRef atomicObject = IntRef.createUncommitted();
+        IntRefTranlocal tranlocal = new IntRefTranlocal(atomicObject, 10);
+
         try {
-            t.attachNew(new DummyTranlocal());
+            t.attachNew(tranlocal);
             fail();
         } catch (DeadTransactionException ex) {
         }
@@ -143,8 +146,11 @@ public class UpdateAlphaTransaction_attachNewTest {
         AlphaTransaction t = startUpdateTransaction();
         t.commit();
 
+        IntRef atomicObject = IntRef.createUncommitted();
+        IntRefTranlocal tranlocal = new IntRefTranlocal(atomicObject, 10);
+
         try {
-            t.attachNew(new DummyTranlocal());
+            t.attachNew(tranlocal);
             fail();
         } catch (DeadTransactionException ex) {
         }

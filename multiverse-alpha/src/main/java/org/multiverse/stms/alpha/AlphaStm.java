@@ -8,6 +8,7 @@ import org.multiverse.utils.profiling.ProfilerAware;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Default {@link Stm} implementation that provides the most complete set of features. Like
@@ -38,6 +39,8 @@ import java.util.logging.Level;
  */
 public final class AlphaStm implements Stm, ProfilerAware {
 
+    private final static Logger logger = Logger.getLogger(AlphaStm.class.getName());
+
     private final Clock clock;
 
     private final ProfileRepository profiler;
@@ -48,11 +51,11 @@ public final class AlphaStm implements Stm, ProfilerAware {
 
     private final CommitLockPolicy lockPolicy;
 
-    public static AlphaStm createFast(){
+    public static AlphaStm createFast() {
         return new AlphaStm(AlphaStmConfig.createFastConfig());
     }
 
-    public static AlphaStm createDebug(){
+    public static AlphaStm createDebug() {
         return new AlphaStm(AlphaStmConfig.createDebugConfig());
     }
 
@@ -82,6 +85,8 @@ public final class AlphaStm implements Stm, ProfilerAware {
         this.loggingPossible = config.loggingPossible;
         this.logIdGenerator = loggingPossible ? new AtomicLong() : null;
         this.lockPolicy = config.commitLockPolicy;
+
+        logger.info("Created a new AlphaStm instance");
     }
 
     /**

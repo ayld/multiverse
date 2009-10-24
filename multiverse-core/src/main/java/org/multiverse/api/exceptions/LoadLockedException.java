@@ -12,13 +12,20 @@ public class LoadLockedException extends LoadException {
 
     public final static LoadLockedException INSTANCE = new LoadLockedException();
 
-    private final static boolean reuse = parseBoolean(getProperty(LoadLockedException.class.getName()+".reuse", "true"));
+    public final static boolean reuse = parseBoolean(getProperty(LoadLockedException.class.getName() + ".reuse", "true"));
 
-    public static LoadLockedException create() {
-        if (reuse) {
-            return LoadLockedException.INSTANCE;
-        } else {
-            return new LoadLockedException();
-        }
+    public LoadLockedException() {
+    }
+
+    public LoadLockedException(String message) {
+        super(message);
+    }
+
+    public LoadLockedException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public LoadLockedException(Throwable cause) {
+        super(cause);
     }
 }
