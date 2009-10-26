@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.exceptions.DeadTransactionException;
+import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
@@ -91,6 +92,38 @@ public class ReadonlyAlphaTransaction_loadTest {
         IntRefTranlocal tranlocalIntValue = (IntRefTranlocal) readonlyTransaction.load(ref);
         assertEquals(0, ref.get(tranlocalIntValue));
     }
+    
+    /**
+     * Since readonly transactions does not track reads (see the {@linkplain ReadonlyAlphaTransaction
+     * JavaDoc}), it will immediately see a <em>committed</em> change made by another
+     * transaction.
+     * <p>
+     * If read tracking is implemented this behaviour is expected to change, i.e. loads after
+     * commits by other transactions should still succeed and return the value that was
+     * current when the readonly transaction started.
+     */
+    @Test
+    public void loadObservesCommittedChangesMadeByOtherTransactions() {
+        IntRef ref = new IntRef(0);
+
+        AlphaTransaction readonlyTransaction = stm.startReadOnlyTransaction(null);
+        AlphaTransaction updateTransaction = stm.startUpdateTransaction(null);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) updateTransaction.load(ref);
+        ref.inc(tranlocal);
+        
+        // will succeed because the updating transaction hasn't committed yet
+        IntRefTranlocal tranlocalIntValue = (IntRefTranlocal) readonlyTransaction.load(ref);
+        assertEquals(0, ref.get(tranlocalIntValue));
+        
+        updateTransaction.commit();
+        
+        // will fail because the version requested is too old (no read tracking)
+        try {
+            readonlyTransaction.load(ref);
+            fail();
+        } catch (LoadTooOldVersionException ex) {
+        }        
+    }        
 
     @Test
     public void loadOnCommittedTransactionFails() {
