@@ -8,7 +8,7 @@ import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.ReadonlyAlphaTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class AtomicMethod_ReadonlyUpdateTransactionTest {
 

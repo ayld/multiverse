@@ -5,7 +5,9 @@ package org.multiverse.api.exceptions;
  *
  * @author Peter Veentjer.
  */
-public class LoadException extends RuntimeException {
+public abstract class LoadException extends RuntimeException {
+
+    private static final long serialVersionUID = 0;
 
     public LoadException() {
     }

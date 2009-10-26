@@ -1,46 +1,43 @@
-package org.multiverse.integrationtests;
+package org.multiverse.integrationtests.classicproblems;
 
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.multiverse.TestUtils.joinAll;
-import static org.multiverse.TestUtils.sleepRandomMs;
-import static org.multiverse.TestUtils.startAll;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import org.junit.Before;
+import org.junit.Test;
+import org.multiverse.TestThread;
+import static org.multiverse.TestUtils.*;
+import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.api.annotations.AtomicObject;
+import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.datastructures.refs.Ref;
+import org.multiverse.stms.alpha.manualinstrumentation.Stack;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.multiverse.TestThread;
-import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.annotations.AtomicObject;
-import org.multiverse.datastructures.refs.IntRef;
-import org.multiverse.datastructures.refs.Ref;
-import org.multiverse.stms.alpha.manualinstrumentation.Stack;
-
 /**
  * The Sleeping Barber problem, due to legendary Dutch computer scientist
  * <a href="http://en.wikipedia.org/wiki/Edsger_Dijkstra">E.W. Dijkstra</a>, is stated
  * on <a href="http://en.wikipedia.org/wiki/Sleeping_barber">Wikipedia</a>) as follows:
- * <p>
- * &quot;A hypothetical barber shop with one barber, one barber chair, and a number 
- * of chairs for waiting customers. When there are no customers, the barber sits 
- * in his chair and sleeps. As soon as a customer arrives, he either awakens the 
- * barber or, if the barber is cutting someone else's hair, sits down in one of 
- * the vacant chairs. If all of the chairs are occupied, the newly arrived customer 
+ * <p/>
+ * &quot;A hypothetical barber shop with one barber, one barber chair, and a number
+ * of chairs for waiting customers. When there are no customers, the barber sits
+ * in his chair and sleeps. As soon as a customer arrives, he either awakens the
+ * barber or, if the barber is cutting someone else's hair, sits down in one of
+ * the vacant chairs. If all of the chairs are occupied, the newly arrived customer
  * simply leaves.&quot;
- * <p>
- * The problem is trivially modelled using a fixed-size {@linkplain BlockingQueue blocking queue} 
+ * <p/>
+ * The problem is trivially modelled using a fixed-size {@linkplain BlockingQueue blocking queue}
  * to represent the chairs, with customers adding themselves to the queue and the
  * barber doing a series of {@link BlockingQueue#take() takes}:
- * 
+ * <p/>
  * <pre>
  * BlockingQueue chairs = new BlockingQueue(chairCount);
- * 
+ * <p/>
  * class Customer {
  *   void visit() {
  *     if (!chairs.offer(this)) {
@@ -50,7 +47,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.Stack;
  *     }
  *   }
  * }
- * 
+ * <p/>
  * class Barber {
  *   void runShop() {
  *     while (!closingTime) {
@@ -59,26 +56,33 @@ import org.multiverse.stms.alpha.manualinstrumentation.Stack;
  *   }
  * }
  * </pre>
- * 
- * This is very close to the algorithm given in Dijkstra's 
+ * <p/>
+ * This is very close to the algorithm given in Dijkstra's
  * <a href="http://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html#4.2.%20The%20Superfluity%20of%20the%20General%20Semaphore.">original paper</a>,
  * which is a producer/consumer example in which the consumer waits when the queue
  * is empty and consumers notify the producer when they add an element to an <em>empty</em>
  * queue.
- * <p>  
+ * <p/>
  * But using a blocking queue would be &quot;cheating&quot;, sort-of, because the tricky
  * part of the problem - getting the handover between the customers and barber right -
  * is encapsulated in the queue.
- * <p>
+ * <p/>
  * Also, the model is slightly odd: the barber sleeps standing up or, at any rate, not in
- * one of the chairs, a customer sitting down in a chair magically wakes the barber, the 
- * barber &quot;pulls&quot; customers out of their chairs etc. 
- * <p>
+ * one of the chairs, a customer sitting down in a chair magically wakes the barber, the
+ * barber &quot;pulls&quot; customers out of their chairs etc.
+ * <p/>
  * So, instead, we'll here implement the &quot;canonical&quot; solution given in the
  * Wikipedia article, which uses two flags to coordinate handover. The third semaphore
  * of the canonical solution is replaced by transactions, which after all is the point
  * of this example.
- * 
+ * <p/>
+ * <p/>
+ * Thread BarberThread has thrown an exception
+ * java.lang.ClassCastException: org.multiverse.integrationtests.classicproblems.SleepingBarberTest$BarberThread cannot be cast to org.multiverse.integrationtests.classicproblems.SleepingBarberTest$CustomerThread
+ * at org.multiverse.integrationtests.classicproblems.SleepingBarberTest$BarberThread.doRun(SleepingBarberTest.java:168)
+ * at org.multiverse.TestThread.run(TestThread.java:44)
+ * STM integrity compromised, instrumentation problems encountered
+ *
  * @author Andrew Phillips
  */
 public class SleepingBarberTest {
@@ -87,11 +91,11 @@ public class SleepingBarberTest {
     private Chairs chairs;
 
     BarberThread barber;
-    
+
     // each "customer thread" simulates the visits of a succession of customers 
     private final int customerThreadCount = 5;
     private final int customerCount = 100;
-    
+
     private final AtomicInteger customerCountDown = new AtomicInteger();
     private final AtomicInteger customersTurnedAway = new AtomicInteger();
     private final AtomicLong customersServed = new AtomicLong();
@@ -114,7 +118,7 @@ public class SleepingBarberTest {
         barber = new BarberThread();
         customerCountDown.set(customerCount);
         CustomerThread[] customers = createCustomerThreads();
-        
+
         startAll(barber);
         startAll(customers);
 
@@ -136,19 +140,19 @@ public class SleepingBarberTest {
 
     public class BarberThread extends TestThread {
         private Ref<Boolean> closingTime = new Ref<Boolean>();
-        
+
         // 0 == asleep, 1 == awake
         private IntRef state = new IntRef();
-        
+
         BarberThread() {
             super("BarberThread");
         }
-        
+
         @Override
         public void doRun() {
             closingTime.set(false);
             state.set(1);
-            
+
             while (true) {
                 fallAsleepIfShopEmpty();
                 snoozeUntilWoken();
@@ -156,15 +160,15 @@ public class SleepingBarberTest {
                 if (isClosingTime()) {
                     break;
                 }
-                
+
                 /*
-                 * chairs.element() followed by customer.askForward() is just a long
-                 * drawn-out version of chairs.remove().
-                 * From a modelling perspective, the idea is that the barber doesn't
-                 * pull the customer out of his/her chair (unless you know some very
-                 * no-nonsense barbers!), but asks one of the seated customers, who
-                 * then gets up him- or herself. 
-                 */
+                * chairs.element() followed by customer.askForward() is just a long
+                * drawn-out version of chairs.remove().
+                * From a modelling perspective, the idea is that the barber doesn't
+                * pull the customer out of his/her chair (unless you know some very
+                * no-nonsense barbers!), but asks one of the seated customers, who
+                * then gets up him- or herself.
+                */
                 CustomerThread customer = (CustomerThread) chairs.element();
                 customer.askForward();
                 cutHair(customer);
@@ -186,10 +190,11 @@ public class SleepingBarberTest {
                 // the barber sits down in a chair and falls asleep
                 chairs.add(this);
                 state.set(0);
-            }            
+            }
         }
 
         private void snoozeUntilWoken() {
+            //todo:
             if (isAsleep()) {
                 /*
                  * This has to take place outside the "takeNapIfShopEmpty" atomic block
@@ -197,7 +202,7 @@ public class SleepingBarberTest {
                  * be woken up.
                  */
                 state.await(1);
-                
+
                 // the barber gets up when he's awoken
                 boolean wasSeated = chairs.remove(this);
                 assert wasSeated : "The barber wasn't seated?!?";
@@ -208,11 +213,11 @@ public class SleepingBarberTest {
             // some people have long hair, some have short hair - all takes time
             sleepRandomMs(50);
         }
-        
+
         public void wakeUp() {
-            state.inc();            
+            state.inc();
         }
-        
+
         public boolean isAsleep() {
             return (state.get() == 0);
         }
@@ -220,23 +225,23 @@ public class SleepingBarberTest {
         public boolean isAwake() {
             return (state.get() == 1);
         }
-        
+
         private boolean isClosingTime() {
             return closingTime.get();
         }
-        
+
         public void closeShop() {
             closingTime.set(true);
-            
+
             // the barber instinctively wakes up at closing time if asleep 
             state.set(1);
         }
     }
-    
+
     public class CustomerThread extends TestThread {
         // 0 == sat down, 1 == beckoned by barber, 2 == got up for haircut, 3 == left shop
         private final IntRef state = new IntRef();
-        
+
         CustomerThread(int id) {
             super("CustomerThread-" + id);
         }
@@ -247,12 +252,12 @@ public class SleepingBarberTest {
                 // wait a certain amount of time before sending each customer
                 sleepRandomMs(250);
                 visitBarber();
-                
+
                 // wait until the customer has left the shop
                 state.await(3);
             }
         }
-        
+
         private void visitBarber() {
 
             if (!tryToSitDown()) {
@@ -265,12 +270,12 @@ public class SleepingBarberTest {
             assert barber.isAwake() : "The barber wasn't woken up or was woken by too many customers!";
             waitForTurn();
         }
-        
+
         /*
-         * CRITICAL SECTION: There may not be a pause between the customer sitting down
-         * and setting his state to "waiting". Otherwise, s/he may be beckoned forward
-         * by the barber before s/he is waiting.
-         */
+        * CRITICAL SECTION: There may not be a pause between the customer sitting down
+        * and setting his state to "waiting". Otherwise, s/he may be beckoned forward
+        * by the barber before s/he is waiting.
+        */
         @AtomicMethod
         private boolean tryToSitDown() {
             if (!chairs.offer(this)) {
@@ -280,7 +285,7 @@ public class SleepingBarberTest {
                 return true;
             }
         }
-        
+
         private int leaveShop() {
             return state.set(3);
         }
@@ -299,31 +304,31 @@ public class SleepingBarberTest {
                 barber.wakeUp();
             }
         }
-        
+
         private void waitForTurn() {
             state.await(1);
-            
+
             boolean wasSeated = chairs.remove(this);
             assert wasSeated : "Customer wasn't seated?!?";
 
             // walk over to the barber
             int wasCalled = state.set(2);
-            assert (wasCalled == 1) : String.format("Customer %s stood up but wasn't called (state: %d)?!?", getName(), wasCalled);            
+            assert (wasCalled == 1) : String.format("Customer %s stood up but wasn't called (state: %d)?!?", getName(), wasCalled);
         }
-        
+
         public void askForward() {
             int wasWaiting = state.set(1);
             assert (wasWaiting == 0) : String.format("The barber signalled a customer (%s) who wasn't waiting (state: %d)?!?", getName(), wasWaiting);
-            
+
             state.await(2);
         }
-        
+
         public void showOut() {
             int wasHavingHairCut = leaveShop();
             assert (wasHavingHairCut == 2) : String.format("Customer %s was shown out without having his/her hair cut?!?", getName());
         }
-    }    
-    
+    }
+
     /**
      * A size-limited stack with some very inefficient implementations of required methods.
      */
@@ -331,12 +336,12 @@ public class SleepingBarberTest {
     class Chairs {
         private final int chairCount;
         private final Stack<TestThread> chairs;
-        
+
         Chairs(int chairCount) {
             this.chairCount = chairCount;
             chairs = new Stack<TestThread>();
         }
-        
+
         boolean offer(TestThread elem) {
             if (chairs.size() < chairCount) {
                 chairs.push(elem);
@@ -344,7 +349,7 @@ public class SleepingBarberTest {
             }
             return false;
         }
-        
+
         void add(TestThread elem) {
             if (!offer(elem)) {
                 throw new IllegalStateException("No chairs available!");
@@ -359,11 +364,11 @@ public class SleepingBarberTest {
             chairs.push(elem);
             return elem;
         }
-        
+
         boolean remove(TestThread elem) {
             Stack<TestThread> poppedStack = new Stack<TestThread>();
             boolean found = false;
-            
+
             while (!chairs.isEmpty()) {
                 TestThread next = chairs.pop();
                 if (next == elem) {
@@ -373,35 +378,35 @@ public class SleepingBarberTest {
                     poppedStack.push(next);
                 }
             }
-            
+
             // now return all the popped items
             while (!poppedStack.isEmpty()) {
                 chairs.push(poppedStack.pop());
             }
             return found;
         }
-        
+
         @AtomicMethod(readonly = true)
         boolean isEmpty() {
             return chairs.isEmpty();
         }
-        
+
         @Override
         public String toString() {
             Stack<TestThread> poppedStack = new Stack<TestThread>();
             StringBuilder stackString = new StringBuilder("(top) [");
-            
+
             while (!chairs.isEmpty()) {
                 TestThread elem = chairs.pop();
                 stackString.append(elem).append(", ");
                 poppedStack.push(elem);
             }
-            
+
             // now return all the popped items
             while (!poppedStack.isEmpty()) {
                 chairs.push(poppedStack.pop());
             }
-            
+
             int length = stackString.length();
             if (length > 8) {
                 stackString.setLength(length - 2);

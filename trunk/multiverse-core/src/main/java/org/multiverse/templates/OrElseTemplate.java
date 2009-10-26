@@ -2,7 +2,7 @@ package org.multiverse.templates;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 /**
  * A template for the 'orelse' functionality. Example:
@@ -21,7 +21,7 @@ import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransact
  * <p/>
  * If an exception is thrown in the run block, the block is ended but the
  * orelse block is not started and the exception is propagated.
- * 
+ * <p/>
  * Does not start a transaction if no transaction is found.
  *
  * @author Peter Veentjer.

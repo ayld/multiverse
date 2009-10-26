@@ -7,7 +7,7 @@ import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class AtomicObject_clashingFieldTest {
 
@@ -52,7 +52,7 @@ public class AtomicObject_clashingFieldTest {
     }
 
     @Test
-    public void testContentOfFastAtomicObjectIsCopied(){
+    public void testContentOfFastAtomicObjectIsCopied() {
         testIncomplete();
     }
 

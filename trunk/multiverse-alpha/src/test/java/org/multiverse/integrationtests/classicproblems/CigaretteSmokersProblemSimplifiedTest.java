@@ -1,4 +1,4 @@
-package org.multiverse.integrationtests;
+package org.multiverse.integrationtests.classicproblems;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,7 +8,7 @@ import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * This implementation is a lot easier than the solution provided on the wiki page. Don't see the
@@ -18,7 +18,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  * For more information see:
  * http://en.wikipedia.org/wiki/Cigarette_smokers_problem
  * <p/>
- * 
+ *
  * @author Peter Veentjer.
  */
 public class CigaretteSmokersProblemSimplifiedTest {

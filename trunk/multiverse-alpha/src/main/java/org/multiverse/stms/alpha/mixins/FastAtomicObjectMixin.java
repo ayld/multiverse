@@ -112,7 +112,6 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
                             readVersion, toAtomicObjectString(this), tranlocalTime2.version);
                     throw new LoadTooOldVersionException(msg);
                 }
-
             } else {
                 //the tranlocal has not changed and it was unlocked. This means that we read
                 //an old version that we can use.

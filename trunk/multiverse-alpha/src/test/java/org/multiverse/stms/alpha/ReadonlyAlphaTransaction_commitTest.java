@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsCommitted;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

@@ -9,7 +9,7 @@ import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.api.annotations.Exclude;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

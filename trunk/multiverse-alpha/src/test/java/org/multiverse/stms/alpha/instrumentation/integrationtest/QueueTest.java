@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
-import org.multiverse.utils.TransactionThreadLocal;
+import org.multiverse.utils.ThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -70,13 +70,13 @@ public class QueueTest {
     }
 
     @Test
-    public void testRollback(){
+    public void testRollback() {
         Queue<String> queue = new Queue<String>();
 
         long version = stm.getClockVersion();
 
         Transaction t = stm.startUpdateTransaction("testRollback");
-        TransactionThreadLocal.setThreadLocalTransaction(t);
+        ThreadLocalTransaction.setThreadLocalTransaction(t);
 
         queue.push("foo");
         queue.push("bar");

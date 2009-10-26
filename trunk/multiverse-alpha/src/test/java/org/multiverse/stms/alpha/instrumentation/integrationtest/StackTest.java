@@ -13,7 +13,7 @@ import org.multiverse.stms.alpha.AlphaTransaction;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
 import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
 import org.multiverse.templates.AtomicTemplate;
-import org.multiverse.utils.TransactionThreadLocal;
+import org.multiverse.utils.ThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -144,7 +144,7 @@ public class StackTest {
         long version = stm.getClockVersion();
 
         Transaction t = stm.startUpdateTransaction("testRollback");
-        TransactionThreadLocal.setThreadLocalTransaction(t);
+        ThreadLocalTransaction.setThreadLocalTransaction(t);
 
         stack.push("foo");
         stack.push("bar");

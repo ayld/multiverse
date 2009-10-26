@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @author Peter Veentjer.
  */
-public final class TransactionThreadLocal {
+public final class ThreadLocalTransaction {
 
     public final static AtomicLong getCount = new AtomicLong();
     public final static AtomicLong setCount = new AtomicLong();
@@ -42,7 +42,7 @@ public final class TransactionThreadLocal {
 
         Transaction t = threadlocal.get();
         if (t == null) {
-            throw new NoTransactionFoundException("No transaction is found on the TransactionThreadLocal");
+            throw new NoTransactionFoundException("No transaction is found on the ThreadLocalTransaction");
         }
 
         return t;
@@ -58,6 +58,6 @@ public final class TransactionThreadLocal {
     }
 
     //we don't want any instances.
-    private TransactionThreadLocal() {
+    private ThreadLocalTransaction() {
     }
 }

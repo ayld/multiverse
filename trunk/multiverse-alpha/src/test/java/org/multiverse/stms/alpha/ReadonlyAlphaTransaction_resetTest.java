@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -44,7 +44,7 @@ public class ReadonlyAlphaTransaction_resetTest {
         value.inc();
 
         long version = stm.getClockVersion();
-        t.reset();
+        t.restart();
         assertEquals(version, stm.getClockVersion());
         assertIsActive(t);
     }
@@ -59,7 +59,7 @@ public class ReadonlyAlphaTransaction_resetTest {
         value.inc();
 
         long version = stm.getClockVersion();
-        t.reset();
+        t.restart();
         assertEquals(version, stm.getClockVersion());
         assertIsActive(t);
     }

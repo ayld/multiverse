@@ -12,7 +12,7 @@ import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class ReadonlyTransactionTest {
 

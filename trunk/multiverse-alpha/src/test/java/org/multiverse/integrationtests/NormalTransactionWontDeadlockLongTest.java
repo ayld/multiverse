@@ -4,13 +4,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
-import org.multiverse.TestUtils;
 import static org.multiverse.TestUtils.*;
-import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
-import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * A Tests that makes sure that normaly Transactions are not the subject to deadlocks.
@@ -22,7 +19,6 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
  */
 public class NormalTransactionWontDeadlockLongTest {
 
-    private Stm stm;
     private int threadCount = 100;
     private int resourceCount = 10;
     private int transactionCount = 200;
@@ -30,7 +26,6 @@ public class NormalTransactionWontDeadlockLongTest {
 
     @Before
     public void setUp() {
-        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
 
         values = new IntRef[resourceCount];
@@ -46,41 +41,41 @@ public class NormalTransactionWontDeadlockLongTest {
 
     @Test
     public void test() {
-        SomeThread[] threads = createThreads();
+        ModifyThread[] threads = createThreads();
         startAll(threads);
         joinAll(threads);
     }
 
-    public SomeThread[] createThreads() {
-        SomeThread[] threads = new SomeThread[threadCount];
+    public ModifyThread[] createThreads() {
+        ModifyThread[] threads = new ModifyThread[threadCount];
         for (int k = 0; k < threads.length; k++) {
-            threads[k] = new SomeThread(k);
+            threads[k] = new ModifyThread(k);
         }
         return threads;
     }
 
-    public class SomeThread extends TestThread {
+    public class ModifyThread extends TestThread {
 
-        public SomeThread(int id) {
-            super("TestThread-" + id);
+        public ModifyThread(int id) {
+            super("ModifyThread-" + id);
         }
 
         @Test
         public void doRun() {
             for (int k = 0; k < transactionCount; k++) {
                 doit();
-                if (k % 100 == 0) {
-                    System.out.printf("%s is at count %s\n", getName(), k);
+                if (k % 25 == 0) {
+                    System.out.printf("%s is at %s\n", getName(), k);
                 }
             }
         }
 
         @AtomicMethod
         private void doit() {
-            IntRef value1 = values[TestUtils.randomInt(values.length - 1)];
+            IntRef value1 = values[randomInt(values.length - 1)];
             value1.inc();
             sleepMs(25);
-            IntRef value2 = values[TestUtils.randomInt(values.length - 1)];
+            IntRef value2 = values[randomInt(values.length - 1)];
             value2.inc();
         }
     }

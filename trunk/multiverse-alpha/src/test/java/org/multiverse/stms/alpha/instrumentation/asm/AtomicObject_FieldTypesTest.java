@@ -10,7 +10,7 @@ import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.lang.reflect.Field;
 import static java.lang.reflect.Modifier.isTransient;
@@ -399,7 +399,7 @@ public class AtomicObject_FieldTypesTest {
         }
     }
 
-     @Test
+    @Test
     public void runtimeKnownRefType_atomicObjectType() {
         intValue value1 = new intValue(10);
         RuntimeKnownObjectRef ref = new RuntimeKnownObjectRef(value1);

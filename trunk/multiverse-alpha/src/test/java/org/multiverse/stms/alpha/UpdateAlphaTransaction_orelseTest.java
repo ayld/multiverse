@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class UpdateAlphaTransaction_orelseTest {
     private AlphaStm stm;

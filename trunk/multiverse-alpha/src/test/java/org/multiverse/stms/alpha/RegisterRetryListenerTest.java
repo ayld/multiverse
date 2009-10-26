@@ -10,7 +10,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class RegisterRetryListenerTest {
     private AlphaStm stm;

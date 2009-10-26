@@ -28,7 +28,7 @@ public class UpdateAlphaTransaction_resetTest {
         //commit some dummy change
         new IntRef(20);
 
-        t.reset();
+        t.restart();
         assertIsActive(t);
         assertEquals(stm.getClockVersion(), t.getReadVersion());
     }
@@ -41,7 +41,7 @@ public class UpdateAlphaTransaction_resetTest {
         //commit some dummy change
         new IntRef(20);
 
-        t.reset();
+        t.restart();
         assertIsActive(t);
         assertEquals(stm.getClockVersion(), t.getReadVersion());
     }

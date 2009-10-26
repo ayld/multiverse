@@ -16,7 +16,7 @@ import java.util.List;
  * this and prevent duplicate logic.
  * <p/>
  * The on-methods can be overridden.
- *
+ * <p/>
  * The subclass needs to call the init when it has completed its constructor. Can't be done inside
  * the constructor of the abstracttransaction because properties in the subclass perhaps are not set.
  *
@@ -37,8 +37,8 @@ public abstract class AbstractTransaction implements Transaction {
     /**
      * Creates a new AbstractTransaction.
      *
-     * @param familyName the familyname this transaction has.
-     * @param clock the Clock this transaction uses
+     * @param familyName       the familyname this transaction has.
+     * @param clock            the Clock this transaction uses
      * @param commitLockPolicy the CommitLockPolicy to use when the transaction commits.
      * @throws NullPointerException if clock or commitLockPolicy is null.
      */
@@ -99,17 +99,17 @@ public abstract class AbstractTransaction implements Transaction {
                     throw new NullPointerException();
                 }
 
-                 if (compensatingTasks == null) {
+                if (compensatingTasks == null) {
                     compensatingTasks = new LinkedList<Runnable>();
                 }
                 compensatingTasks.add(task);
                 break;
             case committed: {
-                String msg = format("Can't execute compensating task on already committed transaction '%s'",familyName);
+                String msg = format("Can't execute compensating task on already committed transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't execute compensating task on already aborted transaction '%s'",familyName);
+                String msg = format("Can't execute compensating task on already aborted transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -131,17 +131,17 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     @Override
-    public void reset() {
+    public Transaction restart() {
         switch (status) {
             case active: {
-                String msg = format("Can't reset active transaction '%s', abort or commit first",familyName);
+                String msg = format("Can't restart active transaction '%s', abort or commit first", familyName);
                 throw new ResetFailureException(msg);
             }
             case committed:
                 //fall through
             case aborted:
                 init();
-                break;
+                return this;
             default:
                 throw new RuntimeException();
         }
@@ -184,7 +184,7 @@ public abstract class AbstractTransaction implements Transaction {
                 executeCompensatingTasks();
                 break;
             case committed: {
-                String msg = format("Can't abort already committed transaction '%s'",familyName);
+                String msg = format("Can't abort already committed transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted:
@@ -224,7 +224,7 @@ public abstract class AbstractTransaction implements Transaction {
             case committed:
                 return commitVersion;
             case aborted: {
-                String msg = format("Can't commit already aborted transaction '%s'",familyName);
+                String msg = format("Can't commit already aborted transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -243,11 +243,11 @@ public abstract class AbstractTransaction implements Transaction {
                 onAbortAndRetry();
                 break;
             case committed: {
-                String msg = format("Can't call abortAndRetry on already committed transaction '%s'",familyName);
+                String msg = format("Can't call abortAndRetry on already committed transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't call abortAndRetry on already aborted transaction '%s'",familyName);
+                String msg = format("Can't call abortAndRetry on already aborted transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -266,11 +266,11 @@ public abstract class AbstractTransaction implements Transaction {
                 onStartOr();
                 break;
             case committed: {
-                String msg = format("Can't call startOr on already committed transaction '%s'",familyName);
+                String msg = format("Can't call startOr on already committed transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't call startOr on already aborted transaction '%s'",familyName);
+                String msg = format("Can't call startOr on already aborted transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -288,11 +288,11 @@ public abstract class AbstractTransaction implements Transaction {
                 onEndOr();
                 break;
             case committed: {
-                String msg = format("Can't call endOr on already committed transaction '%s'",familyName);
+                String msg = format("Can't call endOr on already committed transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't call endOr on already aborted transaction '%s'",familyName);
+                String msg = format("Can't call endOr on already aborted transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -310,11 +310,11 @@ public abstract class AbstractTransaction implements Transaction {
                 onEndOrAndStartElse();
                 break;
             case committed: {
-                String msg = format("Can't call endOrAndStartElse on already committed transaction '%s'",familyName);
+                String msg = format("Can't call endOrAndStartElse on already committed transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
-                String msg = format("Can't call endOrAndStartElse on already aborted transaction '%s'",familyName);
+                String msg = format("Can't call endOrAndStartElse on already aborted transaction '%s'", familyName);
                 throw new DeadTransactionException(msg);
             }
             default:

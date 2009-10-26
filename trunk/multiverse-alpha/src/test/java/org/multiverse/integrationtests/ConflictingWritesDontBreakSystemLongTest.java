@@ -8,12 +8,9 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class ConflictingWritesDontBreakSystemLongTest {
-    private AtomicInteger transactionCountDown = new AtomicInteger();
     private IntRef[] values;
 
     private int structureCount = 100;
@@ -33,7 +30,6 @@ public class ConflictingWritesDontBreakSystemLongTest {
 
     @Test
     public void test() {
-        transactionCountDown.set(transactionCount);
         setUpStructures();
 
         WriterThread[] threads = createWriterThreads();
@@ -43,7 +39,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
         //the 10 is quite arbitrary.. but we should have quite a number of conflicts.
         //stm.getProfiler().print();
         //assertTrue(stm.getStatistics().getUpdateTransactionWriteConflictCount() > 10);
-        assertValues(transactionCount);
+        assertValues(transactionCount * 10);
     }
 
     private void assertValues(int value) {
@@ -74,7 +70,10 @@ public class ConflictingWritesDontBreakSystemLongTest {
 
         @Override
         public void doRun() {
-            while (transactionCountDown.decrementAndGet() >= 0) {
+            for (int k = 0; k < transactionCount; k++) {
+                if (k % 10 == 0) {
+                    System.out.printf("%s is at %s\n", getName(), k);
+                }
                 doTransaction();
             }
         }

@@ -17,7 +17,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.templates.AbortedException;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class UpdateAlphaTransaction_commitTest {
 

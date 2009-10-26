@@ -11,7 +11,7 @@ import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

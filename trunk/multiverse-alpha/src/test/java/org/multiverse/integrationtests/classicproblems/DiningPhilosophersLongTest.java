@@ -1,4 +1,4 @@
-package org.multiverse.integrationtests;
+package org.multiverse.integrationtests.classicproblems;
 
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
@@ -6,14 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
-import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
-import org.multiverse.api.Stm;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
-
-import java.util.concurrent.atomic.AtomicLong;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * The cause of the dining philosophers problem is that the take of the left and right fork are not atomic. So it
@@ -26,17 +22,13 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Peter Veentjer.
  */
 public class DiningPhilosophersLongTest {
-    private int forkCount = 10;
-    private int attemptCount = 1000;
-
-    private final AtomicLong countDown = new AtomicLong();
+    private int philosopherCount = 10;
+    private int eatCount = 1000;
 
     private IntRef[] forks;
-    private Stm stm;
 
     @Before
     public void setUp() {
-        stm = getGlobalStmInstance();
         setThreadLocalTransaction(null);
     }
 
@@ -47,7 +39,6 @@ public class DiningPhilosophersLongTest {
 
     @Test
     public void test() {
-        countDown.set(attemptCount);
         createForks();
 
         PhilosopherThread[] philosopherThreads = createPhilosoperThreads();
@@ -64,17 +55,17 @@ public class DiningPhilosophersLongTest {
     }
 
     public PhilosopherThread[] createPhilosoperThreads() {
-        PhilosopherThread[] threads = new PhilosopherThread[forkCount];
-        for (int k = 0; k < forkCount; k++) {
+        PhilosopherThread[] threads = new PhilosopherThread[philosopherCount];
+        for (int k = 0; k < philosopherCount; k++) {
             IntRef leftFork = forks[k];
-            IntRef rightFork = k == forkCount - 1 ? forks[0] : forks[k + 1];
+            IntRef rightFork = k == philosopherCount - 1 ? forks[0] : forks[k + 1];
             threads[k] = new PhilosopherThread(k, leftFork, rightFork);
         }
         return threads;
     }
 
     public void createForks() {
-        forks = new IntRef[forkCount];
+        forks = new IntRef[philosopherCount];
         for (int k = 0; k < forks.length; k++) {
             forks[k] = new IntRef(0);
         }
@@ -83,7 +74,6 @@ public class DiningPhilosophersLongTest {
     class PhilosopherThread extends TestThread {
         private final IntRef leftFork;
         private final IntRef rightFork;
-        private volatile long successCount = 0;
 
         PhilosopherThread(int id, IntRef leftFork, IntRef rightFork) {
             super("PhilosopherThread-" + id);
@@ -93,9 +83,11 @@ public class DiningPhilosophersLongTest {
 
         @Override
         public void doRun() {
-            while (countDown.decrementAndGet() >= 0) {
+            for (int k = 0; k < eatCount; k++) {
+                if (k % 100 == 0) {
+                    System.out.printf("%s at %s\n", getName(), k);
+                }
                 eat();
-                successCount++;
             }
         }
 

@@ -10,7 +10,7 @@ import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 /**
  * An integration test for the AtomicTransformer that checks if it can deal with all the possible
@@ -402,7 +402,7 @@ public class AtomicMethod_ArgumentsTest {
 
 
     @Test
-    public void testStatic(){
+    public void testStatic() {
         testIncomplete();
     }
 }

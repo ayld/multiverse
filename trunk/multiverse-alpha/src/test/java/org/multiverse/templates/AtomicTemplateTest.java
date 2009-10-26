@@ -13,8 +13,8 @@ import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.io.IOException;
 
@@ -104,7 +104,7 @@ public class AtomicTemplateTest {
 
     /**
      * Verifies that ignoring the thread-local transaction disables lifting.
-     * <p>
+     * <p/>
      * FIXME: Broken because value.inc() starts its *own* transaction which does
      * not use the "ignore thread-local" param. So you're actually getting a
      * normal lifting transaction.
@@ -127,10 +127,10 @@ public class AtomicTemplateTest {
             }
         }.execute();
 
-        // the thread-local transaction should *not* have been reset
+        // the thread-local transaction should *not* have been restart
         assertSame(t, getThreadLocalTransaction());
         assertIsActive(t);
-        
+
         // the AtomicTemplate should have committed its transaction
         setThreadLocalTransaction(null);
         assertEquals(1, value.get());
@@ -147,7 +147,7 @@ public class AtomicTemplateTest {
         setThreadLocalTransaction(null);
         assertEquals(1, value.get());
     }
-    
+
     @Test
     public void testExplicitAbort() {
         final IntRef value = new IntRef(0);
@@ -290,7 +290,7 @@ public class AtomicTemplateTest {
         } catch (TooManyRetriesException expected) {
         }
 
-        assertEquals(retryCount+1, executeCounter.value);
+        assertEquals(retryCount + 1, executeCounter.value);
         assertEquals(version, stm.getClockVersion());
         assertEquals(0, ref.get());
     }

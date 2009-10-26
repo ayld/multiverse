@@ -12,7 +12,7 @@ import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaStmConfig;
 import org.multiverse.stms.alpha.manualinstrumentation.IntQueue;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.utils.profiling.ProfileRepository;
 
 import java.util.ArrayList;
@@ -110,6 +110,10 @@ public class PipelineLongTest {
 
         public void doRun() {
             for (int k = 1; k <= produceCount; k++) {
+                if (k % 1000 == 0) {
+                    System.out.printf("%s is at %s\n", getName(), k);
+                }
+
                 produceOneItem(k);
                 producedList.add(k);
                 sleepRandomMs(delayMs);
@@ -131,6 +135,10 @@ public class PipelineLongTest {
 
         public void doRun() {
             for (int k = 0; k < produceCount; k++) {
+                if (k % 1000 == 0) {
+                    System.out.printf("%s is at %s\n", getName(), k);
+                }
+
                 int item = consumeOneItem();
                 sleepRandomMs(delayMs);
                 consumedList.add(item);
@@ -155,6 +163,9 @@ public class PipelineLongTest {
 
         public void doRun() {
             for (int k = 0; k < produceCount; k++) {
+                if (k % 1000 == 0) {
+                    System.out.printf("%s is at %s\n", getName(), k);
+                }
                 moveOneItem();
                 sleepRandomMs(delayMs);
             }

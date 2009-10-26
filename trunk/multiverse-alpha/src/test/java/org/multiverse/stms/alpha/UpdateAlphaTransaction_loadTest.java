@@ -14,7 +14,7 @@ import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.utils.clock.Clock;
 
 /**

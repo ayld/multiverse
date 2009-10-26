@@ -10,7 +10,7 @@ import static org.multiverse.TestUtils.startAll;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -1,4 +1,4 @@
-package org.multiverse.integrationtests;
+package org.multiverse.integrationtests.classicproblems;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

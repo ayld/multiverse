@@ -66,6 +66,8 @@ public interface Transaction {
      * for example), or if changes need to be rolled back.
      * <p/>
      * If the Transaction already is aborted, the call is ignored.
+     * <p/>
+     * It is important that the abort never fails.
      *
      * @throws org.multiverse.api.exceptions.DeadTransactionException
      *          if this transaction already is committed
@@ -73,19 +75,21 @@ public interface Transaction {
     void abort();
 
     /**
-     * Resets this Transaction so that it can be used again. Can only be done if the transaction has
+     * Restarts this Transaction by returning a Transaction. Can only be done if the transaction has been
      * committed or aborted.
+     * <p/>
+     * It could be that the same instance is returned just by resetting the instance.
      *
      * @throws org.multiverse.api.exceptions.ResetFailureException
-     *          if the reset has failed (for example
+     *          if the restart has failed (for example
      *          because the transaction is still active).
      */
-    void reset();
+    Transaction restart();
 
     /**
      * Aborts and waits till this transaction can be retried. This functionality is required for the retry
      * mechanism and is something different than 'just' aborting an retrying the transaction. If you want to
-     * do that, you need to call an abort followed by a reset.
+     * do that, you need to call an abort followed by a restart.
      *
      * @throws org.multiverse.api.exceptions.NoProgressPossibleException
      *          if the retry can't make progress, e.g.

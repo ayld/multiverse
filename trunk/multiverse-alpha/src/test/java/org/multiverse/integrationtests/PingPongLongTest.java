@@ -8,7 +8,7 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * A integration test that tests the wait notify mechanism.

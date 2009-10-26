@@ -17,18 +17,18 @@ public class DummyTransaction implements Transaction {
     public void deferredExecute(Runnable r) {
         throw new RuntimeException();
     }
-          
+
     @Override
     public void startOr() {
         throw new RuntimeException();
     }
 
     @Override
-    public void reset() {
+    public Transaction restart() {
         throw new RuntimeException();
     }
 
-   @Override
+    @Override
     public void endOr() {
         throw new RuntimeException();
     }

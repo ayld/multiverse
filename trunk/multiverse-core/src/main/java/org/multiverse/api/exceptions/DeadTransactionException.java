@@ -8,6 +8,8 @@ package org.multiverse.api.exceptions;
  */
 public class DeadTransactionException extends IllegalStateException {
 
+    private static final long serialVersionUID = 0;
+
     public DeadTransactionException() {
     }
 

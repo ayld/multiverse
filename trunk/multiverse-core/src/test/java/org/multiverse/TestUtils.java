@@ -10,14 +10,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TestUtils {
+
+    public static int theAvailableProcessors() {
+        return Math.min(2, Runtime.getRuntime().availableProcessors());
+    }
 
     public static void testIncomplete() {
         StackTraceElement caller = new Throwable().getStackTrace()[1];
@@ -39,7 +38,7 @@ public class TestUtils {
     }
 
     public static void assertNoInstrumentationProblems() {
-        assertFalse(InstrumentationProblemMonitor.INSTANCE.isSignalled());
+        assertFalse(InstrumentationProblemMonitor.INSTANCE.isProblemFound());
     }
 
     public static void assertIsActive(Transaction t) {
@@ -142,7 +141,7 @@ public class TestUtils {
         }
     }
 
-   public static String readText(File errorOutputFile) {
+    public static String readText(File errorOutputFile) {
         try {
             StringBuffer sb = new StringBuffer();
             BufferedReader reader = new BufferedReader(new FileReader(errorOutputFile));

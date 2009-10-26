@@ -12,7 +12,7 @@ import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.NoProgressPossibleException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class UpdateAlphaTransaction_abortAndRetryTest {
 

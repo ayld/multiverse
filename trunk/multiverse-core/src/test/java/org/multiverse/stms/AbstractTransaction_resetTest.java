@@ -28,19 +28,19 @@ public class AbstractTransaction_resetTest {
     }
 
     @Test
-    public void test(){
+    public void test() {
         testIncomplete();
     }
 
     @Test
-    public void resetOnActiveTransactionFails(){
+    public void resetOnActiveTransactionFails() {
         Transaction t = new AbstractTransactionImpl(clock);
         long version = clock.getTime();
 
-        try{
-        t.reset();
+        try {
+            t.restart();
             fail();
-        }catch(ResetFailureException expected){
+        } catch (ResetFailureException expected) {
 
         }
         assertIsActive(t);
