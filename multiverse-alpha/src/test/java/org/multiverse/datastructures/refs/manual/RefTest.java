@@ -9,7 +9,7 @@ import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class RefTest {
     private Stm stm;
@@ -88,7 +88,7 @@ public class RefTest {
         t.abort();
 
         assertTrue(ref.isNull());
-        assertEquals(version+1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getClockVersion());
 
         ref.set("bar");
         assertEquals("bar", ref.get());

@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha;
 
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 import static java.lang.String.format;
 
@@ -49,7 +49,7 @@ public final class AlphaStmUtils {
 
     /**
      * Attaches a Tranlocal to a transaction. The transaction is retrieved from the
-     * TransactionThreadLocal. If no transaction is found, a RuntimeException is thrown.
+     * ThreadLocalTransaction. If no transaction is found, a RuntimeException is thrown.
      * <p/>
      * This method is called by instrumented atomicobjects.
      *
@@ -84,7 +84,7 @@ public final class AlphaStmUtils {
 
     /**
      * Loads a Tranlocal using a transaction. The transaction is retrieved from the
-     * TransactionThreadLocal. If no transaction is found, a RuntimeException is thrown.
+     * ThreadLocalTransaction. If no transaction is found, a RuntimeException is thrown.
      * <p/>
      * For more information see {@link AlphaTransaction#load(AlphaAtomicObject)}
      * <p/>

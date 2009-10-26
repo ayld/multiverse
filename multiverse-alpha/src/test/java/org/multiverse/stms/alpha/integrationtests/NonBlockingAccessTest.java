@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -17,7 +17,7 @@ import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransact
 public class NonBlockingAccessTest {
 
 
-      private AlphaStm stm;
+    private AlphaStm stm;
 
     @Before
     public void setUp() {
@@ -27,12 +27,12 @@ public class NonBlockingAccessTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         setThreadLocalTransaction(null);
     }
 
     @Test
-    public void writerDoesNotBlockReader(){
+    public void writerDoesNotBlockReader() {
         IntRef ref = new IntRef(0);
 
         //begin the first transaction

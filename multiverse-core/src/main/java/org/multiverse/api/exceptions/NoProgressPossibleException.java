@@ -11,6 +11,8 @@ package org.multiverse.api.exceptions;
  */
 public class NoProgressPossibleException extends IllegalStateException {
 
+    private static final long serialVersionUID = 0;
+
     public NoProgressPossibleException() {
     }
 

@@ -12,7 +12,9 @@ import static java.lang.System.getProperty;
  *
  * @author Peter Veentjer.
  */
-public class LoadTooOldVersionException extends LoadException {
+public class LoadTooOldVersionException extends LoadException implements RecoverableThrowable {
+
+    private static final long serialVersionUID = 0;
 
     public final static LoadTooOldVersionException INSTANCE = new LoadTooOldVersionException();
 

@@ -2,12 +2,14 @@ package org.multiverse.api.exceptions;
 
 /**
  * A {@link RuntimeException that can be thrown when a call to the
- * {@link org.multiverse.api.Transaction#reset()}
+ * {@link org.multiverse.api.Transaction#restart()}
  * failed.
  *
  * @author Peter Veentjer
  */
 public class ResetFailureException extends RuntimeException {
+
+    private static final long serialVersionUID = 0;
 
     public ResetFailureException() {
     }

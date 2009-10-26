@@ -47,17 +47,17 @@ public abstract class AbstractClassFileTransformer implements ClassFileTransform
             throws IllegalClassFormatException {
         try {
             if (isIgnoredPackage(className)) {
-                //if(logger.isLoggable(Level.FINER)){
-                //    String msg = format("Transformer %s is ignoring class %s because it is an ignored package",
-                //            transformerName, className);
-                //    logger.finer(msg);
-                //}
+                if (logger.isLoggable(Level.FINE)) {
+                    String msg = format("Transformer '%s' is ignoring class '%s' because it is an ignored package",
+                            transformerName, className);
+                    logger.finer(msg);
+                }
                 return null;
             }
 
-            //if(logger.isLoggable(Level.FINE)){
-            //    logger.fine(format("Transformer %s is transforming class %s", transformerName, className));
-            //}
+            if (logger.isLoggable(Level.FINE)) {
+                logger.fine(format("Transformer %s is transforming class %s", transformerName, className));
+            }
 
             return doTransform(loader, className, classBeingRedefined, protectionDomain, classfileBuffer);
         } catch (RuntimeException ex) {
@@ -70,7 +70,7 @@ public abstract class AbstractClassFileTransformer implements ClassFileTransform
     }
 
     private void handleThrowable(String className, Throwable ex) {
-        String msg = format("Transformer %s failed while instrumenting class %s. " +
+        String msg = format("Transformer '%s' failed while instrumenting class '%s'. " +
                 "It is not possible to abort the instrumentation process, so the JVM is going to continue, " +
                 "but since this class is partially instrumented, all bets are off.", transformerName, className);
 
@@ -79,7 +79,7 @@ public abstract class AbstractClassFileTransformer implements ClassFileTransform
     }
 
     private static boolean isIgnoredPackage(String className) {
-        return  className.startsWith("java/") ||
+        return className.startsWith("java/") ||
                 className.startsWith("com/jprofiler/") ||
                 className.startsWith("org/junit") ||
                 className.startsWith("sun/") ||

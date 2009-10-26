@@ -9,13 +9,9 @@ import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 public class StrictLinkedBlockingDequeTest {

@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.AlphaStmConfig.createFastConfig;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.concurrent.TimeUnit;
 

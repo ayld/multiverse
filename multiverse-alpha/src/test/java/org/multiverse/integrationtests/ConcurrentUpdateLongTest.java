@@ -9,7 +9,7 @@ import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +35,7 @@ public class ConcurrentUpdateLongTest {
 
     @Test
     public void test() {
-        IncThread[] threads = createThreads();
+        UpdateThread[] threads = createThreads();
 
         long startNs = System.nanoTime();
 
@@ -50,18 +50,18 @@ public class ConcurrentUpdateLongTest {
         System.out.printf("%s Transaction/second\n", transactionPerSecond);
     }
 
-    public IncThread[] createThreads() {
-        IncThread[] results = new IncThread[threadCount];
+    public UpdateThread[] createThreads() {
+        UpdateThread[] results = new UpdateThread[threadCount];
         for (int k = 0; k < threadCount; k++) {
-            results[k] = new IncThread(k);
+            results[k] = new UpdateThread(k);
         }
         return results;
     }
 
-    public class IncThread extends TestThread {
+    public class UpdateThread extends TestThread {
 
-        public IncThread(int id) {
-            super("StressThread" + id);
+        public UpdateThread(int id) {
+            super("UpdateThread-" + id);
         }
 
         @Test

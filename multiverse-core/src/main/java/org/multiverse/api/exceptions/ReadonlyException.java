@@ -8,6 +8,8 @@ package org.multiverse.api.exceptions;
  */
 public class ReadonlyException extends IllegalStateException {
 
+    private static final long serialVersionUID = 0;
+
     public ReadonlyException() {
     }
 

@@ -9,7 +9,7 @@ import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStack;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * MVCC suffers from a problem that serialized transactions are not completely serialized.

@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.multiverse.api.StmUtils.*;
 import org.multiverse.api.exceptions.NoTransactionFoundException;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.TransactionThreadLocal.clearThreadLocalTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.clearThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -53,7 +53,7 @@ public class StmUtilsTest {
     @Test(expected = NoTransactionFoundException.class)
     public void deferredExecuteWithoutTransactionFails() {
         Runnable task = mock(Runnable.class);
-       deferredExecute(task);
+        deferredExecute(task);
     }
 
     @Test(expected = NoTransactionFoundException.class)
@@ -64,7 +64,7 @@ public class StmUtilsTest {
 
     @Test
     public void compensatingExecuteIsForwardedToTransactionThreadLocal() {
-         Runnable task = mock(Runnable.class);
+        Runnable task = mock(Runnable.class);
 
         Transaction t = mock(Transaction.class);
         setThreadLocalTransaction(t);

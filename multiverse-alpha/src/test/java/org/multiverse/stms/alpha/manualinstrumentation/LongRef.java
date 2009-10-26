@@ -8,7 +8,7 @@ import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

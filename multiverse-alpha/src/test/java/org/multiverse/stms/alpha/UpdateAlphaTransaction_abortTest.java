@@ -9,7 +9,7 @@ import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -99,5 +99,5 @@ public class UpdateAlphaTransaction_abortTest {
         assertIsAborted(t);
     }
 
- 
+
 }

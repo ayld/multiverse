@@ -5,7 +5,9 @@ package org.multiverse.api.exceptions;
  *
  * @author Peter Veentjer
  */
-public class CommitFailureException extends RuntimeException {
+public class CommitFailureException extends RuntimeException implements RecoverableThrowable {
+
+    private static final long serialVersionUID = 0;
 
     public CommitFailureException() {
     }

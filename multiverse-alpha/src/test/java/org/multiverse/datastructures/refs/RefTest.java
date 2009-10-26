@@ -8,7 +8,7 @@ import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -30,14 +30,14 @@ public class RefTest {
     // ============== rollback =================
 
     @Test
-    public void rollback(){
+    public void rollback() {
         rollback(null, null);
         rollback(null, "foo");
         rollback("bar", "foo");
         rollback("bar", null);
     }
 
-    public void rollback(String initialValue, String newValue){
+    public void rollback(String initialValue, String newValue) {
         Ref<String> ref = new Ref<String>(initialValue);
 
         long version = stm.getClockVersion();

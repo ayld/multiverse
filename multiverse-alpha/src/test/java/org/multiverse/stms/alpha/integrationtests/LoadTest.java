@@ -10,8 +10,8 @@ import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class LoadTest {
 
@@ -26,7 +26,7 @@ public class LoadTest {
         setThreadLocalTransaction(null);
     }
 
-    public void tearDown(){
+    public void tearDown() {
         setThreadLocalTransaction(null);
     }
 

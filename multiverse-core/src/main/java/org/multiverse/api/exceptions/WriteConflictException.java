@@ -9,7 +9,9 @@ import static java.lang.System.getProperty;
  *
  * @author Peter Veentjer.
  */
-public class WriteConflictException extends CommitFailureException {
+public class WriteConflictException extends CommitFailureException implements RecoverableThrowable {
+
+    private static final long serialVersionUID = 0;
 
     public final static WriteConflictException INSTANCE = new WriteConflictException();
 

@@ -8,7 +8,9 @@ import static java.lang.System.getProperty;
  *
  * @author Peter Veentjer.
  */
-public class LoadLockedException extends LoadException {
+public class LoadLockedException extends LoadException implements RecoverableThrowable {
+
+    private static final long serialVersionUID = 0;
 
     public final static LoadLockedException INSTANCE = new LoadLockedException();
 

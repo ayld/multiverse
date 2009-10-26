@@ -6,7 +6,7 @@ import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.TransactionThreadLocal.getThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class AtomicMethod_FamilyNameTest {
 

@@ -9,7 +9,7 @@ import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

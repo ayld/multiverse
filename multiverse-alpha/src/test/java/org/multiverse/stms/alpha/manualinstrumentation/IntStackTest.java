@@ -8,7 +8,7 @@ import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.DirtinessStatus;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class IntStackTest {
     private AlphaStm stm;

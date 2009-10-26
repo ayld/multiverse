@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaStmConfig;
 import static org.multiverse.stms.alpha.AlphaStmConfig.createDebugConfig;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.utils.profiling.ProfileRepository;
 
 import java.util.concurrent.TimeUnit;

@@ -15,7 +15,9 @@ import static java.lang.System.getProperty;
  */
 public class RetryError extends Error {
 
-    private final static boolean reuse = parseBoolean(getProperty(RetryError.class.getName()+".reuse", "true"));
+    private static final long serialVersionUID = 0;
+
+    private final static boolean reuse = parseBoolean(getProperty(RetryError.class.getName() + ".reuse", "true"));
 
     public final static RetryError INSTANCE = new RetryError();
 

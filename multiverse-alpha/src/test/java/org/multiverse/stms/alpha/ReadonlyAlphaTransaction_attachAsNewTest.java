@@ -9,7 +9,7 @@ import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

@@ -9,7 +9,7 @@ import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.TransactionThreadLocal.setThreadLocalTransaction;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -285,12 +285,12 @@ public class AtomicObject_MethodAccessModifiersTest {
     }
 
     @Test
-    public void testConstructor(){
-         testIncomplete();
+    public void testConstructor() {
+        testIncomplete();
     }
 
     @Test
-    public void testSynchronizedMethod(){
-         testIncomplete();
+    public void testSynchronizedMethod() {
+        testIncomplete();
     }
 }

@@ -362,7 +362,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction
         try {
             awaitInterestingWrite();
 
-            //we are finished waiting, lets reset the transaction and begin again
+            //we are finished waiting, lets restart the transaction and begin again
             init();
             success = true;
 

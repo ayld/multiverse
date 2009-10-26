@@ -1,5 +1,6 @@
 package org.multiverse.stms.alpha;
 
+import org.multiverse.api.Transaction;
 import org.multiverse.utils.clock.Clock;
 import org.multiverse.utils.profiling.ProfileRepository;
 
@@ -71,20 +72,21 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
     }
 
     @Override
-    public void reset() {
+    public Transaction restart() {
         if (!logger.isLoggable(level)) {
-            super.reset();
+            return super.restart();
         } else {
             boolean success = false;
             String oldLogString = toLogString();
             try {
-                super.reset();
+                Transaction t = super.restart();
                 success = true;
+                return t;
             } finally {
                 if (success) {
-                    logger.log(level, format("%s reset to readversion %s", oldLogString, readVersion));
+                    logger.log(level, format("%s restart to readversion %s", oldLogString, readVersion));
                 } else {
-                    logger.log(level, format("%s reset failed", oldLogString));
+                    logger.log(level, format("%s restart failed", oldLogString));
                 }
             }
         }
