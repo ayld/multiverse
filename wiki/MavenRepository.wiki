@@ -1,0 +1,14 @@
+#summary Multiverse Maven repository details
+
+Multiverse artifacts are available in the project Maven repository. To access this, add the following repositories to your POM:
+
+{{{
+<repository>
+  <id>multiverse-releases</id>
+  <url>http://multiverse.googlecode.com/svn/maven-repository/releases</url>
+</repository>
+<snapshotRepository>
+  <id>multiverse-snapshots</id>
+  <url>http://multiverse.googlecode.com/svn/maven-repository/snapshots</url>
+</snapshotRepository>
+}}}
