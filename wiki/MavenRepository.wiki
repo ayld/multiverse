@@ -1,7 +1,7 @@
 #summary Multiverse Maven repository details
 #labels Featured
 
-Multiverse artifacts are available in the project Maven repository. To access this, add the following repositories to your POM:
+Multiverse artifacts are available from the project's Maven repositories. To access these, add the following to your POM:
 
 {{{
 <repository>
