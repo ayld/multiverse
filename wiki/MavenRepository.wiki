@@ -1,4 +1,5 @@
 #summary Multiverse Maven repository details
+#labels Featured
 
 Multiverse artifacts are available in the project Maven repository. To access this, add the following repositories to your POM:
 
