@@ -1,23 +1,26 @@
 package org.multiverse.integrationtests.classicproblems;
 
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
-import org.multiverse.TestThread;
-import static org.multiverse.TestUtils.*;
-import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.annotations.AtomicObject;
-import org.multiverse.datastructures.refs.IntRef;
-import org.multiverse.datastructures.refs.Ref;
-import org.multiverse.stms.alpha.manualinstrumentation.Stack;
+import static org.multiverse.TestUtils.joinAll;
+import static org.multiverse.TestUtils.sleepRandomMs;
+import static org.multiverse.TestUtils.startAll;
 import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.multiverse.TestThread;
+import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.api.annotations.AtomicObject;
+import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.datastructures.refs.Ref;
+import org.multiverse.stms.alpha.manualinstrumentation.Stack;
 
 /**
  * The Sleeping Barber problem, due to legendary Dutch computer scientist
@@ -110,7 +113,8 @@ public class SleepingBarberTest {
     public void tearDown() {
 //        ProfileRepository profiler = 
 //            ((AlphaStm) GlobalStmInstance.getGlobalStmInstance()).getProfiler();
-//        System.out.println(((SimpleProfileRepository) profiler).toPrettyString());
+//        System.out.println(SimpleProfileRepositoryPrinter.toPrettyString(
+//                (SimpleProfileRepository) profiler));
     }
 
     @Test
