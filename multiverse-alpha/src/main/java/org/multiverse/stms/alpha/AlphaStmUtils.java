@@ -1,9 +1,12 @@
 package org.multiverse.stms.alpha;
 
-import static java.lang.String.format;
 import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
+import static java.lang.String.format;
+
 /**
+ * Utility class for various utility methods.
+ *
  * @author Peter Veentjer
  */
 public final class AlphaStmUtils {

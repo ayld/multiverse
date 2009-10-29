@@ -36,7 +36,7 @@ public final class GlobalStmInstance {
         try {
             Method method = getMethod(factoryMethod);
             instance = (Stm) method.invoke(null);
-            logger.info(format("Successfully initialized GlobalStmInstance using '%s'.", factoryMethod));
+            logger.info(format("Successfully initialized GlobalStmInstance using factoryMethod '%s'.", factoryMethod));
         } catch (IllegalAccessException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "'%s' is not accessable (it should be public)').",

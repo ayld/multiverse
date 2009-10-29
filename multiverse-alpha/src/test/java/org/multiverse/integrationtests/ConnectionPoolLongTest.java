@@ -1,74 +1,120 @@
 package org.multiverse.integrationtests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
+import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.datastructures.collections.StrictLinkedBlockingDeque;
-import org.multiverse.utils.TodoException;
 
-import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * A test that tests if a connection pool can be made using stm.
+ *
+ * @author Peter Veentjer.
  */
 public class ConnectionPoolLongTest {
 
-    private int threadCount = 100;
+    private int poolsize = 2;
+    private int threadCount = 10;
+    private int useCount = 1000;
+
     private ConnectionPool pool;
 
     @Before
     public void setUp() {
-        pool = new ConnectionPool(100);
+        pool = new ConnectionPool(poolsize);
     }
 
     @Test
     public void test() {
-        //ConnectionUserThread[] threads = createThreads();
-        //startAll(threads);
-        //joinAll(threads);
-    }
+        WorkerThread[] threads = createThreads();
+        startAll(threads);
+        joinAll(threads);
 
+        assertEquals(poolsize, pool.size());
+    }
 
     @AtomicObject
     static class ConnectionPool {
 
-        final BlockingDeque<Connection> deque = new StrictLinkedBlockingDeque<Connection>();
+        final StrictLinkedBlockingDeque<Connection> deque = new StrictLinkedBlockingDeque<Connection>();
 
-        ConnectionPool(int maxPoolsize) {
-
+        ConnectionPool(int poolsize) {
+            for (int k = 0; k < poolsize; k++) {
+                deque.push(new Connection());
+            }
         }
 
-        Connection takeConnection() {
-            ///Sta/return deque.takeFirst();
-            throw new TodoException();
+        Connection takeConnection() throws InterruptedException {
+            return deque.takeFirst();
         }
 
         void returnConnection(Connection c) {
+            try {
+                deque.putLast(c);
+            } catch (InterruptedException e) {
+                fail();
+            }
+        }
 
+        int size(){
+            return deque.size();
         }
     }
 
+    //the methods are there to make sure that concurrent usage of a connection is detected (and fails the test).
     static class Connection {
 
+        AtomicInteger users = new AtomicInteger();
+
+        void startUsing() {
+            if (!users.compareAndSet(0, 1)) {
+                fail();
+            }
+        }
+
+        void stopUsing() {
+             if(!users.compareAndSet(1, 0)){
+                 fail();
+             }
+        }
     }
 
-    private ConnectionUserThread[] createThreads() {
-        ConnectionUserThread[] threads = new ConnectionUserThread[threadCount];
+    private WorkerThread[] createThreads() {
+        WorkerThread[] threads = new WorkerThread[threadCount];
         for (int k = 0; k < threads.length; k++) {
-            threads[k] = new ConnectionUserThread(k);
+            threads[k] = new WorkerThread(k);
         }
         return threads;
     }
 
-    class ConnectionUserThread extends TestThread {
+    class WorkerThread extends TestThread {
 
-        public ConnectionUserThread(int id) {
-            super("ConnectionUser-" + id);
+        public WorkerThread(int id) {
+            super("WorkerThread-" + id);
         }
 
         @Override
         public void doRun() throws Exception {
-            throw new UnsupportedOperationException("Method not implemented");
+            for (int k = 0; k < useCount; k++) {
+                if (k % 100 == 0) {
+                    System.out.printf("%s is at %s\n", getName(), k);
+                }
+
+                Connection c = pool.takeConnection();
+                c.startUsing();
+
+                try {
+                    sleepRandomMs(50);
+                } finally {
+                    c.stopUsing();                                  
+                    pool.returnConnection(c);
+                }
+            }
         }
     }
 }

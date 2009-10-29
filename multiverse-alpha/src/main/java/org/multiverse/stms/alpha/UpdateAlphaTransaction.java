@@ -4,6 +4,7 @@ import org.multiverse.MultiverseConstants;
 import org.multiverse.api.exceptions.*;
 import org.multiverse.stms.AbstractTransaction;
 import static org.multiverse.stms.alpha.AlphaStmUtils.toAtomicObjectString;
+import org.multiverse.utils.Listeners;
 import org.multiverse.utils.clock.Clock;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
@@ -17,13 +18,11 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * A {@link org.multiverse.api.Transaction} implementation that is used to do updates. It can also be used for
- * reaonly transaction, but a {@link ReadonlyAlphaTransaction} would be a better candidate
- * for that.
+ * A {@link org.multiverse.api.Transaction} implementation that is used to do updates. It can also be used for reaonly
+ * transaction, but a {@link ReadonlyAlphaTransaction} would be a better candidate for that.
  * <p/>
- * Comment about design:
- * A state design pattern would have been a solution to reduce the switch statements,
- * but to prevent object creation, this is not done.
+ * Comment about design: A state design pattern would have been a solution to reduce the switch statements, but to
+ * prevent object creation, this is not done.
  *
  * @author Peter Veentjer.
  */
@@ -35,15 +34,14 @@ public class UpdateAlphaTransaction extends AbstractTransaction
     private final ProfileRepository profiler;
 
     //the attached set contains the Translocals loaded and attached.
-    private final Map<AlphaAtomicObject, AlphaTranlocal> attached = new IdentityHashMap<AlphaAtomicObject, AlphaTranlocal>(2);
+    private final Map<AlphaAtomicObject, AlphaTranlocal> attached
+            = new IdentityHashMap<AlphaAtomicObject, AlphaTranlocal>(2);
 
     private SnapshotStack snapshotStack;
 
     public UpdateAlphaTransaction(
-            String familyName, ProfileRepository profiler, Clock clock,
-            CommitLockPolicy writeSetLockPolicy
-    ) {
-        super(familyName, clock, writeSetLockPolicy);
+            String familyName, ProfileRepository profiler, Clock clock, CommitLockPolicy commitLockPolicy) {
+        super(familyName, clock, commitLockPolicy);
         this.profiler = profiler;
         init();
     }
@@ -69,10 +67,12 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                     AlphaAtomicObject atomicObject = tranlocal.getAtomicObject();
 
                     if (atomicObject == null) {
+                        //todo: improve message
                         throw new PanicError();
                     }
 
                     if (tranlocal.committed) {
+                        //todo: improve error message
                         throw new PanicError();
                     }
 
@@ -84,7 +84,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                     AlphaTranlocal found = attached.get(atomicObject);
                     if (found != null && found != tranlocal) {
                         String msg = format("Duplicate but different attachment for atomicobject '%s'",
-                                toAtomicObjectString(atomicObject));
+                                            toAtomicObjectString(atomicObject));
                         throw new PanicError(msg);
                     }
                 }
@@ -98,12 +98,12 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                 break;
             case committed: {
                 String msg = format("Can't call attachNew with atomicobject '%s' on committed transaction '%s'.",
-                        toAtomicObjectString(tranlocal), familyName);
+                                    toAtomicObjectString(tranlocal), familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
                 String msg = format("Can't call attachNew with atomicobject '%s' on an aborted transaction '%s'.",
-                        toAtomicObjectString(tranlocal), familyName);
+                                    toAtomicObjectString(tranlocal), familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -122,14 +122,14 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                 return attached.containsKey(atomicObject);
             case committed: {
                 String msg = format("Can't call isAttached with atomicobject '%s' on committed transaction '%s'.",
-                        toAtomicObjectString(atomicObject),
-                        getFamilyName());
+                                    toAtomicObjectString(atomicObject),
+                                    getFamilyName());
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
                 String msg = format("Can't call isAttached with atomicobject '%s' on aborted transaction '%s'.",
-                        toAtomicObjectString(atomicObject),
-                        getFamilyName());
+                                    toAtomicObjectString(atomicObject),
+                                    getFamilyName());
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -179,12 +179,12 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                 return tranlocal;
             case committed: {
                 String msg = format("Can't call load with atomicobject '%s' on committed transaction '%s'.",
-                        toAtomicObjectString(atomicObject), familyName);
+                                    toAtomicObjectString(atomicObject), familyName);
                 throw new DeadTransactionException(msg);
             }
             case aborted: {
                 String msg = format("Can't call load with atomicObject '%s' on aborted transaction '%s'.",
-                        toAtomicObjectString(atomicObject), familyName);
+                                    toAtomicObjectString(atomicObject), familyName);
                 throw new DeadTransactionException(msg);
             }
             default:
@@ -198,6 +198,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction
         if (profiler != null) {
             profiler.incCounter("updatetransaction.committed.count", getFamilyName());
         }
+
         attached.clear();
         return commitVersion;
     }
@@ -212,10 +213,11 @@ public class UpdateAlphaTransaction extends AbstractTransaction
             return readVersion;
         }
 
-        boolean success = false;
+        boolean locksNeedToBeReleased = true;
+        long writeVersion = 0;
         try {
             acquireLocksAndCheckForConflicts(writeSet);
-            long writeVersion = clock.tick();
+            writeVersion = clock.tick();
 
             if (SANITY_CHECKS_ENABLED) {
                 if (writeVersion <= readVersion) {
@@ -223,11 +225,11 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                 }
             }
 
-            storeAll(writeSet, writeVersion);
-            success = true;
+            storeAllAndReleaseLocks(writeSet, writeVersion);
+            locksNeedToBeReleased = false;
             return writeVersion;
         } finally {
-            if (!success) {
+            if (locksNeedToBeReleased) {
                 releaseLocks(writeSet, this);
             }
         }
@@ -237,6 +239,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction
      * Creates the writeset; a set of objects which state needs to be committed.
      *
      * @return the created WriteSet. The returned value will never be null.
+     *
      * @throws org.multiverse.api.exceptions.WriteConflictException
      *          if can be determined that another transaction did a conflicting write.
      */
@@ -260,7 +263,8 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                     //fall through
                 case dirty:
                     if (profiler != null) {
-                        profiler.incCounter("atomicobject.dirty.count", tranlocal.getAtomicObject().getClass().getName());
+                        profiler.incCounter(
+                                "atomicobject.dirty.count", tranlocal.getAtomicObject().getClass().getName());
                     }
 
                     if (writeSet == null) {
@@ -273,15 +277,18 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                     //if we can already determine that the write can never happen, start a write conflict
                     //and fail immediately.
                     if (profiler != null) {
-                        profiler.incCounter("atomicobject.conflict.count", tranlocal.getAtomicObject().getClass().getName());
+                        profiler.incCounter("atomicobject.conflict.count",
+                                            tranlocal.getAtomicObject().getClass().getName());
                         profiler.incCounter("updatetransaction.writeconflict.count", getFamilyName());
                     }
 
                     if (WriteConflictException.reuse) {
                         throw WriteConflictException.INSTANCE;
                     } else {
-                        String msg = format("There was a writeconflict in transaction with familyname '%s' on atomicobject '%s'",
-                                getFamilyName(), toAtomicObjectString(tranlocal));
+                        String msg = format(
+                                "There was a writeconflict in transaction with familyname '%s' on atomicobject '%s'",
+                                getFamilyName(),
+                                toAtomicObjectString(tranlocal));
                         throw new WriteConflictException(msg);
                     }
                 default:
@@ -309,7 +316,8 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                 if (FailedToObtainLocksException.reuse) {
                     throw FailedToObtainLocksException.INSTANCE;
                 } else {
-                    String msg = format("Failed to obtain all locks needed for commit on transaction wuth familyname '%s'",
+                    String msg = format(
+                            "Failed to obtain all locks needed for commit on transaction wuth familyname '%s'",
                             getFamilyName());
                     throw new FailedToObtainLocksException(msg);
                 }
@@ -320,7 +328,8 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                 if (WriteConflictException.reuse) {
                     throw WriteConflictException.INSTANCE;
                 } else {
-                    String msg = format("There was a writeconflict in transaction with familyname '%s'", getFamilyName());
+                    String msg = format("There was a writeconflict in transaction with familyname '%s'",
+                                        getFamilyName());
                     throw new WriteConflictException(msg);
                 }
 
@@ -329,7 +338,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction
         }
     }
 
-    private void storeAll(AlphaTranlocal[] writeSet, long commitVersion) {
+    private void storeAllAndReleaseLocks(AlphaTranlocal[] writeSet, long commitVersion) {
         try {
             for (int k = 0; k < writeSet.length; k++) {
                 AlphaTranlocal tranlocal = writeSet[k];
@@ -337,10 +346,12 @@ public class UpdateAlphaTransaction extends AbstractTransaction
                     return;
                 } else {
                     AlphaAtomicObject atomicObject = tranlocal.getAtomicObject();
-                    atomicObject.storeAndReleaseLock(tranlocal, commitVersion);
+                    Listeners listeners = atomicObject.storeAndReleaseLock(tranlocal, commitVersion);
+                    if (listeners != null) {
+                        listeners.openAll();
+                    }
                 }
             }
-
         } finally {
             if (profiler != null) {
                 profiler.incCounter("updatetransaction.individualwrite.count", getFamilyName(), attached.size());
@@ -459,6 +470,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction
     }
 
     static final class SnapshotStack {
+
         public final SnapshotStack next;
         public final AlphaTranlocalSnapshot snapshot;
 

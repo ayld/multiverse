@@ -444,7 +444,7 @@ public class TranlocalSnapshotTest {
     }
 
     @Test
-    public void AtomicObjectField() {
+    public void atomicObjectField() {
         final String oldValue = "foo";
         final String newValue = "bar";
         final AtomicObjectFieldObject i = new AtomicObjectFieldObject(oldValue);

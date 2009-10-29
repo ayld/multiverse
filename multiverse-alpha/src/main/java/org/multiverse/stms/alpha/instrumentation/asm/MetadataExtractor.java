@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * An Extractor responsible for collecting information about a ClassNode and
- * store it in the {@link MetadataRepository}. This is one of the first things
+ * storeAndReleaseLock it in the {@link MetadataRepository}. This is one of the first things
  * that should be run, so that the other transformers/factories have their
  * information in place.
  * <p/>

@@ -16,6 +16,12 @@ import static java.lang.System.getProperty;
  */
 public interface MultiverseConstants {
 
+
+    boolean BUGSHAKER_ENABLED =
+            parseBoolean(getProperty(MultiverseConstants.class.getName()+".bugshaker", "true"));
+
+    
+
     /**
      * A flag that enables the sanity check build in the system.
      * <p/>

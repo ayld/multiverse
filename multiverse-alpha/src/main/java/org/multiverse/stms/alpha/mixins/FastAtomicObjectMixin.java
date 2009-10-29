@@ -139,7 +139,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
     }
 
     @Override
-    public final void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
+    public final Listeners storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
         assert tranlocal != null;
 
         if (SANITY_CHECKS_ENABLED) {
@@ -175,14 +175,10 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
         //it is important that the listeners are removed after the tranlocal write en before the lockrelease.
         Listeners listeners = listenersUpdater.getAndSet(this, null);
 
-        //de store geeft de garantie dat alle listeners die zijn geplaats voor de lock is geacquired
-        //worden geopened. De store geeft zelfs de garantie dat alle listeners die zijn geplaatst voordat
-        //de write heeft plaats gevonden worden geopend.
+        //release the listeners
         lockOwnerUpdater.set(this, null);
 
-        if (listeners != null) {
-            listeners.openAll();
-        }
+        return listeners;
     }
 
     @Override

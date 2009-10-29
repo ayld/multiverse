@@ -1,6 +1,7 @@
 package org.multiverse.stms.alpha;
 
 import org.multiverse.api.Transaction;
+import org.multiverse.utils.Listeners;
 import org.multiverse.utils.latches.Latch;
 
 /**
@@ -69,14 +70,16 @@ public interface AlphaAtomicObject {
     void releaseLock(Transaction expectedLockOwner);
 
     /**
-     * Stores the the content and releases the lock.
+     * Stores the the content and releases the lock. It also removes listeners that should be triggered
+     * by this store. The caller is responsible for taking care of waking up the listeners.
      * <p/>
      * It is important that this call only is made when the lock already was acquired.
      *
-     * @param tranlocal    the Tranlocal to store.
-     * @param writeVersion the version to store the Tranlocal with.
+     * @param tranlocal    the Tranlocal to storeAndReleaseLock.
+     * @param writeVersion the version to storeAndReleaseLock the Tranlocal with.
+     * @return the Listeners to wake up. Could be null if there are no listeners to wake up.
      */
-    void storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion);
+    Listeners storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion);
 
     /**
      * Registers a listener for retrying (the condition variable version for STM's). The Latch is a

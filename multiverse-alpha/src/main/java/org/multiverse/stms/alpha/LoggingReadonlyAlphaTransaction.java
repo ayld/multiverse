@@ -8,6 +8,11 @@ import static java.lang.String.format;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A logging version of the {@link org.multiverse.stms.alpha.ReadonlyAlphaTransaction}.
+ *
+ * @author Peter Veentjer.
+ */
 public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
 
     private final static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
