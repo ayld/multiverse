@@ -6,15 +6,13 @@
     <artifactId>multiverse-core</artifactId>
     <name>The multiverse core package</name>
     <description>Contains the core interfaces/classes of the Multiverse project. So no stm implementations</description>
-    <packaging>jar</packaging>
 
     <parent>
-        <artifactId>multiverse</artifactId>
         <groupId>org.multiverse</groupId>
+        <artifactId>multiverse</artifactId>        
         <version>0.3-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    
     <build>
          <plugins>
             <!-- creates a jar containing the test-code so that this can be reused --> 
