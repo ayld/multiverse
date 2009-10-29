@@ -1,5 +1,5 @@
 #summary Multiverse Maven repository details
-#labels Featured
+#labels Phase-Deploy
 
 Multiverse artifacts are available from the project's Maven repositories. To access these, add the following to your POM:
 
