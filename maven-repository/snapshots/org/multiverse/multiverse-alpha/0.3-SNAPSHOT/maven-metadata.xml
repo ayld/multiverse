@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metadata xsi:schemaLocation="http://maven.apache.org/METADATA/1.0.0 http://maven.apache.org/xsd/metadata-1.0.0.xsd" xmlns="http://maven.apache.org/METADATA/1.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<metadata>
   <groupId>org.multiverse</groupId>
   <artifactId>multiverse-alpha</artifactId>
   <version>0.3-SNAPSHOT</version>
   <versioning>
     <snapshot>
-      <buildNumber>3</buildNumber>
+      <buildNumber>4</buildNumber>
     </snapshot>
-    <lastUpdated>20091026164019</lastUpdated>
+    <lastUpdated>20091029221812</lastUpdated>
   </versioning>
 </metadata>
