@@ -1,7 +1,7 @@
 package org.multiverse.api.exceptions;
 
 /**
- * A {@link RuntimeException that can be thrown when a call to the
+ * A {@link RuntimeException} that can be thrown when a call to the
  * {@link org.multiverse.api.Transaction#restart()}
  * failed.
  *
