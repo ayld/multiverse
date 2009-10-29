@@ -1,26 +1,21 @@
 package org.multiverse.integrationtests.classicproblems;
 
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.multiverse.TestUtils.joinAll;
-import static org.multiverse.TestUtils.sleepRandomMs;
-import static org.multiverse.TestUtils.startAll;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
-
-import java.util.NoSuchElementException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
+import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.annotations.AtomicObject;
+import org.multiverse.datastructures.collections.StrictLinkedBlockingDeque;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.datastructures.refs.Ref;
-import org.multiverse.stms.alpha.manualinstrumentation.Stack;
+import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * The Sleeping Barber problem, due to legendary Dutch computer scientist
@@ -81,17 +76,17 @@ import org.multiverse.stms.alpha.manualinstrumentation.Stack;
  * <p/>
  * <p/>
  * Thread BarberThread has thrown an exception
- * java.lang.ClassCastException: org.multiverse.integrationtests.classicproblems.SleepingBarberTest$BarberThread cannot be cast to org.multiverse.integrationtests.classicproblems.SleepingBarberTest$CustomerThread
- * at org.multiverse.integrationtests.classicproblems.SleepingBarberTest$BarberThread.doRun(SleepingBarberTest.java:168)
+ * java.lang.ClassCastException: org.multiverse.integrationtests.classicproblems.SleepingBarberLongTest$BarberThread cannot be cast to org.multiverse.integrationtests.classicproblems.SleepingBarberLongTest$CustomerThread
+ * at org.multiverse.integrationtests.classicproblems.SleepingBarberLongTest$BarberThread.doRun(SleepingBarberLongTest.java:168)
  * at org.multiverse.TestThread.run(TestThread.java:44)
  * STM integrity compromised, instrumentation problems encountered
  *
  * @author Andrew Phillips
  */
-public class SleepingBarberTest {
+public class SleepingBarberLongTest {
     // the chairs are used by the customers *and* the barber
     private final int chairCount = 5;
-    private Chairs chairs;
+    private StrictLinkedBlockingDeque<TestThread> chairs;
 
     BarberThread barber;
 
@@ -106,15 +101,14 @@ public class SleepingBarberTest {
     @Before
     public void setUp() {
         setThreadLocalTransaction(null);
-        chairs = new Chairs(chairCount);
+        chairs = new StrictLinkedBlockingDeque<TestThread>(chairCount);
     }
 
     @After
     public void tearDown() {
 //        ProfileRepository profiler = 
 //            ((AlphaStm) GlobalStmInstance.getGlobalStmInstance()).getProfiler();
-//        System.out.println(SimpleProfileRepositoryPrinter.toPrettyString(
-//                (SimpleProfileRepository) profiler));
+//        System.out.println(((SimpleProfileRepository) profiler).toPrettyString());
     }
 
     @Test
@@ -330,92 +324,6 @@ public class SleepingBarberTest {
         public void showOut() {
             int wasHavingHairCut = leaveShop();
             assert (wasHavingHairCut == 2) : String.format("Customer %s was shown out without having his/her hair cut?!?", getName());
-        }
-    }
-
-    /**
-     * A size-limited stack with some very inefficient implementations of required methods.
-     */
-    @AtomicObject
-    class Chairs {
-        private final int chairCount;
-        private final Stack<TestThread> chairs;
-
-        Chairs(int chairCount) {
-            this.chairCount = chairCount;
-            chairs = new Stack<TestThread>();
-        }
-
-        boolean offer(TestThread elem) {
-            if (chairs.size() < chairCount) {
-                chairs.push(elem);
-                return true;
-            }
-            return false;
-        }
-
-        void add(TestThread elem) {
-            if (!offer(elem)) {
-                throw new IllegalStateException("No chairs available!");
-            }
-        }
-
-        TestThread element() {
-            if (isEmpty()) {
-                throw new NoSuchElementException("All chairs are empty!");
-            }
-            TestThread elem = chairs.pop();
-            chairs.push(elem);
-            return elem;
-        }
-
-        boolean remove(TestThread elem) {
-            Stack<TestThread> poppedStack = new Stack<TestThread>();
-            boolean found = false;
-
-            while (!chairs.isEmpty()) {
-                TestThread next = chairs.pop();
-                if (next == elem) {
-                    found = true;
-                    break;
-                } else {
-                    poppedStack.push(next);
-                }
-            }
-
-            // now return all the popped items
-            while (!poppedStack.isEmpty()) {
-                chairs.push(poppedStack.pop());
-            }
-            return found;
-        }
-
-        @AtomicMethod(readonly = true)
-        boolean isEmpty() {
-            return chairs.isEmpty();
-        }
-
-        @Override
-        public String toString() {
-            Stack<TestThread> poppedStack = new Stack<TestThread>();
-            StringBuilder stackString = new StringBuilder("(top) [");
-
-            while (!chairs.isEmpty()) {
-                TestThread elem = chairs.pop();
-                stackString.append(elem).append(", ");
-                poppedStack.push(elem);
-            }
-
-            // now return all the popped items
-            while (!poppedStack.isEmpty()) {
-                chairs.push(poppedStack.pop());
-            }
-
-            int length = stackString.length();
-            if (length > 8) {
-                stackString.setLength(length - 2);
-            }
-            return stackString.append("] (bottom)").toString();
         }
     }
 }

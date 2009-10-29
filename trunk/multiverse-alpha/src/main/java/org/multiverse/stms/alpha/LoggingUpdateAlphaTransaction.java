@@ -10,6 +10,11 @@ import static java.lang.String.format;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A logging version of the {@link org.multiverse.stms.alpha.UpdateAlphaTransaction}.
+ *
+ * @author Peter Veentjer.
+ */
 public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
     private final static Logger logger = Logger.getLogger(UpdateAlphaTransaction.class.getName());
@@ -17,7 +22,8 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
     private final long logId;
     private final Level level;
 
-    public LoggingUpdateAlphaTransaction(String familyName, ProfileRepository profiler, Clock clock, CommitLockPolicy writeSetLockPolicy, long logId, Level level) {
+    public LoggingUpdateAlphaTransaction(String familyName, ProfileRepository profiler, Clock clock,
+                                         CommitLockPolicy writeSetLockPolicy, long logId, Level level) {
         super(familyName, profiler, clock, writeSetLockPolicy);
         this.logId = logId;
         this.level = level;

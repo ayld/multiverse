@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.datastructures.refs.Ref;
 import org.multiverse.utils.ThreadLocalTransaction;
 
 /**
@@ -20,11 +21,18 @@ public class PhantomReadLongTest {
     private int readCount = 10000;
     private int readThreadCount = 10;
     private int modifyThreadCount = 2;
+    private int tableLength = 1000;
+    private Ref<Integer>[] table;
     private volatile boolean readersFinished = false;
+
 
     @Test
     public void setUp() {
         ThreadLocalTransaction.setThreadLocalTransaction(null);
+        table = new Ref[tableLength];
+        for (int k = 0; k < table.length; k++) {
+            table[k] = new Ref<Integer>();
+        }
     }
 
     @Ignore
@@ -102,4 +110,6 @@ public class PhantomReadLongTest {
             assertEquals(firstCount, secondCount);
         }
     }
+
+
 }

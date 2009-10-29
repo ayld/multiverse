@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * one containing the number of notify signals. The notify thread will place a number of wakeup signals in the
  * wakeup latch and sets the notifylatch to zero. Once the transaction completes, the waiterthreads will
  * all wake up and decrease the waiterlatch until it reaches zero. Once it reaches zero, the notify latch
- * will be set to 1 so that a notify thread will store new waiters.
+ * will be set to 1 so that a notify thread will storeAndReleaseLock new waiters.
  *
  * @author Peter Veentjer.
  */

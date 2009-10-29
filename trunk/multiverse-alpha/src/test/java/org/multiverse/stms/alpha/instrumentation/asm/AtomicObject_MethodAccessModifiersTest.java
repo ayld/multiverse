@@ -2,6 +2,7 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.testIncomplete;
@@ -10,6 +11,9 @@ import org.multiverse.api.Stm;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * @author Peter Veentjer
@@ -290,7 +294,29 @@ public class AtomicObject_MethodAccessModifiersTest {
     }
 
     @Test
-    public void testSynchronizedMethod() {
-        testIncomplete();
+    public void testSynchronizedMethod() throws NoSuchMethodException {
+        Method method = SynchronizedMethod.class.getMethod("doIt");
+        assertTrue(Modifier.isSynchronized(method.getModifiers()));
+
+        SynchronizedMethod m = new SynchronizedMethod();
+        long version = stm.getClockVersion();
+        m.doIt();
+        assertEquals(version+1, stm.getClockVersion());
+        assertEquals(10, m.getValue());
     }
+
+    @AtomicObject
+    static class SynchronizedMethod {
+
+        private int value;
+
+        public synchronized void doIt() {
+            value = 10;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
 }

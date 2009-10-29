@@ -3,6 +3,7 @@ package org.multiverse.datastructures.refs.manual;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
@@ -62,6 +63,7 @@ public class RefTest {
         assertEquals("foo", ref.get());
     }
 
+    @Ignore
     @Test
     public void createCommittedButWithBrokenValue() {
         Transaction t = stm.startUpdateTransaction("outer");

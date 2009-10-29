@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
-import org.multiverse.TestUtils;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
@@ -28,7 +27,7 @@ import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransact
 public class NonRepeatableReadLongTest {
 
     private IntRef intRef;
-    private int readCount = 1000;
+    private int readCount = 10000;
     private int readThreadCount = 5;
     private int modifyThreadCount = 2;
     private volatile boolean readersFinished;
@@ -56,8 +55,6 @@ public class NonRepeatableReadLongTest {
         startAll(readerThread);
         joinAll(modifyThreads);
         joinAll(readerThread);
-
-        TestUtils.testIncomplete("readonly reads are not activated atm");
     }
 
     class ModifyThread extends TestThread {
@@ -69,13 +66,13 @@ public class NonRepeatableReadLongTest {
         public void doRun() {
             int k = 0;
             while (!readersFinished) {
-                if (k % 500 == 0) {
+                if (k % 50 == 0) {
                     System.out.printf("%s is at %s\n", getName(), k);
                 }
                 k++;
                 intRef.inc();
 
-                sleepRandomMs(2);
+                sleepRandomMs(20);
             }
         }
     }
@@ -94,7 +91,7 @@ public class NonRepeatableReadLongTest {
                 if (k % 2 == 0) {
                     readUsingUpdateTransaction();
                 } else {
-                    //readUsingReadonlyTransaction();
+                    readUsingReadonlyTransaction();
                 }
             }
             readersFinished = true;
@@ -112,7 +109,7 @@ public class NonRepeatableReadLongTest {
 
         private void read() {
             int firstTime = intRef.get();
-            sleepRandomMs(50);
+            sleepRandomMs(10);
             int secondTime = intRef.get();
             assertEquals(firstTime, secondTime);
         }

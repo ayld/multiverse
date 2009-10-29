@@ -19,7 +19,7 @@ package org.multiverse.api.exceptions;
  *
  * @author Peter Veentjer.
  */
-public class LoadUncommittedException extends IllegalStateException {
+public class LoadUncommittedException extends LoadException implements RecoverableThrowable{
 
     private static final long serialVersionUID = 0;
 

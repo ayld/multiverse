@@ -52,7 +52,9 @@ public interface AlphaTransaction extends Transaction {
     void attachNew(AlphaTranlocal tranlocal);
 
     /**
-     * @param atomicObject
+     * Checks if the atomicObject already is attached to this session.
+     *
+     * @param atomicObject the atomicObject to check.
      * @return {@code true} iff the atomicobject is attached
      */
     boolean isAttached(AlphaAtomicObject atomicObject);

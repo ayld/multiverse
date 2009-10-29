@@ -8,6 +8,8 @@ package org.multiverse.templates;
  */
 public class AbortedException extends RuntimeException{
 
+    private static final long serialVersionUID = 0;   
+
     public AbortedException() {
     }
 

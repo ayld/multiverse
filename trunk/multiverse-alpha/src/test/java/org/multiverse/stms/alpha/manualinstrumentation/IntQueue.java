@@ -1,5 +1,6 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
+import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -30,8 +31,8 @@ public final class IntQueue {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                if (size() > maxCapacity) {
-                    throw new IllegalStateException();
+                if (size() >= maxCapacity) {
+                    retry();
                 }
                 
                 pushedStack.push(item);

@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
@@ -108,12 +107,9 @@ public class CycleHandlingTest {
 
     @Test
     public void complexObjectGraphWithLoadsOfCycles() {
-        /*
         final int nodeCount = 100000;
 
         long oldVersion = stm.getClockVersion();
-        fail();
-        long oldWriteCount = stm.getProfiler().sumKey1("updatetransaction.individualwrite.count");
 
         new AtomicTemplate() {
             @Override
@@ -123,11 +119,7 @@ public class CycleHandlingTest {
             }
         }.execute();
 
-        //multiply by 3 because each complexnode needs 3 references
-        assertEquals(oldWriteCount + 3 * nodeCount, stm.getProfiler().sumKey1("updatetransaction.individualwrite.count"));
         assertEquals(oldVersion + 1, stm.getClockVersion());
-        */
-        testIncomplete();
     }
 
 

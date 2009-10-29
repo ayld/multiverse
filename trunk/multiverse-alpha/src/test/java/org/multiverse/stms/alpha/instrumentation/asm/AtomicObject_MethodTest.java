@@ -5,7 +5,6 @@ import org.junit.Assert;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.datastructures.refs.IntRef;
@@ -67,9 +66,37 @@ public class AtomicObject_MethodTest {
     }
 
     @Test
-    public void testRuntimeKnownReturnType() {
-        testIncomplete();
+    public void testRuntimeKnownReturnTypeWithNonAtomicObject() {
+        Object item = "foo";
+        ObjectReturn objectReturn = new ObjectReturn(item);
+        assertSame(item, objectReturn.doIt());
     }
+
+    @Test
+    public void testRuntimeKnownReturnTypeWithAtomicObject() {
+        Object item = new IntRef();
+        ObjectReturn objectReturn = new ObjectReturn(item);
+        assertSame(item, objectReturn.doIt());
+    }
+
+
+    @AtomicObject
+    private static class ObjectReturn {
+        private Object value;
+
+        private ObjectReturn(Object value) {
+            this.value = value;
+        }
+
+        public Object theMethod() {
+            return value;
+        }
+
+        public Object doIt() {
+            return theMethod();
+        }
+    }
+
 
     @Test
     public void testNonAtomicObjectReturnValue() {
@@ -480,10 +507,27 @@ public class AtomicObject_MethodTest {
         }
     }
 
-
     @Test
     public void varArgs() {
-        testIncomplete();
+        int[] array = new int[]{1, 2, 3, 4};
+        varArg arrayArg = new varArg();
+        arrayArg.doIt(array);
+        assertSame(array, arrayArg.getArg());
+        arrayArg.doIt(null);
+        assertNull(arrayArg.getArg());
+    }
+
+    @AtomicObject
+    public static class varArg {
+        int[] arg;
+
+        public void doIt(int... arg) {
+            this.arg = arg;
+        }
+
+        public int[] getArg() {
+            return arg;
+        }
     }
 
     @Test

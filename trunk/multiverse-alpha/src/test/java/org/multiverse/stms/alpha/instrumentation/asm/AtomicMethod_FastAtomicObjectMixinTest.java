@@ -10,7 +10,6 @@ import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.existsField;
-import org.multiverse.utils.instrumentation.ClassUtils;
 
 /**
  * A unit tests that checks if all fields/methods/interfaces of the FastAtomicObject are copied
@@ -67,7 +66,6 @@ public class AtomicMethod_FastAtomicObjectMixinTest {
     }
 
     private void assertAllInstanceFieldsAreCopied(Class clazz) {
-        ClassUtils.printClassInfo(clazz);
         assertTrue(existsField(clazz,"lockOwner"));
         assertTrue(existsField(clazz,"tranlocal"));
         assertTrue(existsField(clazz,"listeners"));

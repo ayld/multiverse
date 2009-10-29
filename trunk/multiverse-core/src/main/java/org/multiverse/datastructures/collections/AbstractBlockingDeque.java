@@ -2,7 +2,6 @@ package org.multiverse.datastructures.collections;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.utils.TodoException;
 
 import java.util.AbstractCollection;
@@ -11,17 +10,24 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-@AtomicObject
 public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> implements BlockingDeque<E> {
 
     @Override
+    @AtomicMethod
     public boolean offerFirst(E e, long timeout, TimeUnit unit) throws InterruptedException {
         throw new TodoException();
     }
 
     @Override
+    @AtomicMethod
     public boolean offerLast(E e, long timeout, TimeUnit unit) throws InterruptedException {
         throw new TodoException();
+    }
+
+    @Override
+    @AtomicMethod
+    public boolean addAll(Collection<? extends E> c) {
+        return super.addAll(c);
     }
 
     @Override
@@ -34,7 +40,7 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
         doAddFirst(e);
     }
 
-    protected abstract void doAddFirst(E e);
+     protected abstract void doAddFirst(E e);
 
     @Override
     @AtomicMethod
@@ -153,6 +159,7 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
         return true;
     }
 
+    @AtomicMethod
     protected boolean hasNoStorageCapacity() {
         return remainingCapacity() == 0;
     }
@@ -170,16 +177,19 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
     }
 
     @Override
+    @AtomicMethod
     public E remove() {
         return removeFirst();
     }
 
     @Override
+    @AtomicMethod
     public E poll() {
         return pollFirst();
     }
 
     @Override
+    @AtomicMethod
     public E pollFirst() {
         if (isEmpty()) {
             return null;
@@ -189,6 +199,7 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
     }
 
     @Override
+    @AtomicMethod
     public E pollLast() {
         if (isEmpty()) {
             return null;
@@ -198,26 +209,31 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
     }
 
     @Override
+    @AtomicMethod
     public E pollFirst(long timeout, TimeUnit unit) throws InterruptedException {
         throw new TodoException();
     }
 
     @Override
+    @AtomicMethod
     public E pollLast(long timeout, TimeUnit unit) throws InterruptedException {
         throw new TodoException();
     }
 
     @Override
+    @AtomicMethod
     public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
         throw new TodoException();
     }
 
     @Override
+    @AtomicMethod
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
         throw new TodoException();
     }
 
     @Override
+    @AtomicMethod
     public E take() throws InterruptedException {
         return takeFirst();
     }
@@ -235,11 +251,13 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
     }
 
     @Override
+    @AtomicMethod
     public void push(E e) {
         addFirst(e);
     }
 
     @Override
+    @AtomicMethod
     public int drainTo(Collection<? super E> c) {
         for (E item : this) {
             c.add(item);
@@ -251,11 +269,13 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
     }
 
     @Override
+    @AtomicMethod
     public int drainTo(Collection<? super E> c, int maxElements) {
         throw new TodoException();
     }
 
     @Override
+    @AtomicMethod
     public E pop() {
         return removeFirst();
     }

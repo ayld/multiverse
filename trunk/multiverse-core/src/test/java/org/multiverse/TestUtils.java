@@ -97,7 +97,7 @@ public class TestUtils {
     }
 
     public static void sleepRandomMs(long maxMs) {
-        if (maxMs == 0) {
+        if (maxMs <= 0) {
             return;
         }
 

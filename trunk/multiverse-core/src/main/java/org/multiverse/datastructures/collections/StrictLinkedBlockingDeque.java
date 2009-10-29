@@ -4,11 +4,7 @@ import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.utils.TodoException;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 /**
@@ -18,7 +14,7 @@ import java.util.concurrent.BlockingDeque;
  * @param <E>
  */
 @AtomicObject
-public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> 
+public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
         implements List<E> {
     private final int maxCapacity;
 
@@ -178,7 +174,11 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
         if (element == null) {
             throw new NullPointerException();
         }
-        throw new TodoException();
+
+        Node<E> node = getNode(index);
+        E old = node.value;
+        node.value = element;
+        return old;
     }
 
     @Override
@@ -192,7 +192,9 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
             throw new IndexOutOfBoundsException();
         }
 
-        throw new TodoException();
+        Node<E> node = getNode(index);
+        remove(node);
+        return node.value;
     }
 
     private Node<E> getNode(int index) {
@@ -269,18 +271,65 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
         throw new TodoException();
     }
 
-    @AtomicObject
-    private static class IteratorImpl<E> implements Iterator<E> {
-        private Node<E> head;
+    @Override
+    public boolean remove(Object item) {
+        Node<E> found = findNode(item);
 
-        private IteratorImpl(Node<E> head) {
-            this.head = head;
+        if (found == null) {
+            return false;
+        } else {
+            removeNode(found);
+            return true;
+        }
+    }
+
+    private void removeNode(Node<E> node) {
+        size--;
+
+        if (node == head) {
+            head = node.next;
+        }
+
+        if (node == tail) {
+            tail = node.prev;
+        }
+
+        if(node.next!=null){
+            node.next.prev = node.prev;
+        }
+
+        if(node.prev!=null){
+            node.prev.next = node.next;
+        }
+    }
+
+    private Node<E> findNode(Object value) {
+        Node<E> node = head;
+        while (node != null) {
+            if (node.value == null?value==null:node.value.equals(value)) {
+                return node;
+            } else {
+                node = node.next;
+            }
+        }
+
+        return null;
+    }
+
+    @AtomicObject
+    private class IteratorImpl<E> implements Iterator<E> {
+        private Node<E> nextNode;
+        private Node<E> currentNode;
+
+        private IteratorImpl(Node<E> nextNode) {
+            this.currentNode = null;
+            this.nextNode = nextNode;
         }
 
         @Override
         @AtomicMethod(readonly = true)
         public boolean hasNext() {
-            return head != null;
+            return nextNode != null;
         }
 
         @Override
@@ -289,14 +338,18 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
                 throw new NoSuchElementException();
             }
 
-            E value = head.value;
-            head = head.next;
-            return value;
+            currentNode = nextNode;
+            nextNode = nextNode.next;
+            return currentNode.value;
         }
 
         @Override
         public void remove() {
-            throw new UnsupportedOperationException();
+            if(currentNode == null){
+                throw new NoSuchElementException();
+            }
+
+            StrictLinkedBlockingDeque.this.removeNode((Node) currentNode);
         }
     }
 
@@ -310,5 +363,6 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
         public Node(E value) {
             this.value = value;
         }
+
     }
 }

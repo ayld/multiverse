@@ -9,11 +9,7 @@ import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.LoadLockedException;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
-import org.multiverse.stms.alpha.AlphaAtomicObject;
-import org.multiverse.stms.alpha.AlphaStm;
-import org.multiverse.stms.alpha.AlphaTranlocal;
-import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
-import org.multiverse.stms.alpha.DirtinessStatus;
+import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 
 public class FastAtomicObjectMixinTest {
@@ -50,6 +46,7 @@ public class FastAtomicObjectMixinTest {
         long writeVersion = 10;
         atomicObject.tryLock(lockOwner);
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
+        atomicObject.releaseLock(lockOwner);
 
         AlphaTranlocal result = atomicObject.load(writeVersion);
         assertSame(tranlocal, result);
@@ -64,6 +61,7 @@ public class FastAtomicObjectMixinTest {
         long writeVersion = 10;
         atomicObject.tryLock(lockOwner);
         atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
+        atomicObject.releaseLock(lockOwner);
 
         AlphaTranlocal result = atomicObject.load(writeVersion + 1);
         assertSame(tranlocal, result);
