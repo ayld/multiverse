@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="4.1" timestamp="2009-10-29T12:06:44.799">
+<file name="C:\Users\aphillips\Workspace\multiverse\multiverse-benchy\src\main\java\org\benchy\FileBasedBenchmarkResultRepository.java">
+<violation beginline="33" endline="36" begincolumn="13" endcolumn="13" rule="CollapsibleIfStatements" ruleset="Basic Rules" package="org.benchy" class="FileBasedBenchmarkResultRepository" method="ensureExistingDirectory" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#CollapsibleIfStatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="146" endline="148" begincolumn="15" endcolumn="13" rule="EmptyCatchBlock" ruleset="Basic Rules" package="org.benchy" class="FileBasedBenchmarkResultRepository" method="createRunDir" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="167" endline="169" begincolumn="15" endcolumn="13" rule="EmptyCatchBlock" ruleset="Basic Rules" package="org.benchy" class="FileBasedBenchmarkResultRepository" method="findLastRun" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+</file>
+</pmd>
