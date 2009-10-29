@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="4.1" timestamp="2009-10-29T12:07:16.508">
+<file name="C:\Users\aphillips\Workspace\multiverse\multiverse-core\src\main\java\org\multiverse\api\StmUtils.java">
+<violation beginline="3" endline="3" begincolumn="1" endcolumn="65" rule="UnusedImports" ruleset="Import Statement Rules" package="org.multiverse.api" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
+Avoid unused imports such as 'org.multiverse.api.exceptions.NoTransactionFoundException'
+</violation>
+</file>
+<file name="C:\Users\aphillips\Workspace\multiverse\multiverse-core\src\main\java\org\multiverse\datastructures\collections\FixedLengthArrayList.java">
+<violation beginline="9" endline="9" begincolumn="1" endcolumn="27" rule="UnusedImports" ruleset="Import Statement Rules" package="org.multiverse.datastructures.collections" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
+Avoid unused imports such as 'java.util.ArrayList'
+</violation>
+</file>
+<file name="C:\Users\aphillips\Workspace\multiverse\multiverse-core\src\main\java\org\multiverse\datastructures\collections\StrictLinkedBlockingDeque.java">
+<violation beginline="12" endline="12" begincolumn="1" endcolumn="42" rule="UnusedImports" ruleset="Import Statement Rules" package="org.multiverse.datastructures.collections" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
+Avoid unused imports such as 'java.util.concurrent.BlockingDeque'
+</violation>
+</file>
+<file name="C:\Users\aphillips\Workspace\multiverse\multiverse-core\src\main\java\org\multiverse\datastructures\refs\AbaRef.java">
+<violation beginline="23" endline="23" begincolumn="18" endcolumn="29" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.multiverse.datastructures.refs" class="AbaRef" variable="writeVersion" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'writeVersion'.
+</violation>
+</file>
+<file name="C:\Users\aphillips\Workspace\multiverse\multiverse-core\src\main\java\org\multiverse\templates\AtomicTemplate.java">
+<violation beginline="51" endline="51" begincolumn="33" endcolumn="38" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.multiverse.templates" class="AtomicTemplate" variable="logger" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'logger'.
+</violation>
+</file>
+</pmd>
