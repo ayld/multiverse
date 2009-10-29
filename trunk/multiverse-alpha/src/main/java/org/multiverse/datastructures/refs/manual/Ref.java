@@ -33,7 +33,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
      * {@link GlobalStmInstance}.
      *
      * @return the created ref.
-     * @see #createCommittedRef(org.multiverse.api.Stm, Object)
+     * @see #createCommittedRef(Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef() {
         return createCommittedRef(getGlobalStmInstance(), null);
@@ -42,9 +42,9 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     /**
      * Creates a committed ref with a null value.
      *
-     * @param stm the {@Stm} used for committing the ref.
+     * @param stm the {@link Stm} used for committing the ref.
      * @return the created ref.
-     * @see #createCommittedRef(org.multiverse.api.Stm, Object)
+     * @see #createCommittedRef(Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef(Stm stm) {
         return createCommittedRef(stm, null);
@@ -56,7 +56,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
      *
      * @param value the initial value of the Ref.
      * @return the created ref.
-     * @see #createCommittedRef(org.multiverse.api.Stm, Object)
+     * @see #createCommittedRef(Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef(E value) {
         return createCommittedRef(getGlobalStmInstance(), value);
@@ -74,7 +74,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
      * the transaction this atomicobject is created in is aborted (or hasn't committed) yet,
      * you will get the dreaded {@link org.multiverse.api.exceptions.LoadUncommittedException}.
      *
-     * @param stm   the {@link @Stm} used for committing the ref.
+     * @param stm   the {@link Stm} used for committing the ref.
      * @param value the initial value of the ref. The value is allowed to be null.
      * @return the created ref.
      */
