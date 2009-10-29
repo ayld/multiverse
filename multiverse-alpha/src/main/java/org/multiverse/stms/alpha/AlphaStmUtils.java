@@ -1,8 +1,7 @@
 package org.multiverse.stms.alpha;
 
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
-
 import static java.lang.String.format;
+import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -17,7 +16,7 @@ public final class AlphaStmUtils {
      * Debug string representation of the atomicobject that belongs to the tranlocal.
      *
      * @param tranlocal
-     * @return
+     * @return the string representation of the atomicobject belonging to the tranlocal.
      */
     public static String toAtomicObjectString(AlphaTranlocal tranlocal) {
         return toAtomicObjectString(tranlocal.getAtomicObject() == null ? null : tranlocal.getAtomicObject());
@@ -28,7 +27,7 @@ public final class AlphaStmUtils {
      * Debug representation of the atomicobject.
      *
      * @param atomicObject
-     * @return
+     * @return the string representation of the atomicobject.
      */
     public static String toAtomicObjectString(AlphaAtomicObject atomicObject) {
         if (atomicObject == null) {

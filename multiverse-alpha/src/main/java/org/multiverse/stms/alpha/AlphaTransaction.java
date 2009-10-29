@@ -53,7 +53,7 @@ public interface AlphaTransaction extends Transaction {
 
     /**
      * @param atomicObject
-     * @return
+     * @return {@code true} iff the atomicobject is attached
      */
     boolean isAttached(AlphaAtomicObject atomicObject);
 }

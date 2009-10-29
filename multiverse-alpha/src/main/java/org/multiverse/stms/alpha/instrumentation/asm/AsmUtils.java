@@ -68,7 +68,7 @@ public final class AsmUtils implements Opcodes {
      *
      * @param superClass
      * @param constructor
-     * @return
+     * @return the index of the first instruction after the constructor
      */
     public static int findIndexOfFirstInstructionAfterConstructor(String superClass, String thisClass, MethodNode constructor) {
         if (!constructor.name.equals("<init>")) {
