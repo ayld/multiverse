@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache. isorg/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -9,10 +9,10 @@
         Multiverse is a Software Transactional Memory implementation that can be used in Java
         but also in other languages like Scala. Essentially it is a framework that allows different
         STM implementation (with different featuresets or performance characteristics) to be used
-        under the hood. The main stm implementation is multiverse-alpha.
+        under the hood. The main STM implementation is multiverse-alpha.
     </description>
-    <artifactId>multiverse</artifactId>
     <groupId>org.multiverse</groupId>
+    <artifactId>multiverse</artifactId>    
     <version>0.3-SNAPSHOT</version>
     <inceptionYear>2008</inceptionYear>
     <packaging>pom</packaging>
@@ -20,6 +20,7 @@
     <licenses>
         <license>
             <name>MIT License</name>
+            <url>license.txt</url>
         </license>
     </licenses>
 
@@ -36,6 +37,8 @@
             <email>alarmnummer AT gmail DOTCOM</email>
             <roles>
                 <role>Founder</role>
+                <role>Hacker</role>
+                <role>Despot</role>
             </roles>
         </developer>
         <developer>
@@ -46,7 +49,7 @@
             <roles>
                 <role>Apprentice</role>
             </roles>
-        </developer>
+        </developer>            
     </developers>
 
     <repositories>
@@ -97,26 +100,54 @@
     </modules>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>                
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/*LongTest.java</exclude>
+                        </excludes>
+                        <includes>
+                            <include>**/*Test.java</include>
+                        </includes>
+                        <forkMode>once</forkMode>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/*LongTest.java</exclude>
-                    </excludes>
-                    <includes>
-                        <include>**/*Test.java</include>
-                    </includes>
-                    <forkMode>once</forkMode>
-                </configuration>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-java</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>1.6.0</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -144,10 +175,20 @@
                     </execution>
                 </executions>
             </plugin>
+          <plugin>
+              <artifactId>maven-source-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <id>attach-sources</id>
+                      <goals>
+                          <goal>jar</goal>
+                      </goals>
+                    </execution>
+              </executions>
+          </plugin>            
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
-
                 <configuration>
                     <instrumentation>
                         <excludes>
@@ -155,7 +196,6 @@
                             <exclude>**/*Error.class</exclude>
                         </excludes>
                     </instrumentation>
-
                     <check>
                         <branchRate>0</branchRate>
                         <lineRate>0</lineRate>
@@ -166,7 +206,6 @@
                         <packageBranchRate>0</packageBranchRate>
                     </check>
                 </configuration>
-
                 <executions>
                     <execution>
                         <goals>
@@ -197,7 +236,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.8.0</version>
+            <version>1.8.0</version>            
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -211,6 +250,25 @@
     <reporting>
         <plugins>
             <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <quiet>true</quiet>
+                    <links>
+                        <link>http://java.sun.com/javase/6/docs/api/</link>
+                        <link>http://java.sun.com/javaee/6/docs/api/</link>
+                    </links>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>default</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jxr-maven-plugin</artifactId>
             </plugin>
@@ -219,6 +277,7 @@
                 <artifactId>taglist-maven-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
+                    <encoding>UTF-8</encoding>
                     <tags>
                         <tag>FIXME</tag>
                         <tag>Fixme</tag>
@@ -235,7 +294,6 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changes-plugin</artifactId>
                 <version>2.0-beta-3</version>
                 <reportSets>
@@ -268,7 +326,6 @@
                 <version>2.0.1</version>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
@@ -292,6 +349,11 @@
             <url>dav:https://multiverse.googlecode.com/svn/maven-repository/snapshots</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
+        <site>
+            <id>multiverse-site</id>
+            <name>Multiverse Maven site</name>
+            <url>scp://multiversestm.org/maven-site</url>
+        </site>
         <downloadUrl>http://code.google.com/p/multiverse/downloads</downloadUrl>
     </distributionManagement>
 
