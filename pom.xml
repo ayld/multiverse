@@ -1,4 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache. isorg/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
@@ -37,6 +37,8 @@
             <email>alarmnummer AT gmail DOTCOM</email>
             <roles>
                 <role>Founder</role>
+                <role>Hacker</role>
+                <role>Despot</role>
             </roles>
         </developer>
         <developer>
@@ -47,7 +49,7 @@
             <roles>
                 <role>Apprentice</role>
             </roles>
-        </developer>
+        </developer>            
     </developers>
 
     <repositories>
@@ -223,7 +225,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.8.0</version>
+            <version>1.8.0</version>            
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -239,6 +241,7 @@
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
+                    <encoding>UTF-8</encoding>
                     <quiet>true</quiet>
                     <links>
                         <link>http://java.sun.com/javase/6/docs/api/</link>
@@ -249,7 +252,6 @@
                     <reportSet>
                         <id>default</id>
                         <reports>
-                            <report>javadoc</report>
                             <report>aggregate</report>
                         </reports>
                     </reportSet>
@@ -264,6 +266,7 @@
                 <artifactId>taglist-maven-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
+                    <encoding>UTF-8</encoding>
                     <tags>
                         <tag>FIXME</tag>
                         <tag>Fixme</tag>
@@ -335,6 +338,11 @@
             <url>dav:https://multiverse.googlecode.com/svn/maven-repository/snapshots</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
+        <site>
+            <id>multiverse-site</id>
+            <name>Multiverse Maven site</name>
+            <url>dav:https://multiverse.googlecode.com/svn/maven-site</url>
+        </site>
         <downloadUrl>http://code.google.com/p/multiverse/downloads</downloadUrl>
     </distributionManagement>
 
