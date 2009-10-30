@@ -1,7 +1,17 @@
 #summary Multiverse Maven repository details
 #labels Phase-Deploy
 
-Multiverse artifacts are available from the project's Maven repositories. To access these, add the following to your POM:
+In order to use Multiverse in your Maven project, add the following dependency:
+
+{{{
+<dependency>
+  <groupId>org.multiverse</groupId>
+  <artifactId>multiverse-core</artifactId>        
+  <version>0.3-SNAPSHOT</version>
+</dependency>
+}}}
+
+You will need to add the project's Maven repositories to your POM:
 
 {{{
 <repository>
