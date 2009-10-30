@@ -1,0 +1,29 @@
+#summary Adding Multiverse to your Maven project
+#labels Phase-Deploy
+
+==Importing Multiverse==
+
+In order to use Multiverse in your Maven project, add the following dependency:
+
+{{{
+<dependency>
+  <groupId>org.multiverse</groupId>
+  <artifactId>multiverse-core</artifactId>        
+  <version>0.3-SNAPSHOT</version>
+</dependency>
+}}}
+
+==Required repositories==
+
+You will need to add the project's Maven repositories to your POM:
+
+{{{
+<repository>
+  <id>multiverse-releases</id>
+  <url>http://multiverse.googlecode.com/svn/maven-repository/releases</url>
+</repository>
+<snapshotRepository>
+  <id>multiverse-snapshots</id>
+  <url>http://multiverse.googlecode.com/svn/maven-repository/snapshots</url>
+</snapshotRepository>
+}}}
