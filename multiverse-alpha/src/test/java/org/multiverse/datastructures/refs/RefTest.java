@@ -197,7 +197,7 @@ public class RefTest {
     }
 
     @Test
-    public void getOrAwaitComletesIfRefNotNull() {
+    public void getOrAwaitCompletesIfRefNotNull() {
         String oldRef = "foo";
 
         Ref<String> ref = new Ref<String>(oldRef);
