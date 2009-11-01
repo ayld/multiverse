@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>multiverse-core</artifactId>
-    <name>The multiverse core package</name>
-    <description>Contains the core interfaces/classes of the Multiverse project. So no stm implementations</description>
+    <name>The Multiverse core package</name>
+    <description>Contains the core interfaces/classes of the Multiverse project. So no STM implementations</description>
 
     <parent>
         <groupId>org.multiverse</groupId>

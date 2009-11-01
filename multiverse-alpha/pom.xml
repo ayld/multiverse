@@ -9,13 +9,11 @@
         Contains the main Multiverse STM Implementation: the Alpha Engine. The Alpha engine supports
         readonly and update transactions. It also supports the retry/or else mechanism.
     </description>
-    <packaging>jar</packaging>
 
     <parent>
-        <artifactId>multiverse</artifactId>
         <groupId>org.multiverse</groupId>
+        <artifactId>multiverse</artifactId>        
         <version>0.3-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <build>
