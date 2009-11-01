@@ -173,9 +173,10 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
         tranlocalUpdater.set(this, tranlocal);
 
         //it is important that the listeners are removed after the tranlocal write en before the lockrelease.
+        // TODO: explain why!
         Listeners listeners = listenersUpdater.getAndSet(this, null);
 
-        //release the listeners
+        //release the lock
         lockOwnerUpdater.set(this, null);
 
         return listeners;

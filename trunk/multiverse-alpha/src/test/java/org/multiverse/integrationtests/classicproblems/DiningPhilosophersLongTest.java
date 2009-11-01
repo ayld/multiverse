@@ -41,7 +41,7 @@ public class DiningPhilosophersLongTest {
     public void test() {
         createForks();
 
-        PhilosopherThread[] philosopherThreads = createPhilosoperThreads();
+        PhilosopherThread[] philosopherThreads = createPhilosopherThreads();
         startAll(philosopherThreads);
         joinAll(philosopherThreads);
 
@@ -54,7 +54,7 @@ public class DiningPhilosophersLongTest {
         }
     }
 
-    public PhilosopherThread[] createPhilosoperThreads() {
+    public PhilosopherThread[] createPhilosopherThreads() {
         PhilosopherThread[] threads = new PhilosopherThread[philosopherCount];
         for (int k = 0; k < philosopherCount; k++) {
             IntRef leftFork = forks[k];

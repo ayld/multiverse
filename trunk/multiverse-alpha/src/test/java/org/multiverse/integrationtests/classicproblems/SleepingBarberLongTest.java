@@ -86,7 +86,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SleepingBarberLongTest {
     // the chairs are used by the customers *and* the barber
     private final int chairCount = 5;
-    private StrictLinkedBlockingDeque<TestThread> chairs;
+    private BlockingQueue<TestThread> chairs;
 
     BarberThread barber;
 
