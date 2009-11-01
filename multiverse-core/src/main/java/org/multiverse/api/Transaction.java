@@ -175,7 +175,7 @@ public interface Transaction {
      * If the same tasks is added multiple times, it could be executed multiple
      * times (no guarantee).
      * <p/>
-     * The tasks will be executed on the current thread that calls aborts the transaction.
+     * The tasks will be executed on the current thread that aborts the transaction.
      * <p/>
      * A good use case of this feature is cleaning up resources.
      * <p/>
