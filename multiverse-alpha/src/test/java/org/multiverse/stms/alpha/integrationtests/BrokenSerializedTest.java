@@ -60,11 +60,11 @@ public class BrokenSerializedTest {
         t1.commit();
         t2.commit();
 
-        assertStackContainZero(stack1);
-        assertStackContainZero(stack2);
+        assertStackContainsZero(stack1);
+        assertStackContainsZero(stack2);
     }
 
-    public void assertStackContainZero(IntStack stack) {
+    public void assertStackContainsZero(IntStack stack) {
         assertEquals(1, stack.size());
         assertEquals(0, stack.pop());
     }
