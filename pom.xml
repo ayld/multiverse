@@ -98,6 +98,7 @@
         <module>multiverse-benchy</module>
         <module>multiverse-core</module>
         <module>multiverse-alpha</module>
+        <module>multiverse-scala-integration</module>
     </modules>
 
     <build>
@@ -222,8 +223,11 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-webdav</artifactId>
-                <version>1.0-beta-2</version>
             </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+            </extension>            
         </extensions>
     </build>
 
@@ -357,7 +361,7 @@
         <site>
             <id>multiverse-site</id>
             <name>Multiverse Maven site</name>
-            <url>sftp://multiversestm.org</url>
+            <url>ftp://multiversestm.org</url>
         </site>
         <downloadUrl>http://code.google.com/p/multiverse/downloads</downloadUrl>
     </distributionManagement>
@@ -367,6 +371,7 @@
             <id>release</id>
             <build>
                 <plugins>
+                    <!-- should only be executed at the top-level POM -->
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <inherited>false</inherited>
