@@ -1,7 +1,7 @@
 package org.multiverse.integration.scala.examples
 
 import org.multiverse.integration.scala.StmUtils._;
-import org.multiverse.datastructures.refs.Ref;
+import org.multiverse.datastructures.refs.manual.Ref;
 
 /**
  * A &quot;port&quot; of the Java {@link org.multiverse.integrationtests.classicproblems.DiningPhilosophersLongTest DiningPhilosophers} 
@@ -13,8 +13,8 @@ class DiningPhilosophers {
     val philosopherCount = 10
     val eatCount = 1000
 
-    val forks: List[Ref[PhilosopherThread]] = createForks
-    val philosopherThreads: List[PhilosopherThread] = createPhilosopherThreads
+    lazy val forks: List[Ref[PhilosopherThread]] = createForks
+    lazy val philosopherThreads: List[PhilosopherThread] = createPhilosopherThreads
 
     private[examples] def run() {
         philosopherThreads.foreach(_.start())
@@ -61,10 +61,20 @@ class DiningPhilosophers {
             }
         }
 
-        def eat() {
+        private def eat() {
             takeForks()
             stuffHole()
             releaseForks()
+        }
+
+        private def takeForks() {
+            atomic {
+                if (!leftFork.isNull) retry()
+                else leftFork.set(this)
+                
+                if (!rightFork.isNull) retry()
+                else rightFork.set(this)
+            }
         }
 
         private def stuffHole() {
@@ -73,20 +83,10 @@ class DiningPhilosophers {
             Thread.`yield`()
         }
 
-        def releaseForks() {
+        private def releaseForks() {
             atomic {
                 leftFork.clear()
                 rightFork.clear()
-            }
-        }
-        
-        def takeForks() {
-            atomic {
-                if (!leftFork.isNull) retry()
-                else leftFork.set(this)
-    
-                if (!rightFork.isNull) retry()
-                else rightFork.set(this)
             }
         }
     }
@@ -98,7 +98,11 @@ class DiningPhilosophers {
  * http://lampsvn.epfl.ch/trac/scala/ticket/363.
  */ 
 object DiningPhilosophersRunner {
+    import org.multiverse.api.GlobalStmInstance
+    import org.multiverse.stms.alpha.AlphaStm
+    
     def main(args: Array[String]) {
         new DiningPhilosophers().run()
+        println(GlobalStmInstance.getGlobalStmInstance.asInstanceOf[AlphaStm].getProfiler);        
     }
 }
