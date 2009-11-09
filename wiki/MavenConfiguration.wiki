@@ -27,3 +27,6 @@ You will need to add the project's Maven repositories to your POM:
   <url>http://multiverse.googlecode.com/svn/maven-repository/snapshots</url>
 </snapshotRepository>
 }}}
+
+==Downloading the jars manually==
+To download the jar manually, check the following <a href="http://code.google.com/p/multiverse/wiki/Download">page</a>.
