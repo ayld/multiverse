@@ -40,7 +40,7 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
     @Override
     public void attachNew(AlphaTranlocal tranlocal) {
-        if (!logger.isLoggable(Level.FINE)) {
+        if (!logger.isLoggable(level)) {
             super.attachNew(tranlocal);
         } else {
             boolean success = false;
