@@ -1,0 +1,1 @@
+The newest jar (0.3 SNAPSHOT) containing all dependencies, can be found <a href="http://multiverse.googlecode.com/svn/maven-repository/snapshots/org/multiverse/multiverse-alpha/0.3-SNAPSHOT/multiverse-alpha-0.3-SNAPSHOT-jar-with-dependencies.jar">here</a>
