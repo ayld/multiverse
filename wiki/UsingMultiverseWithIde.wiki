@@ -6,6 +6,9 @@
 
 Multiverse it relies on instrumentation (bytecode manipulation) and that is why a Java agent needs to be used. This page describes how to set up IntelliJ, Eclipse and Netbeans for Multiverse and also how to set it up from the commandline and ANT.
 
+== Download ==
+The newest Multiverse jar containing the JavaAgent can be downloaded from the following <a href="http://code.google.com/p/multiverse/wiki/Download">page</a>.
+
 == Commandline ==
 
 Use the following snippet to run an application from the commandline:
