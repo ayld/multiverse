@@ -9,7 +9,7 @@ import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -63,7 +63,7 @@ public class UpdateAlphaTransaction_abortTest {
         assertIsAborted(t);
         assertEquals(startVersion, stm.getClockVersion());
 
-        AlphaTranlocal result = intValue.load(stm.getClockVersion());
+        AlphaTranlocal result = intValue.___load(stm.getClockVersion());
         assertNull(result);
     }
 

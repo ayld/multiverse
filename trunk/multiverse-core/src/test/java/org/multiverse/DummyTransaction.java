@@ -1,7 +1,10 @@
 package org.multiverse;
 
+import org.multiverse.api.ScheduleType;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
+import org.multiverse.utils.latches.Latch;
+import org.multiverse.utils.restartbackoff.RestartBackoffPolicy;
 
 /**
  * @author Peter Veentjer
@@ -9,14 +12,15 @@ import org.multiverse.api.TransactionStatus;
 public class DummyTransaction implements Transaction {
 
     @Override
-    public String getFamilyName() {
+    public RestartBackoffPolicy getRestartBackoffPolicy() {
         throw new RuntimeException();
     }
 
     @Override
-    public void deferredExecute(Runnable r) {
+    public String getFamilyName() {
         throw new RuntimeException();
     }
+
 
     @Override
     public void startOr() {
@@ -24,7 +28,7 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
-    public Transaction restart() {
+    public Transaction abortAndReturnRestarted() {
         throw new RuntimeException();
     }
 
@@ -59,12 +63,12 @@ public class DummyTransaction implements Transaction {
     }
 
     @Override
-    public void abortAndWaitForRetry() {
+    public void abortAndRegisterRetryLatch(final Latch latch) {
         throw new RuntimeException();
     }
 
     @Override
-    public void compensatingExecute(Runnable task) {
+    public void schedule(Runnable task, ScheduleType scheduleType) {
         throw new RuntimeException();
     }
 }

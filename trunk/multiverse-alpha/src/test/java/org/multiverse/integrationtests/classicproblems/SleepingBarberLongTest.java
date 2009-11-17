@@ -11,7 +11,7 @@ import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.collections.StrictLinkedBlockingDeque;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.datastructures.refs.Ref;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;

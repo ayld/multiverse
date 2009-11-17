@@ -2,9 +2,7 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
@@ -23,8 +21,8 @@ public final class IntRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                IntRefTranlocal tranlocal = new IntRefTranlocal(IntRef.this, value);
-                ((AlphaTransaction) t).attachNew(tranlocal);
+                IntRefTranlocal tranlocal = (IntRefTranlocal) ((AlphaTransaction) t).load(IntRef.this);
+                tranlocal.value = value;
                 return null;
             }
         }.execute();
@@ -101,17 +99,17 @@ public final class IntRef extends FastAtomicObjectMixin {
     }
 
     @Override
-    public IntRefTranlocal privatize(long version) {
-        IntRefTranlocal origin = (IntRefTranlocal) load(version);
+    public IntRefTranlocal ___loadUpdatable(long version) {
+        IntRefTranlocal origin = (IntRefTranlocal) ___load(version);
         if (origin == null) {
-            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
+            return new IntRefTranlocal(this);
+        } else {
+            return new IntRefTranlocal(origin);
         }
-        return new IntRefTranlocal(origin);
     }
 
-
     public void loopInc(IntRefTranlocal tranlocal, int amount) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             for (int k = 0; k < amount; k++) {
@@ -121,7 +119,7 @@ public final class IntRef extends FastAtomicObjectMixin {
     }
 
     public void set(IntRefTranlocal tranlocal, int newValue) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.value = newValue;
@@ -133,7 +131,7 @@ public final class IntRef extends FastAtomicObjectMixin {
     }
 
     public void inc(IntRefTranlocal tranlocal) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.value++;
@@ -141,7 +139,7 @@ public final class IntRef extends FastAtomicObjectMixin {
     }
 
     public void dec(IntRefTranlocal tranlocal) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.value--;

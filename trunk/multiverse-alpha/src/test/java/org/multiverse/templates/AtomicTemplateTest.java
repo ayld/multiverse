@@ -13,8 +13,8 @@ import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.api.exceptions.TooManyRetriesException;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.io.IOException;
 
@@ -127,7 +127,7 @@ public class AtomicTemplateTest {
             }
         }.execute();
 
-        // the thread-local transaction should *not* have been restart
+        // the thread-local transaction should *not* have been abortAndReturnRestarted
         assertSame(t, getThreadLocalTransaction());
         assertIsActive(t);
 
@@ -241,23 +241,21 @@ public class AtomicTemplateTest {
         long version = stm.getClockVersion();
         long startedCount = stm.getProfiler().sumKey1("updatetransaction.started.count");
 
-        run(100);
-
-        System.out.println(stm.getProfiler().toString());
+        recursiveCall(100);
 
         assertEquals(version + 1, stm.getClockVersion());
         assertEquals(startedCount + 1, stm.getProfiler().sumKey1("updatetransaction.started.count"));
     }
 
 
-    public void run(final int depth) {
+    public void recursiveCall(final int depth) {
         if (depth == 0) {
             new IntRef();
         } else {
             new AtomicTemplate() {
                 @Override
                 public Object execute(Transaction t) throws Exception {
-                    run(depth - 1);
+                    recursiveCall(depth - 1);
                     return null;
                 }
             }.execute();

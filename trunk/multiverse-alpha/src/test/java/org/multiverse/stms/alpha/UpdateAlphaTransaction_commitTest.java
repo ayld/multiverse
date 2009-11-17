@@ -17,7 +17,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.templates.AbortedException;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class UpdateAlphaTransaction_commitTest {
 
@@ -96,7 +96,7 @@ public class UpdateAlphaTransaction_commitTest {
         t2.commit();
 
         long version = stm.getClockVersion();
-        IntRefTranlocal committed = (IntRefTranlocal) ref.load(version);
+        IntRefTranlocal committed = (IntRefTranlocal) ref.___load(version);
 
         ref.inc(tranlocalIntValueR1);
 
@@ -107,7 +107,7 @@ public class UpdateAlphaTransaction_commitTest {
         }
 
         assertIsAborted(t1);
-        assertSame(committed, ref.load(version));
+        assertSame(committed, ref.___load(version));
         assertEquals(version, stm.getClockVersion());
     }
 
@@ -121,7 +121,7 @@ public class UpdateAlphaTransaction_commitTest {
         intValue.inc();
 
         Transaction otherOwner = new DummyTransaction();
-        intValue.tryLock(otherOwner);
+        intValue.___tryLock(otherOwner);
 
         try {
             t.commit();
@@ -130,7 +130,7 @@ public class UpdateAlphaTransaction_commitTest {
         }
 
         setThreadLocalTransaction(null);
-        intValue.releaseLock(otherOwner);
+        intValue.___releaseLock(otherOwner);
 
         assertIsAborted(t);
         assertEquals(version, stm.getClockVersion());
@@ -159,13 +159,13 @@ public class UpdateAlphaTransaction_commitTest {
         value.inc();
         t2.commit();
 
-        IntRefTranlocal stored = (IntRefTranlocal) value.load(stm.getClockVersion());
+        IntRefTranlocal stored = (IntRefTranlocal) value.___load(stm.getClockVersion());
         assertIsCommitted(t2);
         assertEquals(startVersion + 1, stm.getClockVersion());
         assertEquals(11, stored.value);
-        assertEquals(stm.getClockVersion(), stored.version);
+        assertEquals(stm.getClockVersion(), stored.___version);
         assertEquals(value, stored.getAtomicObject());
-        assertTrue(stored.committed);
+        assertTrue(stored.___committed);
     }
 
     @Test
@@ -179,11 +179,11 @@ public class UpdateAlphaTransaction_commitTest {
         assertIsCommitted(t1);
         assertEquals(startVersion + 1, stm.getClockVersion());
 
-        IntRefTranlocal stored = (IntRefTranlocal) value.load(stm.getClockVersion());
+        IntRefTranlocal stored = (IntRefTranlocal) value.___load(stm.getClockVersion());
         assertEquals(10, stored.value);
-        assertEquals(stm.getClockVersion(), stored.version);
+        assertEquals(stm.getClockVersion(), stored.___version);
         assertEquals(value, stored.getAtomicObject());
-        assertTrue(stored.committed);
+        assertTrue(stored.___committed);
     }
 
     @Test

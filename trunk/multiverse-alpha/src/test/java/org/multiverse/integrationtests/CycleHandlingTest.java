@@ -12,7 +12,7 @@ import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.datastructures.refs.Ref;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.LinkedList;
 import java.util.Random;

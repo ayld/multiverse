@@ -1,4 +1,4 @@
-package org.multiverse.integrationtests;
+package org.multiverse.integrationtests.notification;
 
 import org.junit.After;
 import org.junit.Before;
@@ -12,7 +12,7 @@ import org.multiverse.api.Stm;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.clearThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
 
 /**
  * The goal of this test is to see if the system is able to deal with multiple objects

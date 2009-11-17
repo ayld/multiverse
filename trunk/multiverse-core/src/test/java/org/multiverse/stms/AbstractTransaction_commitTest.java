@@ -3,9 +3,14 @@ package org.multiverse.stms;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import static org.multiverse.TestUtils.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.multiverse.TestUtils.assertIsAborted;
+import static org.multiverse.TestUtils.assertIsCommitted;
 import org.multiverse.api.Transaction;
+import org.multiverse.api.exceptions.CommitFailureException;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.utils.clock.StrictClock;
 
@@ -21,16 +26,33 @@ public class AbstractTransaction_commitTest {
         clock = new StrictClock();
     }
 
+    @Ignore
     @Test
     public void commitOnStartedTransactionIsDelegated() {
-        testIncomplete();
+        AbstractTransaction t = mock(AbstractTransaction.class);
+        when(t.onCommit()).thenReturn(10L);
+
+        long version = t.commit();
+        assertEquals(10, version);
+        assertIsCommitted(t);
     }
 
+    @Ignore
     @Test
-    public void commitOnStartedLeadsToAbortWhenExceptionIsThrow(){
-        testIncomplete();
+    @SuppressWarnings({"ThrowableInstanceNeverThrown"})
+    public void commitOnStartedLeadsToAbortWhenExceptionIsThrow() {
+        AbstractTransaction t = mock(AbstractTransaction.class);
+        when(t.onCommit()).thenThrow(new CommitFailureException());
+
+        try {
+            t.commit();
+            fail();
+        } catch (CommitFailureException ex) {
+
+        }
+        assertIsAborted(t);
     }
-    
+
     @Test
     public void commitOnCommittedTransactionIsIgnored() {
         Transaction t = new AbstractTransactionImpl(clock);

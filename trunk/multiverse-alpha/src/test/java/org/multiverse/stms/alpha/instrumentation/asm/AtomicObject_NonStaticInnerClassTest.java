@@ -82,6 +82,10 @@ public class AtomicObject_NonStaticInnerClassTest {
     static class Outer {
         private Inner inner;
 
+        public Outer(){
+            inner = null;
+        }
+
         @AtomicMethod(readonly = true)
         public Inner getInner() {
             return inner;

@@ -25,8 +25,10 @@ package org.multiverse.utils.clock;
  * If a clock lives longer, the time could go 'back' when the long flows over to the negative side.
  * In most cases this won't cause problems; it the dawn time is zero and there are 1.000.0000.0000
  * transactions per second, only after Long.MAX_VALUE/1.000.0000.000 transactions per second,
- * the clock is able to run for 9223372036 second; which is 292 years. And with a dawn starting
- * at Long.MIN_VALUE it is 584 years. So atm this is not going to be a problem.
+ * the clock is able to run for 9223372036 second; which is 292 years.
+ *
+ * All clocks always start from 0. An stm could give a clock extra ticks when it starts, so that
+ * versions for the ticks can be used to describe some state.
  *
  * @author Peter Veentjer.
  */
@@ -49,11 +51,5 @@ public interface Clock {
      */
     long getTime();
 
-    /**
-     * Returns the time of dawn; the time this clock was created.
-     *
-     * @return time of dawn.
-     */
-    long getDawn();
 }
 

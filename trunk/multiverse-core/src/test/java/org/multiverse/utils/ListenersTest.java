@@ -22,8 +22,6 @@ public class ListenersTest {
         assertNull(tail.getNext());
     }
 
-
-
     @Test
     public void testOpenAllOnClosedListeners(){
         Latch latch1 = new CheapLatch();

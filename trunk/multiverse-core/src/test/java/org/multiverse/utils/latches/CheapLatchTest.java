@@ -1,8 +1,8 @@
 package org.multiverse.utils.latches;
 
+import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 
 import java.util.concurrent.TimeUnit;
@@ -12,8 +12,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class CheapLatchTest {
 
+    @After
+    public void tearDown(){
+        Thread.interrupted();//clear the interrupt status
+    }
+
     @Test
-    public void testINSTANCE() {
+    public void test_OPEN_LATCH() {
         assertTrue(CheapLatch.OPEN_LATCH.isOpen());
     }
 
@@ -50,7 +55,6 @@ public class CheapLatchTest {
         assertTrue(latch.isOpen());
     }
 
-
     @Test
     public void awaitClosedLatchIsInterruptedIfStartingWithInterruptedFlag() throws InterruptedException {
         CheapLatch latch = new CheapLatch();
@@ -79,22 +83,6 @@ public class CheapLatchTest {
         joinAll(awaitThread1, awaitThread2);
     }
 
-    private class AwaitThread extends TestThread {
-        final Latch latch;
-
-        AwaitThread(Latch latch){
-            this(latch,false);
-        }
-
-        AwaitThread(Latch latch, boolean startInterrupted) {
-            super("AwaitThread",startInterrupted);
-            this.latch = latch;
-        }
-
-        public void doRun() throws InterruptedException {
-            latch.await();
-        }
-    }
 
     @Test
     public void awaitUninterruptibleCompletesWhenLatchIsOpen() {
@@ -123,31 +111,25 @@ public class CheapLatchTest {
         assertTrue(awaitThread2.hasEndedWithInterruptStatus());
     }
 
-
-    private class AwaitUninterruptibleThread extends TestThread {
-        final Latch latch;
-
-        private AwaitUninterruptibleThread(Latch latch, boolean startInterrupted) {
-            super("AwaitUninterruptibleThread",startInterrupted);
-            this.latch = latch;
-        }
-
-        public void doRun() {
-            latch.awaitUninterruptible();
-        }
-    }
-
-    @Test
-    public void openClosedLatch() {
-        testIncomplete();
-    }
-
     @Test
     public void tryAwaitWithTimeoutFails() throws InterruptedException {
         CheapLatch latch = new CheapLatch(false);
 
         try {
             latch.tryAwait(10, TimeUnit.SECONDS);
+            fail();
+        } catch (UnsupportedOperationException expected) {
+        }
+
+        assertFalse(latch.isOpen());
+    }
+
+    @Test
+    public void tryAwaitUninterruptibleFails(){
+        CheapLatch latch = new CheapLatch(false);
+
+        try {
+            latch.tryAwaitUninterruptible(10, TimeUnit.SECONDS);
             fail();
         } catch (UnsupportedOperationException expected) {
         }

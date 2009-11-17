@@ -23,7 +23,6 @@ public class AtomicObjectFieldAccessTransformer implements Opcodes {
     }
 
     private void fixMethods() {
-        //System.out.println("fixing methods");
         List<MethodNode> methods = new LinkedList<MethodNode>();
 
         for (MethodNode originalMethod : (List<MethodNode>) originalObject.methods) {
@@ -32,12 +31,9 @@ public class AtomicObjectFieldAccessTransformer implements Opcodes {
         }
 
         originalObject.methods = methods;
-        //System.out.println("finished fixing methods");
     }
 
     private MethodNode fixMethod(MethodNode originalMethod) {
-        //System.out.println("originalMethod: "+originalMethod.name);
-
         if (isAbstract(originalMethod) || isNative(originalMethod)) {
             return originalMethod;
         }

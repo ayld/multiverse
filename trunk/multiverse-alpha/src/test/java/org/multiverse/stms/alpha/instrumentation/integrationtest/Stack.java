@@ -14,6 +14,8 @@ public final class Stack<E> {
     private Node<E> head;
 
     public Stack() {
+        head = null;
+        size = 0;
     }
 
     public void clear() {

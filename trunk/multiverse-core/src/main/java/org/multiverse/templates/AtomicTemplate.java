@@ -2,14 +2,16 @@ package org.multiverse.templates;
 
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.api.exceptions.RecoverableThrowable;
 import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.api.exceptions.TooManyRetriesException;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.utils.latches.CheapLatch;
+import org.multiverse.utils.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.logging.Logger;
@@ -59,7 +61,7 @@ public abstract class AtomicTemplate<E> {
 
     /**
      * Creates a new AtomicTemplate that uses the STM stored in the GlobalStm and works the the {@link
-     * org.multiverse.utils.ThreadLocalTransaction}.
+     * org.multiverse.api.ThreadLocalTransaction}.
      */
     public AtomicTemplate() {
         this(getGlobalStmInstance());
@@ -71,7 +73,7 @@ public abstract class AtomicTemplate<E> {
 
     /**
      * Creates a new AtomicTemplate using the provided stm. The transaction used is stores/retrieved from the {@link
-     * org.multiverse.utils.ThreadLocalTransaction}.
+     * org.multiverse.api.ThreadLocalTransaction}.
      *
      * @param stm the stm to use for transactions.
      * @throws NullPointerException if stm is null.
@@ -174,8 +176,7 @@ public abstract class AtomicTemplate<E> {
      * <p/>
      * If this AtomicTemplate doesn't starts its own transaction, this method won't be called.
      * <p/>
-     * If an exception is thrown while executing this method, no further execution of this AtomicTemplate
-     * will be done.
+     * If an exception is thrown while executing this method, no further execution of this AtomicTemplate will be done.
      */
     protected void onInit() {
     }
@@ -197,8 +198,8 @@ public abstract class AtomicTemplate<E> {
      * <p/>
      * If this AtomicTemplate doesn't starts its own transaction, this method won't be called.
      * <p/>
-     * It could be that this method is called 0 to n times. 0 if the transaction didn't made it to the commit
-     * part, and for every attempt to commit.
+     * It could be that this method is called 0 to n times. 0 if the transaction didn't made it to the commit part, and
+     * for every attempt to commit.
      * <p/>
      * If this method throws a Throwable, the transaction will not be committed.
      *
@@ -208,22 +209,22 @@ public abstract class AtomicTemplate<E> {
     }
 
     /**
-     * Lifecycle method that is called when this AtomicTemplate has executed a commit. If an Throwable
-     * is thrown, the changes won't be rolled back because they are already committed, but since the postCommit
-     * logic has not executed it could leave the system that uses the STM in an inconsistent state.
+     * Lifecycle method that is called when this AtomicTemplate has executed a commit. If an Throwable is thrown, the
+     * changes won't be rolled back because they are already committed, but since the postCommit logic has not executed
+     * it could leave the system that uses the STM in an inconsistent state.
      * <p/>
      * If this AtomicTemplate doesn't starts its own transaction, this method won't be called.
      *
-     * @param commitVersion the commit version of the Transaction. Based on this version the exact state of
-     *                      the system when the transaction committed can be determined.
+     * @param commitVersion the commit version of the Transaction. Based on this version the exact state of the system
+     *                      when the transaction committed can be determined.
      */
     protected void postCommit(long commitVersion) {
     }
 
 
     /**
-     * Lifecycle method that is called when this AtomicTemplate is aborted. This method will be called
-     * every time a transaction is aborted.
+     * Lifecycle method that is called when this AtomicTemplate is aborted. This method will be called every time a
+     * transaction is aborted.
      * <p/>
      * If this AtomicTemplate doesn't starts its own transaction, this method won't be called.
      *
@@ -233,8 +234,7 @@ public abstract class AtomicTemplate<E> {
     }
 
     /**
-     * Lifecycle method that is called when the AtomicTemplate failed to succeed. It will be called
-     * at most 1 time.
+     * Lifecycle method that is called when the AtomicTemplate failed to succeed. It will be called at most 1 time.
      * <p/>
      * If this AtomicTemplate doesn't starts its own transaction, this method won't be called.
      */
@@ -278,7 +278,7 @@ public abstract class AtomicTemplate<E> {
      */
     public final E executeChecked() throws Exception {
         Transaction t = getTransaction();
-        if (noUsableTransaction(t)) {
+        if (noActiveTransaction(t)) {
             return executeAtomic();
         } else {
             return execute(t);
@@ -289,53 +289,58 @@ public abstract class AtomicTemplate<E> {
         onInit();
         Transaction t = startTransaction();
         setTransaction(t);
-        try {
-            attemptCount = 1;
-            Throwable lastFailureCause = null;
-            while (attemptCount - 1 <= retryCount) {
-                boolean abort = true;
-                boolean reset = false;
-                try {
-                    postStart(t);
-                    E result = execute(t);
-                    if (t.getStatus().equals(TransactionStatus.aborted)) {
-                        String msg = format("Transaction with familyName '%s' is aborted", t.getFamilyName());
-                        throw new AbortedException(msg);
-                    }
-                    preCommit(t);
-                    long commitVersion = t.commit();
-                    abort = false;
-                    reset = false;
-                    postCommit(commitVersion);
-                    return result;
-                } catch (RetryError e) {
-                    t.abortAndWaitForRetry();
-                    //since the abort is already done, no need to do it again.
-                    abort = false;
-                } catch (Throwable throwable) {
-                    if (throwable instanceof RecoverableThrowable) {
-                        lastFailureCause = throwable;
-                        reset = true;
-                    } else {
-                        rethrow(throwable);
-                    }
-                } finally {
-                    if (abort) {
-                        t.abort();
-                        postAbort(t);
-                        if (reset) {
-                            t.restart();
+        attemptCount = 0;
+        Throwable lastFailureCause = null;
+
+        do {
+            attemptCount++;
+            boolean error = false;
+            try {
+                postStart(t);
+
+                E result = execute(t);
+                preCommit(t);
+                if (t.getStatus().equals(TransactionStatus.aborted)) {
+                    String msg = format("Transaction with familyName '%s' is aborted", t.getFamilyName());
+                    throw new AbortedException(msg);
+                }
+                long commitVersion = t.commit();
+                postCommit(commitVersion);
+                return result;
+            } catch (Throwable throwable) {
+                lastFailureCause = throwable;
+                if (throwable instanceof RetryError) {
+                    Latch latch = new CheapLatch();
+                    t.abortAndRegisterRetryLatch(latch);
+                    latch.awaitUninterruptible();
+                } else if (throwable instanceof RecoverableThrowable) {
+                    //ignore
+                } else {
+                    error = true;
+                    rethrow(throwable);
+                }
+            } finally {
+                if (t.getStatus() == TransactionStatus.committed) {
+                    t = null;
+                } else {
+                    if (attemptCount - 1 >= retryCount || error) {
+                        if (t.getStatus() == TransactionStatus.active) {
+                            t.abort();
+                            postAbort(t);
                         }
+
+                        t = null;
+                    } else {
+                        t = t.abortAndReturnRestarted();
                     }
                 }
-                attemptCount++;
+                setTransaction(t);
             }
+        } while (t != null);
 
-            String msg = format("Too many retries, maximum number of retries = %s", retryCount);
-            throw new TooManyRetriesException(msg, lastFailureCause);
-        } finally {
-            setTransaction(null);
-        }
+        String msg = format("Too many retries, maximum number of retries = %s", retryCount);
+        throw new TooManyRetriesException(msg, lastFailureCause);
+
     }
 
     private static void rethrow(Throwable ex) throws Exception {
@@ -352,7 +357,7 @@ public abstract class AtomicTemplate<E> {
         return readonly ? stm.startReadOnlyTransaction(familyName) : stm.startUpdateTransaction(familyName);
     }
 
-    private boolean noUsableTransaction(Transaction t) {
+    private boolean noActiveTransaction(Transaction t) {
         return t == null || t.getStatus() != TransactionStatus.active;
     }
 

@@ -9,6 +9,9 @@ import org.objectweb.asm.commons.JSRInlinerAdapter;
  * A {@link org.objectweb.asm.ClassAdapter} that applies {@link org.objectweb.asm.commons.JSRInlinerAdapter}
  * to all methods of a class.
  *
+ * This is needed to let classes containing jrs/ret instructions (before java 5) be transformed to java
+ * 5+ classes where jsr/ret is not allowed anymore.
+ *
  * @author Peter Veentjer
  */
 public final class JSRInlineClassAdapter extends ClassAdapter {

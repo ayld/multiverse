@@ -2,12 +2,12 @@ package org.multiverse.integration.scala
 
 import org.junit.runner.RunWith
 import org.multiverse.api.exceptions.RetryError
+import org.multiverse.api.ThreadLocalTransaction._
 import org.multiverse.datastructures.refs.manual.Ref
 import org.multiverse.integration.scala.StmUtils._
 import org.multiverse.stms.alpha.AlphaStm
 import org.multiverse.stms.AbstractTransaction
 import org.multiverse.utils.clock.StrictClock
-import org.multiverse.utils.ThreadLocalTransaction._
 import org.scalatest.Spec
 import org.scalatest.junit.JUnitRunner
 
@@ -23,7 +23,7 @@ class StmUtilsSpec extends Spec {
         it("throws a RetryError") {
             intercept[RetryError] {
                 setThreadLocalTransaction(
-                    new AbstractTransaction(null, new StrictClock(), null) {})
+                    new AbstractTransaction(null, new StrictClock()) {})
                 retry()
             }            
         }

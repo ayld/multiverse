@@ -5,7 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.stms.alpha.AlphaStm;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,6 +22,7 @@ public class RefStressLongTest {
 
     @Before
     public void setUp() {
+        setGlobalStmInstance(AlphaStm.createFast());
         total.set(0);
         threads = new StressThread[threadCount];
         for (int k = 0; k < threads.length; k++) {

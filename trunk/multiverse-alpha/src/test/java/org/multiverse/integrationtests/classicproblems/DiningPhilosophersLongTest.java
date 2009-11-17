@@ -9,7 +9,7 @@ import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * The cause of the dining philosophers problem is that the take of the left and right fork are not atomic. So it
@@ -108,7 +108,7 @@ public class DiningPhilosophersLongTest {
             rightFork.dec();
         }
 
-        @AtomicMethod
+        @AtomicMethod(retryCount = 10000)
         public void takeForks() {
             if (leftFork.get() == 1) {
                 retry();

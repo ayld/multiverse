@@ -2,9 +2,7 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaStmUtils;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal.IntNode;
@@ -17,7 +15,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                ((AlphaTransaction) t).attachNew(new IntStackTranlocal(IntStack.this));
+                IntStackTranlocal tranlocal = (IntStackTranlocal)((AlphaTransaction)t).load(IntStack.this);
                 return null;
             }
         }.execute();
@@ -75,12 +73,13 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     @Override
-    public AlphaTranlocal privatize(long version) {
-        IntStackTranlocal origin = (IntStackTranlocal) load(version);
+    public AlphaTranlocal ___loadUpdatable(long version) {
+        IntStackTranlocal origin = (IntStackTranlocal) ___load(version);
         if (origin == null) {
-            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
+            return new IntStackTranlocal(this);
+        }else{
+            return new IntStackTranlocal(origin);
         }
-        return new IntStackTranlocal(origin);
     }
 
     public int size(IntStackTranlocal tranlocal) {
@@ -92,7 +91,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     public void push(IntStackTranlocal tranlocal, int value) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.head = new IntNode(value, tranlocal.head);
@@ -101,7 +100,7 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     public int pop(IntStackTranlocal tranlocal) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             if (tranlocal.head == null) {

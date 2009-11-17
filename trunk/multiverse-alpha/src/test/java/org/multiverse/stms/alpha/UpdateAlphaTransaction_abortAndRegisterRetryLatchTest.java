@@ -1,5 +1,6 @@
 package org.multiverse.stms.alpha;
 
+import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,14 +8,16 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import static org.multiverse.api.StmUtils.retry;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.api.exceptions.NoProgressPossibleException;
+import org.multiverse.api.exceptions.NoRetryPossibleException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.utils.latches.CheapLatch;
+import org.multiverse.utils.latches.Latch;
 
-public class UpdateAlphaTransaction_abortAndRetryTest {
+public class UpdateAlphaTransaction_abortAndRegisterRetryLatchTest {
 
     private AlphaStm stm;
 
@@ -25,36 +28,59 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
         setThreadLocalTransaction(null);
     }
 
+    @After
+    public void tearDown() {
+        setThreadLocalTransaction(null);
+    }
+
     public AlphaTransaction startUpdateTransaction() {
         AlphaTransaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         return t;
     }
 
+
     @Test
-    public void abortAndRetryFailsIfNothingHasBeenAttached() {
-        Transaction t = startUpdateTransaction();
+    public void callFailsIfTransactionIsStartedAndNullLatch() {
+        AlphaTransaction t = startUpdateTransaction();
 
         try {
-            t.abortAndWaitForRetry();
+            t.abortAndRegisterRetryLatch(null);
             fail();
-        } catch (NoProgressPossibleException ex) {
+        } catch (NullPointerException ex) {
         }
 
-        assertIsAborted(t);
+        assertIsActive(t);
     }
 
     @Test
-    public void abortAndRetryFailsIfOnlyNewObjects() {
+    public void callFailsIfNothingHasBeenAttached() {
         Transaction t = startUpdateTransaction();
-        IntRef intValue = new IntRef(0);
 
+        Latch latch = new CheapLatch();
         try {
-            t.abortAndWaitForRetry();
+            t.abortAndRegisterRetryLatch(latch);
             fail();
-        } catch (NoProgressPossibleException ex) {
+        } catch (NoRetryPossibleException ex) {
         }
 
+        assertIsAborted(t);
+        assertFalse(latch.isOpen());
+    }
+
+    @Test
+    public void callFailsIfOnlyNewObjects() {
+        Transaction t = startUpdateTransaction();
+        IntRef ref = new IntRef(0);
+
+        Latch latch = new CheapLatch();
+        try {
+            t.abortAndRegisterRetryLatch(latch);
+            fail();
+        } catch (NoRetryPossibleException ex) {
+        }
+
+        assertFalse(latch.isOpen());
         assertIsAborted(t);
     }
 
@@ -107,14 +133,14 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
     }
 
     @Test
-    public void abortAndRetryFailsIfTransactionIsCommitted() {
+    public void callFailsIfTransactionIsCommitted() {
         Transaction t = startUpdateTransaction();
         t.commit();
 
         long expectedVersion = stm.getClockVersion();
 
         try {
-            t.abortAndWaitForRetry();
+            t.abortAndRegisterRetryLatch(null);
             fail();
         } catch (DeadTransactionException ex) {
         }
@@ -124,19 +150,21 @@ public class UpdateAlphaTransaction_abortAndRetryTest {
     }
 
     @Test
-    public void abortAndRetryFailsIfTransactionIsAborted() {
+    public void callFailsIfTransactionIsAborted() {
         Transaction t = startUpdateTransaction();
         t.abort();
 
         long expectedVersion = stm.getClockVersion();
+        Latch latch = new CheapLatch();
 
         try {
-            t.abortAndWaitForRetry();
+            t.abortAndRegisterRetryLatch(latch);
             fail();
         } catch (DeadTransactionException ex) {
         }
 
         assertIsAborted(t);
         assertEquals(expectedVersion, stm.getClockVersion());
+        assertFalse(latch.isOpen());
     }
 }

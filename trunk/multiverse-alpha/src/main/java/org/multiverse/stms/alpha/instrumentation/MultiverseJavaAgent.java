@@ -1,23 +1,14 @@
 package org.multiverse.stms.alpha.instrumentation;
 
 import org.multiverse.MultiverseConstants;
-import org.multiverse.stms.alpha.instrumentation.asm.AbstractClassFileTransformer;
-import org.multiverse.stms.alpha.instrumentation.asm.AsmUtils;
+import org.multiverse.stms.alpha.instrumentation.asm.*;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
-import org.multiverse.stms.alpha.instrumentation.asm.AtomicMethodTransformer;
-import org.multiverse.stms.alpha.instrumentation.asm.AtomicObjectFieldAccessTransformer;
-import org.multiverse.stms.alpha.instrumentation.asm.AtomicObjectTransformer;
-import org.multiverse.stms.alpha.instrumentation.asm.ImprovedAtomicMethodTransformer;
-import org.multiverse.stms.alpha.instrumentation.asm.JSRInlineClassAdapter;
-import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
-import org.multiverse.stms.alpha.instrumentation.asm.TranlocalFactory;
-import org.multiverse.stms.alpha.instrumentation.asm.TranlocalSnapshotFactory;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
-import org.multiverse.utils.instrumentation.ClassUtils;
 import static org.multiverse.utils.instrumentation.ClassUtils.defineClass;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.System.getProperty;
@@ -34,9 +25,10 @@ import java.security.ProtectionDomain;
 public class MultiverseJavaAgent {
 
     public final static boolean DUMP_BYTECODE = parseBoolean(
-            getProperty(MultiverseJavaAgent.class.getName()+".dumpBytecode","false"));
+            getProperty(MultiverseJavaAgent.class.getName() + ".dumpBytecode", "false"));
 
     public static void premain(String agentArgs, Instrumentation inst) throws UnmodifiableClassException {
+
         printInfo();
         registerTransformers(inst);
     }
@@ -51,22 +43,39 @@ public class MultiverseJavaAgent {
         inst.addTransformer(new AtomicObjectFieldAccessClassFileTransformer());
         inst.addTransformer(new AtomicObjectClassFileTransformer());
         inst.addTransformer(new AtomicMethodClassFileTransformer());
+        //inst.addTransformer(new VerifyingClassFileTransformer());
     }
 
     private static void printInfo() {
-        System.out.println("Starting the Multiverse JavaAgent");
+        System.out.println("Starting Multiverse JavaAgent");
 
         if (MultiverseConstants.SANITY_CHECKS_ENABLED) {
             System.out.println("Sanity checks are enabled.");
         }
-        
-        if(DUMP_BYTECODE){
-            System.out.printf("Bytecode will be dumped to '%s\n'", getTmpDir());
+
+        if (DUMP_BYTECODE) {
+            System.out.printf("Bytecode will be dumped to '%s'\n", getTmpDir());
+        }
+    }
+
+    public static class VerifyingClassFileTransformer extends AbstractClassFileTransformer {
+
+        public VerifyingClassFileTransformer() {
+            super("VerifyingClassFileTransformer");
+        }
+
+        @Override
+        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+                                  ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws IllegalClassFormatException {
+
+            AsmUtils.verify(classfileBuffer);
+            return null;
         }
     }
 
     /**
-     * A ClassFileTransformer that does nothing
+     * A ClassFileTransformer that does nothing (dirty hack.. needs to be fixed in the future)
      */
     public static class InitClassFileTransformer extends AbstractClassFileTransformer {
 
@@ -209,60 +218,30 @@ public class MultiverseJavaAgent {
         public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                                   ProtectionDomain protectionDomain, byte[] classfileBuffer)
                 throws IllegalClassFormatException {
+
+
             if (metadataRepository.hasAtomicMethods(className)) {
-                ClassNode original = loadAsClassNode(classfileBuffer);
-                AtomicMethodTransformer transformer = new AtomicMethodTransformer(original);
-                ClassNode result = transformer.transform();
-                byte[] resultBytecode = toBytecode(result);
+                boolean restore = InsnList.check;
+                InsnList.check = true;
+                try {
 
-                if (DUMP_BYTECODE) {
-                    writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
-                }
+                    ClassNode original = loadAsClassNode(classfileBuffer);
+                    ClassNode donor = loadAsClassNode(AtomicLogicDonor.class);
+                    writeToFileInTmpDirectory(donor.name + ".class", toBytecode(donor));
 
-                for (ClassNode innerClass : transformer.getInnerClasses()) {
-                    byte[] templateBytecode = toBytecode(innerClass);
+                    AtomicMethodTransformer transformer = new AtomicMethodTransformer(original, donor);
+                    ClassNode result = transformer.transform();
+
+                    byte[] resultBytecode = toBytecode(result);
+
                     if (DUMP_BYTECODE) {
-                        writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
+                        writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
                     }
-                    defineClass(loader, innerClass.name, templateBytecode);
+
+                    return resultBytecode;
+                } finally {
+                    InsnList.check = restore;
                 }
-
-                return resultBytecode;
-            }
-
-            return null;
-        }
-    }
-
-    public static class ImprovedAtomicMethodClassFileTransformer extends AbstractClassFileTransformer {
-
-        public ImprovedAtomicMethodClassFileTransformer() {
-            super("AtomicMethodTransformer");
-        }
-
-        @Override
-        public byte[] doTransform(ClassLoader loader, String className, Class<?> classBeingRedefined,
-                                  ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                throws IllegalClassFormatException {
-            if (metadataRepository.hasAtomicMethods(className)) {
-                ClassNode original = loadAsClassNode(classfileBuffer);
-                ImprovedAtomicMethodTransformer transformer = new ImprovedAtomicMethodTransformer(original);
-                ClassNode result = transformer.transform();
-                byte[] resultBytecode = toBytecode(result);
-
-                if (DUMP_BYTECODE) {
-                    AsmUtils.writeToFileInTmpDirectory(result.name + "__WithTransaction.class", resultBytecode);
-                }
-
-                for (ClassNode innerClass : transformer.getInnerClasses()) {
-                    byte[] templateBytecode = toBytecode(innerClass);
-                    if (DUMP_BYTECODE) {
-                        AsmUtils.writeToFileInTmpDirectory(innerClass.name + ".class", templateBytecode);
-                    }
-                    ClassUtils.defineClass(loader, innerClass.name, templateBytecode);
-                }
-
-                return resultBytecode;
             }
 
             return null;

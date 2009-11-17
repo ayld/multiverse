@@ -2,7 +2,6 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
@@ -19,8 +18,8 @@ public class BooleanRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                BooleanRefTranlocal tranlocalThis = new BooleanRefTranlocal(BooleanRef.this, value);
-                ((AlphaTransaction) t).attachNew(tranlocalThis);
+                BooleanRefTranlocal tranlocal = (BooleanRefTranlocal) ((AlphaTransaction) t).load(BooleanRef.this);
+                tranlocal.value = value;
                 return null;
             }
         }.execute();
@@ -38,17 +37,9 @@ public class BooleanRef extends FastAtomicObjectMixin {
         return get(tranlocal);
     }
 
-    @Override
-    public AlphaTranlocal privatize(long version) {
-        BooleanRefTranlocal origin = (BooleanRefTranlocal) load(version);
-        if (origin == null) {
-            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
-        }
-        return new BooleanRefTranlocal(origin);
-    }
 
     public void set(BooleanRefTranlocal tranlocal, boolean newValue) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.value = newValue;
@@ -58,9 +49,21 @@ public class BooleanRef extends FastAtomicObjectMixin {
     public boolean get(BooleanRefTranlocal tranlocal) {
         return tranlocal.value;
     }
+
+    @Override
+    public AlphaTranlocal ___loadUpdatable(long version) {
+        BooleanRefTranlocal origin = (BooleanRefTranlocal) ___load(version);
+        if (origin == null) {
+            return new BooleanRefTranlocal(this);
+        } else {
+            return new BooleanRefTranlocal(origin);
+        }
+
+    }
 }
 
 class BooleanRefTranlocal extends AlphaTranlocal {
+
     final BooleanRef atomicObject;
     boolean value;
     BooleanRefTranlocal origin;
@@ -71,8 +74,7 @@ class BooleanRefTranlocal extends AlphaTranlocal {
         this.atomicObject = origin.atomicObject;
     }
 
-    public BooleanRefTranlocal(BooleanRef atomicObject, boolean value) {
-        this.value = value;
+    public BooleanRefTranlocal(BooleanRef atomicObject) {
         this.atomicObject = atomicObject;
     }
 
@@ -83,8 +85,8 @@ class BooleanRefTranlocal extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
+        this.___version = writeVersion;
+        this.___committed = true;
         this.origin = null;
     }
 
@@ -95,7 +97,7 @@ class BooleanRefTranlocal extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
+        if (___committed) {
             return DirtinessStatus.committed;
         } else if (origin == null) {
             return DirtinessStatus.fresh;
@@ -108,6 +110,7 @@ class BooleanRefTranlocal extends AlphaTranlocal {
 }
 
 class BooleanRefTranlocalSnapshot extends AlphaTranlocalSnapshot {
+
     final BooleanRefTranlocal tranlocal;
     final boolean value;
 

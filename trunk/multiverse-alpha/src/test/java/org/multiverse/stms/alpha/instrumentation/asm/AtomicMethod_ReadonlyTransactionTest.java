@@ -54,7 +54,6 @@ public class AtomicMethod_ReadonlyTransactionTest {
         long readonlyTransactionCommitted = profiler.sumKey1("readonlytransaction.committed.count");
 
         try {
-
             ref.readonlySet(11);
             fail();
         } catch (ReadonlyException expected) {

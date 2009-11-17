@@ -5,19 +5,19 @@ import org.multiverse.utils.clock.Clock;
 import org.multiverse.utils.commitlock.CommitLockPolicy;
 import org.multiverse.utils.profiling.ProfileRepository;
 import org.multiverse.utils.profiling.ProfilerAware;
+import org.multiverse.utils.restartbackoff.RestartBackoffPolicy;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Default {@link Stm} implementation that provides the most complete set of features. Like
- * retry/orelse, profiling, etc. It can be configured through the {@link AlphaStmConfig}.
+ * Default {@link Stm} implementation that provides the most complete set of features. Like retry/orelse, profiling,
+ * etc. It can be configured through the {@link AlphaStmConfig}.
  * <p/>
- * <h3>Statistics</h3>
- * This implementation can use {@link org.multiverse.utils.profiling.ProfileRepository}. This choice needs to be made
- * when the STM is constructed, so that the JIT can remove calls to the Profiler completely if
- * a null value is passed. The JIT is able to completely remove the following:
+ * <h3>Statistics</h3> This implementation can use {@link org.multiverse.utils.profiling.ProfileRepository}. This choice
+ * needs to be made when the STM is constructed, so that the JIT can remove calls to the Profiler completely if a null
+ * value is passed. The JIT is able to completely remove the following:
  * <pre>
  * if(profiler!=null){
  *      profiler.incSomeCounter();
@@ -25,15 +25,13 @@ import java.util.logging.Logger;
  * </pre>
  * So if you are not using the profiler, you don't need to pay for it.
  * <p/>
- * The instrumentation is added directly to the code. Although it is less pretty, adding
- * some form of external mechanism to add this functionality is going to complicate matters
- * (not at least deployment issues).
+ * The instrumentation is added directly to the code. Although it is less pretty, adding some form of external mechanism
+ * to add this functionality is going to complicate matters (not at least deployment issues).
  * <p/>
- * <h3>Logging</h3>
- * Logging to java.logging can be enabled through the constructor.
+ * <h3>Logging</h3> Logging to java.logging can be enabled through the constructor.
  * <p/>
- * The logging can be completely removed by the JIT if the loggingPossible flag is set to false.
- * No additional checks are done.. so you don't need to pay the price for it if you don't use it.
+ * The logging can be completely removed by the JIT if the loggingPossible flag is set to false. No additional checks
+ * are done.. so you don't need to pay the price for it if you don't use it.
  *
  * @author Peter Veentjer.
  */
@@ -49,7 +47,13 @@ public final class AlphaStm implements Stm, ProfilerAware {
 
     private final AtomicLong logIdGenerator;
 
-    private final CommitLockPolicy lockPolicy;
+    private final CommitLockPolicy commitLockPolicy;
+
+    private final RestartBackoffPolicy restartBackoffPolicy;
+
+    private final UpdateTransactionDependencies updateTransactionDependencies;
+
+    private final ReadonlyAlphaTransactionDependencies readonlyAlphaTransactionDependencies;
 
     public static AlphaStm createFast() {
         return new AlphaStm(AlphaStmConfig.createFastConfig());
@@ -84,7 +88,18 @@ public final class AlphaStm implements Stm, ProfilerAware {
         this.clock = config.clock;
         this.loggingPossible = config.loggingPossible;
         this.logIdGenerator = loggingPossible ? new AtomicLong() : null;
-        this.lockPolicy = config.commitLockPolicy;
+        this.commitLockPolicy = config.commitLockPolicy;
+        this.restartBackoffPolicy = config.restartBackoffPolicy;
+
+        this.updateTransactionDependencies = new UpdateTransactionDependencies(
+                clock,
+                restartBackoffPolicy,
+                commitLockPolicy,
+                profiler);
+        this.readonlyAlphaTransactionDependencies = new ReadonlyAlphaTransactionDependencies(
+                clock,
+                restartBackoffPolicy,
+                profiler);
 
         logger.info("Created a new AlphaStm instance");
     }
@@ -95,7 +110,17 @@ public final class AlphaStm implements Stm, ProfilerAware {
      * @return the current WriteSetLockPolicy.
      */
     public CommitLockPolicy getAtomicObjectLockPolicy() {
-        return lockPolicy;
+        return commitLockPolicy;
+    }
+
+
+    /**
+     * Returns the current RestartBackoffPolicy. Returned value will never be null.
+     *
+     * @return
+     */
+    public RestartBackoffPolicy getRestartBackoffPolicy() {
+        return restartBackoffPolicy;
     }
 
     /**
@@ -111,9 +136,12 @@ public final class AlphaStm implements Stm, ProfilerAware {
     public AlphaTransaction startUpdateTransaction(String familyName) {
         if (loggingPossible) {
             return new LoggingUpdateAlphaTransaction(
-                    familyName, profiler, clock, lockPolicy, logIdGenerator.incrementAndGet(), Level.FINE);
+                    updateTransactionDependencies,
+                    familyName,
+                    logIdGenerator.incrementAndGet(),
+                    Level.FINE);
         } else {
-            return new UpdateAlphaTransaction(familyName, profiler, clock, lockPolicy);
+            return new UpdateAlphaTransaction(updateTransactionDependencies, familyName);
         }
     }
 
@@ -121,9 +149,14 @@ public final class AlphaStm implements Stm, ProfilerAware {
     public AlphaTransaction startReadOnlyTransaction(String familyName) {
         if (loggingPossible) {
             return new LoggingReadonlyAlphaTransaction(
-                    familyName, profiler, clock, logIdGenerator.incrementAndGet(), Level.FINE);
+                    readonlyAlphaTransactionDependencies,
+                    familyName,
+                    logIdGenerator.incrementAndGet(),
+                    Level.FINE);
         } else {
-            return new ReadonlyAlphaTransaction(familyName, profiler, clock);
+            return new ReadonlyAlphaTransaction(
+                    readonlyAlphaTransactionDependencies,
+                    familyName);
         }
     }
 

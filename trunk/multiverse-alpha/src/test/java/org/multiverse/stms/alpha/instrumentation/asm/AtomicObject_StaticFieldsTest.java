@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
@@ -23,6 +24,7 @@ public class AtomicObject_StaticFieldsTest {
 
     @After
     public void tearDown() {
+        clearThreadLocalTransaction();
         //assertNoInstrumentationProblems();
     }
 

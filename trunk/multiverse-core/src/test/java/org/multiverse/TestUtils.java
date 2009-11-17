@@ -10,14 +10,24 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class TestUtils {
 
-    public static int theAvailableProcessors() {
-        return Math.min(2, Runtime.getRuntime().availableProcessors());
+    public static void assertIsInterrupted(Thread t) {
+        assertTrue(t.isInterrupted());
     }
 
+    public static void assertAreAlive(Thread... threads) {
+        for (Thread thread : threads) {
+            assertTrue(thread.isAlive());
+        }
+    }
+
+    @SuppressWarnings({"ThrowableInstanceNeverThrown"})
     public static void testIncomplete() {
         StackTraceElement caller = new Throwable().getStackTrace()[1];
 
@@ -27,6 +37,7 @@ public class TestUtils {
         System.out.println("============================================================================");
     }
 
+    @SuppressWarnings({"ThrowableInstanceNeverThrown"})
     public static void testIncomplete(String reason) {
         StackTraceElement caller = new Throwable().getStackTrace()[1];
 
@@ -69,39 +80,15 @@ public class TestUtils {
     }
 
     public static int randomInt(int max) {
-        return (int) Math.round(Math.random() * max);
+        return ThreadLocalRandom.current().nextInt(max);
     }
 
-    public static long randomLong(long i, int diff) {
-        return (long) (i + (diff * (Math.random() - 0.5)));
-    }
-
-
-    public static <E> void assertAsListContent(Iterator<E> it, E... expectedItems) {
-        List<E> expectedList = Arrays.asList(expectedItems);
-        List<E> foundList = asList(it);
-        assertEquals(expectedList, foundList);
-    }
-
-    public static <E> void assertAsSetContent(Iterator<E> it, E... expectedItems) {
-        Set<E> expectedSet = new HashSet(Arrays.asList(expectedItems));
-        Set<E> foundSet = new HashSet(asList(it));
-        assertEquals(expectedSet, foundSet);
-    }
-
-    private static <E> List asList(Iterator<E> it) {
-        List<E> result = new LinkedList<E>();
-        for (; it.hasNext();)
-            result.add(it.next());
-        return result;
-    }
-
-    public static void sleepRandomMs(long maxMs) {
+    public static void sleepRandomMs(int maxMs) {
         if (maxMs <= 0) {
             return;
         }
 
-        sleepMs((long) (Math.random() * maxMs));
+        sleepMs((long) randomInt(maxMs));
         Thread.yield();
     }
 
@@ -124,20 +111,52 @@ public class TestUtils {
         }
     }
 
+
+    /**
+     * Joins all threads. If this can't be done within 5 minutes, an assertion failure
+     * is thrown.
+     *
+     * @param threads
+     */
     public static void joinAll(TestThread... threads) {
-        for (TestThread thread : threads) {
-            System.out.println("Joining " + thread.getName());
-            try {
-                thread.join();
-                if (thread.getThrowable() != null) {
-                    thread.getThrowable().printStackTrace();
-                    fail("Unable to join thread " + thread.getName());
+        joinAll(5 * 60 * 1000, threads);
+    }
+
+    @SuppressWarnings({"ThrowableResultOfMethodCallIgnored"})
+    public static void joinAll(long maxJoinTimeMillis, TestThread... threads) {
+        if (maxJoinTimeMillis < 0) {
+            throw new IllegalArgumentException();
+        }
+
+        List<TestThread> uncompleted = new LinkedList(Arrays.asList(threads));
+
+        long maxTimeMillis = System.currentTimeMillis() + maxJoinTimeMillis;
+
+        while (!uncompleted.isEmpty()) {
+            for (Iterator<TestThread> it = uncompleted.iterator(); it.hasNext();) {
+                TestThread thread = it.next();
+                try {
+                    if (System.currentTimeMillis() > maxTimeMillis) {
+                        fail(String.format(
+                                "Failed to join all threads in %s ms, remaining threads %s",
+                                maxJoinTimeMillis, uncompleted));
+                    }
+                    thread.join(100);
+                    if (!thread.isAlive()) {
+                        it.remove();
+
+                        if (thread.getThrowable() == null) {
+                            System.out.printf("Thread '%s' completed successfully\n", thread.getName());
+                        } else {
+                            thread.getThrowable().printStackTrace();
+                            fail(String.format("Thread '%s' completed with failure",thread.getName()));
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Joining thread was interrupted", e);
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Joining thread was interrupted", e);
             }
-            System.out.println("Joined successfully " + thread.getName());
         }
     }
 
@@ -148,7 +167,7 @@ public class TestUtils {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
             return sb.toString();
         } catch (IOException ex) {

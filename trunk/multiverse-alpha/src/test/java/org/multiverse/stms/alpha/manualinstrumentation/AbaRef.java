@@ -1,7 +1,6 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
@@ -20,7 +19,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                ((AlphaTransaction) t).attachNew(new AbaRefTranlocal(AbaRef.this));
+                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).load(AbaRef.this);
                 return null;
             }
         }.execute();
@@ -30,7 +29,8 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                ((AlphaTransaction) t).attachNew(new AbaRefTranlocal(AbaRef.this, value));
+                AbaRefTranlocal<E> tranlocal = (AbaRefTranlocal) ((AlphaTransaction) t).load(AbaRef.this);
+                tranlocal.value = value;
                 return null;
             }
         }.execute();
@@ -78,12 +78,13 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
     }
 
     @Override
-    public AbaRefTranlocal<E> privatize(long readVersion) {
-        AbaRefTranlocal<E> origin = (AbaRefTranlocal) load(readVersion);
+    public AbaRefTranlocal<E> ___loadUpdatable(long readVersion) {
+        AbaRefTranlocal<E> origin = (AbaRefTranlocal) ___load(readVersion);
         if (origin == null) {
-            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
+            return new AbaRefTranlocal<E>(this);
+        } else {
+            return new AbaRefTranlocal<E>(origin);
         }
-        return new AbaRefTranlocal(origin);
     }
 
     public E clear(AbaRefTranlocal<E> tranlocal) {
@@ -101,7 +102,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
     }
 
     public void set(AbaRefTranlocal<E> tranlocal, E newValue) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         }
         tranlocal.value = newValue;
@@ -116,7 +117,7 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
     AbaRefTranlocal origin;
 
     AbaRefTranlocal(AbaRefTranlocal<E> origin) {
-        this.version = origin.version;
+        this.___version = origin.___version;
         this.atomicObject = origin.atomicObject;
         this.value = origin.value;
         this.writeVersion = origin.writeVersion;
@@ -128,7 +129,7 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
     }
 
     AbaRefTranlocal(AbaRef<E> owner, E value) {
-        this.version = Long.MIN_VALUE;
+        this.___version = Long.MIN_VALUE;
         this.atomicObject = owner;
         this.value = value;
         this.writeVersion = Long.MIN_VALUE;
@@ -141,8 +142,8 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
+        this.___version = writeVersion;
+        this.___committed = true;
         this.origin = null;
     }
 
@@ -153,7 +154,7 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
+        if (___committed) {
             return DirtinessStatus.committed;
         } else if (origin == null) {
             return DirtinessStatus.fresh;

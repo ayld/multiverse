@@ -9,17 +9,9 @@ import org.junit.Test;
 public class RelaxedClockTest {
 
     @Test
-    public void testNoArgConstructor(){
+    public void testConstructor(){
         RelaxedClock clock  = new RelaxedClock();
-        assertEquals(0, clock.getDawn());
         assertEquals(0, clock.getTime());
-    }
-
-    @Test
-    public void testConstructorWithDawn(){
-        RelaxedClock clock  = new RelaxedClock(10);
-        assertEquals(10, clock.getDawn());
-        assertEquals(10, clock.getTime());
     }
 
     @Test
@@ -33,10 +25,10 @@ public class RelaxedClockTest {
 
     @Test
     public void testToString(){
-        RelaxedClock clock = new RelaxedClock(1000);
+        RelaxedClock clock = new RelaxedClock();
         //make sure that the toString function makes use of the time and not of the dawn.
         clock.tick();
 
-        assertEquals("RelaxedClock(time=1001)", clock.toString());
+        assertEquals("RelaxedClock(time=1)", clock.toString());
     }
 }

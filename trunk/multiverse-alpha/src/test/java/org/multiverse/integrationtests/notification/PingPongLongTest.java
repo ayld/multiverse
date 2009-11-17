@@ -1,4 +1,4 @@
-package org.multiverse.integrationtests;
+package org.multiverse.integrationtests.notification;
 
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
@@ -8,7 +8,7 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * A integration test that tests the wait notify mechanism.

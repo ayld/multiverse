@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
-import static org.multiverse.utils.ThreadLocalTransaction.clearThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
 
 public class StrictLinkedBlockingDeque_constructorTest {
     private Stm stm;

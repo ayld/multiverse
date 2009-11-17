@@ -1,8 +1,10 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.multiverse.api.PropagationLevel;
 import org.multiverse.api.annotations.AtomicMethod;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -136,9 +138,8 @@ public final class MetadataExtractor implements Opcodes {
 
     private AtomicMethodParams createDefaultParams(MethodNode method) {
         AtomicMethodParams params = new AtomicMethodParams();
-        params.isReadonly = false;
+        params.retryCount = 1000;
         params.familyName = createDefaultFamilyName(method);
-        params.retryCount = Integer.MAX_VALUE;
         return params;
     }
 
@@ -146,15 +147,33 @@ public final class MetadataExtractor implements Opcodes {
         AnnotationNode atomicMethodAnnotation = AsmUtils.getVisibleAnnotation(method, AtomicMethod.class);
 
         AtomicMethodParams params = new AtomicMethodParams();
-        params.isReadonly = (Boolean) getValue(atomicMethodAnnotation, "readonly", false);
+        params.readOnly = (Boolean) getValue(atomicMethodAnnotation, "readonly", false);
         params.familyName = (String) getValue(atomicMethodAnnotation, "familyName", createDefaultFamilyName(method));
-        params.retryCount = (Integer) getValue(atomicMethodAnnotation, "retryCount", Integer.MAX_VALUE);
+        params.retryCount = (Integer) getValue(atomicMethodAnnotation, "retryCount", 1000);
+
+        params.propagationLevel = (PropagationLevel) getValue(
+                atomicMethodAnnotation, "propagationLevel", params.propagationLevel);
         return params;
     }
 
     private String createDefaultFamilyName(MethodNode method) {
-        return classNode.name + "." + method.name + method.desc;
+        StringBuffer sb = new StringBuffer();
+        sb.append(classNode.name.replace("/", "."));
+        sb.append(".");
+        sb.append(method.name);
+        sb.append("(");
+        Type[] argTypes = Type.getArgumentTypes(method.desc);
+        for (int k = 0; k < argTypes.length; k++) {
+           sb.append(argTypes[k].getClassName());
+            if (k < argTypes.length - 1) {
+                sb.append(",");
+            }
+        }
+        sb.append(")");
+
+        return sb.toString();
     }
+
 
     private Object getValue(AnnotationNode node, String name, Object defaultValue) {
         if (node.values == null) {

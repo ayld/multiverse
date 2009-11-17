@@ -1,19 +1,17 @@
 package org.multiverse.stms;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.*;
+import static org.multiverse.TestUtils.assertIsActive;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.utils.clock.StrictClock;
 
 /**
  * @author Peter Veentjer
  */
-public class AbstractTransaction_resetTest {
+public class AbstractTransaction_abortAndReturnStartedTest {
 
     private StrictClock clock;
 
@@ -23,55 +21,42 @@ public class AbstractTransaction_resetTest {
     }
 
     @Test
-    public void resetOnStartedTransaction() {
-        testIncomplete();
-    }
-
-    @Test
-    public void test() {
-        testIncomplete();
-    }
-
-    @Test
-    public void resetOnActiveTransactionFails() {
+    public void startedTransaction() {
         Transaction t = new AbstractTransactionImpl(clock);
         long version = clock.getTime();
 
-        try {
-            t.restart();
-            fail();
-        } catch (ResetFailureException expected) {
+        Transaction result =   t.abortAndReturnRestarted();
 
-        }
+        assertSame(t, result);
         assertIsActive(t);
         assertEquals(version, clock.getTime());
     }
 
     @Test
-    public void resetOnCommittedTransactionSucceeds() {
+    public void committedTransaction() {
         Transaction t = new AbstractTransactionImpl(clock);
         t.commit();
 
         long version = clock.getTime();
-        t.commit();
-        assertIsCommitted(t);
+
+        Transaction result =   t.abortAndReturnRestarted();
+
+        assertSame(t, result);
+        assertIsActive(t);
         assertEquals(version, clock.getTime());
     }
 
     @Test
-    public void resetOnAbortedTransactionSucceeds() {
+    public void abortedTransaction() {
         Transaction t = new AbstractTransactionImpl(clock);
         t.abort();
 
         long version = clock.getTime();
-        try {
-            t.commit();
-            fail();
-        } catch (DeadTransactionException ex) {
 
-        }
+        Transaction result =   t.abortAndReturnRestarted();
 
-        assertIsAborted(t);
+        assertSame(t, result);
+        assertIsActive(t);
         assertEquals(version, clock.getTime());
     }
 }

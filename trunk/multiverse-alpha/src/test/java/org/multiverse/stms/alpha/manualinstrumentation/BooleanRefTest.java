@@ -7,8 +7,8 @@ import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

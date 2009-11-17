@@ -8,7 +8,7 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class ConflictingWritesDontBreakSystemLongTest {
     private IntRef[] values;
@@ -82,7 +82,7 @@ public class ConflictingWritesDontBreakSystemLongTest {
         public void doTransaction() {
             for (int k = 0; k < values.length; k++) {
                 IntRef value = values[k];
-                sleepRandomMs(5);
+                sleepRandomMs(1);
                 value.inc();
             }
         }

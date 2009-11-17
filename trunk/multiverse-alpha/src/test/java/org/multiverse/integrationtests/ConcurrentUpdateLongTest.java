@@ -7,9 +7,10 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
-import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
+import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.stms.alpha.AlphaStm;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,7 @@ public class ConcurrentUpdateLongTest {
 
     @Before
     public void setUp() {
+        setGlobalStmInstance(AlphaStm.createFast());
         setThreadLocalTransaction(null);
         intValue = new IntRef(0);
     }
@@ -42,7 +44,6 @@ public class ConcurrentUpdateLongTest {
         startAll(threads);
         joinAll(threads);
 
-        System.out.println("version: " + getGlobalStmInstance().getClockVersion());
         assertEquals(threadCount * incCount, intValue.get());
 
         long periodNs = System.nanoTime() - startNs;
@@ -76,3 +77,4 @@ public class ConcurrentUpdateLongTest {
         }
     }
 }
+

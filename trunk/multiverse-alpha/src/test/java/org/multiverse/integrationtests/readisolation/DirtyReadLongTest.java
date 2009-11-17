@@ -8,8 +8,8 @@ import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.templates.AbortedException;
-import org.multiverse.utils.ThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.api.ThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 
 /**

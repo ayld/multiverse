@@ -9,8 +9,8 @@ import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.DirtinessStatus;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class IntRefTest {
     private AlphaStm stm;

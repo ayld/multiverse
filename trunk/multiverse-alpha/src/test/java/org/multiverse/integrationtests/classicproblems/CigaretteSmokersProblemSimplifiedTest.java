@@ -8,7 +8,7 @@ import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * This implementation is a lot easier than the solution provided on the wiki page. Don't see the

@@ -33,8 +33,6 @@ public class AtomicObjectRemappingMethodAdapter extends MethodAdapter implements
 
     @Override
     public void visitFieldInsn(int opcode, String owner, String name, String valueDesc) {
-        //System.out.println("start "+owner+"."+name+" opcode="+opcode);
-
         String tranlocalName = metadataService.getTranlocalName(owner);
 
         if (metadataService.isManagedInstanceField(owner, name)) {
@@ -62,7 +60,7 @@ public class AtomicObjectRemappingMethodAdapter extends MethodAdapter implements
 
                     Label continueWithPut = new Label();
                     mv.visitInsn(DUP);
-                    mv.visitFieldInsn(GETFIELD, tranlocalName, "committed", "Z");
+                    mv.visitFieldInsn(GETFIELD, tranlocalName, "___committed", "Z");
                     //if committed equals 0 then continueWithPut ( 0 is false, 1 is true)
                     mv.visitJumpInsn(IFEQ, continueWithPut);
 

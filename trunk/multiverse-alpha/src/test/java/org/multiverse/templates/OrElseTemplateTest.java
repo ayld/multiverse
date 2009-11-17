@@ -12,7 +12,7 @@ import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class OrElseTemplateTest {
 

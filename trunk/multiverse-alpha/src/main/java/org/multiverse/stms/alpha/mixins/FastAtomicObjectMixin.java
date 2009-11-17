@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 /**
  * Base AlphaAtomicObject implementation that also can be used to transplant methods from during instrumentation.
  * <p/>
- * It is important that the constructor doesn't contain any logic because the constructor code is not copied
+ * It is important that the constructor doesn't contain any donorMethod because the constructor code is not copied
  * when this class is 'mixed' in. In the future perhaps this is fixed when there needs to be a constructor.
  * So you are warned.
  *
@@ -25,27 +25,27 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  */
 public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, MultiverseConstants {
 
-    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Transaction> lockOwnerUpdater =
-            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Transaction.class, "lockOwner");
+    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Transaction> ___LOCKOWNER_UPDATER =
+            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Transaction.class, "___lockOwner");
 
-    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, AlphaTranlocal> tranlocalUpdater =
-            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, AlphaTranlocal.class, "tranlocal");
+    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, AlphaTranlocal> ___TRANLOCAL_UPDATER =
+            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, AlphaTranlocal.class, "___tranlocal");
 
-    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Listeners> listenersUpdater =
-            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Listeners.class, "listeners");
+    private final static AtomicReferenceFieldUpdater<FastAtomicObjectMixin, Listeners> ___LISTENERS_UPDATER =
+            AtomicReferenceFieldUpdater.newUpdater(FastAtomicObjectMixin.class, Listeners.class, "___listeners");
 
-    private volatile Transaction lockOwner;
-    private volatile AlphaTranlocal tranlocal;
-    private volatile Listeners listeners;
+    private volatile Transaction ___lockOwner;
+    private volatile AlphaTranlocal ___tranlocal;
+    private volatile Listeners ___listeners;
 
     @Override
-    public AlphaTranlocal load() {
-        return tranlocalUpdater.get(this);
+    public AlphaTranlocal ___load() {
+        return ___TRANLOCAL_UPDATER.get(this);
     }
 
     @Override
-    public final AlphaTranlocal load(long readVersion) {
-        AlphaTranlocal tranlocalTime1 = tranlocalUpdater.get(this);
+    public final AlphaTranlocal ___load(long readVersion) {
+        AlphaTranlocal tranlocalTime1 = ___TRANLOCAL_UPDATER.get(this);
 
         if (tranlocalTime1 == null) {
             //a read is done, but there is no committed data. Lets return null.
@@ -53,7 +53,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
         }
 
         if (SANITY_CHECKS_ENABLED) {
-            if (!tranlocalTime1.committed) {
+            if (!tranlocalTime1.___committed) {
                 throw new PanicError();
             }
         }
@@ -65,21 +65,21 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
         //going to be committed eventually and waiting for it, or retrying the transaction, would have
         //no extra value.
 
-        if (tranlocalTime1.version == readVersion) {
+        if (tranlocalTime1.___version == readVersion) {
             //we are lucky, the tranlocal is exactly the one we are looking for.
             return tranlocalTime1;
-        } else if (tranlocalTime1.version > readVersion) {
+        } else if (tranlocalTime1.___version > readVersion) {
             //the current tranlocal it too new to return, so we fail. In the future this would
             //be the location to search for tranlocal with the correct version.
             if (LoadTooOldVersionException.reuse) {
                 throw LoadTooOldVersionException.INSTANCE;
             } else {
                 String msg = format("Can't load version '%s' for atomicobject '%s', the oldest version found is '%s'",
-                        readVersion, toAtomicObjectString(this), tranlocalTime1.version);
+                        readVersion, toAtomicObjectString(this), tranlocalTime1.___version);
                 throw new LoadTooOldVersionException(msg);
             }
         } else {
-            Transaction lockOwner = lockOwnerUpdater.get(this);
+            Transaction lockOwner = ___LOCKOWNER_UPDATER.get(this);
 
             if (lockOwner != null) {
                 //this would be the location for spinning. As long as the lock is there,
@@ -93,12 +93,12 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
                 }
             }
 
-            AlphaTranlocal tranlocalTime2 = tranlocalUpdater.get(this);
+            AlphaTranlocal tranlocalTime2 = ___TRANLOCAL_UPDATER.get(this);
             boolean otherWritesHaveBeenExecuted = tranlocalTime2 != tranlocalTime1;
             if (otherWritesHaveBeenExecuted) {
                 //if the tranlocal has changed, lets check if the new tranlocal has exactly the
                 //version we are looking for.
-                if (tranlocalTime2.version == readVersion) {
+                if (tranlocalTime2.___version == readVersion) {
                     return tranlocalTime2;
                 }
 
@@ -109,7 +109,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
                     throw LoadTooOldVersionException.INSTANCE;
                 } else {
                     String msg = format("Can't load version '%s' atomicobject '%s', the oldest version found is '%s'",
-                            readVersion, toAtomicObjectString(this), tranlocalTime2.version);
+                            readVersion, toAtomicObjectString(this), tranlocalTime2.___version);
                     throw new LoadTooOldVersionException(msg);
                 }
             } else {
@@ -121,45 +121,45 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
     }
 
     @Override
-    public Transaction getLockOwner() {
-        return lockOwner;
+    public Transaction ___getLockOwner() {
+        return ___lockOwner;
     }
 
     @Override
-    public final boolean tryLock(Transaction lockOwner) {
-        return lockOwnerUpdater.compareAndSet(this, null, lockOwner);
+    public final boolean ___tryLock(Transaction lockOwner) {
+        return ___LOCKOWNER_UPDATER.compareAndSet(this, null, lockOwner);
     }
 
     @Override
-    public final void releaseLock(Transaction expectedLockOwner) {
+    public final void ___releaseLock(Transaction expectedLockOwner) {
         //todo: here is where contention could happen.. 
         //idea for performance improvement based on 'the art of multiprocessor programming
         //chapter 7.2 change to: TTAS (Test-Test-And-Swap) 
-        lockOwnerUpdater.compareAndSet(this, expectedLockOwner, null);
+        ___LOCKOWNER_UPDATER.compareAndSet(this, expectedLockOwner, null);
     }
 
     @Override
-    public final Listeners storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
+    public final Listeners ___storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion) {
         assert tranlocal != null;
 
         if (SANITY_CHECKS_ENABLED) {
-            if (lockOwner == null) {
+            if (___lockOwner == null) {
                 String msg = format("Lock on atomicObject '%s' is not hold while doing the store",
                         toAtomicObjectString(this));
                 throw new PanicError(msg);
             }
 
-            if (tranlocal.version >= writeVersion) {
+            if (tranlocal.___version >= writeVersion) {
                 String msg = format("The tranlocal of atomicObject '%s' has version '%s'  " +
                         "and and is too large for writeVersion '%s'",
                         toAtomicObjectString(this), tranlocal.getAtomicObject(), writeVersion);
                 throw new PanicError(msg);
             }
 
-            AlphaTranlocal old = tranlocalUpdater.get(this);
-            if (old != null && old.version >= writeVersion) {
+            AlphaTranlocal old = ___TRANLOCAL_UPDATER.get(this);
+            if (old != null && old.___version >= writeVersion) {
                 String msg = format("The current version '%s' is newer than the version '%s' to commit for atomicobject '%s''",
-                        old.version, writeVersion, tranlocal.version);
+                        old.___version, writeVersion, tranlocal.___version);
                 throw new PanicError(msg);
             }
         }
@@ -170,21 +170,20 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
         //tranlocal, and the read on the tranlocal.
         tranlocal.prepareForCommit(writeVersion);
 
-        tranlocalUpdater.set(this, tranlocal);
+        ___TRANLOCAL_UPDATER.set(this, tranlocal);
 
         //it is important that the listeners are removed after the tranlocal write en before the lockrelease.
-        // TODO: explain why!
-        Listeners listeners = listenersUpdater.getAndSet(this, null);
+        Listeners listeners = ___LISTENERS_UPDATER.getAndSet(this, null);
 
-        //release the lock
-        lockOwnerUpdater.set(this, null);
+        //release the listeners
+        ___LOCKOWNER_UPDATER.set(this, null);
 
         return listeners;
     }
 
     @Override
-    public final boolean registerRetryListener(Latch listener, long minimumWakeupVersion) {
-        AlphaTranlocal tranlocalT1 = tranlocalUpdater.get(this);
+    public final boolean ___registerRetryListener(Latch listener, long minimumWakeupVersion) {
+        AlphaTranlocal tranlocalT1 = ___TRANLOCAL_UPDATER.get(this);
 
         //could it be that a locked value is read? (YES, can happen) A value that will be updated,
         //but isn't updated yet.. consequence: the listener tries to register a listener.
@@ -197,7 +196,7 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
             //if all objects within the transaction give this behavior it looks like the
             //latch was registered, but the transaction will never be woken up.
             return false;
-        } else if (tranlocalT1.version >= minimumWakeupVersion) {
+        } else if (tranlocalT1.___version >= minimumWakeupVersion) {
             //if the version if the tranlocal already is equal or bigger than the version we
             //are looking for, we are done.
             listener.open();
@@ -210,28 +209,28 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
             Listeners newListeners;
             Listeners oldListeners;
             do {
-                oldListeners = listenersUpdater.get(this);
+                oldListeners = ___LISTENERS_UPDATER.get(this);
                 newListeners = new Listeners(listener, oldListeners);
-                placedListener = listenersUpdater.compareAndSet(this, oldListeners, newListeners);
+                placedListener = ___LISTENERS_UPDATER.compareAndSet(this, oldListeners, newListeners);
                 if (!placedListener) {
                     //it could be that another transaction did a register, but it also could mean
                     //that a write occurred.
-                    AlphaTranlocal tranlocalT2 = tranlocalUpdater.get(this);
+                    AlphaTranlocal tranlocalT2 = ___TRANLOCAL_UPDATER.get(this);
                     if (tranlocalT1 != tranlocalT2) {
                         //we are not sure when the registration took place, but a new version is available.
 
                         if (SANITY_CHECKS_ENABLED) {
-                            if (tranlocalT2.version <= tranlocalT1.version) {
+                            if (tranlocalT2.___version <= tranlocalT1.___version) {
                                 String msg = format("Going back in time; atomicobject '%s' and tranlocalT2 with version" +
                                         " '%s' has a smaller version than tranlocalT2 with version '%s'",
-                                        toAtomicObjectString(this), tranlocalT1.version, tranlocalT2.version);
+                                        toAtomicObjectString(this), tranlocalT1.___version, tranlocalT2.___version);
                                 throw new PanicError(msg);
                             }
 
-                            if (minimumWakeupVersion > tranlocalT2.version) {
+                            if (minimumWakeupVersion > tranlocalT2.___version) {
                                 String msg = format("Minimum version '%s' for registerRetryListener on atomicobject '%s' is larger" +
                                         " than tranlocalT2.version '%s'",
-                                        minimumWakeupVersion, toAtomicObjectString(this), tranlocalT2.version);
+                                        minimumWakeupVersion, toAtomicObjectString(this), tranlocalT2.___version);
                                 throw new PanicError(msg);
                             }
                         }
@@ -242,20 +241,20 @@ public abstract class FastAtomicObjectMixin implements AlphaAtomicObject, Multiv
                 }
             } while (!placedListener);
 
-            AlphaTranlocal tranlocalT2 = tranlocalUpdater.get(this);
+            AlphaTranlocal tranlocalT2 = ___TRANLOCAL_UPDATER.get(this);
             if (tranlocalT1 != tranlocalT2) {
                 if (SANITY_CHECKS_ENABLED) {
                     //we are not sure when the registration took place, but a new version is available.
-                    if (tranlocalT2.version < minimumWakeupVersion) {
+                    if (tranlocalT2.___version < minimumWakeupVersion) {
                         String msg = format("TranlocalT2 with version '%s' for registerRetryListener on atomicobject '%s' is smaller" +
                                 " than minimumWakeupVersion '%s'",
-                                tranlocalT2.version, toAtomicObjectString(this), minimumWakeupVersion);
+                                tranlocalT2.___version, toAtomicObjectString(this), minimumWakeupVersion);
                         throw new PanicError(msg);
                     }
                 }
                 listener.open();
                 //lets try to restore the oldListeners.
-                listenersUpdater.compareAndSet(this, newListeners, oldListeners);
+                ___LISTENERS_UPDATER.compareAndSet(this, newListeners, oldListeners);
             }
             //else: it is registered before the write took place
 

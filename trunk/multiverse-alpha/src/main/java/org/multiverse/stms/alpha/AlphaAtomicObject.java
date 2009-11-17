@@ -19,12 +19,14 @@ public interface AlphaAtomicObject {
      * important for the implementation to not to return a too old version. If this happens, the
      * system could start to suffer from lost updates (not seeing changes you should have seen).
      *
+     * The returned instance can't be used for updates. See the {@link #___loadUpdatable(long)}.
+     *
      * @param readVersion the version of the Tranlocal to read.
      * @return the loaded Tranlocal. If nothing is committed, null is returned.
      * @throws org.multiverse.api.exceptions.LoadException
      *          if the system wasn't able to load the Tranlocal.
      */
-    AlphaTranlocal load(long readVersion);
+    AlphaTranlocal ___load(long readVersion);
 
     /**
      * Loads the most recently committed AlphaTranlocal.
@@ -33,21 +35,9 @@ public interface AlphaAtomicObject {
      * @throws org.multiverse.api.exceptions.LoadException
      *          if the system wasn't able to load the Tranlocal.
      */
-    AlphaTranlocal load();
+    AlphaTranlocal ___load();
 
-    /**
-     * Loads the {@link AlphaTranlocal} with the specified version and returns a private copy that can be
-     * used for updating transactions.
-     *
-     * @param readVersion the readVersion of the transaction.
-     * @return the loaded Tranlocal.
-     * @throws org.multiverse.api.exceptions.LoadException
-     *          if the system wasn't able to load the Tranlocal.
-     * @throws org.multiverse.api.exceptions.WriteConflictException
-     *          if is already able to determine that
-     *          a write will never be successful.
-     */
-    AlphaTranlocal privatize(long readVersion);
+    AlphaTranlocal ___loadUpdatable(long readVersion);
 
     /**
      * Acquires the lock. The lock is only acquired it the lock is free.
@@ -55,7 +45,7 @@ public interface AlphaAtomicObject {
      * @param lockOwner the owner of the lock.
      * @return true if the lock was acquired, false otherwise.
      */
-    boolean tryLock(Transaction lockOwner);
+    boolean ___tryLock(Transaction lockOwner);
 
     /**
      * Releases the lock. The lock is only released if the current lockOwner is equal to the expected
@@ -67,7 +57,7 @@ public interface AlphaAtomicObject {
      *
      * @param expectedLockOwner the expected LockOwner.
      */
-    void releaseLock(Transaction expectedLockOwner);
+    void ___releaseLock(Transaction expectedLockOwner);
 
     /**
      * Stores the the content and releases the lock. It also removes listeners that should be triggered
@@ -79,7 +69,7 @@ public interface AlphaAtomicObject {
      * @param writeVersion the version to storeAndReleaseLock the Tranlocal with.
      * @return the Listeners to wake up. Could be null if there are no listeners to wake up.
      */
-    Listeners storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion);
+    Listeners ___storeAndReleaseLock(AlphaTranlocal tranlocal, long writeVersion);
 
     /**
      * Registers a listener for retrying (the condition variable version for STM's). The Latch is a
@@ -90,12 +80,12 @@ public interface AlphaAtomicObject {
      * @param minimumWakeupVersion the minimum version of the data
      * @return true if the listener was registered on a committed object, false otherwise.
      */
-    boolean registerRetryListener(Latch listener, long minimumWakeupVersion);
+    boolean ___registerRetryListener(Latch listener, long minimumWakeupVersion);
 
     /**
      * Returns the current owner of the lock, or null if AtomicObject is not locked.
      *
      * @return the current owner, or null if lock is free.
      */
-    Transaction getLockOwner();
+    Transaction ___getLockOwner();
 }

@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.concurrent.BlockingDeque;
 
@@ -24,6 +24,7 @@ public class StrictLinkedBlockingDeque_peekLastTest {
     public void peekLastOnEmptyDeque() {
         BlockingDeque<String> deque = new StrictLinkedBlockingDeque<String>();
 
+        System.out.println("finished");
         long version = stm.getClockVersion();
         String result = deque.peekLast();
         assertNull(result);

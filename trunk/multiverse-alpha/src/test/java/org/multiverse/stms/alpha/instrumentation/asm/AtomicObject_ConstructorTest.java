@@ -73,7 +73,7 @@ public class AtomicObject_ConstructorTest {
 
         testEmptyConstructor o = new testEmptyConstructor();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version, stm.getClockVersion());
     }
 
     @AtomicObject
@@ -90,7 +90,7 @@ public class AtomicObject_ConstructorTest {
 
         NoConstructor noConstructor = new NoConstructor();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version , stm.getClockVersion());
     }
 
     @AtomicObject
@@ -359,7 +359,7 @@ public class AtomicObject_ConstructorTest {
 
         AtomicObjectWithNoArgSuperCallingConstructor o = new AtomicObjectWithNoArgSuperCallingConstructor();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version , stm.getClockVersion());
     }
 
     @AtomicObject
@@ -495,7 +495,7 @@ public class AtomicObject_ConstructorTest {
         assertEquals(1, foo.getInitCounter());
 
         //if the constructor code is executed again, the initCounter is increased
-        //and this is not what we want. The init counter should not change anymore
+        //and this is not what we want. The reset counter should not change anymore
         assertEquals(1, constructorInitCounter.get());
     }
 
