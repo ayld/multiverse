@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.StmUtils.retry;
+import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -140,6 +141,7 @@ public class ReadersWritersProblemLongTest {
         private int readerCount;
 
         @Override
+        @AtomicMethod(retryCount = 10000)
         public void acquireReadLock() {
             if (readerCount == -1) {
                 retry();
@@ -149,6 +151,7 @@ public class ReadersWritersProblemLongTest {
         }
 
         @Override
+        @AtomicMethod(retryCount = 10000)
         public void acquireWriteLock() {
             if (readerCount != 0) {
                 retry();

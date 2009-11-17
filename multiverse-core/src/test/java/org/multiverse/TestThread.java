@@ -60,4 +60,5 @@ public abstract class TestThread extends Thread {
     public void assertNothingThrown() {
         assertNull(throwable);
     }
+
 }

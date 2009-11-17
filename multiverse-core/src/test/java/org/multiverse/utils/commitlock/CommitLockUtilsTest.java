@@ -39,7 +39,7 @@ public class CommitLockUtilsTest {
         testIncomplete();
     }
 
-    class DummyCommitLock implements CommitLock{
+    class DummyCommitLock implements CommitLock{        
         @Override
         public void releaseLock(Transaction expectedLockOwner) {
             throw new UnsupportedOperationException();

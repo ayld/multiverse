@@ -7,14 +7,13 @@ import org.junit.Test;
 import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.api.exceptions.LoadLockedException;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.utils.clock.Clock;
 
 /**
@@ -49,7 +48,7 @@ public class UpdateAlphaTransaction_loadTest {
     public void loadSucceedsIfLockedButVersionIsStillExactMatch() {
         IntRef ref = new IntRef(0);
         Transaction owner = new DummyTransaction();
-        ref.tryLock(owner);
+        ref.___tryLock(owner);
 
         AlphaTransaction t = startUpdateTransaction();
         IntRefTranlocal read = (IntRefTranlocal) t.load(ref);
@@ -84,7 +83,7 @@ public class UpdateAlphaTransaction_loadTest {
         clock.tick();
 
         Transaction owner = new DummyTransaction();
-        ref.tryLock(owner);
+        ref.___tryLock(owner);
 
         AlphaTransaction t = stm.startUpdateTransaction("");
         try {
@@ -112,14 +111,14 @@ public class UpdateAlphaTransaction_loadTest {
         IntRef intValue = new IntRef(0);
         t1.commit();
 
-        IntRefTranlocal committed = (IntRefTranlocal) intValue.load(stm.getClockVersion());
+        IntRefTranlocal committed = (IntRefTranlocal) intValue.___load(stm.getClockVersion());
 
         AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal read = (IntRefTranlocal) t2.load(intValue);
         assertTrue(committed != read);
         assertEquals(intValue, read.getAtomicObject());
         assertEquals(committed.value, read.value);
-        assertFalse(read.committed);
+        assertFalse(read.___committed);
         //version doesn't need to be checked since it is not defined for a non committed value
         assertIsActive(t2);
     }
@@ -144,11 +143,11 @@ public class UpdateAlphaTransaction_loadTest {
         IntRefTranlocal read1 = (IntRefTranlocal) t1.load(intValue);
 
         assertEquals(intValue, read1.getAtomicObject());
-        assertFalse(read1.committed);
+        assertFalse(read1.___committed);
         assertIsActive(t1);
         t1.commit();
 
-        IntRefTranlocal read2 = (IntRefTranlocal) intValue.load(stm.getClockVersion());
+        IntRefTranlocal read2 = (IntRefTranlocal) intValue.___load(stm.getClockVersion());
         assertSame(read1, read2);
     }
 
@@ -164,23 +163,20 @@ public class UpdateAlphaTransaction_loadTest {
 
         assertNotSame(found1, found2);
         assertEquals(found1.value, found2.value);
-        assertEquals(found1.committed, found2.committed);
+        assertEquals(found1.___committed, found2.___committed);
         assertEquals(found1.getAtomicObject(), found2.getAtomicObject());
         //version doesn't need to be checked since it is undefined while not committed.
     }
 
     @Test
-    public void loadFailsOnUncommittedObject() {
+    public void loadReturnsNewTranlocalOnUncommittedObject() {
         IntRef value = IntRef.createUncommitted();
 
         AlphaTransaction t = stm.startUpdateTransaction(null);
 
-        try {
-            t.load(value);
-            fail();
-        } catch (LoadUncommittedException ex) {
-            ex.printStackTrace();
-        }
+        IntRefTranlocal tranlocal =  (IntRefTranlocal) t.load(value);
+        assertFalse(tranlocal.___committed);
+        assertEquals(Long.MIN_VALUE, tranlocal.___version);
 
         assertIsActive(t);
     }

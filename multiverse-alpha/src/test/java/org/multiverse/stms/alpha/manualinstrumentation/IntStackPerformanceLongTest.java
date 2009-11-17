@@ -1,41 +1,28 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
-import org.multiverse.stms.alpha.AlphaStmConfig;
-import static org.multiverse.stms.alpha.AlphaStmConfig.createDebugConfig;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
-import org.multiverse.utils.profiling.ProfileRepository;
 
 import java.util.concurrent.TimeUnit;
 
 public class IntStackPerformanceLongTest {
 
-    private int count = 3 * 1000 * 1000;
+    private int count = 5 * 1000 * 1000;
 
     private Stm stm;
-    private ProfileRepository profiler;
 
     @Before
     public void setUp() {
-        AlphaStmConfig config = createDebugConfig();
-        profiler = config.profiler;
-        stm = new AlphaStm(config);
+        stm = AlphaStm.createFast();
         setGlobalStmInstance(stm);
         setThreadLocalTransaction(null);
     }
 
-    @After
-    public void tearDown() {
-        if (profiler != null) {
-            //profiler.print();
-        }
-    }
 
     public Transaction startTransaction() {
         Transaction t = stm.startUpdateTransaction(null);

@@ -9,22 +9,22 @@ package org.multiverse.api.exceptions;
  *
  * @author Peter Veentjer.
  */
-public class NoProgressPossibleException extends IllegalStateException {
+public class NoRetryPossibleException extends IllegalStateException {
 
     private static final long serialVersionUID = 0;
 
-    public NoProgressPossibleException() {
+    public NoRetryPossibleException() {
     }
 
-    public NoProgressPossibleException(String message) {
+    public NoRetryPossibleException(String message) {
         super(message);
     }
 
-    public NoProgressPossibleException(String message, Throwable cause) {
+    public NoRetryPossibleException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public NoProgressPossibleException(Throwable cause) {
+    public NoRetryPossibleException(Throwable cause) {
         super(cause);
     }
 }

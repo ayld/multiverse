@@ -2,17 +2,18 @@ package org.multiverse.stms.alpha;
 
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
-import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.api.Transaction;
 
 /**
  * @author Peter Veentjer
  */
-public class ReadonlyAlphaTransaction_resetTest {
+public class ReadonlyAlphaTransaction_abortAndReturnRestartedTest {
 
     private AlphaStm stm;
 
@@ -35,31 +36,36 @@ public class ReadonlyAlphaTransaction_resetTest {
     }
 
     @Test
-    public void resetOnAbortedTransaction() {
-        IntRef value = new IntRef(10);
+    public void callActiveTransaction() {
+        AlphaTransaction t = startReadonlyTransaction();
 
+        long version = stm.getClockVersion();
+        Transaction result = t.abortAndReturnRestarted();
+        assertSame(t, result);
+        assertEquals(version, stm.getClockVersion());
+        assertIsActive(t);
+    }
+
+    @Test
+    public void callAbortedTransaction() {
         AlphaTransaction t = startReadonlyTransaction();
         t.abort();
 
-        value.inc();
-
         long version = stm.getClockVersion();
-        t.restart();
+        Transaction result = t.abortAndReturnRestarted();
+        assertSame(t, result);
         assertEquals(version, stm.getClockVersion());
         assertIsActive(t);
     }
 
     @Test
     public void resetOnCommittedTransaction() {
-        IntRef value = new IntRef(10);
-
         AlphaTransaction t = startReadonlyTransaction();
         t.commit();
 
-        value.inc();
-
         long version = stm.getClockVersion();
-        t.restart();
+        Transaction result = t.abortAndReturnRestarted();
+        assertSame(t, result);
         assertEquals(version, stm.getClockVersion());
         assertIsActive(t);
     }

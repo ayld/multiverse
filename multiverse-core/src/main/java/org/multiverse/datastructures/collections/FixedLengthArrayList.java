@@ -43,6 +43,7 @@ public class FixedLengthArrayList<E> extends AbstractCollection<E> implements Li
 
     public FixedLengthArrayList(int capacity) {
         array = new Ref[capacity];
+        firstFreeIndex = 0;
         for (int k = 0; k < capacity; k++) {
             array[k] = new Ref<E>();
         }

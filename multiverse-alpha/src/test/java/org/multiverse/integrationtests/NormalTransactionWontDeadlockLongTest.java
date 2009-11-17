@@ -7,7 +7,7 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * A Tests that makes sure that normaly Transactions are not the subject to deadlocks.

@@ -16,7 +16,7 @@ public final class IntStackTranlocal extends AlphaTranlocal {
     IntStackTranlocal(IntStackTranlocal origin) {
         this.origin = origin;
         this.atomicObject = origin.atomicObject;
-        this.version = origin.version;
+        this.___version = origin.___version;
         this.size = origin.size;
         this.head = origin.head;
     }
@@ -42,8 +42,8 @@ public final class IntStackTranlocal extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
+        this.___version = writeVersion;
+        this.___committed = true;
         this.origin = null;
     }
 
@@ -54,7 +54,7 @@ public final class IntStackTranlocal extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
+        if (___committed) {
             return DirtinessStatus.committed;
         } else if (origin == null) {
             return DirtinessStatus.fresh;

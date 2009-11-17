@@ -7,10 +7,10 @@ import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
+import org.multiverse.api.ThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.templates.AbortedException;
-import org.multiverse.utils.ThreadLocalTransaction;
 
 /**
  * The FailureAtomicityLongTest tests if failure atomicity works. So it should be impossible that the eventual

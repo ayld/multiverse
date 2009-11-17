@@ -1,128 +1,63 @@
 package org.multiverse.stms;
 
+import org.multiverse.api.ScheduleType;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.api.exceptions.ResetFailureException;
 import org.multiverse.utils.clock.Clock;
-import org.multiverse.utils.commitlock.CommitLockPolicy;
+import org.multiverse.utils.latches.Latch;
+import org.multiverse.utils.restartbackoff.ExponentialRestartBackoffPolicy;
+import org.multiverse.utils.restartbackoff.RestartBackoffPolicy;
 
 import static java.text.MessageFormat.format;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
- * An abstract {@link Transaction} implementation that contains most of the plumbing logic. Extend
- * this and prevent duplicate logic.
+ * An abstract {@link Transaction} implementation that contains most of the plumbing logic. Extend this and prevent
+ * duplicate logic.
  * <p/>
  * The on-methods can be overridden.
  * <p/>
- * The subclass needs to call the init when it has completed its constructor. Can't be done inside
- * the constructor of the abstracttransaction because properties in the subclass perhaps are not set.
+ * The subclass needs to call the reset when it has completed its constructor. Can't be done inside the constructor of
+ * the AbstractTransaction because properties in the subclass perhaps are not set.
  *
  * @author Peter Veentjer.
  */
-public abstract class AbstractTransaction implements Transaction {
+public abstract class AbstractTransaction<D extends AbstractTransactionDependencies> implements Transaction {
 
-    protected final Clock clock;
+    protected final D dependencies;
+    protected final String familyName;
 
-    protected CommitLockPolicy commitLockPolicy;
-    protected List<Runnable> deferredTasks;
-    protected List<Runnable> compensatingTasks;
+    protected TaskListNode scheduledTasks;
     protected long readVersion;
-    protected long commitVersion;
+    //needs to be removed, readversion could be used for that.n
+    private long commitVersion;
     protected TransactionStatus status;
-    protected String familyName;
 
     /**
      * Creates a new AbstractTransaction.
      *
-     * @param familyName       the familyname this transaction has.
-     * @param clock            the Clock this transaction uses
-     * @param commitLockPolicy the CommitLockPolicy to use when the transaction commits.
+     * @param familyName the familyName this transaction has.
+     * @param clock      the Clock this transaction uses
      * @throws NullPointerException if clock or commitLockPolicy is null.
      */
-    public AbstractTransaction(String familyName, Clock clock, CommitLockPolicy commitLockPolicy) {
-        if (clock == null) {
-            throw new NullPointerException();
-        }
-        this.clock = clock;
-        this.commitLockPolicy = commitLockPolicy;
+    public AbstractTransaction(String familyName, Clock clock) {
+        this((D) new AbstractTransactionDependencies(clock, ExponentialRestartBackoffPolicy.INSTANCE_10_MS_MAX),
+             familyName);
+    }
+
+    public AbstractTransaction(D dependencies, String familyName) {
+        assert dependencies != null;
+        this.dependencies = dependencies;
         this.familyName = familyName;
     }
 
-    protected final void init() {
-        this.deferredTasks = null;
-        this.compensatingTasks = null;
-        this.readVersion = clock.getTime();
-        this.status = TransactionStatus.active;
-        onInit();
+    @Override
+    public RestartBackoffPolicy getRestartBackoffPolicy() {
+        return dependencies.restartBackoffPolicy;
     }
 
     public String getFamilyName() {
         return familyName;
-    }
-
-    protected void onInit() {
-    }
-
-    @Override
-    public void deferredExecute(Runnable task) {
-        switch (status) {
-            case active:
-                if (task == null) {
-                    throw new NullPointerException();
-                }
-                if (deferredTasks == null) {
-                    deferredTasks = new LinkedList<Runnable>();
-                }
-                deferredTasks.add(task);
-                break;
-            case committed: {
-                String msg = format("Can't add deferredExecute task on already committed transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
-            case aborted: {
-                String msg = format("Can't add deferredExecute task on already aborted transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    @Override
-    public void compensatingExecute(Runnable task) {
-        switch (status) {
-            case active:
-                if (task == null) {
-                    throw new NullPointerException();
-                }
-
-                if (compensatingTasks == null) {
-                    compensatingTasks = new LinkedList<Runnable>();
-                }
-                compensatingTasks.add(task);
-                break;
-            case committed: {
-                String msg = format("Can't execute compensating task on already committed transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
-            case aborted: {
-                String msg = format("Can't execute compensating task on already aborted transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
-            default:
-                throw new RuntimeException();
-        }
-    }
-
-    public CommitLockPolicy getCommitLockPolicy() {
-        return commitLockPolicy;
-    }
-
-    public void setCommitLockPolicy(CommitLockPolicy newCommitLockPolicy) {
-        this.commitLockPolicy = newCommitLockPolicy;
     }
 
     @Override
@@ -130,13 +65,46 @@ public abstract class AbstractTransaction implements Transaction {
         return readVersion;
     }
 
+    protected final void init() {
+        this.scheduledTasks = null;
+        this.readVersion = dependencies.clock.getTime();
+        this.status = TransactionStatus.active;
+        doInit();
+    }
+
+    protected void doInit() {
+    }
+
     @Override
-    public Transaction restart() {
+    public void schedule(Runnable task, ScheduleType scheduleType) {
         switch (status) {
-            case active: {
-                String msg = format("Can't restart active transaction '%s', abort or commit first", familyName);
-                throw new ResetFailureException(msg);
-            }
+            case active:
+                if (task == null) {
+                    throw new NullPointerException();
+                }
+
+                if(scheduleType == null){
+                    throw new NullPointerException();
+                }
+
+                scheduledTasks = new TaskListNode(task, scheduleType, scheduledTasks);
+                break;
+            case committed:
+                throw new DeadTransactionException(
+                        format("Can't execute compensating task on already committed transaction '%s'", familyName));
+            case aborted:
+                throw new DeadTransactionException(
+                        format("Can't execute compensating task on already aborted transaction '%s'", familyName));
+            default:
+                throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public Transaction abortAndReturnRestarted() {
+        switch (status) {
+            case active:
+                //fall through
             case committed:
                 //fall through
             case aborted:
@@ -152,27 +120,9 @@ public abstract class AbstractTransaction implements Transaction {
         return status;
     }
 
-    protected void executeDeferredTasks() {
-        if (deferredTasks != null) {
-            try {
-                for (Runnable task : deferredTasks) {
-                    task.run();
-                }
-            } finally {
-                deferredTasks = null;
-            }
-        }
-    }
-
-    protected void executeCompensatingTasks() {
-        if (compensatingTasks != null) {
-            try {
-                for (Runnable task : compensatingTasks) {
-                    task.run();
-                }
-            } finally {
-                compensatingTasks = null;
-            }
+    protected void excuteScheduledTasks(ScheduleType scheduleType) {
+        if (scheduledTasks != null) {
+            scheduledTasks.executeAll(scheduleType);
         }
     }
 
@@ -180,13 +130,18 @@ public abstract class AbstractTransaction implements Transaction {
     public void abort() {
         switch (status) {
             case active:
-                doAbort();
-                executeCompensatingTasks();
+                try {
+                    excuteScheduledTasks(ScheduleType.preAbort);
+                    status = TransactionStatus.aborted;
+                    doAbort();
+                    excuteScheduledTasks(ScheduleType.postAbort);
+                } finally {
+                    scheduledTasks = null;
+                }
                 break;
-            case committed: {
-                String msg = format("Can't abort already committed transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
+            case committed:
+                throw new DeadTransactionException(
+                        format("Can't abort already committed transaction '%s'", familyName));
             case aborted:
                 //ignore
                 break;
@@ -195,38 +150,35 @@ public abstract class AbstractTransaction implements Transaction {
         }
     }
 
-    protected final void doAbort() {
-        status = TransactionStatus.aborted;
-        deferredTasks = null;
-        onAbort();
-    }
-
-    protected void onAbort() {
+    protected void doAbort() {
     }
 
     @Override
     public long commit() {
         switch (status) {
             case active:
-                boolean abort = true;
                 try {
-                    commitVersion = onCommit();
-                    abort = false;
-                    return commitVersion;
-                } finally {
-                    if (abort) {
-                        doAbort();
-                    } else {
+                    excuteScheduledTasks(ScheduleType.preCommit);
+                    boolean abort = true;
+                    try {
+                        commitVersion = onCommit();
                         status = TransactionStatus.committed;
-                        executeDeferredTasks();
+                        abort = false;
+                        excuteScheduledTasks(ScheduleType.postCommit);
+                        return commitVersion;
+                    } finally {
+                        if (abort) {
+                            doAbort();
+                        }
                     }
+                } finally {
+                    scheduledTasks = null;
                 }
             case committed:
                 return commitVersion;
-            case aborted: {
-                String msg = format("Can't commit already aborted transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
+            case aborted:
+                throw new DeadTransactionException(
+                        format("Can't commit already aborted transaction '%s'", familyName));
             default:
                 throw new IllegalStateException();
         }
@@ -237,25 +189,40 @@ public abstract class AbstractTransaction implements Transaction {
     }
 
     @Override
-    public void abortAndWaitForRetry() {
+    public void abortAndRegisterRetryLatch(Latch latch) {
         switch (status) {
             case active:
-                onAbortAndRetry();
+
+                if (latch == null) {
+                    throw new NullPointerException();
+                }
+
+                doAbortAndRegisterRetryLatch(latch);
+
                 break;
-            case committed: {
-                String msg = format("Can't call abortAndRetry on already committed transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
+            case committed:
+                throw new DeadTransactionException(
+                        format("Can't call abortAndRegisterRetryLatch on already committed transaction '%s'",
+                               familyName));
             case aborted: {
-                String msg = format("Can't call abortAndRetry on already aborted transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
+                throw new DeadTransactionException(
+                        format("Can't call abortAndRegisterRetryLatch on already aborted transaction '%s'",
+                               familyName));
             }
             default:
                 throw new RuntimeException();
         }
     }
 
-    protected void onAbortAndRetry() {
+    /**
+     * Default implementation does the actual abort and then throws an {@link UnsupportedOperationException}.
+     *
+     * @param latch the Latch to register.
+     * @throws UnsupportedOperationException depends on the implementation. But the default implementation will always
+     *                                       throw this exception.
+     */
+    protected void doAbortAndRegisterRetryLatch(Latch latch) {
+        doAbort();
         throw new UnsupportedOperationException();
     }
 
@@ -263,65 +230,88 @@ public abstract class AbstractTransaction implements Transaction {
     public void startOr() {
         switch (status) {
             case active:
-                onStartOr();
+                doStartOr();
                 break;
-            case committed: {
-                String msg = format("Can't call startOr on already committed transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
-            case aborted: {
-                String msg = format("Can't call startOr on already aborted transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
+            case committed:
+                throw new DeadTransactionException(
+                        format("Can't call startOr on already committed transaction '%s'", familyName));
+            case aborted:
+                throw new DeadTransactionException(
+                        format("Can't call startOr on already aborted transaction '%s'", familyName));
             default:
                 throw new RuntimeException();
         }
     }
 
-    protected void onStartOr() {
+    protected void doStartOr() {
     }
 
     @Override
     public void endOr() {
         switch (status) {
             case active:
-                onEndOr();
+                doEndOr();
                 break;
-            case committed: {
-                String msg = format("Can't call endOr on already committed transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
-            case aborted: {
-                String msg = format("Can't call endOr on already aborted transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
+            case committed:
+                throw new DeadTransactionException(
+                        format("Can't call endOr on already committed transaction '%s'", familyName));
+            case aborted:
+                throw new DeadTransactionException(
+                        format("Can't call endOr on already aborted transaction '%s'", familyName));
             default:
                 throw new RuntimeException();
         }
     }
 
-    protected void onEndOr() {
+    protected void doEndOr() {
     }
 
     @Override
     public void endOrAndStartElse() {
         switch (status) {
             case active:
-                onEndOrAndStartElse();
+                doEndOrAndStartElse();
                 break;
-            case committed: {
-                String msg = format("Can't call endOrAndStartElse on already committed transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
-            case aborted: {
-                String msg = format("Can't call endOrAndStartElse on already aborted transaction '%s'", familyName);
-                throw new DeadTransactionException(msg);
-            }
+            case committed:
+                throw new DeadTransactionException(
+                        format("Can't call endOrAndStartElse on already committed transaction '%s'", familyName));
+            case aborted:
+                throw new DeadTransactionException(
+                        format("Can't call endOrAndStartElse on already aborted transaction '%s'", familyName));
             default:
                 throw new RuntimeException();
         }
     }
 
-    protected void onEndOrAndStartElse() {
+    protected void doEndOrAndStartElse() {
     }
+
+    private static class TaskListNode {
+
+        private final Runnable task;
+        private final ScheduleType scheduleType;
+        private final TaskListNode next;
+
+        private TaskListNode(Runnable task, ScheduleType scheduleType, TaskListNode next) {
+            assert task != null;
+            assert scheduleType != null;
+
+            this.task = task;
+            this.scheduleType = scheduleType;
+            this.next = next;
+        }
+
+        public void executeAll(ScheduleType requiredScheduleType) {
+            assert requiredScheduleType != null;
+
+            TaskListNode node = this;
+            do {
+                if (scheduleType == requiredScheduleType) {
+                    node.task.run();
+                }
+                node = node.next;
+            } while (node != null);
+        }
+    }
+
 }

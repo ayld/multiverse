@@ -7,6 +7,8 @@ import org.multiverse.utils.commitlock.CommitLockPolicy;
 import org.multiverse.utils.commitlock.GenericCommitLockPolicy;
 import org.multiverse.utils.profiling.ProfileRepository;
 import org.multiverse.utils.profiling.SimpleProfileRepository;
+import org.multiverse.utils.restartbackoff.ExponentialRestartBackoffPolicy;
+import org.multiverse.utils.restartbackoff.RestartBackoffPolicy;
 
 /**
  * An Object responsible for storing the configuration for an {@link AlphaStm}. So instead
@@ -51,6 +53,8 @@ public final class AlphaStmConfig {
 
     public CommitLockPolicy commitLockPolicy = GenericCommitLockPolicy.FAIL_FAST_BUT_RETRY;
 
+    public RestartBackoffPolicy restartBackoffPolicy = ExponentialRestartBackoffPolicy.INSTANCE_10_MS_MAX;
+
     /**
      * Check if the AlphaStmConfig has been configured correctly.
      *
@@ -58,11 +62,15 @@ public final class AlphaStmConfig {
      */
     public void ensureValid() {
         if (commitLockPolicy == null) {
-            throw new IllegalStateException("commitLockPolicy can't be null");
+            throw new IllegalStateException("Invalid configuration, 'commitLockPolicy' can't be null");
         }
 
         if(clock == null){
-            throw new IllegalStateException("clock can't be null");
+            throw new IllegalStateException("Invalid configuration, 'clock' can't be null");
+        }
+
+        if(restartBackoffPolicy == null){
+            throw new IllegalStateException("Invalid configuration, 'restartBackoffPolicy' can't be null");            
         }
     }
 }

@@ -10,7 +10,7 @@ import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.lang.reflect.Field;
 import static java.lang.reflect.Modifier.isTransient;

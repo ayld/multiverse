@@ -6,11 +6,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
+import org.multiverse.api.ThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.manualinstrumentation.IntQueue;
 import org.multiverse.templates.AbortedException;
-import org.multiverse.utils.ThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.ArrayList;
 import java.util.HashSet;

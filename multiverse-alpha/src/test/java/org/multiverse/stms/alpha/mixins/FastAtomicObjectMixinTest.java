@@ -44,11 +44,11 @@ public class FastAtomicObjectMixinTest {
 
         DummyTranlocal tranlocal = new DummyTranlocal(atomicObject);
         long writeVersion = 10;
-        atomicObject.tryLock(lockOwner);
-        atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
-        atomicObject.releaseLock(lockOwner);
+        atomicObject.___tryLock(lockOwner);
+        atomicObject.___storeAndReleaseLock(tranlocal, writeVersion);
+        atomicObject.___releaseLock(lockOwner);
 
-        AlphaTranlocal result = atomicObject.load(writeVersion);
+        AlphaTranlocal result = atomicObject.___load(writeVersion);
         assertSame(tranlocal, result);
     }
 
@@ -59,11 +59,11 @@ public class FastAtomicObjectMixinTest {
 
         DummyTranlocal tranlocal = new DummyTranlocal(atomicObject);
         long writeVersion = 10;
-        atomicObject.tryLock(lockOwner);
-        atomicObject.storeAndReleaseLock(tranlocal, writeVersion);
-        atomicObject.releaseLock(lockOwner);
+        atomicObject.___tryLock(lockOwner);
+        atomicObject.___storeAndReleaseLock(tranlocal, writeVersion);
+        atomicObject.___releaseLock(lockOwner);
 
-        AlphaTranlocal result = atomicObject.load(writeVersion + 1);
+        AlphaTranlocal result = atomicObject.___load(writeVersion + 1);
         assertSame(tranlocal, result);
     }
 
@@ -71,7 +71,7 @@ public class FastAtomicObjectMixinTest {
     public void loadUncommittedData() {
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
 
-        AlphaTranlocal result = object.load(1);
+        AlphaTranlocal result = object.___load(1);
         assertNull(result);
     }
 
@@ -83,7 +83,7 @@ public class FastAtomicObjectMixinTest {
         intValue.inc();
 
         try {
-            intValue.load(version);
+            intValue.___load(version);
             fail();
         } catch (LoadTooOldVersionException ex) {
         }
@@ -96,11 +96,11 @@ public class FastAtomicObjectMixinTest {
         long readVersion = stm.getClockVersion();
 
         Transaction owner = new DummyTransaction();
-        AlphaTranlocal expected = intValue.load(readVersion);
+        AlphaTranlocal expected = intValue.___load(readVersion);
 
-        intValue.tryLock(owner);
+        intValue.___tryLock(owner);
 
-        AlphaTranlocal found = intValue.load(readVersion);
+        AlphaTranlocal found = intValue.___load(readVersion);
         assertSame(expected, found);
     }
 
@@ -109,12 +109,12 @@ public class FastAtomicObjectMixinTest {
         IntRef intValue = new IntRef(0);
 
         Transaction owner = new DummyTransaction();
-        intValue.tryLock(owner);
+        intValue.___tryLock(owner);
 
         long readVersion = stm.getClockVersion() + 1;
 
         try {
-            intValue.load(readVersion);
+            intValue.___load(readVersion);
             fail();
         } catch (LoadLockedException ex) {
         }
@@ -127,10 +127,10 @@ public class FastAtomicObjectMixinTest {
         intValue.inc();
 
         Transaction owner = new DummyTransaction();
-        intValue.tryLock(owner);
+        intValue.___tryLock(owner);
 
         try {
-            intValue.load(readVersion);
+            intValue.___load(readVersion);
             fail();
         } catch (LoadTooOldVersionException ex) {
         }
@@ -144,9 +144,9 @@ public class FastAtomicObjectMixinTest {
         Transaction lockOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
 
-        boolean result = object.tryLock(lockOwner);
+        boolean result = object.___tryLock(lockOwner);
         assertTrue(result);
-        assertSame(lockOwner, object.getLockOwner());
+        assertSame(lockOwner, object.___getLockOwner());
     }
 
     @Test
@@ -159,12 +159,12 @@ public class FastAtomicObjectMixinTest {
         Transaction oldOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
 
-        object.tryLock(oldOwner);
+        object.___tryLock(oldOwner);
 
         Transaction newOwner = new DummyTransaction();
-        boolean result = object.tryLock(newOwner);
+        boolean result = object.___tryLock(newOwner);
         assertFalse(result);
-        assertSame(oldOwner, object.getLockOwner());
+        assertSame(oldOwner, object.___getLockOwner());
     }
 
     // ======================= release lock ====================
@@ -173,10 +173,10 @@ public class FastAtomicObjectMixinTest {
     public void releaseOwnedLock() {
         Transaction owner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
-        object.tryLock(owner);
+        object.___tryLock(owner);
 
-        object.releaseLock(owner);
-        assertNull(object.getLockOwner());
+        object.___releaseLock(owner);
+        assertNull(object.___getLockOwner());
     }
 
     @Test
@@ -184,8 +184,8 @@ public class FastAtomicObjectMixinTest {
         Transaction owner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
 
-        object.releaseLock(owner);
-        assertNull(object.getLockOwner());
+        object.___releaseLock(owner);
+        assertNull(object.___getLockOwner());
     }
 
     @Test
@@ -193,10 +193,10 @@ public class FastAtomicObjectMixinTest {
         Transaction otherOwner = new DummyTransaction();
         Transaction thisOwner = new DummyTransaction();
         DummyFastAtomicObjectMixin object = new DummyFastAtomicObjectMixin();
-        object.tryLock(otherOwner);
+        object.___tryLock(otherOwner);
 
-        object.releaseLock(thisOwner);
-        assertSame(otherOwner, object.getLockOwner());
+        object.___releaseLock(thisOwner);
+        assertSame(otherOwner, object.___getLockOwner());
     }
 
     // ==========================================
@@ -204,7 +204,7 @@ public class FastAtomicObjectMixinTest {
     static class DummyFastAtomicObjectMixin extends FastAtomicObjectMixin {
 
         @Override
-        public AlphaTranlocal privatize(long readVersion) {
+        public AlphaTranlocal ___loadUpdatable(long readVersion) {
             throw new RuntimeException();
         }
     }
@@ -220,7 +220,7 @@ public class FastAtomicObjectMixinTest {
 
         @Override
         public void prepareForCommit(long writeVersion) {
-            committed = true;
+            ___committed = true;
         }
 
         @Override

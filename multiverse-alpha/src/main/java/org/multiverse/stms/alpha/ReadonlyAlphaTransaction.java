@@ -6,8 +6,7 @@ import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.AbstractTransaction;
 import static org.multiverse.stms.alpha.AlphaStmUtils.getLoadUncommittedMessage;
 import static org.multiverse.stms.alpha.AlphaStmUtils.toAtomicObjectString;
-import org.multiverse.utils.clock.Clock;
-import org.multiverse.utils.profiling.ProfileRepository;
+import org.multiverse.utils.latches.Latch;
 
 import static java.lang.String.format;
 
@@ -37,19 +36,16 @@ import static java.lang.String.format;
  *
  * @author Peter Veentjer.
  */
-public class ReadonlyAlphaTransaction extends AbstractTransaction implements AlphaTransaction {
-    private final ProfileRepository profiler;
+public class ReadonlyAlphaTransaction extends AbstractTransaction<ReadonlyAlphaTransactionDependencies> implements AlphaTransaction {
 
-    public ReadonlyAlphaTransaction(String familyName, ProfileRepository profiler, Clock clock) {
-        super(familyName, clock, null);
-        this.profiler = profiler;
-
+    public ReadonlyAlphaTransaction(ReadonlyAlphaTransactionDependencies dependencies,String familyName) {
+        super(dependencies, familyName);
         init();
     }
 
-    protected void onInit() {
-        if (profiler != null) {
-            profiler.incCounter("readonlytransaction.started.count", getFamilyName());
+    protected void doInit() {
+        if (dependencies.profiler != null) {
+            dependencies.profiler.incCounter("readonlytransaction.started.count", getFamilyName());
         }
     }
 
@@ -61,7 +57,7 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
                     return null;
                 }
 
-                AlphaTranlocal result = atomicObject.load(readVersion);
+                AlphaTranlocal result = atomicObject.___load(readVersion);
                 if (result == null) {
                     throw new LoadUncommittedException(getLoadUncommittedMessage(atomicObject));
                 }
@@ -84,35 +80,23 @@ public class ReadonlyAlphaTransaction extends AbstractTransaction implements Alp
     @Override
     protected long onCommit() {
         long value = super.onCommit();
-        if (profiler != null) {
-            profiler.incCounter("readonlytransaction.committed.count", getFamilyName());
+        if (dependencies.profiler != null) {
+            dependencies.profiler.incCounter("readonlytransaction.committed.count", getFamilyName());
         }
         return value;
     }
 
     @Override
-    public void attachNew(AlphaTranlocal tranlocal) {
-        String msg = format("Can't attach atomicobject '%s' to readonly transaction '%s'.",
-                toAtomicObjectString(tranlocal), familyName);
-        throw new ReadonlyException(msg);
-    }
+    protected void doAbort() {
+        super.doAbort();
 
-    @Override
-    public boolean isAttached(AlphaAtomicObject atomicObject) {
-        return false;
-    }
-
-    @Override
-    protected void onAbort() {
-        super.onAbort();
-
-        if (profiler != null) {
-            profiler.incCounter("readonlytransaction.aborted.count", getFamilyName());
+        if (dependencies.profiler != null) {
+            dependencies.profiler.incCounter("readonlytransaction.aborted.count", getFamilyName());
         }
     }
 
     @Override
-    public void onAbortAndRetry() {
+    public void doAbortAndRegisterRetryLatch(Latch latch) {
         throw new ReadonlyException();
     }
 }

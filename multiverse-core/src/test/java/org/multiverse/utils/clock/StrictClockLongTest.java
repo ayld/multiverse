@@ -31,7 +31,7 @@ public class StrictClockLongTest {
         startAll(threads);
         joinAll(threads);
 
-        long expectedTime = tickCount * threadCount + clock.getDawn();
+        long expectedTime = tickCount * threadCount;
         assertEquals(expectedTime, clock.getTime());
     }
 

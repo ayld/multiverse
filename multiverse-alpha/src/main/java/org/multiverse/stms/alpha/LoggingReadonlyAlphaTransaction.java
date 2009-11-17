@@ -1,8 +1,7 @@
 package org.multiverse.stms.alpha;
 
+import org.multiverse.api.ScheduleType;
 import org.multiverse.api.Transaction;
-import org.multiverse.utils.clock.Clock;
-import org.multiverse.utils.profiling.ProfileRepository;
 
 import static java.lang.String.format;
 import java.util.logging.Level;
@@ -20,8 +19,9 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
     private final long logId;
     private final Level level;
 
-    public LoggingReadonlyAlphaTransaction(String familyName, ProfileRepository profiler, Clock clock, long logId, Level level) {
-        super(familyName, profiler, clock);
+    public LoggingReadonlyAlphaTransaction(ReadonlyAlphaTransactionDependencies dependenciesAlpha,
+                                           String familyName, long logId, Level level) {
+        super(dependenciesAlpha, familyName);
 
         this.logId = logId;
         this.level = level;
@@ -77,59 +77,42 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
     }
 
     @Override
-    public Transaction restart() {
+    public Transaction abortAndReturnRestarted() {
         if (!logger.isLoggable(level)) {
-            return super.restart();
+            return super.abortAndReturnRestarted();
         } else {
             boolean success = false;
             String oldLogString = toLogString();
             try {
-                Transaction t = super.restart();
+                Transaction t = super.abortAndReturnRestarted();
                 success = true;
                 return t;
             } finally {
                 if (success) {
-                    logger.log(level, format("%s restart to readversion %s", oldLogString, readVersion));
+                    logger.log(level, format("%s abortAndReturnRestarted to readversion %s",
+                                             oldLogString,
+                                             readVersion));
                 } else {
-                    logger.log(level, format("%s restart failed", oldLogString));
+                    logger.log(level, format("%s abortAndReturnRestarted failed", oldLogString));
                 }
             }
         }
     }
 
     @Override
-    public void deferredExecute(Runnable task) {
+    public void schedule(Runnable task, ScheduleType scheduleType) {
         if (!logger.isLoggable(level)) {
-            super.deferredExecute(task);
+            super.schedule(task, scheduleType);
         } else {
             boolean success = false;
             try {
-                super.deferredExecute(task);
+                super.schedule(task, scheduleType);
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level, format("%s deferredExecute %s", toLogString(), task));
+                    logger.log(level, format("%s compensatingExecute %s %s", toLogString(), scheduleType, task));
                 } else {
-                    logger.log(level, format("%s deferredExecute %s failed", toLogString(), task));
-                }
-            }
-        }
-    }
-
-    @Override
-    public void compensatingExecute(Runnable task) {
-        if (!logger.isLoggable(level)) {
-            super.compensatingExecute(task);
-        } else {
-            boolean success = false;
-            try {
-                super.compensatingExecute(task);
-                success = true;
-            } finally {
-                if (success) {
-                    logger.log(level, format("%s compensatingExecute %s", toLogString(), task));
-                } else {
-                    logger.log(level, format("%s compensatingExecute %s failed", toLogString(), task));
+                    logger.log(level, format("%s compensatingExecute %s %s failed", toLogString(), scheduleType, task));
                 }
             }
         }

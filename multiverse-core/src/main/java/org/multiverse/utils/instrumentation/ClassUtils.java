@@ -41,9 +41,9 @@ public class ClassUtils {
                     0,
                     bytecode.length);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(format("A problem occurred while defining class '%s'", className),e);
         } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(format("A problem occurred while defining class '%s'", className),e);
         }
     }
 

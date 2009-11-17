@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.datastructures.refs.Ref;
@@ -12,7 +13,7 @@ import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class ReadonlyTransactionTest {
 
@@ -22,6 +23,7 @@ public class ReadonlyTransactionTest {
     public void setUp() {
         stm = new AlphaStm();
         setGlobalStmInstance(stm);
+        clearThreadLocalTransaction();
     }
 
     @Test
@@ -46,8 +48,8 @@ public class ReadonlyTransactionTest {
     public static void readonlyMethod(Ref<Integer> ref, int expectedValue) {
         AlphaTranlocal tranlocal = getTranlocal(ref);
         assertSame(ref, tranlocal.getAtomicObject());
-        assertSame(stm.getClockVersion(), tranlocal.version);
-        assertTrue(tranlocal.committed);
+        assertSame(stm.getClockVersion(), tranlocal.___version);
+        assertTrue(tranlocal.___committed);
         assertEquals(expectedValue, (int) ref.get());
     }
 
@@ -72,8 +74,8 @@ public class ReadonlyTransactionTest {
     public static void readonlyMethodThatUpdates(Ref<Integer> ref) {
         AlphaTranlocal tranlocal = getTranlocal(ref);
         assertSame(ref, tranlocal.getAtomicObject());
-        assertSame(stm.getClockVersion(), tranlocal.version);
-        assertTrue(tranlocal.committed);
+        assertSame(stm.getClockVersion(), tranlocal.___version);
+        assertTrue(tranlocal.___committed);
         ref.set(1);
     }
 

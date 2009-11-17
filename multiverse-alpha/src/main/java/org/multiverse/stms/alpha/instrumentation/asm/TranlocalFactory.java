@@ -81,14 +81,14 @@ public final class TranlocalFactory implements Opcodes {
     private FieldNode createOriginField() {
         return new FieldNode(
                 ACC_PUBLIC + ACC_SYNTHETIC,
-                "origin",
+                "___origin",
                 internalFormToDescriptor(tranlocalName), null, null);
     }
 
     private FieldNode createAtomicObjectField() {
         return new FieldNode(
                 ACC_PUBLIC + ACC_SYNTHETIC + ACC_FINAL,
-                "atomicObject",
+                "___atomicObject",
                 internalFormToDescriptor(atomicObject.name), null, null);
     }
 
@@ -100,14 +100,14 @@ public final class TranlocalFactory implements Opcodes {
                 null,
                 new String[]{});
 
-        //init
+        //reset
         m.visitVarInsn(ALOAD, 0);
         m.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(AlphaTranlocal.class), "<init>", "()V");
 
         //put the atomicobject
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name));
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___atomicObject", internalFormToDescriptor(atomicObject.name));
 
         m.visitInsn(RETURN);
         m.visitMaxs(0, 0);//value's don't matter, will be reculculated, but call is needed
@@ -124,26 +124,26 @@ public final class TranlocalFactory implements Opcodes {
                 null,
                 new String[]{});
 
-        //init
+        //reset
         m.visitVarInsn(ALOAD, 0);
         m.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(AlphaTranlocal.class), "<init>", "()V");
 
         //placement of the atomicObject
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name));
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name));
+        m.visitFieldInsn(GETFIELD, tranlocalName, "___atomicObject", internalFormToDescriptor(atomicObject.name));
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___atomicObject", internalFormToDescriptor(atomicObject.name));
 
         //placement of the original
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "origin", internalFormToDescriptor(tranlocalName));
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___origin", internalFormToDescriptor(tranlocalName));
 
         //placement of the version
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "version", "J");
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "version", "J");
+        m.visitFieldInsn(GETFIELD, tranlocalName, "___version", "J");
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___version", "J");
 
         //placement of the rest of the fields.
         for (FieldNode managedField : metadataService.getManagedInstanceFields(atomicObject)) {
@@ -169,15 +169,15 @@ public final class TranlocalFactory implements Opcodes {
 
         m.visitVarInsn(ALOAD, 0);
         m.visitInsn(ICONST_1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "committed", "Z");
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___committed", "Z");
 
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(LLOAD, 1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "version", "J");
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___version", "J");
 
         m.visitVarInsn(ALOAD, 0);
         m.visitInsn(ACONST_NULL);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "origin", internalFormToDescriptor(tranlocalName));
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___origin", internalFormToDescriptor(tranlocalName));
         m.visitInsn(RETURN);
         m.visitMaxs(0, 0);
         m.visitEnd();
@@ -194,7 +194,7 @@ public final class TranlocalFactory implements Opcodes {
 
         //check on committed
         m.visitVarInsn(ALOAD, 0);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "atomicObject", internalFormToDescriptor(atomicObject.name));
+        m.visitFieldInsn(GETFIELD, tranlocalName, "___atomicObject", internalFormToDescriptor(atomicObject.name));
         m.visitInsn(ARETURN);
         m.visitMaxs(0, 0);//value's don't matter, will be reculculated, but call is needed
         m.visitEnd();
@@ -211,16 +211,16 @@ public final class TranlocalFactory implements Opcodes {
 
         //check on committed
         m.visitVarInsn(ALOAD, 0);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "committed", Type.BOOLEAN_TYPE.getDescriptor());
+        m.visitFieldInsn(GETFIELD, tranlocalName, "___committed", Type.BOOLEAN_TYPE.getDescriptor());
         Label failure = new Label();
         m.visitJumpInsn(IFEQ, failure);
-        m.visitFieldInsn(GETSTATIC, getInternalName(DirtinessStatus.class), "committed", getDescriptor(DirtinessStatus.class));
+        m.visitFieldInsn(GETSTATIC, getInternalName(DirtinessStatus.class), "___committed", getDescriptor(DirtinessStatus.class));
         m.visitInsn(ARETURN);
 
         //check on original
         m.visitLabel(failure);
         m.visitVarInsn(ALOAD, 0);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "origin", internalFormToDescriptor(tranlocalName));
+        m.visitFieldInsn(GETFIELD, tranlocalName, "___origin", internalFormToDescriptor(tranlocalName));
         failure = new Label();
         m.visitJumpInsn(IFNONNULL, failure);
         m.visitFieldInsn(GETSTATIC, getInternalName(DirtinessStatus.class), "fresh", getDescriptor(DirtinessStatus.class));
@@ -230,7 +230,7 @@ public final class TranlocalFactory implements Opcodes {
         for (FieldNode managedField : metadataService.getManagedInstanceFields(atomicObject)) {
             m.visitLabel(failure);
             m.visitVarInsn(ALOAD, 0);
-            m.visitFieldInsn(GETFIELD, tranlocalName, "origin", internalFormToDescriptor(tranlocalName));
+            m.visitFieldInsn(GETFIELD, tranlocalName, "___origin", internalFormToDescriptor(tranlocalName));
             m.visitFieldInsn(GETFIELD, tranlocalName, managedField.name, managedField.desc);
             m.visitVarInsn(ALOAD, 0);
             m.visitFieldInsn(GETFIELD, tranlocalName, managedField.name, managedField.desc);

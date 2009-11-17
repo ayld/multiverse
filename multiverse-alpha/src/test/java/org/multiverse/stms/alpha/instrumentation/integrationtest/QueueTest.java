@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
-import org.multiverse.utils.ThreadLocalTransaction;
+import org.multiverse.api.ThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer

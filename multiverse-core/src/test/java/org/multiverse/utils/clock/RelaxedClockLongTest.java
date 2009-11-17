@@ -24,13 +24,13 @@ public class RelaxedClockLongTest {
 
     @Test
     public void test() {
-        System.out.printf("RelaxedClockLongTest threadCount=%s  tickCount/thread=%s\n",threadCount, tickCount);
+        System.out.printf("RelaxedClockLongTest threadCount=%s  tickCount/thread=%s\n", threadCount, tickCount);
         TickThread[] threads = createThreads();
         startAll(threads);
         joinAll(threads);
 
-        long strictTime = tickCount * threadCount + clock.getDawn();        
-        assertTrue(strictTime>=clock.getTime());
+        long strictTime = tickCount * threadCount;
+        assertTrue(strictTime >= clock.getTime());
 
         System.out.printf("strictTime = %s relaxedTime = %s\n", strictTime, clock.getTime());
     }

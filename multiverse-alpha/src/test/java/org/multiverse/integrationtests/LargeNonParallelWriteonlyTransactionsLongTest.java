@@ -9,7 +9,7 @@ import org.multiverse.api.Transaction;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.ArrayList;
 import java.util.List;

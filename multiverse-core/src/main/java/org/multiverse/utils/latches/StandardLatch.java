@@ -1,7 +1,5 @@
 package org.multiverse.utils.latches;
 
-import org.multiverse.utils.TodoException;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -19,9 +17,19 @@ public final class StandardLatch implements Latch {
     private final Condition isOpenCondition;
 
     /**
-     * Creates a new closed latch.
+     * Creates a new closed StandardLatch.
      */
     public StandardLatch() {
+        this(false);
+    }
+
+    /**
+     * Creates a new StandardLatch.
+     *
+     * @param isOpen true if the latch already is open, false otherwise.
+     */
+    public StandardLatch(boolean isOpen) {
+        this.isOpen = isOpen;
         this.lock = new ReentrantLock();
         this.isOpenCondition = lock.newCondition();
     }
@@ -64,24 +72,32 @@ public final class StandardLatch implements Latch {
             throw new NullPointerException();
         }
 
-        long timeoutNs = unit.toNanos(timeout);
+        if(isOpen){
+            return true;
+        }
 
+        long remainingNs = tryAwait(unit.toNanos(timeout));
+        return remainingNs > 0;
+    }
+
+    private long tryAwait(long timeoutNs) throws InterruptedException {
         long startTimeNs = System.nanoTime();
 
         if (!lock.tryLock(timeoutNs, TimeUnit.NANOSECONDS)) {
-            return false;
+            return -1;
         }
 
-        timeoutNs = timeoutNs - (System.nanoTime() - startTimeNs);
+        timeoutNs -= System.nanoTime() - startTimeNs;
         try {
             while (!isOpen) {
                 timeoutNs = isOpenCondition.awaitNanos(timeoutNs);
+
                 if (timeoutNs <= 0) {
-                    return false;
+                    return -1;
                 }
             }
 
-            return true;
+            return timeoutNs;
         } finally {
             lock.unlock();
         }
@@ -89,33 +105,32 @@ public final class StandardLatch implements Latch {
 
     @Override
     public boolean tryAwaitUninterruptible(long timeout, TimeUnit unit) {
-       /* if (unit == null) {
+        if (unit == null) {
             throw new NullPointerException();
+        }
+
+        if(isOpen){
+            return true;
         }
 
         long timeoutNs = unit.toNanos(timeout);
 
-        long startTimeNs = System.nanoTime();
-
-        if (!lock.tryLock(timeoutNs, TimeUnit.NANOSECONDS)) {
-            return false;
-        }
-
-        timeoutNs = timeoutNs - (System.nanoTime() - startTimeNs);
+        boolean restoreInterrupt = Thread.interrupted();
         try {
-            while (!isOpen) {
-                timeoutNs = isOpenCondition.awaitNanos(timeoutNs);
-                if (timeoutNs <= 0) {
-                    return false;
+            do {
+                long startNs = System.nanoTime();
+                try {
+                    return tryAwait(timeoutNs)>0;
+                } catch (InterruptedException ex) {
+                    restoreInterrupt = true;
+                    timeoutNs -=System.nanoTime()-startNs;
                 }
-            }
-
-            return true;
+            } while (true);
         } finally {
-            lock.unlock();
-        }*/
-
-        throw new TodoException();
+            if (restoreInterrupt) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     @Override
@@ -140,6 +155,6 @@ public final class StandardLatch implements Latch {
 
     @Override
     public String toString() {
-        return isOpen ? "StandardLatch(open=true)" : "Standard(open=false)";
+        return isOpen ? "StandardLatch(open=true)" : "StandardLatch(open=false)";
     }
 }

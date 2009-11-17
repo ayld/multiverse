@@ -27,12 +27,12 @@ import java.lang.annotation.Target;
  * updates. It should be in the readonly mode.
  * <p/>
  * With the familyName groups of transactions can be identified that share similar paths
- * of execution. Based on the familyname the stm could do all kinds of optimizations.
+ * of execution. Based on the familyName the stm could do all kinds of optimizations.
  * Luckily using instrumentation this family name can be set (and it should be) based on
  * the class/method-name/method-signature. So no need for users to initialize it explicitly
  * unless they want to.
  * <p/>
- * With the retrycount the number of retries of the transaction can be controlled. For all
+ * With the retryCount the number of retries of the transaction can be controlled. For all
  * kinds of reasons a transaction can fail, and these transactions can be retried because
  * the next time they could succeed. An example of such a cause is optimistic locking the stm
  * might use. The default number of retries is Integer.MAX_VALUE, but in the future this
@@ -48,5 +48,7 @@ public @interface AtomicMethod {
 
     String familyName() default "";
 
-    int retryCount() default Integer.MAX_VALUE;
+    int retryCount() default 1000;
+
+    //PropagationLevel propagationLevel() default PropagationLevel.requires;
 }

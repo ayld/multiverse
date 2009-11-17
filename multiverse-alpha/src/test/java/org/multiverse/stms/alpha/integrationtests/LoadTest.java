@@ -10,8 +10,8 @@ import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class LoadTest {
 
@@ -43,7 +43,7 @@ public class LoadTest {
     @AtomicMethod
     public static void executeUpdate() {
         AlphaTranlocal tranlocal = getTranlocal();
-        assertFalse(tranlocal.committed);
+        assertFalse(tranlocal.___committed);
         assertEquals(0, (int) intRef.get());
     }
 
@@ -54,7 +54,7 @@ public class LoadTest {
 
     @AtomicMethod(readonly = true)
     public static void executeReadonly() {
-        assertTrue(getTranlocal().committed);
+        assertTrue(getTranlocal().___committed);
         assertEquals(0, (int) intRef.get());
     }
 }

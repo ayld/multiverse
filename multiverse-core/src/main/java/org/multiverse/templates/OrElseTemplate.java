@@ -2,7 +2,7 @@ package org.multiverse.templates;
 
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 
 /**
  * A template for the 'orelse' functionality. Example:

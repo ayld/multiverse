@@ -5,15 +5,14 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import org.multiverse.api.ThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
-import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
 import org.multiverse.templates.AtomicTemplate;
-import org.multiverse.utils.ThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -56,8 +55,8 @@ public class StackTest {
                 Stack stack = new Stack();
                 AlphaTransaction alphaTransaction = (AlphaTransaction) t;
                 AlphaTranlocal tranlocal = alphaTransaction.load((AlphaAtomicObject) ((Object) stack));
-                assertFalse(tranlocal.committed);
-                assertEquals((long) Long.MIN_VALUE, tranlocal.version);
+                assertFalse(tranlocal.___committed);
+                assertEquals((long) Long.MIN_VALUE, tranlocal.___version);
                 assertSame(stack, tranlocal.getAtomicObject());
                 return null;
             }
@@ -67,14 +66,15 @@ public class StackTest {
     @Test
     public void readCommitted() {
         final Stack stack = new Stack();
+        stack.push("foo");
 
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
                 AlphaTransaction alphaTransaction = (AlphaTransaction) t;
                 AlphaTranlocal tranlocal = alphaTransaction.load((AlphaAtomicObject) ((Object) stack));
-                assertEquals(stm.getClockVersion(), tranlocal.version);
-                assertFalse(tranlocal.committed);
+                assertEquals(stm.getClockVersion(), tranlocal.___version);
+                assertFalse(tranlocal.___committed);
                 assertSame(stack, tranlocal.getAtomicObject());
                 return null;
             }
@@ -86,16 +86,16 @@ public class StackTest {
         final Stack stack = new Stack();
 
         AlphaAtomicObject atomicObject = ((AlphaAtomicObject) ((Object) stack));
-        final AlphaTranlocal storedTranlocal = atomicObject.load();
+        final AlphaTranlocal storedTranlocal = atomicObject.___load();
 
         new AtomicTemplate(true) {
             @Override
             public Object execute(Transaction t) throws Exception {
                 AlphaTransaction alphaTransaction = (AlphaTransaction) t;
                 AlphaTranlocal tranlocal = alphaTransaction.load((AlphaAtomicObject) ((Object) stack));
-                assertEquals(stm.getClockVersion(), tranlocal.version);
+                assertEquals(stm.getClockVersion(), tranlocal.___version);
                 assertSame(storedTranlocal, tranlocal);
-                assertTrue(tranlocal.committed);
+                assertTrue(tranlocal.___committed);
                 assertSame(stack, tranlocal.getAtomicObject());
                 return null;
             }
@@ -104,12 +104,15 @@ public class StackTest {
 
     @Test
     public void test() {
-        MetadataRepository s = MetadataRepository.INSTANCE;
+        long version = stm.getClockVersion();
 
         Stack stack = new Stack();
+
+        assertEquals(version + 1, stm.getClockVersion());
         assertTrue(stack.isEmpty());
         assertEquals(0, stack.size());
     }
+
 
     @Test
     public void testPush() {
@@ -123,8 +126,8 @@ public class StackTest {
     public void popFromNonEmptyStack() {
         Stack<Integer> stack = new Stack<Integer>();
         stack.push(10);
-        int result = (Integer) stack.pop();
-        assertEquals(result, 10);
+        int result = stack.pop();
+        assertEquals(10, result);
         assertEquals(0, stack.size());
     }
 

@@ -7,7 +7,7 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.Ref;
-import org.multiverse.utils.ThreadLocalTransaction;
+import org.multiverse.api.ThreadLocalTransaction;
 
 /**
  * A phantom read is a read that returns inconsistent values based on the number of atomicobjects. In

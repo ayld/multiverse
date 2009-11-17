@@ -7,7 +7,7 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * A test that checks if reads are repeatable.
@@ -72,7 +72,7 @@ public class NonRepeatableReadLongTest {
                 k++;
                 intRef.inc();
 
-                sleepRandomMs(20);
+                sleepRandomMs(5);
             }
         }
     }
@@ -109,7 +109,7 @@ public class NonRepeatableReadLongTest {
 
         private void read() {
             int firstTime = intRef.get();
-            sleepRandomMs(10);
+            sleepRandomMs(2);
             int secondTime = intRef.get();
             assertEquals(firstTime, secondTime);
         }

@@ -1,10 +1,9 @@
 package org.multiverse.stms.alpha;
 
+import org.multiverse.api.ScheduleType;
 import org.multiverse.api.Transaction;
 import static org.multiverse.stms.alpha.AlphaStmUtils.toAtomicObjectString;
-import org.multiverse.utils.clock.Clock;
-import org.multiverse.utils.commitlock.CommitLockPolicy;
-import org.multiverse.utils.profiling.ProfileRepository;
+import org.multiverse.utils.latches.Latch;
 
 import static java.lang.String.format;
 import java.util.logging.Level;
@@ -22,9 +21,8 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
     private final long logId;
     private final Level level;
 
-    public LoggingUpdateAlphaTransaction(String familyName, ProfileRepository profiler, Clock clock,
-                                         CommitLockPolicy writeSetLockPolicy, long logId, Level level) {
-        super(familyName, profiler, clock, writeSetLockPolicy);
+    public LoggingUpdateAlphaTransaction(UpdateTransactionDependencies dependencies, String familyName, long logId, Level level) {
+        super(dependencies,familyName);
         this.logId = logId;
         this.level = level;
 
@@ -36,29 +34,6 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
     private String toLogString() {
         return format("UpdateTransaction '%s-%s' with readversion '%s' ", getFamilyName(), logId, readVersion);
-    }
-
-    @Override
-    public void attachNew(AlphaTranlocal tranlocal) {
-        if (!logger.isLoggable(level)) {
-            super.attachNew(tranlocal);
-        } else {
-            boolean success = false;
-            try {
-                super.attachNew(tranlocal);
-                success = true;
-            } finally {
-                if (success) {
-                    String msg = format("%s attachNew %s",
-                            toLogString(), toAtomicObjectString(tranlocal.getAtomicObject()));
-                    logger.log(level, msg);
-                } else {
-                    String msg = format("%s attachNew %s failed",
-                            toLogString(), toAtomicObjectString(tranlocal.getAtomicObject()));
-                    logger.log(level, msg);
-                }
-            }
-        }
     }
 
     @Override
@@ -124,34 +99,35 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
     }
 
     @Override
-    public Transaction restart() {
+    public Transaction abortAndReturnRestarted() {
         if (!logger.isLoggable(level)) {
-            return super.restart();
+            return super.abortAndReturnRestarted();
         } else {
             boolean success = false;
             String oldLogString = toLogString();
             try {
-                Transaction t = super.restart();
+                Transaction t = super.abortAndReturnRestarted();
                 success = true;
                 return t;
             } finally {
                 if (success) {
-                    logger.log(level, format("%s restart to readversion %s", oldLogString, readVersion));
+                    logger.log(level, format("%s abortAndReturnRestarted to readversion %s", oldLogString, readVersion));
                 } else {
-                    logger.log(level, format("%s restart failed", oldLogString));
+                    logger.log(level, format("%s abortAndReturnRestarted failed", oldLogString));
                 }
             }
         }
     }
 
+
     @Override
-    public void abortAndWaitForRetry() {
+    public void abortAndRegisterRetryLatch(Latch latch) {
         if (!logger.isLoggable(level)) {
-            super.abortAndWaitForRetry();
+            super.abortAndRegisterRetryLatch(latch);
         } else {
             boolean success = false;
             try {
-                super.abortAndWaitForRetry();
+                super.abortAndRegisterRetryLatch(latch);
                 success = true;
             } finally {
                 if (success) {
@@ -164,38 +140,19 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
     }
 
     @Override
-    public void deferredExecute(Runnable task) {
+    public void schedule(Runnable task, ScheduleType scheduleType) {
         if (!logger.isLoggable(level)) {
-            super.deferredExecute(task);
+            super.schedule(task, scheduleType);
         } else {
             boolean success = false;
             try {
-                super.deferredExecute(task);
+                super.schedule(task, scheduleType);
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level, format("%s deferredExecute %s", toLogString(), task));
+                    logger.log(level, format("%s scheduleType %s %s", toLogString(), scheduleType,task));
                 } else {
-                    logger.log(level, format("%s deferredExecute %s failed", toLogString(), task));
-                }
-            }
-        }
-    }
-
-    @Override
-    public void compensatingExecute(Runnable task) {
-        if (!logger.isLoggable(level)) {
-            super.compensatingExecute(task);
-        } else {
-            boolean success = false;
-            try {
-                super.compensatingExecute(task);
-                success = true;
-            } finally {
-                if (success) {
-                    logger.log(level, format("%s compensatingExecute %s", toLogString(), task));
-                } else {
-                    logger.log(level, format("%s compensatingExecute %s failed", toLogString(), task));
+                    logger.log(level, format("%s scheduleType %s %s failed", toLogString(), scheduleType,task));
                 }
             }
         }

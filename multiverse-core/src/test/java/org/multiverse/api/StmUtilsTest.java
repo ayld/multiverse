@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.multiverse.api.StmUtils.*;
 import org.multiverse.api.exceptions.NoTransactionFoundException;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.ThreadLocalTransaction.clearThreadLocalTransaction;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -47,7 +47,7 @@ public class StmUtilsTest {
         setThreadLocalTransaction(t);
         deferredExecute(task);
 
-        verify(t).deferredExecute(task);
+        verify(t).schedule(task, ScheduleType.postCommit);
     }
 
     @Test(expected = NoTransactionFoundException.class)
@@ -70,6 +70,6 @@ public class StmUtilsTest {
         setThreadLocalTransaction(t);
         compensatingExecute(task);
 
-        verify(t).compensatingExecute(task);
+        verify(t).schedule(task, ScheduleType.postAbort);
     }
 }

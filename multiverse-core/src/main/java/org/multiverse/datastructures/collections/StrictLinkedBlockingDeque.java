@@ -8,14 +8,13 @@ import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 /**
- * A {@link BlockingDeque} and {@link List} implementation that used STM as concurrency
- * control mechanism.
+ * A {@link BlockingDeque} and {@link List} implementation that used STM as concurrency control mechanism.
  *
  * @param <E>
  */
 @AtomicObject
-public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
-        implements List<E> {
+public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E> implements List<E> {
+
     private final int maxCapacity;
 
     private int size;
@@ -23,7 +22,8 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
     private Node<E> tail;
 
     public StrictLinkedBlockingDeque() {
-        this.maxCapacity = Integer.MAX_VALUE;
+        this(Integer.MAX_VALUE);
+        size = 0;//needed to force a write, will be removed in the future
     }
 
     public StrictLinkedBlockingDeque(int maxCapacity) {
@@ -32,6 +32,7 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
         }
 
         this.maxCapacity = maxCapacity;
+        this.size = 0;//needed to force a write, will be removed in the future
     }
 
     @Override
@@ -294,11 +295,11 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
             tail = node.prev;
         }
 
-        if(node.next!=null){
+        if (node.next != null) {
             node.next.prev = node.prev;
         }
 
-        if(node.prev!=null){
+        if (node.prev != null) {
             node.prev.next = node.next;
         }
     }
@@ -306,7 +307,7 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
     private Node<E> findNode(Object value) {
         Node<E> node = head;
         while (node != null) {
-            if (node.value == null?value==null:node.value.equals(value)) {
+            if (node.value == null ? value == null : node.value.equals(value)) {
                 return node;
             } else {
                 node = node.next;
@@ -318,6 +319,7 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
 
     @AtomicObject
     private class IteratorImpl<E> implements Iterator<E> {
+
         private Node<E> nextNode;
         private Node<E> currentNode;
 
@@ -345,7 +347,7 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
 
         @Override
         public void remove() {
-            if(currentNode == null){
+            if (currentNode == null) {
                 throw new NoSuchElementException();
             }
 
@@ -353,9 +355,9 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
         }
     }
 
-
     @AtomicObject
     public static class Node<E> {
+
         public E value;
         public Node<E> next;
         public Node<E> prev;
@@ -363,6 +365,5 @@ public class StrictLinkedBlockingDeque<E> extends AbstractBlockingDeque<E>
         public Node(E value) {
             this.value = value;
         }
-
     }
 }

@@ -24,14 +24,14 @@ import org.multiverse.utils.commitlock.CommitLockResult;
  */
 public abstract class AlphaTranlocal implements CommitLock {
 
-    public long version = Long.MIN_VALUE;
+    public long ___version = Long.MIN_VALUE;
 
     /**
      * True if this Tranlocal is committed and therefor is completely immutable.
      * This field should only be set by the STM. It can be used to make the object
      * immutable after it has been committed.
      */
-    public boolean committed = false;
+    public boolean ___committed = false;
 
     /**
      * Is called just before this tranlocal commits. It allows the Tranlocal to do needed cleanup.
@@ -83,27 +83,27 @@ public abstract class AlphaTranlocal implements CommitLock {
     public CommitLockResult tryLockAndDetectConflicts(Transaction lockOwner) {
         AlphaAtomicObject atomicObject = getAtomicObject();
 
-        boolean lockedAcquired = atomicObject.tryLock(lockOwner);
+        boolean lockedAcquired = atomicObject.___tryLock(lockOwner);
         if (!lockedAcquired) {
             return CommitLockResult.failure;
         }
 
-        AlphaTranlocal mostRecentlyWritten = atomicObject.load();
+        AlphaTranlocal mostRecentlyWritten = atomicObject.___load();
         if (mostRecentlyWritten == null) {
             return CommitLockResult.success;
         }
 
-        boolean noConflict = mostRecentlyWritten.version <= lockOwner.getReadVersion();
+        boolean noConflict = mostRecentlyWritten.___version <= lockOwner.getReadVersion();
         if (noConflict) {
             return CommitLockResult.success;
         }
 
-        atomicObject.releaseLock(lockOwner);
+        atomicObject.___releaseLock(lockOwner);
         return CommitLockResult.conflict;
     }
 
     @Override
     public void releaseLock(Transaction expectedLockOwner) {
-        getAtomicObject().releaseLock(expectedLockOwner);
+        getAtomicObject().___releaseLock(expectedLockOwner);
     }
 }

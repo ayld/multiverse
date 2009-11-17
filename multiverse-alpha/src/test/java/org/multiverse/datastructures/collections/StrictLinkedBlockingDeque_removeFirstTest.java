@@ -6,7 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingDeque;
@@ -33,8 +33,8 @@ public class StrictLinkedBlockingDeque_removeFirstTest {
 
         }
         assertEquals(0, deque.size());
+        assertEquals(version, stm.getClockVersion());
         assertEquals("[]", deque.toString());
-        assertEquals(version + 1, stm.getClockVersion());
     }
 
     @Test

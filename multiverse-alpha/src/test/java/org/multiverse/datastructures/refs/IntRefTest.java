@@ -13,7 +13,7 @@ public class IntRefTest {
 
     @Test
     public void test() {
-        IntRef i = new IntRef(0);
+        IntRef i = new IntRef();
         assertEquals(0, i.get());
     }
 

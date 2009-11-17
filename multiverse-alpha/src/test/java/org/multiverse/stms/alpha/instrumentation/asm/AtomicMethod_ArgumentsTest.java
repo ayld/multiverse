@@ -6,11 +6,11 @@ import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
-import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 /**
  * An integration test for the AtomicTransformer that checks if it can deal with all the possible
@@ -400,9 +400,19 @@ public class AtomicMethod_ArgumentsTest {
         }
     }
 
-
     @Test
     public void testStatic() {
-        testIncomplete();
+        IntRef intRef = new IntRef();
+        long version = stm.getClockVersion();
+        inc(intRef);
+
+        assertEquals(version+1, stm.getClockVersion());
+        assertEquals(1, intRef.get());
     }
+
+    @AtomicMethod
+    public static void inc(IntRef intRef){
+        intRef.inc();
+    }
+
 }

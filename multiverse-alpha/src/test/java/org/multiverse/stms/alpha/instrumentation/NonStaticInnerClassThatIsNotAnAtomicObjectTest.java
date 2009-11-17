@@ -1,8 +1,8 @@
 package org.multiverse.stms.alpha.instrumentation;
 
+import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
@@ -23,45 +23,51 @@ public class NonStaticInnerClassThatIsNotAnAtomicObjectTest {
     @Test
     public void testAnonymousInnerClass() {
         AnonymousInnerClass o = new AnonymousInnerClass();
-        testIncomplete();
+        assertNotNull(o.getRunnable());
     }
 
     @AtomicObject
     public static class AnonymousInnerClass {
 
-        private int i;
+        private Runnable runnable;
 
         public AnonymousInnerClass() {
-            new Runnable() {
+            runnable = new Runnable() {
                 @Override
                 public void run() {
-                    //todo
                 }
             };
         }
 
+        public Runnable getRunnable() {
+            return runnable;
+        }
     }
 
     @Test
     public void testNamedInnerClass() {
-        NamedInnerClass executor = new NamedInnerClass();
-        testIncomplete();
+        NamedInnerClass o = new NamedInnerClass();
+        assertNotNull(o.getNamedRunnable());
     }
 
     @AtomicObject
     public static class NamedInnerClass {
 
-        private int i;
+        private NamedRunnable someRunnable;
 
         public NamedInnerClass() {
-            new SomeRunnable();
+            someRunnable = new NamedRunnable();
         }
 
-        class SomeRunnable implements Runnable {
+        class NamedRunnable implements Runnable {
             @Override
             public void run() {
                 //todo
             }
+        }
+
+        public NamedRunnable getNamedRunnable() {
+            return someRunnable;
         }
     }
 }

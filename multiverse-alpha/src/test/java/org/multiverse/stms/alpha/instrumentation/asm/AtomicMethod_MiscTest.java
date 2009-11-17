@@ -13,7 +13,7 @@ import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class AtomicMethod_MiscTest {
     private AlphaStm stm;

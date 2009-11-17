@@ -2,7 +2,6 @@ package org.multiverse.stms.alpha.manualinstrumentation;
 
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
@@ -14,7 +13,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                ((AlphaTransaction) t).attachNew(new StackTranlocal(Stack.this));
+                StackTranlocal<E> tranlocal = (StackTranlocal<E>) ((AlphaTransaction) t).load(Stack.this);
                 return null;
             }
         }.execute();
@@ -73,16 +72,17 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     @Override
-    public AlphaTranlocal privatize(long version) {
-        StackTranlocal<E> origin = (StackTranlocal<E>) load(version);
+    public AlphaTranlocal ___loadUpdatable(long version) {
+        StackTranlocal<E> origin = (StackTranlocal<E>) ___load(version);
         if (origin == null) {
-            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
+            return new StackTranlocal<E>(this);
+        } else {
+            return new StackTranlocal<E>(origin);
         }
-        return new StackTranlocal<E>(origin);
     }
 
     public void clear(StackTranlocal<E> tranlocal) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         }
 
@@ -91,7 +91,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     public void push(StackTranlocal<E> tranlocal, E item) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         }
 
@@ -104,7 +104,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     public E pop(StackTranlocal<E> tranlocal) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         }
 
@@ -149,7 +149,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
          */
         StackTranlocal(Stack<E> atomicObject) {
             this.atomicObject = atomicObject;
-            this.version = Long.MIN_VALUE;
+            this.___version = Long.MIN_VALUE;
         }
 
         /**
@@ -162,7 +162,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
             this.atomicObject = origin.atomicObject;
             this.size = origin.size;
             this.head = origin.head;
-            this.version = origin.version;
+            this.___version = origin.___version;
         }
 
         @Override
@@ -172,8 +172,8 @@ public final class Stack<E> extends FastAtomicObjectMixin {
 
         @Override
         public void prepareForCommit(long writeVersion) {
-            this.version = writeVersion;
-            this.committed = true;
+            this.___version = writeVersion;
+            this.___committed = true;
             this.origin = null;
         }
 
@@ -184,7 +184,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
 
         @Override
         public DirtinessStatus getDirtinessStatus() {
-            if (committed) {
+            if (___committed) {
                 return DirtinessStatus.committed;
             } else if (origin == null) {
                 return DirtinessStatus.fresh;

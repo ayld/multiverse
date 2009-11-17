@@ -16,14 +16,13 @@ public class IntRefTranlocal extends AlphaTranlocal {
 
     public IntRefTranlocal(IntRefTranlocal origin) {
         this.origin = origin;
-        this.version = origin.version;
+        this.___version = origin.___version;
         this.value = origin.value;
         this.atomicObject = origin.atomicObject;
     }
 
-    public IntRefTranlocal(IntRef atomicObject, int value) {
+    public IntRefTranlocal(IntRef atomicObject) {
         this.atomicObject = atomicObject;
-        this.value = value;
     }
 
     @Override
@@ -34,14 +33,14 @@ public class IntRefTranlocal extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
+        this.___version = writeVersion;
+        this.___committed = true;
         this.origin = null;
     }
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
+        if (___committed) {
             return DirtinessStatus.committed;
         } else if (origin == null) {
             return DirtinessStatus.fresh;

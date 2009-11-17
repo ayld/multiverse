@@ -3,6 +3,8 @@ package org.multiverse.utils.commitlock;
 import org.multiverse.api.Transaction;
 import static org.multiverse.utils.commitlock.CommitLockUtils.nothingToLock;
 
+import static java.lang.String.format;
+
 /**
  * An {@link CommitLockPolicy} that spins when it can't acquire a lock. When the lock can't
  * be acquired, all locks are released and the locks are tries to be acquired again. The number
@@ -43,6 +45,10 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
 
     public int getRetryCount() {
         return retryCount;
+    }
+
+    public int getSpinAttemptsPerLockCount() {
+        return spinAttemptsPerLockCount;
     }
 
     @Override
@@ -146,10 +152,8 @@ public final class GenericCommitLockPolicy implements CommitLockPolicy {
 
     @Override
     public String toString() {
-        return "GenericCommitLockPolicy{" +
-                "retryCount=" + retryCount +
-                ", spinAttemptsPerLockCount=" + spinAttemptsPerLockCount +
-                '}';
+        return format("GenericCommitLockPolicy(retryCount=%s, spinAttemptsPerLockCount=%s)",
+                retryCount, spinAttemptsPerLockCount);
     }
 }
 

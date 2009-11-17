@@ -5,11 +5,9 @@ import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
 import static org.multiverse.api.StmUtils.retry;
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.datastructures.refs.ManagedRef;
 import org.multiverse.stms.alpha.*;
-import static org.multiverse.stms.alpha.AlphaStmUtils.getLoadUncommittedMessage;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
@@ -89,28 +87,30 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                ((AlphaTransaction) t).attachNew(new RefTranlocal(Ref.this));
+                RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
                 return null;
             }
         }.execute();
     }
 
     public Ref(Transaction t) {
-        ((AlphaTransaction) t).attachNew(new RefTranlocal(Ref.this));
+        RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
     }
 
     public Ref(final E value) {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                ((AlphaTransaction) t).attachNew(new RefTranlocal(Ref.this, value));
+                RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
+                tranlocal.ref = value;
                 return null;
             }
         }.execute();
     }
 
-    public Ref(Transaction t, final E value) {
-        ((AlphaTransaction) t).attachNew(new RefTranlocal(Ref.this, value));
+    public Ref(Transaction t, E value) {
+        RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
+        tranlocal.ref = value;
     }
 
     public E get() {
@@ -205,13 +205,15 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     @Override
-    public RefTranlocal<E> privatize(long readVersion) {
-        RefTranlocal<E> origin = (RefTranlocal<E>) load(readVersion);
+    public RefTranlocal<E> ___loadUpdatable(long readVersion) {
+        RefTranlocal<E> origin = (RefTranlocal<E>) ___load(readVersion);
         if (origin == null) {
-            throw new LoadUncommittedException(getLoadUncommittedMessage(this));
+            return new RefTranlocal<E>(this);
+        }else{
+            return new RefTranlocal<E>(origin);
         }
-        return new RefTranlocal<E>(origin);
     }
+
 }
 
 class RefTranlocal<E> extends AlphaTranlocal {
@@ -222,7 +224,7 @@ class RefTranlocal<E> extends AlphaTranlocal {
     E ref;
 
     RefTranlocal(RefTranlocal<E> origin) {
-        this.version = origin.version;
+        this.___version = origin.___version;
         this.atomicObject = origin.atomicObject;
         this.ref = origin.ref;
         this.origin = origin;
@@ -233,7 +235,7 @@ class RefTranlocal<E> extends AlphaTranlocal {
     }
 
     RefTranlocal(Ref<E> owner, E ref) {
-        this.version = Long.MIN_VALUE;
+        this.___version = Long.MIN_VALUE;
         this.atomicObject = owner;
         this.ref = ref;
     }
@@ -258,7 +260,7 @@ class RefTranlocal<E> extends AlphaTranlocal {
     }
 
     public E set(E newValue) {
-        if (committed) {
+        if (___committed) {
             throw new ReadonlyException();
         }
         E oldValue = ref;
@@ -285,8 +287,8 @@ class RefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
+        this.___version = writeVersion;
+        this.___committed = true;
         this.origin = null;
     }
 
@@ -297,7 +299,7 @@ class RefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
+        if (___committed) {
             return DirtinessStatus.committed;
         } else if (origin == null) {
             return DirtinessStatus.fresh;

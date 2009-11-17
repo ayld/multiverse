@@ -12,7 +12,7 @@ import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -73,11 +73,11 @@ public class ReadonlyAlphaTransaction_loadTest {
     public void loadPreviouslyCommitted() {
         IntRef value = new IntRef(10);
 
-        IntRefTranlocal expected = (IntRefTranlocal) value.load(stm.getClockVersion());
+        IntRefTranlocal expected = (IntRefTranlocal) value.___load(stm.getClockVersion());
 
         AlphaTransaction t2 = startReadonlyTransaction();
         IntRefTranlocal found = (IntRefTranlocal) t2.load(value);
-        assertTrue(found.committed);
+        assertTrue(found.___committed);
         assertSame(expected, found);
     }
 

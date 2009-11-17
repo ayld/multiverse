@@ -1,16 +1,18 @@
 package org.multiverse.stms.alpha;
 
 import static junit.framework.Assert.fail;
-import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsAborted;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
-import org.multiverse.api.exceptions.NoProgressPossibleException;
+import org.multiverse.api.exceptions.NoRetryPossibleException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.utils.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.utils.latches.CheapLatch;
+import org.multiverse.utils.latches.Latch;
 
 public class RegisterRetryListenerTest {
     private AlphaStm stm;
@@ -30,31 +32,35 @@ public class RegisterRetryListenerTest {
     public void testNothingRead() {
         Transaction t = startUpdateTransaction();
         long startVersion = stm.getClockVersion();
+        Latch latch = new CheapLatch();
         try {
-            t.abortAndWaitForRetry();
+            t.abortAndRegisterRetryLatch(latch);
             fail();
-        } catch (NoProgressPossibleException ex) {
+        } catch (NoRetryPossibleException ex) {
         }
 
         assertEquals(startVersion, stm.getClockVersion());
-        Assert.assertEquals(TransactionStatus.aborted, t.getStatus());
+        assertFalse(latch.isOpen());
+        assertEquals(TransactionStatus.aborted, t.getStatus());
     }
 
     @Test
-    public void testAttachAsNew() {
+    public void testOnlyNewOnesAttached() {
         Transaction t = startUpdateTransaction();
         IntRef intValue = new IntRef(0);
+        Latch latch = new CheapLatch();
 
         try {
-            t.abortAndWaitForRetry();
+            t.abortAndRegisterRetryLatch(latch);
             fail();
-        } catch (NoProgressPossibleException ex) {
+        } catch (NoRetryPossibleException ex) {
         }
 
         assertIsAborted(t);
+        assertFalse(latch.isOpen());
     }
 
-    //@Test
+    @Test
     public void test() {
         Transaction t1 = startUpdateTransaction();
         IntRef intValue = new IntRef(10);
@@ -62,8 +68,10 @@ public class RegisterRetryListenerTest {
 
         Transaction t2 = startUpdateTransaction();
         int result = intValue.get();
-        t2.abortAndWaitForRetry();
+        Latch latch = new CheapLatch();
+        t2.abortAndRegisterRetryLatch(latch);
 
         assertIsAborted(t2);
+        assertFalse(latch.isOpen());
     }
 }

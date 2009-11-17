@@ -42,9 +42,9 @@ public class AtomicMethod_FastAtomicObjectMixinTest {
     }
 
     private void assertAllStaticFieldsAreCopied(Class clazz) {
-        assertTrue(existsField(clazz,"lockOwnerUpdater"));
-        assertTrue(existsField(clazz,"tranlocalUpdater"));
-        assertTrue(existsField(clazz,"listenersUpdater"));
+        assertTrue(existsField(clazz,"___LOCKOWNER_UPDATER"));
+        assertTrue(existsField(clazz,"___TRANLOCAL_UPDATER"));
+        assertTrue(existsField(clazz,"___LISTENERS_UPDATER"));
     }
 
     private void assertAlphaAtomicObjectInterfaceIsCopied(Class clazz) {
@@ -66,9 +66,9 @@ public class AtomicMethod_FastAtomicObjectMixinTest {
     }
 
     private void assertAllInstanceFieldsAreCopied(Class clazz) {
-        assertTrue(existsField(clazz,"lockOwner"));
-        assertTrue(existsField(clazz,"tranlocal"));
-        assertTrue(existsField(clazz,"listeners"));
+        assertTrue(existsField(clazz,"___lockOwner"));
+        assertTrue(existsField(clazz,"___tranlocal"));
+        assertTrue(existsField(clazz,"___listeners"));
     }
 
     @AtomicObject

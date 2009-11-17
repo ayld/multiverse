@@ -1,14 +1,13 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import static org.multiverse.api.StmUtils.retry;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -19,8 +18,8 @@ public class LongRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                LongRefTranlocal tranlocal = new LongRefTranlocal(LongRef.this, value);
-                ((AlphaTransaction) t).attachNew(tranlocal);
+                LongRefTranlocal tranlocal = (LongRefTranlocal)((AlphaTransaction)t).load(LongRef.this);
+                tranlocal.value = value;
                 return null;
             }
         }.execute();
@@ -69,16 +68,17 @@ public class LongRef extends FastAtomicObjectMixin {
     }
 
     @Override
-    public LongRefTranlocal privatize(long version) {
-        LongRefTranlocal origin = (LongRefTranlocal) load(version);
+    public LongRefTranlocal ___loadUpdatable(long version) {
+        LongRefTranlocal origin = (LongRefTranlocal) ___load(version);
         if (origin == null) {
-            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
-        }
+            return new LongRefTranlocal(this);
+        } else{
         return new LongRefTranlocal(origin);
+        }
     }
 
     public void set(LongRefTranlocal tranlocal, long newValue) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.value = newValue;
@@ -90,7 +90,7 @@ public class LongRef extends FastAtomicObjectMixin {
     }
 
     public void inc(LongRefTranlocal tranlocal) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.value++;
@@ -98,7 +98,7 @@ public class LongRef extends FastAtomicObjectMixin {
     }
 
     public void dec(LongRefTranlocal tranlocal) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         } else {
             tranlocal.value--;
@@ -119,14 +119,13 @@ class LongRefTranlocal extends AlphaTranlocal {
 
     public LongRefTranlocal(LongRefTranlocal origin) {
         this.origin = origin;
-        this.version = origin.version;
+        this.___version = origin.___version;
         this.value = origin.value;
         this.atomicObject = origin.atomicObject;
     }
 
-    public LongRefTranlocal(LongRef atomicObject, long value) {
-        this.version = Long.MIN_VALUE;
-        this.value = value;
+    public LongRefTranlocal(LongRef atomicObject) {
+        this.___version = Long.MIN_VALUE;
         this.atomicObject = atomicObject;
     }
 
@@ -138,14 +137,14 @@ class LongRefTranlocal extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
+        this.___version = writeVersion;
+        this.___committed = true;
         this.origin = null;
     }
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
+        if (___committed) {
             return DirtinessStatus.committed;
         } else if (origin == null) {
             return DirtinessStatus.fresh;

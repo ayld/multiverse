@@ -1,7 +1,6 @@
 package org.multiverse.datastructures.refs;
 
 import static org.multiverse.api.StmUtils.retry;
-import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 
 @AtomicObject
@@ -9,7 +8,7 @@ public class IntRef {
     private int value;
 
     public IntRef() {
-        this.value = 0;
+        this(0);
     }
 
     public IntRef(int value) {
@@ -32,7 +31,7 @@ public class IntRef {
         return oldValue;
     }
 
-    @AtomicMethod(readonly = true)
+    //@AtomicMethod(readonly = true)
     public int get() {
         return value;
     }

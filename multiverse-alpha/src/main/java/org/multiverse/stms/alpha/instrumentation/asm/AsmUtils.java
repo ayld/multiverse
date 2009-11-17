@@ -3,7 +3,6 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.api.annotations.Exclude;
-import org.multiverse.utils.TodoException;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -12,32 +11,72 @@ import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.commons.RemappingMethodAdapter;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MemberNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 import org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.util.TraceMethodVisitor;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import static java.lang.String.format;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 
 public final class AsmUtils implements Opcodes {
+
+    public static String toString(AbstractInsnNode insnNode) {
+        TraceMethodVisitor asmifier = new TraceMethodVisitor();
+        insnNode.accept(asmifier);
+
+        StringBuffer sb = new StringBuffer();
+        for (String line : (List<String>) asmifier.getText()) {
+            sb.append(line);
+        }
+
+        return sb.toString();
+    }
+
+
+    public static void print(InsnList insnList, String msg) {
+        System.out.printf("=====================%s====================\n", msg);
+        System.out.println(toString(insnList));
+        System.out.printf("=====================%s====================\n", msg);
+    }
+
+    public static void print(MethodNode methodNode, String msg) {
+        System.out.printf("=====================%s====================\n", msg);
+        System.out.println(toString(methodNode));
+        System.out.printf("=====================%s====================\n", msg);
+    }
+
+    public static int firstFreeIndex(MethodNode methodNode) {
+        int firstFreeIndex = 0;
+
+        for (LocalVariableNode localVariableNode : (List<LocalVariableNode>) methodNode.localVariables) {
+            firstFreeIndex += isCategory2(localVariableNode.desc) ? 2 : 1;
+        }
+
+        return firstFreeIndex;
+    }
+
+    public static int sizeOfFormalParameters(MethodNode methodNode) {
+        int size = isStatic(methodNode) ? 0 : 1;
+
+        for (Type argType : Type.getArgumentTypes(methodNode.desc)) {
+            size += argType.getSize();
+        }
+
+        return size;
+    }
+
+    public static int sizeOfLocalVariables(List<LocalVariableNode> localVariables) {
+        int size = 0;
+
+        for (LocalVariableNode localVariableNode : localVariables) {
+            size += isCategory2(localVariableNode.desc) ? 2 : 1;
+        }
+
+        return size;
+    }
 
     public static boolean isCategory2(String valueDesc) {
         return valueDesc.equals("J") || valueDesc.equals("D");
@@ -57,53 +96,10 @@ public final class AsmUtils implements Opcodes {
         return access + ACC_PUBLIC;
     }
 
-    public static AbstractInsnNode findFirstInstructionAfterSuper(String superClass, String thisClass, MethodNode constructor) {
-        int index = findIndexOfFirstInstructionAfterConstructor(superClass, thisClass, constructor);
-        return constructor.instructions.get(index);
-    }
 
     /**
-     * Implementation is not full proof. It will also find init calls done to the
-     * same owner while evaluating arguments of the constructor
-     *
-     * @param superClass
-     * @param constructor
-     * @return the index of the first instruction after the constructor
-     */
-    public static int findIndexOfFirstInstructionAfterConstructor(String superClass, String thisClass, MethodNode constructor) {
-        if (!constructor.name.equals("<init>")) {
-            throw new RuntimeException();
-        }
-
-        //System.out.println("-----------------------------------");
-        //System.out.println("search: "+superClass + "." + constructor.name + constructor.desc);
-
-
-        ListIterator<AbstractInsnNode> i = constructor.instructions.iterator();
-        int index = 0;
-        while (i.hasNext()) {
-            AbstractInsnNode insnNode = i.next();
-            //System.out.println(insnNode.getOpcode()+" insn "+insnNode.getClass().getSimpleName());
-            if (insnNode.getType() == AbstractInsnNode.METHOD_INSN) {
-
-                MethodInsnNode m = (MethodInsnNode) insnNode;
-                if (m.name.equals("<init>") && (m.owner.equals(superClass) || m.owner.equals(thisClass))) {
-                    //it is the instruction after the <init> call we are interested in
-                    index++;
-                    return index;
-                }
-            }
-            index++;
-        }
-
-        //String msg = format("Did not found the super init call in constructor %s.%s%s", constructor.
-        throw new TodoException();
-    }
-
-
-    /**
-     * A new constructor descriptor is created by adding the extraArgType
-     * as the first argument (so the other arguments all shift one pos to the right).
+     * A new constructor descriptor is created by adding the extraArgType as the first argument (so the other arguments
+     * all shift one pos to the right).
      *
      * @param oldDesc      the old method description
      * @param extraArgType the internal name of the type to introduce
@@ -120,24 +116,6 @@ public final class AsmUtils implements Opcodes {
         return Type.getMethodDescriptor(returnType, newArgTypes);
     }
 
-
-    public static Map<String, String> createRemapperMapForManagedObject(ClassNode classNode) {
-        Map<String, String> map = new HashMap<String, String>();
-
-        MetadataRepository prepareInfoMap = MetadataRepository.INSTANCE;
-
-        String originalName = classNode.name;
-        String tranlocalName = prepareInfoMap.getTranlocalName(classNode);
-
-        for (FieldNode field : prepareInfoMap.getManagedInstanceFields(classNode)) {
-            String oldName = originalName + "." + field.name;
-            String newName = tranlocalName + "." + field.name;
-            //System.out.printf("%s %s\n", oldName, newName);
-            map.put(oldName, newName);
-        }
-
-        return map;
-    }
 
     public static boolean isExcluded(FieldNode field) {
         return hasVisibleAnnotation(field, Exclude.class);
@@ -193,12 +171,129 @@ public final class AsmUtils implements Opcodes {
     public static void verify(byte[] bytes) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
+
         CheckClassAdapter.verify(new ClassReader(bytes), false, pw);
         String msg = sw.toString();
         if (msg.length() > 0) {
             throw new RuntimeException(msg);
         }
     }
+
+    public static void printVariableTable(List<LocalVariableNode> variables) {
+        System.out.println("LocalVariables size = " + variables.size());
+        for (LocalVariableNode localVariableNode : variables) {
+            System.out.println("\t"+localVariableNode.name+" "+localVariableNode.desc+" "+localVariableNode.index);
+        }
+    }
+
+    public static String toString(MethodNode method) {
+        TraceMethodVisitor mv = new TraceMethodVisitor();
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("name: " + method.name + "\n");
+        sb.append("desc: " + method.desc + "\n");
+        sb.append("sig: " + method.signature + "\n");
+        sb.append("LocalVariables\n");
+        for (int k = 0; k < method.localVariables.size(); k++) {
+            LocalVariableNode var = (LocalVariableNode) method.localVariables.get(k);
+            var.accept(mv);
+            sb.append(format("\t%s", mv.getText().get(0)));
+            mv.getText().clear();
+        }
+
+        //method.accept(mv);
+
+
+        sb.append("Instructions\n");
+        for (int j = 0; j < method.instructions.size(); ++j) {
+            method.instructions.get(j).accept(mv);
+
+            //Frame f = m
+            //if (f == null) {
+            //    s.append('?');
+            //} else {
+            //    for (int k = 0; k < f.getLocals(); ++k) {
+            //        s.append(getShortName(f.getLocal(k).toString()))
+            //                .append(' ');
+            //    }
+            //    s.append(" : ");
+            //    for (int k = 0; k < f.getStackSize(); ++k) {
+            //        s.append(getShortName(f.getStack(k).toString()))
+            //                .append(' ');
+            //    }
+            //}
+
+            sb.append("\t" + Integer.toString(j + 100000).substring(1));
+            sb.append("  : " + mv.text.get(j)); // mv.text.get(j));
+        }
+
+        sb.append("TryCatchBlocks\n");
+        for (int j = 0; j < method.tryCatchBlocks.size(); ++j) {
+            mv.getText().clear();
+            ((TryCatchBlockNode) method.tryCatchBlocks.get(j)).accept(mv);
+            sb.append("\t" + mv.text);
+        }
+        sb.append("\n");
+
+        return sb.toString();
+
+
+        /*
+       StringBuffer sb = new StringBuffer();
+       sb.append(method.name + method.desc + "\n");
+       sb.append("localvariables\n");
+       for(int k=0;k<method.localVariables.size();k++){
+           LocalVariableNode var = (LocalVariableNode)method.localVariables.get(k);
+           sb.append(format("\t%s:%s:%s  %s-%s\n", var.index,var.name,var.desc));
+       }
+
+       sb.append(toString(method.instructions)+"\n");
+
+
+       return sb.toString();*/
+    }
+
+    public static String toString(InsnList instructions) {
+        StringBuffer sb = new StringBuffer();
+
+
+        TraceMethodVisitor mv = new TraceMethodVisitor();
+
+        for (int j = 0; j < instructions.size(); ++j) {
+            instructions.get(j).accept(mv);
+
+            StringBuffer s = new StringBuffer();
+            //Frame f = m
+            //if (f == null) {
+            //    s.append('?');
+            //} else {
+            //    for (int k = 0; k < f.getLocals(); ++k) {
+            //        s.append(getShortName(f.getLocal(k).toString()))
+            //                .append(' ');
+            //    }
+            //    s.append(" : ");
+            //    for (int k = 0; k < f.getStackSize(); ++k) {
+            //        s.append(getShortName(f.getStack(k).toString()))
+            //                .append(' ');
+            //    }
+            //}
+
+            sb.append(Integer.toString(j + 100000).substring(1));
+            sb.append(" " + s + " : " + mv.text.get(j)); // mv.text.get(j));
+        }
+
+        return sb.toString();
+    }
+
+    private static String getShortName(final String name) {
+        int n = name.lastIndexOf('/');
+        int k = name.length();
+        if (name.charAt(k - 1) == ';') {
+            k--;
+        }
+        return n == -1 ? name : name.substring(n + 1, k);
+    }
+
 
     /**
      * Loads a Class as ClassNode. The ClassLoader of the Class is used to retrieve a resource stream.
@@ -231,7 +326,9 @@ public final class AsmUtils implements Opcodes {
             reader.accept(classNode, ClassReader.EXPAND_FRAMES);
             return classNode;
         } catch (FileNotFoundException ex) {
-            throw new RuntimeException(format("Could not find file '%s' for class '%s': " ,fileName, classInternalForm));
+            throw new RuntimeException(format("Could not find file '%s' for class '%s': ",
+                                              fileName,
+                                              classInternalForm));
         } catch (IOException e) {
             throw new RuntimeException("A problem ocurred while loading class: " + fileName, e);
         }
@@ -261,8 +358,9 @@ public final class AsmUtils implements Opcodes {
         String annotationClassDescriptor = getDescriptor(annotationClass);
 
         for (AnnotationNode node : (List<AnnotationNode>) memberNode.visibleAnnotations) {
-            if (annotationClassDescriptor.equals(node.desc))
+            if (annotationClassDescriptor.equals(node.desc)) {
                 return node;
+            }
         }
 
         return null;
@@ -425,65 +523,6 @@ public final class AsmUtils implements Opcodes {
             throw new IOException("Failed to make parent directories for file " + file);
         }
     }
-
-    public static int getLoadOpcode(Type type) {
-        switch (type.getSort()) {
-            case Type.BOOLEAN:
-                //fall through
-            case Type.CHAR:
-                //fall through
-            case Type.BYTE:
-                //fall through
-            case Type.SHORT:
-                //fall through
-            case Type.INT:
-                return Opcodes.ILOAD;
-            case Type.LONG:
-                return Opcodes.LLOAD;
-            case Type.FLOAT:
-                return Opcodes.FLOAD;
-            case Type.DOUBLE:
-                return Opcodes.DLOAD;
-            case Type.OBJECT:
-                //fall through
-            case Type.ARRAY:
-                return Opcodes.ALOAD;
-            default:
-                throw new RuntimeException("unhandled returntype: " + type);
-        }
-    }
-
-    public static int getReturnOpcode(Type returnType) {
-        switch (returnType.getSort()) {
-            case Type.VOID:
-                return Opcodes.RETURN;
-            case Type.BOOLEAN:
-                //fall through
-            case Type.CHAR:
-                //fall through
-            case Type.BYTE:
-                //fall through
-            case Type.SHORT:
-                //fall through
-            case Type.INT:
-                return Opcodes.IRETURN;
-            case Type.LONG:
-                return Opcodes.LRETURN;
-            case Type.FLOAT:
-                return Opcodes.FRETURN;
-            case Type.DOUBLE:
-                return Opcodes.DRETURN;
-            case Type.OBJECT:
-                return Opcodes.ARETURN;
-            case Type.ARRAY:
-                return Opcodes.ARETURN;//tod: this correct?
-            default:
-                throw new RuntimeException("unhandled returntype: " + returnType);
-        }
-    }
-
     private AsmUtils() {
     }
-
-
 }

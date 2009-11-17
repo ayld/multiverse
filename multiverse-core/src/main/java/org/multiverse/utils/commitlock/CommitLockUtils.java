@@ -3,10 +3,20 @@ package org.multiverse.utils.commitlock;
 import org.multiverse.api.Transaction;
 
 /**
+ * Contains various functions for commit locks.
+ *
  * @author Peter Veentjer.
  */
 public final class CommitLockUtils {
 
+    /**
+     * Checks if there is nothing to lock. There is nothing to lock when the writeset
+     * is null, or when the writeset has length 0 or when the first element is null
+     * (the following elements will be null as well).
+     *
+     * @param writeSet the writeset to check if there is anything to lock
+     * @return true if there is nothing to lock, false otherwise.
+     */
     public static boolean nothingToLock(CommitLock[] writeSet) {
         return writeSet == null || writeSet.length == 0 || writeSet[0] == null;
     }
@@ -33,11 +43,12 @@ public final class CommitLockUtils {
         }
 
         for (int k = 0; k < locks.length; k++) {
-            CommitLock element = locks[k];
-            if (element == null) {
+            CommitLock lock = locks[k];
+            if (lock == null) {
+                //if the lock is null, we are done 
                 return;
             } else {
-                element.releaseLock(lockOwner);
+                lock.releaseLock(lockOwner);
             }
         }
     }

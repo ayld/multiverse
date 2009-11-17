@@ -1,6 +1,5 @@
-package org.multiverse.utils;
+package org.multiverse.api;
 
-import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.NoTransactionFoundException;
 
 import java.util.concurrent.atomic.AtomicLong;

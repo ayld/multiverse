@@ -1,7 +1,6 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.multiverse.api.Transaction;
-import org.multiverse.api.exceptions.LoadUncommittedException;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
@@ -21,7 +20,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                ((AlphaTransaction) t).attachNew(new RefTranlocal(Ref.this));
+                RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
                 return null;
             }
         }.execute();
@@ -31,7 +30,8 @@ public class Ref<E> extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                ((AlphaTransaction) t).attachNew(new RefTranlocal(Ref.this, value));
+                RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+                tranlocal.value = value;
                 return null;
             }
         }.execute();
@@ -79,14 +79,14 @@ public class Ref<E> extends FastAtomicObjectMixin {
     }
 
     @Override
-    public RefTranlocal<E> privatize(long readVersion) {
-        RefTranlocal<E> origin = (RefTranlocal) load(readVersion);
+    public RefTranlocal<E> ___loadUpdatable(long readVersion) {
+        RefTranlocal<E> origin = (RefTranlocal) ___load(readVersion);
         if (origin == null) {
-            throw new LoadUncommittedException(AlphaStmUtils.getLoadUncommittedMessage(this));
+            return new RefTranlocal<E>(this);
+        } else {
+            return new RefTranlocal(origin);
         }
-        return new RefTranlocal(origin);
     }
-
 
     public E clear(RefTranlocal<E> tranlocal) {
         E oldValue = tranlocal.value;
@@ -103,7 +103,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
     }
 
     public void set(RefTranlocal<E> tranlocal, E newValue) {
-        if (tranlocal.committed) {
+        if (tranlocal.___committed) {
             throw new ReadonlyException();
         }
         tranlocal.value = newValue;
@@ -116,20 +116,16 @@ class RefTranlocal<E> extends AlphaTranlocal {
     RefTranlocal origin;
 
     RefTranlocal(RefTranlocal<E> origin) {
-        this.version = origin.version;
+        this.___version = origin.___version;
         this.atomicObject = origin.atomicObject;
         this.value = origin.value;
         this.origin = origin;
     }
 
     RefTranlocal(Ref<E> owner) {
-        this(owner, null);
-    }
-
-    RefTranlocal(Ref<E> owner, E value) {
-        this.version = Long.MIN_VALUE;
+        this.___version = Long.MIN_VALUE;
         this.atomicObject = owner;
-        this.value = value;
+
     }
 
     @Override
@@ -139,8 +135,8 @@ class RefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.version = writeVersion;
-        this.committed = true;
+        this.___version = writeVersion;
+        this.___committed = true;
         this.origin = null;
     }
 
@@ -151,7 +147,7 @@ class RefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (committed) {
+        if (___committed) {
             return DirtinessStatus.committed;
         } else if (origin == null) {
             return DirtinessStatus.fresh;

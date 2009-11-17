@@ -2,37 +2,53 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 
 import org.multiverse.api.Transaction;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
-import org.multiverse.templates.AtomicTemplate;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import static org.objectweb.asm.Type.*;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 
 import static java.lang.String.format;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
- * Responsible for transforming all classes with atomicmethods so that the transaction logic is added.
- * The actual logic is executed by the {@link org.multiverse.templates.AtomicTemplate}.  The instructions of the original
- * method are placed to the delegate method.
+ * Transforms AtomicMethods. The first generation of atomicmethod transformers created an instance of the AtomicTemplate
+ * that forwards the call. This transformer 'only' transforms the methods so that the atomictemplate donorMethod is
+ * added. This prevents creating another object.
  * <p/>
- * Object should not be reused.
+ * The question is how to transform. The code needs to be placed around the original code. In principle this is no
+ * problem (can be done with a try finally clause?). But the question is if this can cause problems with constructors.
+ * <p/>
+ * If is is placed around the constructor, the constructor will be re-executed on the same atomicobject.
+ * <p/>
+ * Another reason to drop the template approach is that a lot of boxing/unboxing goes on with primitive return types of
+ * the atomicmethod.
+ *
+ * @author Peter Veentjer.
  */
-public final class AtomicMethodTransformer implements Opcodes {
-
-    private static final String CALLEE = "callee";
+public class AtomicMethodTransformer implements Opcodes {
 
     private final ClassNode classNode;
-    private final List<ClassNode> innerClasses = new LinkedList<ClassNode>();
     private final MetadataRepository metadataService;
+    private final ClassNode donorClass;
+    private final MethodNode donorMethod;
+    private final MethodNode donorConstructor;
 
-    public AtomicMethodTransformer(ClassNode classNode) {
+    public AtomicMethodTransformer(ClassNode classNode, ClassNode donorClass) {
         this.classNode = classNode;
         this.metadataService = MetadataRepository.INSTANCE;
+        this.donorClass = donorClass;
+        this.donorMethod = getDonorMethod("donorMethod");
+        this.donorConstructor = getDonorMethod("donorConstructor");
+    }
+
+    private MethodNode getDonorMethod(String methodName) {
+        for (MethodNode m : (List<MethodNode>) donorClass.methods) {
+            if (m.name.equals(methodName)) {
+                return m;
+            }
+        }
+
+        throw new RuntimeException(format("method '%s' not found in class '%s'", methodName, donorClass.name));
     }
 
     public ClassNode transform() {
@@ -40,367 +56,459 @@ public final class AtomicMethodTransformer implements Opcodes {
             return null;
         }
 
-        for (MethodNode atomicMethod : metadataService.getAtomicMethods(classNode)) {
-            classNode.methods.remove(atomicMethod);
-
-            MethodNode delegateMethod = createDelegateMethod(atomicMethod);
-            classNode.methods.add(delegateMethod);
-
-            ClassNode atomicTemplateClassNode = createNewAtomicTemplateClass(atomicMethod, delegateMethod);
-            innerClasses.add(atomicTemplateClassNode);
-
-            MethodNode replacementMethod = createReplacementMethod(atomicMethod, atomicTemplateClassNode);
-            classNode.methods.add(replacementMethod);
-
-            if (isPrivate(delegateMethod)) {
-                delegateMethod.access = delegateMethod.access - Opcodes.ACC_PRIVATE + Opcodes.ACC_PROTECTED;
+        for (MethodNode originalAtomicMethod : metadataService.getAtomicMethods(classNode)) {
+            MethodNode donor;
+            if (isConstructor(originalAtomicMethod)) {
+                donor = donorConstructor;
+            } else {
+                donor = donorMethod;
             }
+
+            classNode.methods.remove(originalAtomicMethod);
+
+            MethodNode coordinating = createCoordinatorMethod(originalAtomicMethod, donor);
+            classNode.methods.add(coordinating);
+
+            MethodNode lifting = createLiftingMethod(originalAtomicMethod);
+            classNode.methods.add(lifting);
+
+            //    AsmUtils.print(coordinating, "coordinating");
+            //     AsmUtils.print(lifting, "lifting");
+
+
+            //AsmUtils.print(coordinating, "coordinating");
+            //String result = Debugger.debug(classNode.name, coordinating);
+            //System.out.println("debugging result:\n" + result);
+
         }
 
         return classNode;
     }
 
-    private MethodNode createDelegateMethod(MethodNode atomicMethod) {
-        String name = createDelegateMethodName(atomicMethod);
-
-        //todo: synthetic
-        MethodNode delegateMethod = new MethodNode(
-                upgradeToPublic(atomicMethod.access),
-                name,
-                atomicMethod.desc,
-                atomicMethod.signature,
-                getExceptions(atomicMethod));
-        atomicMethod.accept(delegateMethod);
-        delegateMethod.visitEnd();
-
-        if (atomicMethod.name.equals("<init>")) {
-            delegateMethod.instructions = getCodeAfterSuperCallisDone(atomicMethod);
-        }
-
-        return delegateMethod;
+    private static boolean isConstructor(MethodNode methodNode) {
+        return methodNode.name.equals("<init>");
     }
 
-    private String createDelegateMethodName(MethodNode atomicMethod) {
-        if (atomicMethod.name.equals("<init>")) {
-            return "initdelegate";
-        } else if (atomicMethod.name.equals("<clinit")) {
-            String msg = format("static initializer in class '%s' can't possibly have an AtomicMethod annotation",
-                    atomicMethod.name);
-            throw new IllegalArgumentException(msg);
-        } else {
-            return atomicMethod.name + "delegate";
+    /**
+     * Creates a method that lifts on an already existing transaction and is going to contains the actual logic. The
+     * Transaction will be passed as extra argument to the method, so the method will get a different signature. The
+     * transaction will be passed as the first argument, shifting all others one to the left.
+     * <p/>
+     * A new methodNode will be returned, originalAtomicMethod remains untouched.
+     * <p/>
+     * Since a matching lifting method will always be available for each atomicmethod, this method can be called instead
+     * of one knows that the method needs to run on the same transaction.
+     *
+     * @param originalMethod the original MethodNode that is enhanced.
+     * @return the transformed MethodNode.
+     */
+    public MethodNode createLiftingMethod(MethodNode originalMethod) {
+        CloneMap cloneMap = new CloneMap();
+
+        MethodNode result = new MethodNode();
+        result.name = originalMethod.name;
+        result.access = originalMethod.access;
+        result.desc = createShiftedMethodDescriptor(
+                originalMethod.desc,
+                getInternalName(Transaction.class));
+
+        result.signature = originalMethod.signature;
+        result.exceptions = originalMethod.exceptions;
+
+        LabelNode startLabelNode = new LabelNode();
+        LabelNode endLabelNode = new LabelNode();
+
+        //clone the local variables and introduce the transaction variable.
+        result.localVariables = new LinkedList();
+        //introduce the transaction variable
+
+        LocalVariableNode transactionVariable = new LocalVariableNode(
+                "transaction",
+                Type.getDescriptor(Transaction.class),
+                null,
+                startLabelNode,
+                endLabelNode,
+                isStatic(originalMethod) ? 0 : 1);
+
+        result.localVariables.add(transactionVariable);
+
+        for (LocalVariableNode original : (List<LocalVariableNode>) originalMethod.localVariables) {
+            int cloneIndex = indexForShiftedVariable(originalMethod, original.index);
+
+            LocalVariableNode cloned = new LocalVariableNode(
+                    original.name,
+                    original.desc,
+                    original.signature,
+                    cloneMap.get(original.start),
+                    cloneMap.get(original.end),
+                    cloneIndex);
+            result.localVariables.add(cloned);
         }
-    }
 
-    private InsnList getCodeAfterSuperCallisDone(MethodNode method) {
-        AbstractInsnNode first = findFirstInstructionAfterSuper(classNode.superName, classNode.name, method);
+        //clone the try catch blocks
+        result.tryCatchBlocks = new LinkedList();
+        for (int k = 0; k < originalMethod.tryCatchBlocks.size(); k++) {
+            TryCatchBlockNode original = (TryCatchBlockNode) originalMethod.tryCatchBlocks.get(k);
+            TryCatchBlockNode cloned = new TryCatchBlockNode(
+                    cloneMap.get(original.start),
+                    cloneMap.get(original.end),
+                    cloneMap.get(original.handler),
+                    original.type);
+            result.tryCatchBlocks.add(cloned);
+        }
 
-        InsnList instructions = method.instructions;
-
-        boolean constructorCallDone = false;
-
-        InsnList newList = new InsnList();
-        for (int k = 0; k < instructions.size(); k++) {
-            AbstractInsnNode node = instructions.get(k);
-
-            if (node == first) {
-                constructorCallDone = true;
+        //clone the instructions.
+        result.instructions = new InsnList();
+        result.instructions.add(startLabelNode);
+        for (int k = 0; k < originalMethod.instructions.size(); k++) {
+            AbstractInsnNode originalInsn = originalMethod.instructions.get(k);
+            AbstractInsnNode clonedInsn = null;
+            switch (originalInsn.getOpcode()) {
+                case -1:
+                    if (!(originalInsn instanceof FrameNode)) {
+                        clonedInsn = originalInsn.clone(cloneMap);
+                    }
+                    break;
+                case IINC: {
+                    IincInsnNode originalIncNode = (IincInsnNode) originalInsn;
+                    int clonedIndex = indexForShiftedVariable(originalMethod, originalIncNode.var);
+                    clonedInsn = new IincInsnNode(clonedIndex, originalIncNode.incr);
+                }
+                break;
+                case ILOAD:
+                case LLOAD:
+                case FLOAD:
+                case DLOAD:
+                case ALOAD:
+                case ISTORE:
+                case LSTORE:
+                case FSTORE:
+                case DSTORE:
+                case ASTORE: {
+                    //the variable needs to be shifted one to the left.
+                    VarInsnNode originalVarNode = (VarInsnNode) originalInsn;
+                    int clonedIndex = indexForShiftedVariable(originalMethod, originalVarNode.var);
+                    clonedInsn = new VarInsnNode(originalInsn.getOpcode(), clonedIndex);
+                }
+                break;
+                default:
+                    clonedInsn = originalInsn.clone(cloneMap);
+                    break;
             }
-
-            if (constructorCallDone) {
-                newList.add(node);
-            }
-        }
-        return newList;
-    }
-
-
-    private MethodNode createReplacementMethod(MethodNode atomicMethod, ClassNode transactionTemplateClass) {
-        CodeBuilder cb = new CodeBuilder();
-
-        Type returnType = getReturnType(atomicMethod.desc);
-
-        Type[] argTypes = getArgumentTypes(atomicMethod.desc);
-
-        if (atomicMethod.name.equals("<init>")) {
-            int first = findIndexOfFirstInstructionAfterConstructor(classNode.superName, classNode.name, atomicMethod);
-            for (int k = 0; k < first; k++) {
-                cb.add(atomicMethod.instructions.get(k));
+            if (clonedInsn != null) {
+                result.instructions.add(clonedInsn);
             }
         }
 
-        //[..]
-        cb.NEW(transactionTemplateClass);
-        //[.., template]
-        cb.DUP();
-        //[.., template, template]
-
-        if (!isStatic(atomicMethod)) {
-            cb.ALOAD(0);
-            //[.., template, template, this]
-        }
-
-        //place all the method arguments on the stack.
-        int loadIndex = isStatic(atomicMethod) ? 0 : 1;
-        for (Type argType : argTypes) {
-            cb.LOAD(argType, loadIndex);
-            loadIndex += argType.getSize();
-        }
-        //[.., template, template, this?, arg1, arg2, arg3]
-
-        String constructorDescriptor = getConstructorDescriptorForTransactionTemplate(atomicMethod);
-        cb.INVOKESPECIAL(transactionTemplateClass, "<init>", constructorDescriptor);
-
-        //[.., template]
-        cb.INVOKEVIRTUAL(transactionTemplateClass.name, "executeChecked", "()Ljava/lang/Object;");
-        //[.., result]
-
-        switch (returnType.getSort()) {
-            case Type.VOID:
-                //a null was placed on the stack to deal with a void, so that should be removed
-                cb.POP();
-                break;
-            case Type.ARRAY:
-                //fall through
-            case Type.OBJECT:
-                cb.CHECKCAST(returnType.getInternalName());
-                break;
-            case Type.BOOLEAN:
-                //fall through
-            case Type.BYTE:
-                //fall through
-            case Type.CHAR:
-                //fall through
-            case Type.SHORT:
-                //fall through
-            case Type.INT:
-                cb.CHECKCAST(Integer.class);
-                cb.INVOKEVIRTUAL(getInternalName(Integer.class), "intValue", "()I");
-                break;
-            case Type.LONG:
-                cb.CHECKCAST(Long.class);
-                cb.INVOKEVIRTUAL(getInternalName(Long.class), "longValue", "()J");
-                break;
-            case Type.FLOAT:
-                cb.CHECKCAST(Float.class);
-                cb.INVOKEVIRTUAL(getInternalName(Float.class), "floatValue", "()F");
-                break;
-            case Type.DOUBLE:
-                cb.CHECKCAST(Double.class);
-                cb.INVOKEVIRTUAL(getInternalName(Double.class), "doubleValue", "()D");
-                break;
-            default:
-                throw new RuntimeException("Unhandled type " + returnType);
-        }
-
-        cb.RETURN(returnType);
-
-        MethodNode method = new MethodNode();
-        method.access = atomicMethod.access;
-        method.exceptions = atomicMethod.exceptions;
-        method.desc = atomicMethod.desc;
-        method.name = atomicMethod.name;
-        method.instructions = cb.build();
-        method.tryCatchBlocks = new LinkedList();
-        return method;
+        result.instructions.add(endLabelNode);
+        return result;
     }
 
-
-    private String getConstructorDescriptorForTransactionTemplate(MethodNode originalMethod) {
-        Type[] constructorArgTypes;
+    private static int indexForShiftedVariable(MethodNode originalMethod, int oldIndex) {
         if (isStatic(originalMethod)) {
-            constructorArgTypes = getArgumentTypes(originalMethod.desc);
+            return oldIndex + 1;
         } else {
-            Type[] methodArgTypes = getArgumentTypes(originalMethod.desc);
-            constructorArgTypes = new Type[methodArgTypes.length + 1];
-
-            constructorArgTypes[0] = Type.getObjectType(classNode.name);
-
-            System.arraycopy(methodArgTypes, 0, constructorArgTypes, 1, methodArgTypes.length);
+            if (oldIndex == 0) {
+                return 0;
+            } else {
+                return oldIndex + 1;
+            }
         }
-
-        return getMethodDescriptor(Type.VOID_TYPE, constructorArgTypes);
     }
 
-    private String generateTransactionTemplateClassname() {
-        return AtomicMethodTransformer.this.classNode.name + "AtomicTemplate" + innerClasses.size();
+    private static LocalVariableNode findThisVariable(MethodNode methodNode) {
+        for (LocalVariableNode localVar : (List<LocalVariableNode>) methodNode.localVariables) {
+            if (localVar.name.equals("this")) {
+                return localVar;
+            }
+        }
+        return null;
     }
 
-    private ClassNode createNewAtomicTemplateClass(MethodNode atomicMethod, MethodNode delegateMethod) {
-        String transactionTemplateClassName = generateTransactionTemplateClassname();
+    /**
+     * Creates  the coordinating method; a method that is responsible for starting/committing aborting and retrying. The
+     * real logic is forwarded to the lifting method.
+     * <p/>
+     * The lifting method has received an extra (first) argument; the transaction that is managed by
+     *
+     * @param originalMethod the original MethodNode.
+     * @return the coordinating method.
+     */
+    public MethodNode createCoordinatorMethod(MethodNode originalMethod, MethodNode donorMethod) {
+        MethodNode result = new MethodNode(
+                originalMethod.access,
+                originalMethod.name,
+                originalMethod.desc,
+                originalMethod.signature,
+                getExceptions(originalMethod));
+        //todo: clone
+        result.visibleAnnotations = originalMethod.visibleAnnotations;
+        //todo: clone
+        result.invisibleAnnotations = originalMethod.invisibleAnnotations;
+        //todo: clone
+        result.invisibleParameterAnnotations = originalMethod.invisibleParameterAnnotations;
+        //todo: clone
+        result.annotationDefault = originalMethod.annotationDefault;
 
-        ClassBuilder classBuilder = new ClassBuilder();
-        classBuilder.setVersion(V1_5);
-        //this.classNode.outerClass = AtomicTransformer.this.classNode.name;
-        classBuilder.setName(transactionTemplateClassName);
-        classBuilder.setAccess(ACC_PUBLIC + ACC_FINAL + ACC_SYNTHETIC);
-        classBuilder.setSuperclass(AtomicTemplate.class);
+        CloneMap cloneMap = new CloneMap();
 
-        if (!isStatic(delegateMethod)) {
-            classBuilder.addPublicFinalSyntheticField(CALLEE, classNode);
-        }
+        //======================================================
+        //      placement of the local variables
+        //======================================================
 
-        Type[] argTypes = getArgumentTypes(delegateMethod.desc);
-        for (int k = 0; k < argTypes.length; k++) {
-            Type type = argTypes[k];
-            classBuilder.addPublicFinalSyntheticField("arg" + k, type);
-        }
-
-        classBuilder.addMethod(createAtomicTemplateConstructor(atomicMethod, transactionTemplateClassName));
-        classBuilder.addMethod(createAtomicTemplateExecuteMethod(delegateMethod, transactionTemplateClassName));
-
-        ClassNode transactionTemplateClassNode = classBuilder.build();
-        transactionTemplateClassNode.sourceFile = classNode.sourceFile;
-        transactionTemplateClassNode.sourceDebug = classNode.sourceDebug;
-        return transactionTemplateClassNode;
-    }
+        LocalVariableNode transactionVar = null;
+        Map<Integer, Integer> varMapping = new HashMap<Integer, Integer>();
 
 
-    private MethodNode createAtomicTemplateConstructor(MethodNode originalMethod, String transactionTemplateClass) {
-        MethodNode constructor = new MethodNode();
+        //at the moment the start end endscope are harvested from the original instructions.
+        //LabelNode startScope = cloneMap.get(originalMethod.instructions.getFirst());
+        //LabelNode endScope = cloneMap.get(originalMethod.instructions.getLast());
+        LabelNode startScope = new LabelNode();
+        LabelNode endScope = new LabelNode();
 
-        AtomicMethodParams atomicMethodParams = metadataService.getAtomicMethodParams(classNode, originalMethod);
+        int var = 0;
 
-        constructor.name = "<init>";
-        constructor.desc = getConstructorDescriptorForTransactionTemplate(originalMethod);
-        constructor.access = ACC_PUBLIC + ACC_SYNTHETIC;
-        constructor.exceptions = new LinkedList();
-        constructor.tryCatchBlocks = new LinkedList();
-
-        CodeBuilder cb = new CodeBuilder();
-
-        //initialize super
-        cb.ALOAD(0);
-        //[.., this]
-        cb.LDC(atomicMethodParams.familyName);
-        cb.ICONST(atomicMethodParams.isReadonly);
-        cb.LDC(atomicMethodParams.retryCount);
-        cb.INVOKESPECIAL(AtomicTemplate.class, "<init>", "(Ljava/lang/String;ZI)V");
-        //[..]
-
+        //create local variable for the 'this' if needed.
         if (!isStatic(originalMethod)) {
-            //place the callee on the stack
-            cb.ALOAD(0);
-            //[.., this]
-            cb.ALOAD(1);
-            //[.., this, callee]
-            cb.PUTFIELD(transactionTemplateClass, CALLEE, classNode);
-            //[..]
+            LocalVariableNode originalThis = findThisVariable(originalMethod);
+
+            LocalVariableNode clonedThis = new LocalVariableNode(
+                    originalThis.name,
+                    originalThis.desc,
+                    originalThis.signature,
+                    startScope,
+                    endScope,
+                    originalThis.index);
+            result.localVariables.add(clonedThis);
+            var++;
         }
 
-        //place the other arguments on the stack.
-        Type[] argTypes = getArgumentTypes(originalMethod.desc);
-        //the first argument is template and if the method is non static, the callee was placed
-        int loadIndex = isStatic(originalMethod) ? 1 : 2;
-        for (int k = 0; k < argTypes.length; k++) {
-            Type argType = argTypes[k];
-
-            cb.ALOAD(0);
-            //[.., this]
-            cb.LOAD(argType, loadIndex);
-            //[.., this, argk]
-            cb.PUTFIELD(transactionTemplateClass, "arg" + k, argType.getDescriptor());
-            //[..]
-
-            loadIndex += argType.getSize();
+        //create local variables for all the method arguments.
+        for (Type argType : getArgumentTypes(originalMethod.desc)) {
+            LocalVariableNode clonedVar = new LocalVariableNode(
+                    "arg" + result.localVariables.size(),
+                    argType.getDescriptor(),
+                    null,
+                    startScope,
+                    endScope,
+                    var);
+            var += argType.getSize();
+            result.localVariables.add(clonedVar);
         }
 
-        //we are done, lets return
-        cb.RETURN();
+        //create local variables based on the local variables of the donor method.
+        for (LocalVariableNode donorVar : (List<LocalVariableNode>) donorMethod.localVariables) {
+            LocalVariableNode clonedVar = new LocalVariableNode(
+                    donorVar.name,
+                    donorVar.desc,
+                    donorVar.signature,
+                    cloneMap.get(donorVar.start),
+                    cloneMap.get(donorVar.end),
+                    var);
+            varMapping.put(donorVar.index, clonedVar.index);
 
-        constructor.instructions = cb.build();
-        //AsmUtils.addLocalVarTableIfMissing(constructor);
-        return constructor;
+            if (donorVar.name.equals("t")) {
+                transactionVar = clonedVar;
+            }
+
+            result.localVariables.add(clonedVar);
+            var += Type.getType(clonedVar.desc).getSize();
+        }
+
+        //create the variable containing the result
+        LocalVariableNode resultVariable = null;
+        Type returnType = Type.getReturnType(originalMethod.desc);
+        if (!returnType.equals(Type.VOID_TYPE)) {
+            resultVariable = new LocalVariableNode(
+                    "result",
+                    returnType.getDescriptor(),
+                    null,
+                    startScope,
+                    endScope,
+                    var);
+            result.localVariables.add(resultVariable);
+            var += returnType.getSize();
+        }
+
+        if (transactionVar == null) {
+            throw new RuntimeException(format("No transaction variable with name 't' is found in donor method '%s.%s'",
+                                              donorClass.name, donorMethod.name));
+        }
+
+        //======================================================
+        //      placement of the try catch blocks
+        //======================================================
+
+        result.tryCatchBlocks = new LinkedList();
+        result.tryCatchBlocks.addAll(clone(donorMethod.tryCatchBlocks, cloneMap));
+
+        //======================================================
+        //      placement of the instructions
+        //======================================================
+        result.instructions.add(startScope);
+
+        AtomicMethodParams params = metadataService.getAtomicMethodParams(classNode, originalMethod);
+        for (ListIterator<AbstractInsnNode> it = (ListIterator<AbstractInsnNode>) donorMethod.instructions
+                .iterator(); it.hasNext();) {
+            AbstractInsnNode donorInsn = it.next();
+            switch (donorInsn.getOpcode()) {
+                case -1:
+                    //all the linenumber & frame nodes can be discarded.
+                    if (!(donorInsn instanceof LineNumberNode) && !(donorInsn instanceof FrameNode)) {
+                        AbstractInsnNode cloned = donorInsn.clone(cloneMap);
+                        result.instructions.add(cloned);
+                    }
+                    break;
+                case INVOKESTATIC:
+                    MethodInsnNode donorMethodInsn = (MethodInsnNode) donorInsn;
+                    if (isReplacementMethod(donorMethodInsn)) {
+                        int loadIndex = 0;
+                        if (isStatic(originalMethod)) {
+                            //push the transaction on the stack
+                            result.instructions.add(new VarInsnNode(ALOAD, transactionVar.index));
+                        } else {
+                            //push the this in the stack
+                            result.instructions.add(new VarInsnNode(ALOAD, loadIndex));
+                            loadIndex = 1;
+                            //push the transaction var on the stack
+                            result.instructions.add(new VarInsnNode(ALOAD, transactionVar.index));
+                        }
+
+                        //place the rest of the arguments on the stack
+                        for (Type argType : getArgumentTypes(originalMethod.desc)) {
+                            VarInsnNode loadInsn = new VarInsnNode(argType.getOpcode(ILOAD), loadIndex);
+                            result.instructions.add(loadInsn);
+                            loadIndex += argType.getSize();
+                        }
+
+                        //do the invoke
+                        String desc = createShiftedMethodDescriptor(
+                                originalMethod.desc,
+                                getInternalName(Transaction.class));
+
+                        MethodInsnNode invokeInsn = new MethodInsnNode(
+                                getInvokeOpcode(originalMethod),
+                                classNode.name,
+                                originalMethod.name,
+                                desc);
+                        result.instructions.add(invokeInsn);
+
+                        if (!returnType.equals(Type.VOID_TYPE)) {
+                            result.instructions.add(
+                                    new VarInsnNode(returnType.getOpcode(ISTORE), resultVariable.index));
+                        }
+                    } else {
+                        AbstractInsnNode cloned = donorInsn.clone(cloneMap);
+                        result.instructions.add(cloned);
+                    }
+                    break;
+                case GETSTATIC: {
+                    FieldInsnNode donorFieldInsnNode = (FieldInsnNode) donorInsn;
+                    boolean donorIsOwner = donorFieldInsnNode.owner.equals(donorClass.name);
+
+                    if (donorIsOwner && donorFieldInsnNode.name.equals("readOnly")) {
+                        if (params.readOnly) {
+                            result.instructions.add(new InsnNode(ICONST_1));
+                        } else {
+                            result.instructions.add(new InsnNode(ICONST_0));
+                        }
+                    } else if (donorIsOwner && donorFieldInsnNode.name.equals("retryCount")) {
+                        Integer retryCount = params.retryCount;
+                        result.instructions.add(new LdcInsnNode(retryCount));
+                    } else if (donorIsOwner && donorFieldInsnNode.name.equals("familyName")) {
+                        result.instructions.add(new LdcInsnNode(params.familyName));
+                    } else {
+                        result.instructions.add(donorInsn.clone(cloneMap));
+                    }
+                }
+                break;
+                case IINC: {
+                    IincInsnNode donorIncInsn = (IincInsnNode) donorInsn;
+                    int clonedIndex = varMapping.get(donorIncInsn.var);
+                    result.instructions.add(new IincInsnNode(clonedIndex, donorIncInsn.incr));
+                }
+                break;
+                case ILOAD:
+                case LLOAD:
+                case FLOAD:
+                case DLOAD:
+                case ALOAD:
+                case ISTORE:
+                case LSTORE:
+                case FSTORE:
+                case DSTORE:
+                case ASTORE: {
+                    VarInsnNode donorVarInsn = (VarInsnNode) donorInsn;
+                    Integer foundVar = varMapping.get(donorVarInsn.var);
+                    int index;
+                    if (foundVar == null) {
+                        //it could be that a variable is found that is not in the localvariable table.
+                        //these variables are the secret throwable storage location needed to compile
+                        //finally clauses. So for these variables, we just create a new 
+                        index = var;
+                        varMapping.put(donorVarInsn.var, var);
+                        var++;
+                    } else {
+                        index = foundVar;
+                    }
+                    VarInsnNode cloned = new VarInsnNode(donorVarInsn.getOpcode(), index);
+                    result.instructions.add(cloned);
+                }
+                break;
+                case RETURN:
+                    if (returnType.equals(Type.VOID_TYPE)) {
+                        result.instructions.add(new InsnNode(RETURN));
+                    } else {
+                        //the returns need to be replaced by returns of the correct returntype of the
+                        //originalMethod.
+                        result.instructions.add(new VarInsnNode(returnType.getOpcode(ILOAD), resultVariable.index));
+                        result.instructions.add(new InsnNode(returnType.getOpcode(IRETURN)));
+                    }
+                    break;
+                default:
+                    AbstractInsnNode cloned = donorInsn.clone(cloneMap);
+                    result.instructions.add(cloned);
+                    break;
+            }
+        }
+
+        result.instructions.add(endScope);
+        return result;
     }
 
-    private MethodNode createAtomicTemplateExecuteMethod(MethodNode delegateMethod, String classname) {
-        MethodNode executeMethod = new MethodNode();
-        executeMethod.name = "execute";
-        executeMethod.desc = getMethodDescriptor(getType(Object.class), new Type[]{getType(Transaction.class)});
-        executeMethod.access = ACC_PUBLIC | ACC_SYNTHETIC;
-        executeMethod.exceptions = delegateMethod.exceptions;
-        executeMethod.tryCatchBlocks = new LinkedList();
-
-        Type returnType = getReturnType(delegateMethod.desc);
-
-        CodeBuilder cb = new CodeBuilder();
-
-        if (isStatic(delegateMethod)) {
-            loadArgumentsOnStack(cb, delegateMethod.desc, classname);
-
-            //[..,arg1, arg2, arg3]
-            cb.INVOKESTATIC(
-                    classNode.name,
-                    delegateMethod.name,
-                    delegateMethod.desc
-            );
-            //[.., result]
+    public static int getInvokeOpcode(MethodNode methodNode) {
+        if (isStatic(methodNode.access)) {
+            return INVOKESTATIC;
+        } else if (isConstructor(methodNode)) {
+            return INVOKESPECIAL;
         } else {
-            //load the callee on the stack
-            cb.ALOAD(0);
-            cb.GETFIELD(classname, CALLEE, classNode);
-
-            //load the rest of the arguments on the stack
-            loadArgumentsOnStack(cb, delegateMethod.desc, classname);
-
-            //[.., callee, arg1, arg2, arg3]
-            cb.INVOKEVIRTUAL(
-                    classNode.name,
-                    delegateMethod.name,
-                    delegateMethod.desc);
-            //[.., result]
-        }
-
-        //prepare the result.
-        switch (returnType.getSort()) {
-            case Type.BOOLEAN:
-            case Type.BYTE:
-            case Type.CHAR:
-            case Type.SHORT:
-            case Type.INT:
-                cb.INVOKESTATIC(getMethod(Integer.class, "valueOf", Integer.TYPE));
-                break;
-            case Type.LONG:
-                cb.INVOKESTATIC(getMethod(Long.class, "valueOf", Long.TYPE));
-                break;
-            case Type.FLOAT:
-                cb.INVOKESTATIC(getMethod(Float.class, "valueOf", Float.TYPE));
-                break;
-            case Type.DOUBLE:
-                cb.INVOKESTATIC(getMethod(Double.class, "valueOf", Double.TYPE));
-                break;
-            case Type.ARRAY:
-                break;
-            case Type.OBJECT:
-                break;
-            case Type.VOID:
-                cb.ACONST_NULL();
-                break;
-            default:
-                throw new RuntimeException("Unhandled type: " + returnType);
-        }
-
-        //[.., result]
-        cb.ARETURN();
-
-        executeMethod.instructions = cb.build();
-        return executeMethod;
-    }
-
-    private void loadArgumentsOnStack(CodeBuilder cb, String methodDescriptor, String classname) {
-        Type[] argTypes = getArgumentTypes(methodDescriptor);
-
-        for (int k = 0; k < argTypes.length; k++) {
-            cb.ALOAD(0);
-            cb.GETFIELD(classname, "arg" + k, argTypes[k].getDescriptor());
+            return INVOKEVIRTUAL;
         }
     }
 
-    public List<ClassNode> getInnerClasses() {
-        return innerClasses;
+    public static List<TryCatchBlockNode> clone(List<TryCatchBlockNode> originalBlocks, CloneMap cloneMap) {
+        List<TryCatchBlockNode> result = new LinkedList<TryCatchBlockNode>();
+        for (TryCatchBlockNode originalBlock : originalBlocks) {
+            TryCatchBlockNode clonedBlock = new TryCatchBlockNode(
+                    cloneMap.get(originalBlock.start),
+                    cloneMap.get(originalBlock.end),
+                    cloneMap.get(originalBlock.handler),
+                    originalBlock.type
+            );
+            result.add(clonedBlock);
+        }
+        return result;
     }
 
-    public ClassNode create() {
-        return classNode;
+    private static boolean isReplacementMethod(MethodInsnNode donorMethodInsnNode) {
+        if (!donorMethodInsnNode.name.equals("execute")) {
+            return false;
+        }
+
+        if (!donorMethodInsnNode.owner.equals(getInternalName(AtomicLogicDonor.class))) {
+            return false;
+        }
+
+        return true;
     }
 }

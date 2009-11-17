@@ -1,6 +1,6 @@
 package org.multiverse.stms.alpha;
 
-import static org.multiverse.utils.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getRequiredThreadLocalTransaction;
 
 import static java.lang.String.format;
 
@@ -50,41 +50,6 @@ public final class AlphaStmUtils {
     }
 
     /**
-     * Attaches a Tranlocal to a transaction. The transaction is retrieved from the
-     * ThreadLocalTransaction. If no transaction is found, a RuntimeException is thrown.
-     * <p/>
-     * This method is called by instrumented atomicobjects.
-     *
-     * @param tranlocal the AlphaTranlocal to attach.
-     */
-    public static void attachAsNew(AlphaTranlocal tranlocal) {
-        AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        if (t == null) {
-            throw new RuntimeException("No Transaction available");
-        }
-
-        t.attachNew(tranlocal);
-    }
-
-    /**
-     * Checks if there already is a tranlocal attached for the atomicobject.
-     * <p/>
-     * This method is called by instrumented atomicobjects.
-     *
-     * @param atomicObject the AtomicObject to check
-     * @return true if the atomicObject is attached, false otherwise.
-     */
-    public static boolean isAttached(AlphaAtomicObject atomicObject) {
-        AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        if (t == null) {
-            throw new RuntimeException("No Transaction available");
-        }
-
-        return t.isAttached(atomicObject);
-    }
-
-
-    /**
      * Loads a Tranlocal using a transaction. The transaction is retrieved from the
      * ThreadLocalTransaction. If no transaction is found, a RuntimeException is thrown.
      * <p/>
@@ -96,11 +61,7 @@ public final class AlphaStmUtils {
      * @return the AlphaTranlocal
      */
     public static AlphaTranlocal load(Object atomicObject) {
-        AlphaTransaction t = (AlphaTransaction) getThreadLocalTransaction();
-        if (t == null) {
-            throw new RuntimeException("No Transaction available");
-        }
-
+        AlphaTransaction t = (AlphaTransaction) getRequiredThreadLocalTransaction();
         return t.load((AlphaAtomicObject) atomicObject);
     }
 

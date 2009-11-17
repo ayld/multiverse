@@ -1,6 +1,7 @@
 package org.multiverse.stms.alpha;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
@@ -11,7 +12,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 /**
  * @author Peter Veentjer
  */
-public class UpdateAlphaTransaction_resetTest {
+public class UpdateAlphaTransaction_abortAndReturnRestartedTest {
     private AlphaStm stm;
 
     @Before
@@ -21,27 +22,42 @@ public class UpdateAlphaTransaction_resetTest {
     }
 
     @Test
-    public void resetOnAbortedTransaction() {
+    public void callActiveTransaction() {
+        Transaction t = stm.startUpdateTransaction(null);
+
+        //commit some dummy change
+        new IntRef(20);
+
+        Transaction result = t.abortAndReturnRestarted();
+        assertSame(result, t);
+        assertIsActive(t);
+        assertEquals(stm.getClockVersion(), t.getReadVersion());
+    }
+
+    @Test
+    public void callAbortedTransaction() {
         Transaction t = stm.startUpdateTransaction(null);
         t.abort();
 
         //commit some dummy change
         new IntRef(20);
 
-        t.restart();
+        Transaction result = t.abortAndReturnRestarted();
+        assertSame(result, t);
         assertIsActive(t);
         assertEquals(stm.getClockVersion(), t.getReadVersion());
     }
 
     @Test
-    public void resetOnCommittedTransaction() {
+    public void callCommittedTransaction() {
         Transaction t = stm.startUpdateTransaction(null);
         t.commit();
 
         //commit some dummy change
         new IntRef(20);
 
-        t.restart();
+        Transaction result = t.abortAndReturnRestarted();
+        assertSame(result, t);
         assertIsActive(t);
         assertEquals(stm.getClockVersion(), t.getReadVersion());
     }

@@ -2,7 +2,7 @@ package org.multiverse.api;
 
 import org.multiverse.api.exceptions.NoTransactionFoundException;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.utils.ThreadLocalTransaction.getRequiredThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getRequiredThreadLocalTransaction;
 
 /**
  * A utility class with convenience methods to access the {@link org.multiverse.api.Stm} or
@@ -27,31 +27,30 @@ public final class StmUtils {
     }
 
     /**
-     * Executes {@link Transaction#deferredExecute(Runnable)} on the transaction stored in the
-     * ThreadLocalTransaction.
+     * Schedules a tasks so that it executes when the transaction commits.
+     *
      * <p/>
-     * See {@link Transaction#deferredExecute(Runnable)}
+     * See {@link Transaction#schedule(Runnable, ScheduleType)}
      *
      * @param task the task that is executed when the transaction commits.
      * @throws NoTransactionFoundException if no transaction is found in the ThreadLocalTransaction.
      */
     public static void deferredExecute(Runnable task) {
         Transaction t = getRequiredThreadLocalTransaction();
-        t.deferredExecute(task);
+        t.schedule(task, ScheduleType.postCommit);
     }
 
     /**
-     * Executes {@link Transaction#compensatingExecute(Runnable)} on the transaction stored in the
-     * ThreadLocalTransaction.
+     * Schedules a tasks so that it executes when the transaction aborts.
      * <p/>
-     * See {@link Transaction#deferredExecute(Runnable)}
+     * See {@link Transaction#schedule(Runnable, ScheduleType)}
      *
      * @param task the task that is executed when the transaction commits.
      * @throws NoTransactionFoundException if no transaction is found in the ThreadLocalTransaction.
      */
     public static void compensatingExecute(Runnable task) {
         Transaction t = getRequiredThreadLocalTransaction();
-        t.compensatingExecute(task);
+        t.schedule(task, ScheduleType.postAbort);
     }
 
     //we don't want instances.
