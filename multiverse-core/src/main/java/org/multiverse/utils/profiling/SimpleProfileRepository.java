@@ -23,6 +23,7 @@ public final class SimpleProfileRepository implements ProfileRepository {
 
     private final ConcurrentMap<ComposedKey, AtomicLong> map = new ConcurrentHashMap<ComposedKey, AtomicLong>();
     private final ConcurrentMap<String, AtomicLong> singleKeyMap = new ConcurrentHashMap<String, AtomicLong>();
+    private final ProfileCollator collator = new SimpleProfileRepositoryCollator(map);
 
     @Override
     public void incCounter(String key) {
@@ -122,6 +123,14 @@ public final class SimpleProfileRepository implements ProfileRepository {
         }
 
         return result;
+    }
+
+    /* (non-Javadoc)
+     * @see org.multiverse.utils.profiling.ProfileRepository#getCollator()
+     */
+    @Override
+    public ProfileCollator getCollator() {
+        return collator;
     }
 
     @Override

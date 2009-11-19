@@ -1,10 +1,14 @@
 package org.multiverse.api;
 
 import static java.lang.String.format;
+import static java.lang.reflect.Modifier.isStatic;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import static java.lang.reflect.Modifier.isStatic;
 import java.util.logging.Logger;
+
+import org.multiverse.utils.monitoring.ProfilePublisher;
+import org.multiverse.utils.profiling.ProfilerAware;
 
 /**
  * A singleton that can be used for easy access to the {@link org.multiverse.api.Stm} that is used globally.
@@ -55,6 +59,15 @@ public final class GlobalStmInstance {
                     KEY, factoryMethod, factoryMethod);
             logger.severe(msg);
             throw new IllegalArgumentException(msg, e);
+        }
+        
+        // XXX: think about a better place for this
+        if (instance instanceof ProfilerAware) {
+            ProfilePublisher publisher = new ProfilePublisher(
+                    ((ProfilerAware) instance).getProfiler().getCollator());
+            String mBeanName = "uncomment following for class circularity error"; //JmxUtils.registerMBean(publisher);
+            logger.info(format("Successfully registered '%s' as an MBean under name '%s'",
+                    publisher, mBeanName));
         }
     }
 
