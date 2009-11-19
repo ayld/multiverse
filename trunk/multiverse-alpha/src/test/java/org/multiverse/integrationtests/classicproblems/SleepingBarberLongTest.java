@@ -1,21 +1,24 @@
 package org.multiverse.integrationtests.classicproblems;
 
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
-import org.multiverse.TestThread;
-import static org.multiverse.TestUtils.*;
-import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.datastructures.collections.StrictLinkedBlockingDeque;
-import org.multiverse.datastructures.refs.IntRef;
-import org.multiverse.datastructures.refs.Ref;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
+import static org.multiverse.TestUtils.joinAll;
+import static org.multiverse.TestUtils.sleepRandomMs;
+import static org.multiverse.TestUtils.startAll;
+import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.multiverse.TestThread;
+import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.datastructures.collections.StrictLinkedBlockingDeque;
+import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.datastructures.refs.Ref;
 
 /**
  * The Sleeping Barber problem, due to legendary Dutch computer scientist
@@ -73,13 +76,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * Wikipedia article, which uses two flags to coordinate handover. The third semaphore
  * of the canonical solution is replaced by transactions, which after all is the point
  * of this example.
- * <p/>
- * <p/>
- * Thread BarberThread has thrown an exception
- * java.lang.ClassCastException: org.multiverse.integrationtests.classicproblems.SleepingBarberLongTest$BarberThread cannot be cast to org.multiverse.integrationtests.classicproblems.SleepingBarberLongTest$CustomerThread
- * at org.multiverse.integrationtests.classicproblems.SleepingBarberLongTest$BarberThread.doRun(SleepingBarberLongTest.java:168)
- * at org.multiverse.TestThread.run(TestThread.java:44)
- * STM integrity compromised, instrumentation problems encountered
  *
  * @author Andrew Phillips
  */
@@ -100,7 +96,7 @@ public class SleepingBarberLongTest {
 
     @Before
     public void setUp() {
-        setThreadLocalTransaction(null);
+        clearThreadLocalTransaction();
         chairs = new StrictLinkedBlockingDeque<TestThread>(chairCount);
     }
 
@@ -108,7 +104,7 @@ public class SleepingBarberLongTest {
     public void tearDown() {
 //        ProfileRepository profiler = 
 //            ((AlphaStm) GlobalStmInstance.getGlobalStmInstance()).getProfiler();
-//        System.out.println(((SimpleProfileRepository) profiler).toPrettyString());
+//        new ProfilePublisher(profiler.getCollator()).writeStatisticsToStream(System.out);
     }
 
     @Test

@@ -40,4 +40,12 @@ public interface ProfileRepository {
     void decCounter(String key1, String key2);
 
     void reset();
+    
+    /**
+     * TODO: the methods of ProfileCollator should probably simply
+     * be part of the ProfileRepository contract.
+     * 
+     * @return a collator for this repository 
+     */
+    ProfileCollator getCollator();
 }
