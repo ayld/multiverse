@@ -10,7 +10,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * configurable maximum delay has been reached.
  * <p/>
  * The exponential growth of delay can be truncated by providing a maxDelay. If no max delay is provided, the maximum
- * delay  would be 10.000.000.000 seconds (292 years). So be careful with not using an acceptable maximum delay.
+ * delay would be 10.000.000.000 seconds (292 years). So be careful with not using an acceptable maximum delay.
  *
  * @author Peter Veentjer.
  */
