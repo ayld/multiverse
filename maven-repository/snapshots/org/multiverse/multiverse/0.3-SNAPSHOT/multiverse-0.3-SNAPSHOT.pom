@@ -12,7 +12,7 @@
         under the hood. The main STM implementation is multiverse-alpha.
     </description>
     <groupId>org.multiverse</groupId>
-    <artifactId>multiverse</artifactId>    
+    <artifactId>multiverse</artifactId>
     <version>0.3-SNAPSHOT</version>
     <inceptionYear>2008</inceptionYear>
     <packaging>pom</packaging>
@@ -21,6 +21,7 @@
         <license>
             <name>MIT License</name>
             <url>license.txt</url>
+            <distribution>repo</distribution>
         </license>
     </licenses>
 
@@ -49,7 +50,7 @@
             <roles>
                 <role>Apprentice</role>
             </roles>
-        </developer>            
+        </developer>
     </developers>
 
     <repositories>
@@ -97,6 +98,8 @@
         <module>multiverse-benchy</module>
         <module>multiverse-core</module>
         <module>multiverse-alpha</module>
+        <module>multiverse-scala-integration</module>
+        <module>multiverse-project-archetype</module>
     </modules>
 
     <build>
@@ -115,7 +118,7 @@
                     <configuration>
                         <encoding>UTF-8</encoding>
                     </configuration>
-                </plugin>                
+                </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
@@ -175,17 +178,17 @@
                     </execution>
                 </executions>
             </plugin>
-          <plugin>
-              <artifactId>maven-source-plugin</artifactId>
-              <executions>
-                  <execution>
-                      <id>attach-sources</id>
-                      <goals>
-                          <goal>jar</goal>
-                      </goals>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
                     </execution>
-              </executions>
-          </plugin>            
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
@@ -223,6 +226,11 @@
                 <artifactId>wagon-webdav</artifactId>
                 <version>1.0-beta-2</version>
             </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>1.0-beta-6</version>
+            </extension>
         </extensions>
     </build>
 
@@ -236,7 +244,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.8.0</version>            
+            <version>1.8.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -246,6 +254,10 @@
         <developerConnection>scm:svn:https://multiverse.googlecode.com/svn/trunk</developerConnection>
         <url>http://code.google.com/p/multiverse/source/browse/trunk</url>
     </scm>
+    <issueManagement>
+        <system>Google Code</system>
+        <url>http://code.google.com/p/multiverse/issues/list</url>
+    </issueManagement>
 
     <reporting>
         <plugins>
@@ -352,26 +364,60 @@
         <site>
             <id>multiverse-site</id>
             <name>Multiverse Maven site</name>
-            <url>scp://multiversestm.org/maven-site</url>
+            <url>ftp://multiversestm.org</url>
         </site>
         <downloadUrl>http://code.google.com/p/multiverse/downloads</downloadUrl>
     </distributionManagement>
 
-    <!-- profiles>
+    <profiles>
         <profile>
-            <id>release</id>                 n
-            <distributionManagement>
-                <repository>
-                    <id>scala-tools.org</id>
-                    <url>http://nexus.scala-tools.org/content/repositories/releases</url>
-                </repository>
-                <site>
-                    <id>scala-tools.org</id>
-                    <url>file://${user.home}/.m2/mvnsites/akka</url>
-                </site>
-            </distributionManagement>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- should only be executed at the top-level POM -->
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <quiet>true</quiet>
+                            <links>
+                                <link>http://java.sun.com/javase/6/docs/api/</link>
+                                <link>http://java.sun.com/javaee/6/docs/api/</link>
+                            </links>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <version>2.2-beta-2</version>
+                        <inherited>false</inherited>
+                        <executions>
+                            <execution>
+                                <id>distribution</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>distribution.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
-        <profile>
+        <!-- profile>
             <id>hudson</id>
             <distributionManagement>
                 <repository>
@@ -388,6 +434,6 @@
                     <url>file:///home/scala-tools.org/www/mvnsites-snapshots/akka</url>
                 </site>
             </distributionManagement>
-        </profile>
-    </profiles -->
+        </profile -->
+    </profiles>
 </project>
