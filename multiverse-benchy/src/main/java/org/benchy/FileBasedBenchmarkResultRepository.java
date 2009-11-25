@@ -1,19 +1,9 @@
 package org.benchy;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import static java.lang.String.format;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * A {@link org.benchy.BenchmarkResultRepository} that persist on file system.
@@ -39,7 +29,14 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
 
     private File rootDir;
 
-    public FileBasedBenchmarkResultRepository(String rootDir){
+    /**
+     * Creates a FileBasedBenchmarkResultRepository that stores all benchmark results in the temp directory.
+     */
+    public FileBasedBenchmarkResultRepository() {
+        this(System.getProperty("java.io.tmpdir"));
+    }
+
+    public FileBasedBenchmarkResultRepository(String rootDir) {
         this(new File(rootDir));
     }
 
@@ -187,6 +184,7 @@ public class FileBasedBenchmarkResultRepository implements BenchmarkResultReposi
     }
 
     private static class ResultFileFilter implements FileFilter {
+
         @Override
         public boolean accept(File pathname) {
             return pathname.getName().endsWith(".txt");

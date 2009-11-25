@@ -1,26 +1,25 @@
 package org.multiverse.api;
 
-import static java.lang.String.format;
-import static java.lang.reflect.Modifier.isStatic;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.logging.Logger;
-
 import org.multiverse.utils.monitoring.ProfilePublisher;
 import org.multiverse.utils.profiling.ProfilerAware;
 
+import static java.lang.String.format;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import static java.lang.reflect.Modifier.isStatic;
+import java.util.logging.Logger;
+
 /**
- * A singleton that can be used for easy access to the {@link org.multiverse.api.Stm} that is used globally.
- * Once it has been set, it should not be changed while running the system.
+ * A singleton that can be used for easy access to the {@link org.multiverse.api.Stm} that is used globally. Once it has
+ * been set, it should not be changed while running the system.
  * <p/>
- * Using the GlobalStm imposes some limitations (like 1 global stm instance that is used by everything) but makes
- * the system a lot easier to use. But if the GlobalStm should not be used, but a 'private' stm, you need to carry
- * around the stm reference yourself and just ignore this GlobalStm.
+ * Using the GlobalStm imposes some limitations (like 1 global stm instance that is used by everything) but makes the
+ * system a lot easier to use. But if the GlobalStm should not be used, but a 'private' stm, you need to carry around
+ * the stm reference yourself and just ignore this GlobalStm.
  * <p/>
- * The default implementation is the AlphaStm for now. It can be configured through setting the System
- * property: org.multiverse api GlobalStmInstance.factorymethod. This method should be a no arg static
- * method that returns a {@link Stm} instance.
+ * The default implementation is the AlphaStm for now. It can be configured through setting the System property:
+ * org.multiverse api GlobalStmInstance.factorymethod. This method should be a no arg static method that returns a
+ * {@link Stm} instance.
  *
  * @author Peter Veentjer
  */
@@ -44,38 +43,39 @@ public final class GlobalStmInstance {
         } catch (IllegalAccessException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "'%s' is not accessable (it should be public)').",
-                    KEY, factoryMethod, factoryMethod);
+                                KEY, factoryMethod, factoryMethod);
             logger.severe(msg);
             throw new IllegalArgumentException(msg, e);
         } catch (ClassCastException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "'%s' is not accessable (it should be public)').",
-                    KEY, factoryMethod, factoryMethod);
+                                KEY, factoryMethod, factoryMethod);
             logger.severe(msg);
             throw new IllegalArgumentException(msg, e);
         } catch (InvocationTargetException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "'%s' failed to be invoked.",
-                    KEY, factoryMethod, factoryMethod);
+                                KEY, factoryMethod, factoryMethod);
             logger.severe(msg);
             throw new IllegalArgumentException(msg, e);
         }
-        
+
         // XXX: think about a better place for this
         if (instance instanceof ProfilerAware) {
             ProfilePublisher publisher = new ProfilePublisher(
                     ((ProfilerAware) instance).getProfiler().getCollator());
             String mBeanName = "uncomment following for class circularity error"; //JmxUtils.registerMBean(publisher);
             logger.info(format("Successfully registered '%s' as an MBean under name '%s'",
-                    publisher, mBeanName));
+                               publisher, mBeanName));
         }
     }
 
     private static Method getMethod(String factoryMethod) {
         int indexOf = factoryMethod.lastIndexOf(".");
         if (indexOf == -1) {
-            String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'. " +
-                    "It is not a valid factory method, it should be something like 'com.SomeStm.createSomeStm').",
+            String msg = format(
+                    "Failed to initialize GlobalStmInstance through System property '%s' with value '%s'. " +
+                            "It is not a valid factory method, it should be something like 'com.SomeStm.createSomeStm').",
                     KEY, factoryMethod);
             logger.info(msg);
             throw new IllegalArgumentException();
@@ -88,7 +88,7 @@ public final class GlobalStmInstance {
         } catch (ClassNotFoundException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "'%s' is not an existing class (it can't be found using the Thread.currentThread.getContextClassLoader).",
-                    KEY, className, factoryMethod);
+                                KEY, className, factoryMethod);
             logger.info(msg);
             throw new IllegalArgumentException(msg, e);
         }
@@ -97,7 +97,7 @@ public final class GlobalStmInstance {
         if (methodName.length() == 0) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "The factory method is completely missing, it should be something like %s.createSomeStm.",
-                    KEY, className, factoryMethod);
+                                KEY, className, factoryMethod);
             logger.info(msg);
             throw new IllegalArgumentException(msg);
         }
@@ -108,7 +108,7 @@ public final class GlobalStmInstance {
         } catch (NoSuchMethodException e) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "The factory method is not found. Remember that it should not have any arguments.",
-                    KEY, factoryMethod);
+                                KEY, factoryMethod);
             logger.info(msg);
             throw new IllegalArgumentException(msg, e);
         }
@@ -116,7 +116,7 @@ public final class GlobalStmInstance {
         if (!isStatic(method.getModifiers())) {
             String msg = format("Failed to initialize GlobalStmInstance through System property '%s' with value '%s'." +
                     "The factory method is not static.",
-                    KEY, factoryMethod);
+                                KEY, factoryMethod);
             logger.info(msg);
             throw new IllegalArgumentException(msg);
         }
@@ -150,7 +150,7 @@ public final class GlobalStmInstance {
 
     private static void doSomeLogging() {
         Stm oldInstance = instance;
-        if (oldInstance != null && oldInstance.getClockVersion() > 0) {
+        if (oldInstance != null && oldInstance.getTime() > 0) {
             logger.warning("Replacing a used global STM instance. The old STM instance already has commits " +
                     "and this could lead to strange concurrency bugs. Normally this situation should be prevented. " +
                     "The safest thing to do is to drop all atomicobjects that have been created while using that STM.");

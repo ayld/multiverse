@@ -35,12 +35,8 @@ public class TestCase {
         return properties;
     }
 
-    public void setProperty(String name, String value) {
-        properties.put(name, value);
-    }
-
-    public void setProperty(String name, long value) {
-        properties.put(name, "" + value);
+    public void setProperty(String name, Object value) {
+        properties.put(name, value.toString());
     }
 
     public String getProperty(String name) {

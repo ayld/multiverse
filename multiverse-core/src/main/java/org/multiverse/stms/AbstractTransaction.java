@@ -1,12 +1,12 @@
 package org.multiverse.stms;
 
+import org.multiverse.MultiverseConstants;
 import org.multiverse.api.ScheduleType;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.DeadTransactionException;
-import org.multiverse.utils.clock.Clock;
+import org.multiverse.api.exceptions.PanicError;
 import org.multiverse.utils.latches.Latch;
-import org.multiverse.utils.restartbackoff.ExponentialRestartBackoffPolicy;
 import org.multiverse.utils.restartbackoff.RestartBackoffPolicy;
 
 import static java.text.MessageFormat.format;
@@ -17,38 +17,55 @@ import static java.text.MessageFormat.format;
  * <p/>
  * The on-methods can be overridden.
  * <p/>
- * The subclass needs to call the reset when it has completed its constructor. Can't be done inside the constructor of
- * the AbstractTransaction because properties in the subclass perhaps are not set.
+ * The subclass needs to call the {@link #init()} when it has completed its constructor. Can't be done inside the
+ * constructor of the AbstractTransaction because fields in the subclass perhaps are not set.
+ * <p/>
+ * AbstractTransaction requires the clock.time to be at least 1. It used the version field to encode the transaction
+ * state. See the version field for more information.
  *
  * @author Peter Veentjer.
  */
-public abstract class AbstractTransaction<D extends AbstractTransactionDependencies> implements Transaction {
+public abstract class AbstractTransaction<D extends AbstractTransactionDependencies>
+        implements Transaction, MultiverseConstants {
 
     protected final D dependencies;
     protected final String familyName;
 
-    protected TaskListNode scheduledTasks;
-    protected long readVersion;
-    //needs to be removed, readversion could be used for that.n
-    private long commitVersion;
-    protected TransactionStatus status;
+    private TaskListNode scheduledTasks;
 
     /**
-     * Creates a new AbstractTransaction.
-     *
-     * @param familyName the familyName this transaction has.
-     * @param clock      the Clock this transaction uses
-     * @throws NullPointerException if clock or commitLockPolicy is null.
+     * Contains the version but also contains encoded state: version>0: started version==0 -> transaction is aborted
+     * version<0 transaction is committed, and the commit version is now stored in version ( has to be multiplied by
+     * -1). Long.MIN_VALUE is free
      */
-    public AbstractTransaction(String familyName, Clock clock) {
-        this((D) new AbstractTransactionDependencies(clock, ExponentialRestartBackoffPolicy.INSTANCE_10_MS_MAX),
-             familyName);
-    }
+    private long version;
 
     public AbstractTransaction(D dependencies, String familyName) {
         assert dependencies != null;
         this.dependencies = dependencies;
         this.familyName = familyName;
+
+        if (SANITY_CHECKS_ENABLED) {
+            if (dependencies.clock.getTime() == 0) {
+                throw new PanicError("Clock.time has to be larger than 0, smaller version have special meaning");
+            }
+        }
+    }
+
+    @Override
+    public long getReadVersion() {
+        return version;
+    }
+
+    @Override
+    public TransactionStatus getStatus() {
+        if (version > 0) {
+            return TransactionStatus.active;
+        } else if (version == 0) {
+            return TransactionStatus.aborted;
+        } else {
+            return TransactionStatus.committed;
+        }
     }
 
     @Override
@@ -56,19 +73,15 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
         return dependencies.restartBackoffPolicy;
     }
 
+    @Override
     public String getFamilyName() {
         return familyName;
     }
 
-    @Override
-    public long getReadVersion() {
-        return readVersion;
-    }
 
     protected final void init() {
         this.scheduledTasks = null;
-        this.readVersion = dependencies.clock.getTime();
-        this.status = TransactionStatus.active;
+        this.version = dependencies.clock.getTime();
         doInit();
     }
 
@@ -77,13 +90,13 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
 
     @Override
     public void schedule(Runnable task, ScheduleType scheduleType) {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 if (task == null) {
                     throw new NullPointerException();
                 }
 
-                if(scheduleType == null){
+                if (scheduleType == null) {
                     throw new NullPointerException();
                 }
 
@@ -102,7 +115,7 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
 
     @Override
     public Transaction abortAndReturnRestarted() {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 //fall through
             case committed:
@@ -115,11 +128,6 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
         }
     }
 
-    @Override
-    public TransactionStatus getStatus() {
-        return status;
-    }
-
     protected void excuteScheduledTasks(ScheduleType scheduleType) {
         if (scheduledTasks != null) {
             scheduledTasks.executeAll(scheduleType);
@@ -128,11 +136,11 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
 
     @Override
     public void abort() {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 try {
                     excuteScheduledTasks(ScheduleType.preAbort);
-                    status = TransactionStatus.aborted;
+                    version = 0;//sets the status to aborted
                     doAbort();
                     excuteScheduledTasks(ScheduleType.postAbort);
                 } finally {
@@ -155,19 +163,25 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
 
     @Override
     public long commit() {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 try {
                     excuteScheduledTasks(ScheduleType.preCommit);
                     boolean abort = true;
                     try {
-                        commitVersion = onCommit();
-                        status = TransactionStatus.committed;
+                        long result = onCommit();
+                        if (SANITY_CHECKS_ENABLED) {
+                            if (result < 1) {
+                                throw new PanicError();
+                            }
+                        }
+                        this.version = -result;
                         abort = false;
                         excuteScheduledTasks(ScheduleType.postCommit);
-                        return commitVersion;
+                        return -version;
                     } finally {
                         if (abort) {
+                            version = 0;//sets the status to aborted
                             doAbort();
                         }
                     }
@@ -175,7 +189,7 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
                     scheduledTasks = null;
                 }
             case committed:
-                return commitVersion;
+                return -version;
             case aborted:
                 throw new DeadTransactionException(
                         format("Can't commit already aborted transaction '%s'", familyName));
@@ -185,20 +199,21 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
     }
 
     protected long onCommit() {
-        return readVersion;
+        return version;
     }
 
     @Override
     public void abortAndRegisterRetryLatch(Latch latch) {
-        switch (status) {
+        switch (getStatus()) {
             case active:
-
                 if (latch == null) {
                     throw new NullPointerException();
                 }
-
-                doAbortAndRegisterRetryLatch(latch);
-
+                try {
+                    doAbortAndRegisterRetryLatch(latch);
+                } finally {
+                    version = 0;//sets the status to aborted
+                }
                 break;
             case committed:
                 throw new DeadTransactionException(
@@ -228,7 +243,7 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
 
     @Override
     public void startOr() {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 doStartOr();
                 break;
@@ -248,7 +263,7 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
 
     @Override
     public void endOr() {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 doEndOr();
                 break;
@@ -268,7 +283,7 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
 
     @Override
     public void endOrAndStartElse() {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 doEndOrAndStartElse();
                 break;
@@ -313,5 +328,4 @@ public abstract class AbstractTransaction<D extends AbstractTransactionDependenc
             } while (node != null);
         }
     }
-
 }

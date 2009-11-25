@@ -4,12 +4,11 @@ import static java.lang.String.format;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * The intuitive implementation of a {@link Clock}. It wraps an AtomicLong and increases the
- * value every time a tick is done.
+ * The intuitive implementation of a {@link Clock}. It wraps an AtomicLong and increases the value every time a tick is
+ * done.
  * <p/>
- * A strict clock provides a full ordering of all transactions (also transactions that don't
- * share state). This full ordering causes contention on the memory bus. See the
- * {@link RelaxedClock} for more info.
+ * A strict clock provides a full ordering of all transactions (also transactions that don't share state). This full
+ * ordering causes contention on the memory bus. See the {@link RelaxedClock} for more info.
  *
  * @author Peter Veentjer.
  */
@@ -22,6 +21,14 @@ public final class StrictClock implements Clock {
      */
     public StrictClock() {
     }
+
+    public StrictClock(long time) {
+        if (time < 0) {
+            throw new IllegalArgumentException();
+        }
+        clock.set(time);
+    }
+
 
     @Override
     public long tick() {

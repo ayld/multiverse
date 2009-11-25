@@ -5,14 +5,15 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.DirtinessStatus;
-import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class IntRefTest {
+
     private AlphaStm stm;
 
     @Before
@@ -78,11 +79,11 @@ public class IntRefTest {
 
     @Test
     public void atomicCreation() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         IntRef intValue = new IntRef(10);
 
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         assertNull(getThreadLocalTransaction());
         assertEquals(10, intValue.get());
     }
@@ -91,23 +92,23 @@ public class IntRefTest {
     public void atomicGet() {
         IntRef intValue = new IntRef(10);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         int result = intValue.get();
         assertEquals(10, result);
         assertNull(getThreadLocalTransaction());
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
     }
 
     @Test
     public void atomicSet() {
         IntRef intValue = new IntRef(10);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         intValue.set(100);
 
         assertNull(getThreadLocalTransaction());
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         assertEquals(100, intValue.get());
     }
 
@@ -115,12 +116,12 @@ public class IntRefTest {
     public void atomicInc() {
         IntRef intValue = new IntRef(10);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         intValue.inc();
 
         assertNull(getThreadLocalTransaction());
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         assertEquals(11, intValue.get());
     }
 

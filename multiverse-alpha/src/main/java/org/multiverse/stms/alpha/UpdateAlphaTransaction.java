@@ -1,7 +1,5 @@
 package org.multiverse.stms.alpha;
 
-import org.multiverse.MultiverseConstants;
-import org.multiverse.api.TransactionStatus;
 import org.multiverse.api.exceptions.*;
 import org.multiverse.stms.AbstractTransaction;
 import static org.multiverse.stms.alpha.AlphaStmUtils.toAtomicObjectString;
@@ -24,11 +22,9 @@ import java.util.Map;
  * @author Peter Veentjer.
  */
 public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactionDependencies>
-        implements AlphaTransaction, MultiverseConstants {
+        implements AlphaTransaction {
 
     private final static AlphaTranlocal[] EMPTY_WRITESET = new AlphaTranlocal[0];
-
-    private final UpdateTransactionDependencies dependencies;
 
     //the attached set contains the Translocals loaded and attached.
     private final Map<AlphaAtomicObject, AlphaTranlocal> attached
@@ -38,7 +34,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
 
     public UpdateAlphaTransaction(UpdateTransactionDependencies params, String familyName) {
         super(params, familyName);
-        this.dependencies = params;
         init();
     }
 
@@ -53,7 +48,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
 
     @Override
     public AlphaTranlocal load(AlphaAtomicObject atomicObject) {
-        switch (status) {
+        switch (getStatus()) {
             case active:
                 if (atomicObject == null) {
                     return null;
@@ -62,7 +57,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
                 AlphaTranlocal tranlocal = attached.get(atomicObject);
                 if (tranlocal == null) {
                     try {
-                        tranlocal = atomicObject.___loadUpdatable(readVersion);
+                        tranlocal = atomicObject.___loadUpdatable(getReadVersion());
                     } catch (LoadTooOldVersionException e) {
                         if (dependencies.profiler != null) {
                             dependencies.profiler.incCounter("atomicobject.snapshottooold.count",
@@ -127,7 +122,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
             if (dependencies.profiler != null) {
                 dependencies.profiler.incCounter("updatetransaction.emptycommit.count", getFamilyName());
             }
-            return readVersion;
+            return getReadVersion();
         }
 
         boolean locksNeedToBeReleased = true;
@@ -137,13 +132,13 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
             writeVersion = dependencies.clock.tick();
 
             if (SANITY_CHECKS_ENABLED) {
-                if (writeVersion <= readVersion) {
+                if (writeVersion <= getReadVersion()) {
                     throw new PanicError("The clock went back in time");
                 }
             }
 
             storeAllAndReleaseLocks(writeSet, writeVersion);
-            locksNeedToBeReleased = false;
+            locksNeedToBeReleased = true;
             return writeVersion;
         } finally {
             if (locksNeedToBeReleased) {
@@ -173,7 +168,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
             switch (tranlocal.getDirtinessStatus()) {
                 case clean:
                     //fall through
-                case committed:
+                case readonly:
                     skipped++;
                     break;
                 case fresh:
@@ -280,7 +275,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
 
     @Override
     protected void doAbort() {
-        status = TransactionStatus.aborted;
         attached.clear();
         if (dependencies.profiler != null) {
             dependencies.profiler.incCounter("updatetransaction.aborted.count", getFamilyName());
@@ -289,8 +283,6 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
 
     @Override
     protected void doAbortAndRegisterRetryLatch(Latch latch) {
-        status = TransactionStatus.aborted;
-
         if (attached.isEmpty()) {
             String msg = format("Can't retry on transaction '%s' because it has not been used.", getFamilyName());
             throw new NoRetryPossibleException(msg);
@@ -300,7 +292,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
             dependencies.profiler.incCounter("updatetransaction.waiting.count", getFamilyName());
         }
 
-        long minimalVersion = readVersion + 1;
+        long minimalVersion = getReadVersion() + 1;
 
         boolean atLeastOneRegistration = false;
         for (AlphaAtomicObject atomicObject : attached.keySet()) {
@@ -328,7 +320,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
         AlphaTranlocalSnapshot result = null;
         for (AlphaTranlocal tranlocal : attached.values()) {
             AlphaTranlocalSnapshot snapshot = tranlocal.takeSnapshot();
-            snapshot.next = result;
+            snapshot.___next = result;
             result = snapshot;
         }
 
@@ -360,7 +352,7 @@ public class UpdateAlphaTransaction extends AbstractTransaction<UpdateTransactio
             AlphaTranlocal tranlocal = snapshot.getTranlocal();
             attached.put(tranlocal.getAtomicObject(), tranlocal);
             snapshot.restore();
-            snapshot = snapshot.next;
+            snapshot = snapshot.___next;
         }
     }
 

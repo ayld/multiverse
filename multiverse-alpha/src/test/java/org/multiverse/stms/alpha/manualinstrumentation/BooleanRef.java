@@ -39,11 +39,11 @@ public class BooleanRef extends FastAtomicObjectMixin {
 
 
     public void set(BooleanRefTranlocal tranlocal, boolean newValue) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.value = newValue;
         }
+
+        tranlocal.value = newValue;
     }
 
     public boolean get(BooleanRefTranlocal tranlocal) {
@@ -64,30 +64,29 @@ public class BooleanRef extends FastAtomicObjectMixin {
 
 class BooleanRefTranlocal extends AlphaTranlocal {
 
-    final BooleanRef atomicObject;
+    BooleanRefTranlocal ___origin;
+    final BooleanRef ___atomicObject;
     boolean value;
-    BooleanRefTranlocal origin;
 
     public BooleanRefTranlocal(BooleanRefTranlocal origin) {
-        this.origin = origin;
+        this.___origin = origin;
         this.value = origin.value;
-        this.atomicObject = origin.atomicObject;
+        this.___atomicObject = origin.___atomicObject;
     }
 
     public BooleanRefTranlocal(BooleanRef atomicObject) {
-        this.atomicObject = atomicObject;
+        this.___atomicObject = atomicObject;
     }
 
     @Override
     public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
+        return ___atomicObject;
     }
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.___version = writeVersion;
-        this.___committed = true;
-        this.origin = null;
+        this.___writeVersion = writeVersion;
+        this.___origin = null;
     }
 
     @Override
@@ -97,11 +96,11 @@ class BooleanRefTranlocal extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (___committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
+        if (___writeVersion > 0) {
+            return DirtinessStatus.readonly;
+        } else if (___origin == null) {
             return DirtinessStatus.fresh;
-        } else if (origin.value != this.value) {
+        } else if (___origin.value != this.value) {
             return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
@@ -111,21 +110,21 @@ class BooleanRefTranlocal extends AlphaTranlocal {
 
 class BooleanRefTranlocalSnapshot extends AlphaTranlocalSnapshot {
 
-    final BooleanRefTranlocal tranlocal;
+    final BooleanRefTranlocal ___tranlocal;
     final boolean value;
 
     public BooleanRefTranlocalSnapshot(BooleanRefTranlocal tranlocal) {
-        this.tranlocal = tranlocal;
+        this.___tranlocal = tranlocal;
         value = tranlocal.value;
     }
 
     @Override
     public AlphaTranlocal getTranlocal() {
-        return tranlocal;
+        return ___tranlocal;
     }
 
     @Override
     public void restore() {
-        tranlocal.value = value;
+        ___tranlocal.value = value;
     }
 }

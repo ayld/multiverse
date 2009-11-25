@@ -1,17 +1,18 @@
 package org.multiverse.stms.alpha.integrationtests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.Ref;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
-import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class LoadTest {
 
@@ -43,7 +44,7 @@ public class LoadTest {
     @AtomicMethod
     public static void executeUpdate() {
         AlphaTranlocal tranlocal = getTranlocal();
-        assertFalse(tranlocal.___committed);
+        assertEquals(0, tranlocal.___writeVersion);
         assertEquals(0, (int) intRef.get());
     }
 
@@ -54,7 +55,7 @@ public class LoadTest {
 
     @AtomicMethod(readonly = true)
     public static void executeReadonly() {
-        assertTrue(getTranlocal().___committed);
+        assertTrue(getTranlocal().___writeVersion > 0);
         assertEquals(0, (int) intRef.get());
     }
 }

@@ -40,7 +40,7 @@ public abstract class AbstractBlockingDeque<E> extends AbstractCollection<E> imp
         doAddFirst(e);
     }
 
-     protected abstract void doAddFirst(E e);
+    protected abstract void doAddFirst(E e);
 
     @Override
     @AtomicMethod

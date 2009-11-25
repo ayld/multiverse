@@ -1,22 +1,21 @@
 package org.multiverse.stms.alpha.instrumentation.asm;
 
+import org.multiverse.api.ThreadLocalTransaction;
+import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.ReadonlyException;
-import org.multiverse.stms.alpha.AlphaStmUtils;
+import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaTranlocal;
+import org.multiverse.stms.alpha.AlphaTransaction;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.isCategory2;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import static org.objectweb.asm.Type.getDescriptor;
 import static org.objectweb.asm.Type.getInternalName;
 
 import static java.lang.String.format;
 
 /**
- * A MethodAdapter that transforms all field access on atomic objects to the correct form.
- * So if a Tranlocal is needed, it will be pushed in between, so:
+ * A MethodAdapter that transforms all field access on atomic objects to the correct form. So if a Tranlocal is needed,
+ * it will be pushed in between, so:
  * <p/>
  * person.firstname -> person.persontranlocal.firstname
  * <p/>
@@ -60,17 +59,27 @@ public class AtomicObjectRemappingMethodAdapter extends MethodAdapter implements
 
                     Label continueWithPut = new Label();
                     mv.visitInsn(DUP);
-                    mv.visitFieldInsn(GETFIELD, tranlocalName, "___committed", "Z");
-                    //if committed equals 0 then continueWithPut ( 0 is false, 1 is true)
+                    mv.visitFieldInsn(GETFIELD, tranlocalName, "___writeVersion", "J");
+                    mv.visitLdcInsn(new Long(0));
+                    mv.visitInsn(LCMP);
+                    //if version equals 0 then continueWithPut
+
                     mv.visitJumpInsn(IFEQ, continueWithPut);
 
                     mv.visitTypeInsn(NEW, Type.getInternalName(ReadonlyException.class));
                     mv.visitInsn(DUP);
-                    String msg = format("Can't write on committed field %s.%s. The cause of this error is probably an update " +
-                            "in a readonly transaction", owner, name);
+                    String msg = format(
+                            "Can't write on committed field %s.%s. The cause of this error is probably an update " +
+                                    "in a readonly transaction",
+                            owner,
+                            name);
                     //
                     mv.visitLdcInsn(msg);
-                    mv.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(ReadonlyException.class), "<init>", "(Ljava/lang/String;)V");
+                    mv.visitMethodInsn(
+                            INVOKESPECIAL,
+                            Type.getInternalName(ReadonlyException.class),
+                            "<init>",
+                            "(Ljava/lang/String;)V");
                     mv.visitInsn(ATHROW);
                     mv.visitLabel(continueWithPut);
 
@@ -113,17 +122,23 @@ public class AtomicObjectRemappingMethodAdapter extends MethodAdapter implements
             throw new RuntimeException("No generated classes are allowed: " + atomicObjectName);
         }
 
-        String tranlocalName = metadataService.getTranlocalName(atomicObjectName);
-        //do the AlphaStmUtils.privatize call to place it in the tranlocal form
-        String argDesc = getDescriptor(Object.class);
-        String returnDesc = getDescriptor(AlphaTranlocal.class);
-        String loadDesc = format("(%s)%s", argDesc, returnDesc);
         super.visitMethodInsn(
                 INVOKESTATIC,
-                getInternalName(AlphaStmUtils.class),
-                "load",
-                loadDesc);
+                getInternalName(ThreadLocalTransaction.class),
+                "getRequiredThreadLocalTransaction",
+                format("()%s", getDescriptor(Transaction.class)));
 
+        super.visitInsn(SWAP);
+
+        super.visitTypeInsn(CHECKCAST, atomicObjectName);
+
+        super.visitMethodInsn(
+                INVOKEINTERFACE,
+                getInternalName(AlphaTransaction.class),
+                "load",
+                format("(%s)%s", getDescriptor(AlphaAtomicObject.class), getDescriptor(AlphaTranlocal.class)));
+
+        String tranlocalName = metadataService.getTranlocalName(atomicObjectName);
         super.visitTypeInsn(CHECKCAST, tranlocalName);
     }
 }

@@ -8,9 +8,9 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -19,6 +19,7 @@ import java.lang.reflect.Modifier;
  * @author Peter Veentjer
  */
 public class AtomicObject_MethodAccessModifiersTest {
+
     private Stm stm;
 
     @Before
@@ -37,15 +38,16 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testAtomicObjectCallingProtectedMethod() {
         AtomicObjectCallingProtectedMethod o = new AtomicObjectCallingProtectedMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.callDoIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 
     @AtomicObject
     static class AtomicObjectCallingProtectedMethod {
+
         private int value;
 
         protected void doIt() {
@@ -65,15 +67,16 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testAtomicObjectCallingPublicMethod() {
         AtomicObjectCallingPublicMethod o = new AtomicObjectCallingPublicMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.callDoIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 
     @AtomicObject
     static class AtomicObjectCallingPublicMethod {
+
         private int value;
 
         public void doIt() {
@@ -93,10 +96,10 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testAtomicObjectCallingPackageFriendlyMethod() {
         AtomicObjectCallingPackageFriendlyMethod o = new AtomicObjectCallingPackageFriendlyMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.callDoIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 
@@ -122,10 +125,10 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testAtomicObjectCallingPrivateMethod() {
         AtomicObjectCallingPrivateMethod privateMethod = new AtomicObjectCallingPrivateMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         privateMethod.callDoIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, privateMethod.getValue());
     }
 
@@ -151,10 +154,10 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testStaticPublicMethod() {
         AtomicObjectCallingPublicStaticMethod o = new AtomicObjectCallingPublicStaticMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.doIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 
@@ -180,10 +183,10 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testStaticProtectedMethod() {
         AtomicObjectCallingProtectedStaticMethod o = new AtomicObjectCallingProtectedStaticMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.doIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 
@@ -209,10 +212,10 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testStaticPackageFriendlyMethod() {
         AtomicObjectCallingPackageFriendlyStaticMethod o = new AtomicObjectCallingPackageFriendlyStaticMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.doIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 
@@ -238,10 +241,10 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testStaticPrivateMethod() {
         AtomicObjectCallingPrivateStaticMethod o = new AtomicObjectCallingPrivateStaticMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.doIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 
@@ -267,10 +270,10 @@ public class AtomicObject_MethodAccessModifiersTest {
     public void testExternalStaticMethod() {
         AtomicObjectCallingExternalStaticMethod o = new AtomicObjectCallingExternalStaticMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.doIt();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(20, o.getValue());
     }
 
@@ -299,9 +302,9 @@ public class AtomicObject_MethodAccessModifiersTest {
         assertTrue(Modifier.isSynchronized(method.getModifiers()));
 
         SynchronizedMethod m = new SynchronizedMethod();
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         m.doIt();
-        assertEquals(version+1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(10, m.getValue());
     }
 

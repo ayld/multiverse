@@ -17,7 +17,7 @@ public class AbstractTransaction_abortAndReturnStartedTest {
 
     @Before
     public void setUp() {
-        clock = new StrictClock();
+        clock = new StrictClock(1);
     }
 
     @Test
@@ -25,7 +25,7 @@ public class AbstractTransaction_abortAndReturnStartedTest {
         Transaction t = new AbstractTransactionImpl(clock);
         long version = clock.getTime();
 
-        Transaction result =   t.abortAndReturnRestarted();
+        Transaction result = t.abortAndReturnRestarted();
 
         assertSame(t, result);
         assertIsActive(t);
@@ -39,7 +39,7 @@ public class AbstractTransaction_abortAndReturnStartedTest {
 
         long version = clock.getTime();
 
-        Transaction result =   t.abortAndReturnRestarted();
+        Transaction result = t.abortAndReturnRestarted();
 
         assertSame(t, result);
         assertIsActive(t);
@@ -53,7 +53,7 @@ public class AbstractTransaction_abortAndReturnStartedTest {
 
         long version = clock.getTime();
 
-        Transaction result =   t.abortAndReturnRestarted();
+        Transaction result = t.abortAndReturnRestarted();
 
         assertSame(t, result);
         assertIsActive(t);

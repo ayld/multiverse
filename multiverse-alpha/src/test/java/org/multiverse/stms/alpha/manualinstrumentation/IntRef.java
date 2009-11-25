@@ -109,21 +109,20 @@ public final class IntRef extends FastAtomicObjectMixin {
     }
 
     public void loopInc(IntRefTranlocal tranlocal, int amount) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            for (int k = 0; k < amount; k++) {
-                inc(tranlocal);
-            }
+        }
+
+        for (int k = 0; k < amount; k++) {
+            inc(tranlocal);
         }
     }
 
     public void set(IntRefTranlocal tranlocal, int newValue) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.value = newValue;
         }
+        tranlocal.value = newValue;
     }
 
     public int get(IntRefTranlocal tranlocal) {
@@ -131,19 +130,17 @@ public final class IntRef extends FastAtomicObjectMixin {
     }
 
     public void inc(IntRefTranlocal tranlocal) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.value++;
         }
+        tranlocal.value++;
     }
 
     public void dec(IntRefTranlocal tranlocal) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.value--;
         }
+        tranlocal.value--;
     }
 
     public void await(IntRefTranlocal tranlocal, int expectedValue) {

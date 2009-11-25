@@ -6,13 +6,13 @@
     <artifactId>multiverse-benchy</artifactId>
     <name>Benchy the benchmark framework</name>
     <description>
-        Benchy the Benchmark framework is an application that can be used to execute benchmarks. It doesn't
-        contain any Benchmarks itself (it isn't related to multiverse in principle).
+        Benchy the Benchmark framework is an application that can be used to execute benchmarks.
+        It doesn't contain any Benchmarks itself (it isn't related to multiverse in principle).
     </description>
 
     <parent>
         <groupId>org.multiverse</groupId>
-        <artifactId>multiverse</artifactId>        
+        <artifactId>multiverse</artifactId>
         <version>0.3-SNAPSHOT</version>
     </parent>
 

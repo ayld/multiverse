@@ -7,14 +7,15 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
  */
 public class UpdateAlphaTransaction_abortTest {
+
     private AlphaStm stm;
 
     @Before
@@ -39,12 +40,12 @@ public class UpdateAlphaTransaction_abortTest {
     public void changesOnReadPrivatizedObjectsAreNotCommitted() {
         IntRef value = new IntRef(10);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         Transaction t2 = startUpdateTransaction();
         value.inc();
         t2.abort();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertIsAborted(t2);
 
         startUpdateTransaction();
@@ -54,16 +55,16 @@ public class UpdateAlphaTransaction_abortTest {
 
     @Test
     public void changesOnAttachedAsNewObjectsAreNotCommitted() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         Transaction t = startUpdateTransaction();
         IntRef intValue = new IntRef(10);
         t.abort();
 
         assertIsAborted(t);
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
 
-        AlphaTranlocal result = intValue.___load(stm.getClockVersion());
+        AlphaTranlocal result = intValue.___load(stm.getTime());
         assertNull(result);
     }
 
@@ -73,7 +74,7 @@ public class UpdateAlphaTransaction_abortTest {
         IntRef value2 = new IntRef(1);
         IntRef value3 = new IntRef(1);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         Transaction t = startUpdateTransaction();
         value1.inc();
@@ -83,7 +84,7 @@ public class UpdateAlphaTransaction_abortTest {
         setThreadLocalTransaction(null);
 
         assertIsAborted(t);
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
         assertEquals(1, value1.get());
         assertEquals(1, value2.get());
         assertEquals(1, value3.get());
@@ -93,9 +94,9 @@ public class UpdateAlphaTransaction_abortTest {
     public void unusedStartedTransaction() {
         Transaction t = startUpdateTransaction();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         t.abort();
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertIsAborted(t);
     }
 

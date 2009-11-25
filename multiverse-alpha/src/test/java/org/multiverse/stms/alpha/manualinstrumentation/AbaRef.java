@@ -102,7 +102,7 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
     }
 
     public void set(AbaRefTranlocal<E> tranlocal, E newValue) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
         }
         tranlocal.value = newValue;
@@ -111,17 +111,17 @@ public class AbaRef<E> extends FastAtomicObjectMixin {
 }
 
 class AbaRefTranlocal<E> extends AlphaTranlocal {
-    AbaRef<E> atomicObject;
+
+    AbaRef<E> ___atomicObject;
+    AbaRefTranlocal ___origin;
     E value;
     long writeVersion;
-    AbaRefTranlocal origin;
 
     AbaRefTranlocal(AbaRefTranlocal<E> origin) {
-        this.___version = origin.___version;
-        this.atomicObject = origin.atomicObject;
+        this.___atomicObject = origin.___atomicObject;
+        this.___origin = origin;
         this.value = origin.value;
         this.writeVersion = origin.writeVersion;
-        this.origin = origin;
     }
 
     AbaRefTranlocal(AbaRef<E> atomicObject) {
@@ -129,22 +129,20 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
     }
 
     AbaRefTranlocal(AbaRef<E> owner, E value) {
-        this.___version = Long.MIN_VALUE;
-        this.atomicObject = owner;
+        this.___atomicObject = owner;
         this.value = value;
         this.writeVersion = Long.MIN_VALUE;
     }
 
     @Override
     public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
+        return ___atomicObject;
     }
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.___version = writeVersion;
-        this.___committed = true;
-        this.origin = null;
+        this.___writeVersion = writeVersion;
+        this.___origin = null;
     }
 
     @Override
@@ -154,13 +152,13 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (___committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
+        if (___writeVersion > 0) {
+            return DirtinessStatus.readonly;
+        } else if (___origin == null) {
             return DirtinessStatus.fresh;
-        } else if (origin.value != this.value) {
+        } else if (___origin.value != this.value) {
             return DirtinessStatus.dirty;
-        } else if (origin.writeVersion != this.writeVersion) {
+        } else if (___origin.writeVersion != this.writeVersion) {
             return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
@@ -170,24 +168,24 @@ class AbaRefTranlocal<E> extends AlphaTranlocal {
 
 class AbaRefTranlocalSnapshot<E> extends AlphaTranlocalSnapshot {
 
-    final AbaRefTranlocal<E> tranlocal;
+    final AbaRefTranlocal<E> ___tranlocal;
     final E value;
     final long writeVersion;
 
     AbaRefTranlocalSnapshot(AbaRefTranlocal<E> tranlocalAbaRef) {
-        this.tranlocal = tranlocalAbaRef;
+        this.___tranlocal = tranlocalAbaRef;
         this.value = tranlocalAbaRef.value;
         this.writeVersion = tranlocalAbaRef.writeVersion;
     }
 
     @Override
     public AlphaTranlocal getTranlocal() {
-        return tranlocal;
+        return ___tranlocal;
     }
 
     @Override
     public void restore() {
-        tranlocal.writeVersion = writeVersion;
-        tranlocal.value = value;
+        ___tranlocal.writeVersion = writeVersion;
+        ___tranlocal.value = value;
     }
 }

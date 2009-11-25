@@ -13,8 +13,7 @@ import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
 
 /**
- * An integration test for the AtomicTransformer that checks if it can deal with all the possible
- * argument types.
+ * An integration test for the AtomicTransformer that checks if it can deal with all the possible argument types.
  *
  * @author Peter Veentjer.
  */
@@ -47,8 +46,7 @@ public class AtomicMethod_ArgumentsTest {
 
     public static class NoArguments {
 
-        @AtomicMethod
-        void doIt() {
+        @AtomicMethod void doIt() {
             assertTransactionWorking();
         }
     }
@@ -70,10 +68,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class ObjectArgument {
+
         private Object expectedArg1;
 
-        @AtomicMethod
-        void doIt(Object arg1) {
+        @AtomicMethod void doIt(Object arg1) {
             assertSame(expectedArg1, arg1);
             assertTransactionWorking();
         }
@@ -88,10 +86,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class booleanArgument {
+
         private boolean expectedArg1;
 
-        @AtomicMethod
-        void doIt(boolean arg1) {
+        @AtomicMethod void doIt(boolean arg1) {
             assertEquals(expectedArg1, arg1);
             assertTransactionWorking();
         }
@@ -106,10 +104,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class ShortArgument {
+
         private short expectedArg1;
 
-        @AtomicMethod
-        void doIt(short arg1) {
+        @AtomicMethod void doIt(short arg1) {
             assertEquals(expectedArg1, arg1);
             assertTransactionWorking();
         }
@@ -124,10 +122,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class ByteArgument {
+
         private byte expectedArg1;
 
-        @AtomicMethod
-        void doIt(byte arg1) {
+        @AtomicMethod void doIt(byte arg1) {
             assertEquals(expectedArg1, arg1);
             assertTransactionWorking();
         }
@@ -142,10 +140,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class IntArgument {
+
         private int expectedArg1;
 
-        @AtomicMethod
-        void doIt(int arg1) {
+        @AtomicMethod void doIt(int arg1) {
             assertEquals(expectedArg1, arg1);
             assertTransactionWorking();
         }
@@ -164,12 +162,12 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class MultipleIntArguments {
+
         private int expectedArg1;
         private int expectedArg2;
         private int expectedArg3;
 
-        @AtomicMethod
-        void doIt(int arg1, int arg2, int arg3) {
+        @AtomicMethod void doIt(int arg1, int arg2, int arg3) {
             assertEquals(expectedArg1, arg1);
             assertEquals(expectedArg2, arg2);
             assertEquals(expectedArg3, arg3);
@@ -186,10 +184,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class LongArgument {
+
         private long expectedArg1;
 
-        @AtomicMethod
-        void doIt(long arg1) {
+        @AtomicMethod void doIt(long arg1) {
             assertEquals(expectedArg1, arg1);
             assertTransactionWorking();
         }
@@ -209,12 +207,12 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class MultipleLongArguments {
+
         private long expectedArg1;
         private long expectedArg2;
         private long expectedArg3;
 
-        @AtomicMethod
-        void doIt(long arg1, long arg2, long arg3) {
+        @AtomicMethod void doIt(long arg1, long arg2, long arg3) {
             assertEquals(expectedArg1, arg1);
             assertEquals(expectedArg2, arg2);
             assertEquals(expectedArg3, arg3);
@@ -232,10 +230,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class FloatArgument {
+
         private float expectedArg1;
 
-        @AtomicMethod
-        void doIt(float arg1) {
+        @AtomicMethod void doIt(float arg1) {
             assertEquals(expectedArg1, arg1, 0.000001);
             assertTransactionWorking();
         }
@@ -251,10 +249,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class DoubleArgument {
+
         private double expectedArg1;
 
-        @AtomicMethod
-        void doIt(double arg1) {
+        @AtomicMethod void doIt(double arg1) {
             assertEquals(expectedArg1, arg1, 0.000001);
             assertTransactionWorking();
         }
@@ -273,13 +271,13 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class MultipleDoubleArguments {
+
         private double expectedArg1;
         private double expectedArg2;
         private double expectedArg3;
 
 
-        @AtomicMethod
-        void doIt(double arg1, double arg2, double arg3) {
+        @AtomicMethod void doIt(double arg1, double arg2, double arg3) {
             assertEquals(expectedArg1, arg1, 0.000001);
             assertEquals(expectedArg2, arg2, 0.000001);
             assertEquals(expectedArg3, arg3, 0.000001);
@@ -313,6 +311,7 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public class ComplexSetOfArguments {
+
         boolean expectedArg1;
         byte expectedArg2;
         short expectedArg3;
@@ -323,8 +322,8 @@ public class AtomicMethod_ArgumentsTest {
         double expectedArg8;
         Object expectedArg9;
 
-        @AtomicMethod
-        void doIt(boolean arg1, byte arg2, short arg3, char arg4, int arg5, long arg6, float arg7, Object arg8, Object arg9) {
+        @AtomicMethod void doIt(boolean arg1, byte arg2, short arg3, char arg4, int arg5, long arg6, float arg7,
+                                Object arg8, Object arg9) {
             assertEquals(expectedArg1, arg1);
             assertEquals(expectedArg2, arg2);
             assertEquals(expectedArg3, arg3);
@@ -348,10 +347,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class PrimitiveArrayArgument {
+
         private int[] expectedArg;
 
-        @AtomicMethod
-        void doIt(int[] args) {
+        @AtomicMethod void doIt(int[] args) {
             assertEquals(args.length, expectedArg.length);
             for (int k = 0; k < args.length; k++) {
                 assertEquals(expectedArg[k], args[k]);
@@ -368,10 +367,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class ObjectArrayArgument {
+
         private Object[] expectedArg;
 
-        @AtomicMethod
-        void doIt(Object[] args) {
+        @AtomicMethod void doIt(Object[] args) {
             assertEquals(args.length, expectedArg.length);
             for (int k = 0; k < args.length; k++) {
                 assertSame(expectedArg[k], args[k]);
@@ -388,10 +387,10 @@ public class AtomicMethod_ArgumentsTest {
     }
 
     public static class VarArgsArgument {
+
         private int[] expectedArg;
 
-        @AtomicMethod
-        void doIt(int... args) {
+        @AtomicMethod void doIt(int... args) {
             assertEquals(args.length, expectedArg.length);
             for (int k = 0; k < args.length; k++) {
                 assertEquals(expectedArg[k], args[k]);
@@ -403,15 +402,15 @@ public class AtomicMethod_ArgumentsTest {
     @Test
     public void testStatic() {
         IntRef intRef = new IntRef();
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         inc(intRef);
 
-        assertEquals(version+1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, intRef.get());
     }
 
     @AtomicMethod
-    public static void inc(IntRef intRef){
+    public static void inc(IntRef intRef) {
         intRef.inc();
     }
 

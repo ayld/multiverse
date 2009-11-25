@@ -14,6 +14,7 @@ import org.multiverse.stms.alpha.AlphaStm;
  * @author Peter Veentjer
  */
 public class AtomicObjectFieldAccessTransformerTest {
+
     private AlphaStm stm;
 
     @Before
@@ -25,34 +26,35 @@ public class AtomicObjectFieldAccessTransformerTest {
     @Test
     public void fieldAccessWithoutTransaction() {
         SomeRef someRef = new SomeRef();
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         try {
             int x = someRef.x;
             fail();
         } catch (NoTransactionFoundException ignore) {
         }
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @Test
     public void fieldAccessWithTransaction() {
         SomeRef someRef = new SomeRef();
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         int x = inc(someRef);
 
         assertEquals(11, x);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
     }
 
     @AtomicMethod
-    public int inc(SomeRef someRef){
+    public int inc(SomeRef someRef) {
         someRef.x++;
         return someRef.x;
     }
 
     @AtomicObject
     public class SomeRef {
+
         public int x = 10;
     }
 }

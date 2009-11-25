@@ -4,14 +4,15 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
  */
 public class AbaRefTest {
+
     private AlphaStm stm;
 
     @Before
@@ -34,12 +35,12 @@ public class AbaRefTest {
 
         final AbaRef<String> ref = new AbaRef<String>(a);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         Transaction t = startTransaction();
         ref.set(b);
         ref.set(a);
         t.commit();
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
     }
 
 }

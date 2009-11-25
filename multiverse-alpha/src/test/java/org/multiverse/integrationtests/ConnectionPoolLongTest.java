@@ -1,15 +1,15 @@
 package org.multiverse.integrationtests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
+import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
-import org.multiverse.datastructures.collections.StrictLinkedBlockingDeque;
+import org.multiverse.datastructures.collections.TransactionalLinkedList;
 
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ConnectionPoolLongTest {
 
-    private int poolsize = 2;
+    private int poolsize = 8;
     private int threadCount = 10;
     private int useCount = 1000;
 
@@ -33,8 +33,8 @@ public class ConnectionPoolLongTest {
     @Test
     public void test() {
         WorkerThread[] threads = createThreads();
-        //startAll(threads);
-        //joinAll(threads);
+        startAll(threads);
+        joinAll(threads);
 
         assertEquals(poolsize, pool.size());
     }
@@ -42,15 +42,19 @@ public class ConnectionPoolLongTest {
     @AtomicObject
     static class ConnectionPool {
 
-        final StrictLinkedBlockingDeque<Connection> deque = new StrictLinkedBlockingDeque<Connection>();
+        final BlockingDeque<Connection> deque = new TransactionalLinkedList<Connection>();
 
         ConnectionPool(int poolsize) {
+            fill(poolsize);
+        }
+
+        private void fill(int poolsize) {
             for (int k = 0; k < poolsize; k++) {
-                deque.push(new Connection());
+                deque.add(new Connection());
             }
         }
 
-        Connection takeConnection() throws InterruptedException {
+        @AtomicMethod(retryCount = 10000) Connection takeConnection() throws InterruptedException {
             return deque.takeFirst();
         }
 
@@ -62,7 +66,7 @@ public class ConnectionPoolLongTest {
             }
         }
 
-        int size(){
+        int size() {
             return deque.size();
         }
     }
@@ -79,9 +83,9 @@ public class ConnectionPoolLongTest {
         }
 
         void stopUsing() {
-             if(!users.compareAndSet(1, 0)){
-                 fail();
-             }
+            if (!users.compareAndSet(1, 0)) {
+                fail();
+            }
         }
     }
 
@@ -113,7 +117,7 @@ public class ConnectionPoolLongTest {
                 try {
                     sleepRandomMs(50);
                 } finally {
-                    c.stopUsing();                                  
+                    c.stopUsing();
                     pool.returnConnection(c);
                 }
             }

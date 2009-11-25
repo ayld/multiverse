@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.exceptions.ReadonlyException;
 import org.multiverse.datastructures.refs.Ref;
@@ -13,7 +14,6 @@ import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import org.multiverse.stms.alpha.AlphaTransaction;
 import org.multiverse.stms.alpha.instrumentation.asm.MetadataRepository;
-import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class ReadonlyTransactionTest {
 
@@ -37,19 +37,18 @@ public class ReadonlyTransactionTest {
     public void test() {
         Ref<Integer> ref = new Ref<Integer>(10);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         readonlyMethod(ref, 10);
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @AtomicMethod(readonly = true)
     public static void readonlyMethod(Ref<Integer> ref, int expectedValue) {
         AlphaTranlocal tranlocal = getTranlocal(ref);
         assertSame(ref, tranlocal.getAtomicObject());
-        assertSame(stm.getClockVersion(), tranlocal.___version);
-        assertTrue(tranlocal.___committed);
+        assertSame(stm.getTime(), tranlocal.___writeVersion);
         assertEquals(expectedValue, (int) ref.get());
     }
 
@@ -58,7 +57,7 @@ public class ReadonlyTransactionTest {
         Ref<Integer> ref = new Ref<Integer>(0);
         assertTrue(((Object) ref) instanceof AlphaAtomicObject);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         try {
             readonlyMethodThatUpdates(ref);
@@ -66,7 +65,7 @@ public class ReadonlyTransactionTest {
         } catch (ReadonlyException expected) {
         }
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(0, (int) ref.get());
     }
 
@@ -74,8 +73,7 @@ public class ReadonlyTransactionTest {
     public static void readonlyMethodThatUpdates(Ref<Integer> ref) {
         AlphaTranlocal tranlocal = getTranlocal(ref);
         assertSame(ref, tranlocal.getAtomicObject());
-        assertSame(stm.getClockVersion(), tranlocal.___version);
-        assertTrue(tranlocal.___committed);
+        assertSame(stm.getTime(), tranlocal.___writeVersion);
         ref.set(1);
     }
 

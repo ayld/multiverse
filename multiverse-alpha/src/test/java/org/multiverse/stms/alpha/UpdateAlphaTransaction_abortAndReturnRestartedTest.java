@@ -13,6 +13,7 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
  * @author Peter Veentjer
  */
 public class UpdateAlphaTransaction_abortAndReturnRestartedTest {
+
     private AlphaStm stm;
 
     @Before
@@ -31,7 +32,7 @@ public class UpdateAlphaTransaction_abortAndReturnRestartedTest {
         Transaction result = t.abortAndReturnRestarted();
         assertSame(result, t);
         assertIsActive(t);
-        assertEquals(stm.getClockVersion(), t.getReadVersion());
+        assertEquals(stm.getTime(), t.getReadVersion());
     }
 
     @Test
@@ -45,7 +46,7 @@ public class UpdateAlphaTransaction_abortAndReturnRestartedTest {
         Transaction result = t.abortAndReturnRestarted();
         assertSame(result, t);
         assertIsActive(t);
-        assertEquals(stm.getClockVersion(), t.getReadVersion());
+        assertEquals(stm.getTime(), t.getReadVersion());
     }
 
     @Test
@@ -59,6 +60,6 @@ public class UpdateAlphaTransaction_abortAndReturnRestartedTest {
         Transaction result = t.abortAndReturnRestarted();
         assertSame(result, t);
         assertIsActive(t);
-        assertEquals(stm.getClockVersion(), t.getReadVersion());
+        assertEquals(stm.getTime(), t.getReadVersion());
     }
 }

@@ -44,15 +44,26 @@ public class UpdateAlphaTransaction_loadTest {
         return t;
     }
 
+    /**
+     * In the previous version multiverse, it was allowed to do a load of an atomicobject that was locked even the
+     * version of the current content matches the version of the transaction. If the atomicobject didn't have any
+     * references to other objects, this should be alright. But if an object does have dependencies, these dependencies
+     * could escape before they are committed. For now this has been disallowed.
+     */
     @Test
-    public void loadSucceedsIfLockedButVersionIsStillExactMatch() {
+    public void loadFailsIfLockedButVersionIsStillExactMatch() {
         IntRef ref = new IntRef(0);
         Transaction owner = new DummyTransaction();
         ref.___tryLock(owner);
 
         AlphaTransaction t = startUpdateTransaction();
-        IntRefTranlocal read = (IntRefTranlocal) t.load(ref);
-        assertSame(0, read.value);
+        try {
+            t.load(ref);
+            fail();
+        } catch (LoadLockedException expected) {
+        }
+
+        assertSame(owner, ref.___getLockOwner());
         assertIsActive(t);
     }
 
@@ -111,14 +122,14 @@ public class UpdateAlphaTransaction_loadTest {
         IntRef intValue = new IntRef(0);
         t1.commit();
 
-        IntRefTranlocal committed = (IntRefTranlocal) intValue.___load(stm.getClockVersion());
+        IntRefTranlocal committed = (IntRefTranlocal) intValue.___load(stm.getTime());
 
         AlphaTransaction t2 = startUpdateTransaction();
         IntRefTranlocal read = (IntRefTranlocal) t2.load(intValue);
         assertTrue(committed != read);
         assertEquals(intValue, read.getAtomicObject());
         assertEquals(committed.value, read.value);
-        assertFalse(read.___committed);
+        assertFalse(read.___writeVersion > 0);
         //version doesn't need to be checked since it is not defined for a non committed value
         assertIsActive(t2);
     }
@@ -143,11 +154,11 @@ public class UpdateAlphaTransaction_loadTest {
         IntRefTranlocal read1 = (IntRefTranlocal) t1.load(intValue);
 
         assertEquals(intValue, read1.getAtomicObject());
-        assertFalse(read1.___committed);
+        assertEquals(0, read1.___writeVersion);
         assertIsActive(t1);
         t1.commit();
 
-        IntRefTranlocal read2 = (IntRefTranlocal) intValue.___load(stm.getClockVersion());
+        IntRefTranlocal read2 = (IntRefTranlocal) intValue.___load(stm.getTime());
         assertSame(read1, read2);
     }
 
@@ -163,7 +174,7 @@ public class UpdateAlphaTransaction_loadTest {
 
         assertNotSame(found1, found2);
         assertEquals(found1.value, found2.value);
-        assertEquals(found1.___committed, found2.___committed);
+        assertEquals(found1.___writeVersion, found2.___writeVersion);
         assertEquals(found1.getAtomicObject(), found2.getAtomicObject());
         //version doesn't need to be checked since it is undefined while not committed.
     }
@@ -174,9 +185,9 @@ public class UpdateAlphaTransaction_loadTest {
 
         AlphaTransaction t = stm.startUpdateTransaction(null);
 
-        IntRefTranlocal tranlocal =  (IntRefTranlocal) t.load(value);
-        assertFalse(tranlocal.___committed);
-        assertEquals(Long.MIN_VALUE, tranlocal.___version);
+        IntRefTranlocal tranlocal = (IntRefTranlocal) t.load(value);
+        assertFalse(tranlocal.___writeVersion > 0);
+        assertEquals(0, tranlocal.___writeVersion);
 
         assertIsActive(t);
     }

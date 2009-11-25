@@ -6,10 +6,11 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
-import org.multiverse.api.Transaction;
 import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.api.Transaction;
 
 public class ReadonlyAlphaTransaction_miscTest {
+
     private AlphaStm stm;
 
     @Before
@@ -32,9 +33,9 @@ public class ReadonlyAlphaTransaction_miscTest {
 
     @Test
     public void start() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         Transaction t = stm.startReadOnlyTransaction(null);
         assertIsActive(t);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 }

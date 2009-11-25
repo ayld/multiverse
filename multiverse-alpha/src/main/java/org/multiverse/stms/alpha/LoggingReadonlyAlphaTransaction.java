@@ -32,7 +32,9 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
     }
 
     private String toLogString() {
-        return format("ReadonlyTransaction '%s-%s' with readversion '%s' ", getFamilyName(), logId, readVersion);
+        return format("ReadonlyTransaction '%s-%s' with readversion '%s' ",
+                      getFamilyName(),
+                      logId, getReadVersion());
     }
 
 
@@ -91,7 +93,7 @@ public class LoggingReadonlyAlphaTransaction extends ReadonlyAlphaTransaction {
                 if (success) {
                     logger.log(level, format("%s abortAndReturnRestarted to readversion %s",
                                              oldLogString,
-                                             readVersion));
+                                             getReadVersion()));
                 } else {
                     logger.log(level, format("%s abortAndReturnRestarted failed", oldLogString));
                 }

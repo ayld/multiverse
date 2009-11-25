@@ -6,15 +6,16 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
  */
 public class AtomicObject_MethodTest {
+
     private AlphaStm stm;
 
     @Before
@@ -36,17 +37,18 @@ public class AtomicObject_MethodTest {
         AtomicObjectAsReturnValue child = new AtomicObjectAsReturnValue();
         AtomicObjectAsReturnValue parent = new AtomicObjectAsReturnValue();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         child.setRef(parent);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertSame(parent, child.getRef());
         assertNull(parent.getRef());
     }
 
     @AtomicObject
     static class AtomicObjectAsReturnValue {
+
         private AtomicObjectAsReturnValue ref;
 
         public AtomicObjectAsReturnValue() {
@@ -82,6 +84,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class ObjectReturn {
+
         private Object value;
 
         private ObjectReturn(Object value) {
@@ -113,6 +116,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class StringReturn {
+
         private String value;
 
         private StringReturn(String value) {
@@ -137,6 +141,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class BooleanReturn {
+
         private boolean value;
 
         private BooleanReturn(boolean value) {
@@ -160,6 +165,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class shortReturn {
+
         private short value;
 
         private shortReturn(short value) {
@@ -183,6 +189,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class byteReturn {
+
         private byte value;
 
         private byteReturn(byte value) {
@@ -206,6 +213,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class charReturn {
+
         private char value;
 
         private charReturn(char value) {
@@ -231,6 +239,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class intReturn {
+
         private int value;
 
         private intReturn(int value) {
@@ -254,6 +263,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class floatReturn {
+
         private float value;
 
         private floatReturn(float value) {
@@ -278,6 +288,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class longReturn {
+
         private long value;
 
         private longReturn(long value) {
@@ -301,6 +312,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     private static class doubleReturn {
+
         private double value;
 
         private doubleReturn(double value) {
@@ -331,6 +343,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class booleanArg {
+
         boolean arg;
 
         public void doIt(boolean arg) {
@@ -351,6 +364,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class charArg {
+
         char arg;
 
         public void doIt(char arg) {
@@ -371,6 +385,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class byteArg {
+
         byte arg;
 
         public void doIt(byte arg) {
@@ -392,6 +407,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class shortArg {
+
         short arg;
 
         public void doIt(short arg) {
@@ -413,6 +429,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     static class intArg {
+
         int arg;
 
         public void doIt(int arg) {
@@ -433,6 +450,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class floatArg {
+
         float arg;
 
         public void doIt(float arg) {
@@ -453,6 +471,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class longArg {
+
         long arg;
 
         public void doIt(long arg) {
@@ -473,6 +492,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class doubleArg {
+
         double arg;
 
         public void doIt(double arg) {
@@ -496,6 +516,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class arrayArg {
+
         int[] arg;
 
         public void doIt(int[] arg) {
@@ -519,6 +540,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class varArg {
+
         int[] arg;
 
         public void doIt(int... arg) {
@@ -542,6 +564,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     public static class NonAtomicObjectArg {
+
         private String arg;
 
         public void doIt(String arg) {
@@ -563,6 +586,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     static class AtomicObjectArg {
+
         private IntRef intRef;
 
         public AtomicObjectArg() {
@@ -599,6 +623,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     static class AtomicObjectRunnable implements Runnable {
+
         int value;
 
         public void run() {
@@ -611,6 +636,7 @@ public class AtomicObject_MethodTest {
     }
 
     class NonAtomicObjectRunnable implements Runnable {
+
         int value;
 
         public void run() {
@@ -624,6 +650,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     static class RuntimeKnownArg {
+
         Runnable arg;
 
         public void doIt(Runnable arg) {
@@ -642,14 +669,15 @@ public class AtomicObject_MethodTest {
     public void atomicObjectIsCreatedInMethod() {
         AtomicObjectIsCreatedInMethod o = new AtomicObjectIsCreatedInMethod();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.doIt();
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(20, o.getRef().get());
     }
 
     @AtomicObject
     static class AtomicObjectIsCreatedInMethod {
+
         private IntRef ref;
 
         public void doIt() {
@@ -675,6 +703,7 @@ public class AtomicObject_MethodTest {
 
     @AtomicObject
     static class AtomicObjectArgProblem {
+
         protected int somefield;
 
         AtomicObjectArgProblem(int somefield) {

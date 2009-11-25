@@ -7,10 +7,9 @@ import org.multiverse.stms.alpha.mixins.FastAtomicObjectMixin;
 import org.multiverse.templates.AtomicTemplate;
 
 /**
- * This implementation suffers from the ABA problem (well.. the stm suffers from it because the
- * isDirty method suffers from it). This can be fixed very easily, just add a counter. So although
- * the references may not have changed in the end but the counter has. And this will cause the
- * writeconfict we are after for the ABA problem.  See the AbaRef.
+ * This implementation suffers from the ABA problem (well.. the stm suffers from it because the isDirty method suffers
+ * from it). This can be fixed very easily, just add a counter. So although the references may not have changed in the
+ * end but the counter has. And this will cause the writeconfict we are after for the ABA problem.  See the AbaRef.
  *
  * @author Peter Veentjer
  */
@@ -103,7 +102,7 @@ public class Ref<E> extends FastAtomicObjectMixin {
     }
 
     public void set(RefTranlocal<E> tranlocal, E newValue) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
         }
         tranlocal.value = newValue;
@@ -111,33 +110,31 @@ public class Ref<E> extends FastAtomicObjectMixin {
 }
 
 class RefTranlocal<E> extends AlphaTranlocal {
-    Ref atomicObject;
+
+    Ref ___atomicObject;
+    RefTranlocal ___origin;
     E value;
-    RefTranlocal origin;
+
 
     RefTranlocal(RefTranlocal<E> origin) {
-        this.___version = origin.___version;
-        this.atomicObject = origin.atomicObject;
+        this.___atomicObject = origin.___atomicObject;
+        this.___origin = origin;
         this.value = origin.value;
-        this.origin = origin;
     }
 
-    RefTranlocal(Ref<E> owner) {
-        this.___version = Long.MIN_VALUE;
-        this.atomicObject = owner;
-
+    RefTranlocal(Ref<E> atomicObject) {
+        this.___atomicObject = atomicObject;
     }
 
     @Override
     public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
+        return ___atomicObject;
     }
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.___version = writeVersion;
-        this.___committed = true;
-        this.origin = null;
+        this.___writeVersion = writeVersion;
+        this.___origin = null;
     }
 
     @Override
@@ -147,11 +144,11 @@ class RefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (___committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
+        if (___writeVersion > 0) {
+            return DirtinessStatus.readonly;
+        } else if (___origin == null) {
             return DirtinessStatus.fresh;
-        } else if (origin.value != this.value) {
+        } else if (___origin.value != this.value) {
             return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
@@ -160,21 +157,22 @@ class RefTranlocal<E> extends AlphaTranlocal {
 }
 
 class RefTranlocalSnapshot<E> extends AlphaTranlocalSnapshot {
-    final RefTranlocal tranlocal;
+
+    final RefTranlocal ___tranlocal;
     final E value;
 
     RefTranlocalSnapshot(RefTranlocal<E> tranlocal) {
-        this.tranlocal = tranlocal;
+        this.___tranlocal = tranlocal;
         this.value = tranlocal.value;
     }
 
     @Override
     public AlphaTranlocal getTranlocal() {
-        return tranlocal;
+        return ___tranlocal;
     }
 
     @Override
     public void restore() {
-        tranlocal.value = value;
+        ___tranlocal.value = value;
     }
 }

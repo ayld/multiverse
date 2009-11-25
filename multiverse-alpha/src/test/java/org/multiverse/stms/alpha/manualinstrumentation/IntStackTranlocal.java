@@ -8,29 +8,29 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntStackTranlocal.IntNode
 
 public final class IntStackTranlocal extends AlphaTranlocal {
 
-    IntStack atomicObject;
+    IntStack ___atomicObject;
+    IntStackTranlocal ___origin;
     int size;
     IntNode head;
-    IntStackTranlocal origin;
 
     IntStackTranlocal(IntStackTranlocal origin) {
-        this.origin = origin;
-        this.atomicObject = origin.atomicObject;
-        this.___version = origin.___version;
+        this.___origin = origin;
+        this.___atomicObject = origin.___atomicObject;
         this.size = origin.size;
         this.head = origin.head;
     }
 
     IntStackTranlocal(IntStack atomicObject) {
-        this.atomicObject = atomicObject;
+        this.___atomicObject = atomicObject;
     }
 
     @Override
     public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
+        return ___atomicObject;
     }
 
     public static class IntNode {
+
         final int value;
         final IntNode next;
 
@@ -42,9 +42,8 @@ public final class IntStackTranlocal extends AlphaTranlocal {
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.___version = writeVersion;
-        this.___committed = true;
-        this.origin = null;
+        this.___writeVersion = writeVersion;
+        this.___origin = null;
     }
 
     @Override
@@ -54,11 +53,11 @@ public final class IntStackTranlocal extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (___committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
+        if (___writeVersion > 0) {
+            return DirtinessStatus.readonly;
+        } else if (___origin == null) {
             return DirtinessStatus.fresh;
-        } else if (origin.head != this.head) {
+        } else if (___origin.head != this.head) {
             return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
@@ -67,24 +66,25 @@ public final class IntStackTranlocal extends AlphaTranlocal {
 }
 
 final class IntStackTranlocalSnapshot extends AlphaTranlocalSnapshot {
-    public final IntStackTranlocal tranlocal;
+
+    public final IntStackTranlocal ___tranlocal;
     public final int size;
     public final IntNode head;
 
     IntStackTranlocalSnapshot(IntStackTranlocal tranlocal) {
-        this.tranlocal = tranlocal;
+        this.___tranlocal = tranlocal;
         this.size = tranlocal.size;
         this.head = tranlocal.head;
     }
 
     @Override
     public AlphaTranlocal getTranlocal() {
-        return tranlocal;
+        return ___tranlocal;
     }
 
     @Override
     public void restore() {
-        tranlocal.size = size;
-        tranlocal.head = head;
+        ___tranlocal.size = size;
+        ___tranlocal.head = head;
     }
 }

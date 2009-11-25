@@ -15,14 +15,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A Factory responsible for creating the TranlocalSnapshot classes for the
- * AtomicObject that need one.
+ * A Factory responsible for creating the TranlocalSnapshot classes for the AtomicObject that need one.
  * <p/>
  * TranlocalSnapshotClassNodeFactory should not be reused.
  *
  * @author Peter Veentjer
  */
 public class TranlocalSnapshotFactory implements Opcodes {
+
     private ClassNode original;
     private String tranlocalName;
     private String tranlocalSnapshotName;
@@ -59,7 +59,7 @@ public class TranlocalSnapshotFactory implements Opcodes {
 
         FieldNode tranlocalField = new FieldNode(
                 ACC_PRIVATE + ACC_FINAL + ACC_SYNTHETIC,
-                "tranlocal",
+                "___tranlocal",
                 internalFormToDescriptor(tranlocalName),
                 null,
                 null);
@@ -87,11 +87,11 @@ public class TranlocalSnapshotFactory implements Opcodes {
                 new String[]{});
 
         m.visitVarInsn(ALOAD, 0);
-        m.visitMethodInsn(INVOKESPECIAL, getInternalName(AlphaTranlocalSnapshot.class),"<init>","()V");
+        m.visitMethodInsn(INVOKESPECIAL, getInternalName(AlphaTranlocalSnapshot.class), "<init>", "()V");
 
         m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(ALOAD, 1);
-        m.visitFieldInsn(PUTFIELD, tranlocalSnapshotName, "tranlocal", internalFormToDescriptor(tranlocalName));
+        m.visitFieldInsn(PUTFIELD, tranlocalSnapshotName, "___tranlocal", internalFormToDescriptor(tranlocalName));
 
         for (FieldNode managedField : metadataService.getManagedInstanceFields(original)) {
             m.visitVarInsn(ALOAD, 0);
@@ -115,7 +115,7 @@ public class TranlocalSnapshotFactory implements Opcodes {
                 new String[]{});
 
         m.visitVarInsn(ALOAD, 0);
-        m.visitFieldInsn(GETFIELD, tranlocalSnapshotName, "tranlocal", internalFormToDescriptor(tranlocalName));
+        m.visitFieldInsn(GETFIELD, tranlocalSnapshotName, "___tranlocal", internalFormToDescriptor(tranlocalName));
         m.visitInsn(ARETURN);
         m.visitMaxs(0, 0);
         m.visitEnd();
@@ -134,7 +134,7 @@ public class TranlocalSnapshotFactory implements Opcodes {
             //[..
             m.visitVarInsn(ALOAD, 0);
             //[this, ..
-            m.visitFieldInsn(GETFIELD, tranlocalSnapshotName, "tranlocal", internalFormToDescriptor(tranlocalName));
+            m.visitFieldInsn(GETFIELD, tranlocalSnapshotName, "___tranlocal", internalFormToDescriptor(tranlocalName));
 
             //[tranlocal
             m.visitVarInsn(ALOAD, 0);

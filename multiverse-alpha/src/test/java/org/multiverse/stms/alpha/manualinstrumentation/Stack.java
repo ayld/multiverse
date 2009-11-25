@@ -82,7 +82,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     public void clear(StackTranlocal<E> tranlocal) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
         }
 
@@ -91,7 +91,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     public void push(StackTranlocal<E> tranlocal, E item) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
         }
 
@@ -104,7 +104,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     public E pop(StackTranlocal<E> tranlocal) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
         }
 
@@ -127,6 +127,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     public static class Node<E> {
+
         final Node<E> next;
         final E value;
 
@@ -137,10 +138,11 @@ public final class Stack<E> extends FastAtomicObjectMixin {
     }
 
     public static final class StackTranlocal<E> extends AlphaTranlocal {
-        private final Stack<E> atomicObject;
+
+        private final Stack<E> ___atomicObject;
+        private StackTranlocal<E> ___origin;
         int size;
         Node<E> head;
-        private StackTranlocal<E> origin;
 
         /**
          * Makes an initial version.
@@ -148,8 +150,7 @@ public final class Stack<E> extends FastAtomicObjectMixin {
          * @param atomicObject
          */
         StackTranlocal(Stack<E> atomicObject) {
-            this.atomicObject = atomicObject;
-            this.___version = Long.MIN_VALUE;
+            this.___atomicObject = atomicObject;
         }
 
         /**
@@ -158,23 +159,21 @@ public final class Stack<E> extends FastAtomicObjectMixin {
          * @param origin
          */
         StackTranlocal(StackTranlocal<E> origin) {
-            this.origin = origin;
-            this.atomicObject = origin.atomicObject;
+            this.___origin = origin;
+            this.___atomicObject = origin.___atomicObject;
             this.size = origin.size;
             this.head = origin.head;
-            this.___version = origin.___version;
         }
 
         @Override
         public AlphaAtomicObject getAtomicObject() {
-            return atomicObject;
+            return ___atomicObject;
         }
 
         @Override
         public void prepareForCommit(long writeVersion) {
-            this.___version = writeVersion;
-            this.___committed = true;
-            this.origin = null;
+            this.___writeVersion = writeVersion;
+            this.___origin = null;
         }
 
         @Override
@@ -184,13 +183,13 @@ public final class Stack<E> extends FastAtomicObjectMixin {
 
         @Override
         public DirtinessStatus getDirtinessStatus() {
-            if (___committed) {
-                return DirtinessStatus.committed;
-            } else if (origin == null) {
+            if (___writeVersion > 0) {
+                return DirtinessStatus.readonly;
+            } else if (___origin == null) {
                 return DirtinessStatus.fresh;
-            } else if (origin.size != this.size) {
+            } else if (___origin.size != this.size) {
                 return DirtinessStatus.dirty;
-            } else if (origin.head != this.head) {
+            } else if (___origin.head != this.head) {
                 return DirtinessStatus.dirty;
             } else {
                 return DirtinessStatus.clean;

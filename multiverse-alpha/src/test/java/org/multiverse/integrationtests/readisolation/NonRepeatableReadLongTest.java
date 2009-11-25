@@ -5,22 +5,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.*;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * A test that checks if reads are repeatable.
  * <p/>
- * Within a single transaction the same value should be returned every time. In databases the repeatable read is
- * one of the highest isolation (serializable is higher).
+ * Within a single transaction the same value should be returned every time. In databases the repeatable read is one of
+ * the highest isolation (serializable is higher).
  * <p/>
- * It works by having a shared value. This value is modified by modifier threads in very short transactions.
- * Readers read this value, wait some time and reread the value (within the same transaction) and the values
- * should not have changed.  If the value has changed the system is suffering from non repeatable reads.
+ * It works by having a shared value. This value is modified by modifier threads in very short transactions. Readers
+ * read this value, wait some time and reread the value (within the same transaction) and the values should not have
+ * changed.  If the value has changed the system is suffering from non repeatable reads.
  * <p/>
- * The test checks this behavior for real readonly reads, and update transactions that only read, by alternating
- * between the 2 options.
+ * The test checks this behavior for real readonly reads, and update transactions that only read, by alternating between
+ * the 2 options.
  *
  * @author Peter Veentjer.
  */
@@ -58,6 +58,7 @@ public class NonRepeatableReadLongTest {
     }
 
     class ModifyThread extends TestThread {
+
         public ModifyThread(int id) {
             super("ModifyThread-" + id);
         }
@@ -66,7 +67,7 @@ public class NonRepeatableReadLongTest {
         public void doRun() {
             int k = 0;
             while (!readersFinished) {
-                if (k % 50 == 0) {
+                if (k % 1000 == 0) {
                     System.out.printf("%s is at %s\n", getName(), k);
                 }
                 k++;
@@ -78,6 +79,7 @@ public class NonRepeatableReadLongTest {
     }
 
     class ReadThread extends TestThread {
+
         public ReadThread(int id) {
             super("ReadThread-" + id);
         }
@@ -85,7 +87,7 @@ public class NonRepeatableReadLongTest {
         @Override
         public void doRun() {
             for (int k = 0; k < readCount; k++) {
-                if (k % 100 == 0) {
+                if (k % 1000 == 0) {
                     System.out.printf("%s is at %s\n", getName(), k);
                 }
                 if (k % 2 == 0) {

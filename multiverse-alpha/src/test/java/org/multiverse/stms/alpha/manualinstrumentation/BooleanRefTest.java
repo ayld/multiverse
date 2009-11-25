@@ -5,15 +5,16 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import org.multiverse.api.Stm;
-import org.multiverse.api.Transaction;
-import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.api.Transaction;
+import org.multiverse.stms.alpha.AlphaStm;
 
 /**
  * @author Peter Veentjer
  */
 public class BooleanRefTest {
+
     private Stm stm;
 
     @Before
@@ -41,7 +42,7 @@ public class BooleanRefTest {
 
     @Test
     public void atomicModificiation() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         //create
         BooleanRef v = new BooleanRef(true);
@@ -57,13 +58,13 @@ public class BooleanRefTest {
 
         //since 2 update-transactions have been executed, we know that the clock version should be
         //increased by 2.
-        assertEquals(startVersion + 2, stm.getClockVersion());
+        assertEquals(startVersion + 2, stm.getTime());
         assertNull(getThreadLocalTransaction());
     }
 
     @Test
     public void testUpdateOnAlreadyAvailableTransaction() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         Transaction t = startUpdateTransaction();
 
         BooleanRef v = new BooleanRef(true);
@@ -73,7 +74,7 @@ public class BooleanRefTest {
         t.commit();
 
         //since everything is done under a single transaction, the clock version shouls be increased by 1
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         assertNotNull(getThreadLocalTransaction());
     }
 }

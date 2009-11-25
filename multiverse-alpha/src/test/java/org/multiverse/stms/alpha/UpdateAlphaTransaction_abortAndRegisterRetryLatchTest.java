@@ -137,7 +137,7 @@ public class UpdateAlphaTransaction_abortAndRegisterRetryLatchTest {
         Transaction t = startUpdateTransaction();
         t.commit();
 
-        long expectedVersion = stm.getClockVersion();
+        long expectedVersion = stm.getTime();
 
         try {
             t.abortAndRegisterRetryLatch(null);
@@ -146,7 +146,7 @@ public class UpdateAlphaTransaction_abortAndRegisterRetryLatchTest {
         }
 
         assertIsCommitted(t);
-        assertEquals(expectedVersion, stm.getClockVersion());
+        assertEquals(expectedVersion, stm.getTime());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class UpdateAlphaTransaction_abortAndRegisterRetryLatchTest {
         Transaction t = startUpdateTransaction();
         t.abort();
 
-        long expectedVersion = stm.getClockVersion();
+        long expectedVersion = stm.getTime();
         Latch latch = new CheapLatch();
 
         try {
@@ -164,7 +164,7 @@ public class UpdateAlphaTransaction_abortAndRegisterRetryLatchTest {
         }
 
         assertIsAborted(t);
-        assertEquals(expectedVersion, stm.getClockVersion());
+        assertEquals(expectedVersion, stm.getTime());
         assertFalse(latch.isOpen());
     }
 }

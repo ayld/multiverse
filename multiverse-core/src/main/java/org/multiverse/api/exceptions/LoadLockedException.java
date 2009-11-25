@@ -14,7 +14,8 @@ public class LoadLockedException extends LoadException implements RecoverableThr
 
     public final static LoadLockedException INSTANCE = new LoadLockedException();
 
-    public final static boolean reuse = parseBoolean(getProperty(LoadLockedException.class.getName() + ".reuse", "true"));
+    public final static boolean reuse = parseBoolean(
+            getProperty(LoadLockedException.class.getName() + ".reuse", "true"));
 
     public LoadLockedException() {
     }

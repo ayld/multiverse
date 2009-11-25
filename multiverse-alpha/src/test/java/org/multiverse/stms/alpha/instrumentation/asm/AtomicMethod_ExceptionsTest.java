@@ -27,7 +27,7 @@ public class AtomicMethod_ExceptionsTest {
         CheckedExceptionIsPropagated r = new CheckedExceptionIsPropagated();
         r.exception = ex;
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         try {
             r.doIt();
             fail();
@@ -35,11 +35,12 @@ public class AtomicMethod_ExceptionsTest {
             assertSame(ex, found);
         }
 
-        assertEquals(version,stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(0, r.ref.get());
     }
 
     public static class CheckedExceptionIsPropagated {
+
         Exception exception;
         IntRef ref = new IntRef(0);
 
@@ -58,7 +59,7 @@ public class AtomicMethod_ExceptionsTest {
 
         r.exception = ex;
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         try {
             r.doIt();
             fail();
@@ -66,11 +67,12 @@ public class AtomicMethod_ExceptionsTest {
             assertSame(ex, found);
         }
 
-        assertEquals(version,stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(0, r.ref.get());
     }
 
     public static class RuntimeExceptionIsPropagated {
+
         RuntimeException exception;
         IntRef ref = new IntRef(0);
 

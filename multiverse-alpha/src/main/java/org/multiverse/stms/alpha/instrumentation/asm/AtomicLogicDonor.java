@@ -28,7 +28,7 @@ public class AtomicLogicDonor {
     public static void execute() {
     }
 
-    //fields can't be made final, the compiler will inline the values.
+    //fields can't be made final, the compiler could inline the values so can't be replaced by instrumentation.
     //By the instrumentation these static fields will be replaced by the actual atomicmethod parameters
     //It isn't allowed to do writes.
     public static boolean readOnly = false;

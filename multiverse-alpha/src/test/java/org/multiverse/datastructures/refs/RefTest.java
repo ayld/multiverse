@@ -6,14 +6,15 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.RetryError;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
  */
 public class RefTest {
+
     private Stm stm;
 
     @Before
@@ -40,14 +41,14 @@ public class RefTest {
     public void rollback(String initialValue, String newValue) {
         Ref<String> ref = new Ref<String>(initialValue);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Transaction t = stm.startUpdateTransaction("rollback");
         setThreadLocalTransaction(t);
         ref.set(newValue);
         t.abort();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertSame(initialValue, ref.get());
     }
 
@@ -55,31 +56,31 @@ public class RefTest {
 
     @Test
     public void noArgConstruction() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Ref<String> ref = new Ref<String>();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertNull(ref.get());
     }
 
     @Test
     public void nullConstruction() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Ref<String> ref = new Ref<String>();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(null, ref.get());
     }
 
     @Test
     public void nonNullConstruction() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         String s = "foo";
         Ref<String> ref = new Ref<String>(s);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(s, ref.get());
     }
 
@@ -87,25 +88,25 @@ public class RefTest {
     public void testIsNull() {
         Ref<String> ref = new Ref<String>();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         assertTrue(ref.isNull());
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
 
         ref.set("foo");
 
-        version = stm.getClockVersion();
+        version = stm.getTime();
         assertFalse(ref.isNull());
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @Test
     public void testSetFromNullToNull() {
         Ref<String> ref = new Ref<String>();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         String result = ref.set(null);
         assertNull(result);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertNull(ref.get());
     }
 
@@ -113,11 +114,11 @@ public class RefTest {
     public void testSetFromNullToNonNull() {
         Ref<String> ref = new Ref<String>();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         String newRef = "foo";
         String result = ref.set(newRef);
         assertNull(result);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertSame(newRef, ref.get());
     }
 
@@ -126,11 +127,11 @@ public class RefTest {
         String oldRef = "foo";
         Ref<String> ref = new Ref<String>(oldRef);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         String result = ref.set(null);
         assertSame(oldRef, result);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertNull(ref.get());
     }
 
@@ -140,12 +141,12 @@ public class RefTest {
 
         Ref<String> ref = new Ref<String>(oldRef);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         String newRef = "bar";
         String result = ref.set(newRef);
         assertSame(oldRef, result);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertSame(newRef, ref.get());
     }
 
@@ -155,11 +156,11 @@ public class RefTest {
 
         Ref<String> ref = new Ref<String>(oldRef);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         String result = ref.set(oldRef);
         assertSame(oldRef, result);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertSame(oldRef, ref.get());
     }
 
@@ -169,12 +170,12 @@ public class RefTest {
 
         Ref<String> ref = new Ref<String>(oldRef);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         String newRef = new String("foo");
         String result = ref.set(newRef);
         assertSame(oldRef, result);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertSame(newRef, ref.get());
     }
 
@@ -183,7 +184,7 @@ public class RefTest {
         String oldRef = "foo";
         Ref<String> ref = new Ref<String>(oldRef);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         Transaction t = stm.startUpdateTransaction(null);
         setThreadLocalTransaction(t);
         String newRef = "bar";
@@ -192,7 +193,7 @@ public class RefTest {
         t.commit();
         setThreadLocalTransaction(null);
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertSame(oldRef, ref.get());
     }
 
@@ -202,10 +203,10 @@ public class RefTest {
 
         Ref<String> ref = new Ref<String>(oldRef);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         String result = ref.getOrAwait();
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertSame(oldRef, result);
     }
 
@@ -213,7 +214,7 @@ public class RefTest {
     public void getOrAwaitRetriesIfNull() {
         Ref<String> ref = new Ref<String>();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         //we start a transaction because we don't want to lift on the retry mechanism
         //of the transaction that else would be started on the getOrAwait method.
@@ -225,6 +226,6 @@ public class RefTest {
         } catch (RetryError retryError) {
 
         }
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 }
