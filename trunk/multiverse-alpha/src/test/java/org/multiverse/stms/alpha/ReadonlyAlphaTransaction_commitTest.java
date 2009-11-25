@@ -6,8 +6,8 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsCommitted;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
-import org.multiverse.api.Transaction;
 import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
+import org.multiverse.api.Transaction;
 
 /**
  * @author Peter Veentjer
@@ -36,11 +36,11 @@ public class ReadonlyAlphaTransaction_commitTest {
 
     @Test
     public void commitStartedTransaction() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         Transaction t = startReadonlyTransaction();
         t.commit();
 
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
         assertIsCommitted(t);
     }
 }

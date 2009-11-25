@@ -30,7 +30,11 @@ public interface Transaction {
     /**
      * Returns the clock version of the stm when this Transaction started. This version is needed to provide a
      * transaction level read consistent view (so a transaction will always see a stable view of the objects at some
-     * point in time). The returned version will always be larger than Long.MIN_VALUE.
+     * point in time).
+     * <p/>
+     * The returned version will always be equal or larger than 0.
+     * <p/>
+     * The value is unspecified once the Transaction is aborted or committed.
      *
      * @return the version of the stm when this Transaction started.
      */
@@ -91,19 +95,19 @@ public interface Transaction {
     RestartBackoffPolicy getRestartBackoffPolicy();
 
     /**
-     * Aborts and registers the retryList. This functionality is required for the retry mechanism (so blocking!) and
-     * is something different than 'just' restarting. The Latch contains all the 'waiting' logic, so you can do
-     * timed and non interruptible timeouts. It can be compared to a {@link java.util.concurrent.Future}.
-     *
-     * The abort will always succeed even if the registration fails. No need to keep the transaction in a usable
-     * state.
+     * Aborts and registers the retryList. This functionality is required for the retry mechanism (so blocking!) and is
+     * something different than 'just' restarting. The Latch contains all the 'waiting' logic, so you can do timed and
+     * non interruptible timeouts. It can be compared to a {@link java.util.concurrent.Future}.
+     * <p/>
+     * The abort will always succeed even if the registration fails. No need to keep the transaction in a usable state.
      *
      * @param latch the Latch to register.
      * @throws NullPointerException if latch is null.
      * @throws org.multiverse.api.exceptions.NoRetryPossibleException
-     *          if the retry can't make progress, e.g. because the transaction has not loaded any object.
+     *                              if the retry can't make progress, e.g. because the transaction has not loaded any
+     *                              object.
      * @throws org.multiverse.api.exceptions.DeadTransactionException
-     *          if this transaction already is committed or aborted.
+     *                              if this transaction already is committed or aborted.
      */
     void abortAndRegisterRetryLatch(Latch latch);
 
@@ -161,7 +165,7 @@ public interface Transaction {
      * started by spawned threads are not able to see the changes already made in the current transaction, because the
      * current transaction hasn't completed yet.
      *
-     * @param task the task to execute after the transaction completes.
+     * @param task         the task to execute after the transaction completes.
      * @param scheduleType
      * @throws NullPointerException if task is null or scheduleType is null.
      * @throws org.multiverse.api.exceptions.DeadTransactionException

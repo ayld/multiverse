@@ -8,14 +8,15 @@ import org.multiverse.TestThread;
 import static org.multiverse.TestUtils.joinAll;
 import static org.multiverse.TestUtils.startAll;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.concurrent.TimeUnit;
 
 public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
+
     private AlphaStm stm;
     private IntRef[] values;
     private int threadCount = Runtime.getRuntime().availableProcessors() * 4;
@@ -47,7 +48,8 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
         joinAll(writeThreads);
 
         long periodNs = System.nanoTime() - startNs;
-        double transactionPerSecond = (updateCountPerThread * threadCount * 1.0d * TimeUnit.SECONDS.toNanos(1)) / periodNs;
+        double transactionPerSecond =
+                (updateCountPerThread * threadCount * 1.0d * TimeUnit.SECONDS.toNanos(1)) / periodNs;
         System.out.printf("%s Transaction/second\n", transactionPerSecond);
 
         assertEquals(0, stm.getProfiler().sumKey1("updatetransaction.failedtoacquirelocks.count"));
@@ -70,6 +72,7 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
     }
 
     private class WriteThread extends TestThread {
+
         private final int id;
 
         WriteThread(int id) {
@@ -79,6 +82,9 @@ public class UnsharedDataDoesNotCauseWriteConflictsLongTest {
 
         public void doRun() {
             for (int k = 0; k < updateCountPerThread; k++) {
+                if (k % 1000000 == 0) {
+                    System.out.printf("%s is at %s\n", getName(), k);
+                }
                 doIt();
             }
         }

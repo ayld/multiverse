@@ -14,6 +14,7 @@ import org.multiverse.stms.alpha.AlphaStm;
  * @author Peter Veentjer
  */
 public class AtomicObject_StaticFieldsTest {
+
     private AlphaStm stm;
 
     @Before
@@ -30,16 +31,17 @@ public class AtomicObject_StaticFieldsTest {
 
     @Test
     public void atomicObjectWithOnlyStaticField() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         AtomicObjectWithOnlyStaticField o = new AtomicObjectWithOnlyStaticField();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertFalse(o instanceof AlphaAtomicObject);
     }
 
     @AtomicObject
     public static class AtomicObjectWithOnlyStaticField {
+
         static int field;
 
         public AtomicObjectWithOnlyStaticField() {
@@ -51,10 +53,10 @@ public class AtomicObject_StaticFieldsTest {
         int instanceValue = 20;
         int staticValue = 100;
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         OneOfTheFieldsIsStatic o = new OneOfTheFieldsIsStatic(instanceValue, staticValue);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertTrue(o instanceof AlphaAtomicObject);
         assertEquals(instanceValue, o.getInstanceField());
         assertEquals(staticValue, o.getStaticFieldThroughInstance());
@@ -64,6 +66,7 @@ public class AtomicObject_StaticFieldsTest {
 
     @AtomicObject
     public static class OneOfTheFieldsIsStatic {
+
         static int staticField;
         int instanceField;
 

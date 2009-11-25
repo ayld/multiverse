@@ -8,6 +8,7 @@ import org.multiverse.DummyTransaction;
 import static org.multiverse.TestUtils.assertIsAborted;
 import static org.multiverse.TestUtils.assertIsCommitted;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.api.exceptions.DeadTransactionException;
@@ -17,7 +18,6 @@ import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 import org.multiverse.templates.AbortedException;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class UpdateAlphaTransaction_commitTest {
 
@@ -66,6 +66,7 @@ public class UpdateAlphaTransaction_commitTest {
 
     @AtomicObject
     public static class TestObject {
+
         private int count = 0;
 
         public void incCount() {
@@ -95,7 +96,7 @@ public class UpdateAlphaTransaction_commitTest {
         ref.inc(tranlocalIntValueR2);
         t2.commit();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         IntRefTranlocal committed = (IntRefTranlocal) ref.___load(version);
 
         ref.inc(tranlocalIntValueR1);
@@ -108,14 +109,14 @@ public class UpdateAlphaTransaction_commitTest {
 
         assertIsAborted(t1);
         assertSame(committed, ref.___load(version));
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @Test
     public void commitFailsIfLocksCantBeAcquired() {
         IntRef intValue = new IntRef(0);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Transaction t = startUpdateTransaction();
         intValue.inc();
@@ -133,18 +134,18 @@ public class UpdateAlphaTransaction_commitTest {
         intValue.___releaseLock(otherOwner);
 
         assertIsAborted(t);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(0, intValue.get());
     }
 
     @Test
     public void commitUnusedStartedTransaction() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         Transaction t1 = startUpdateTransaction();
         t1.commit();
 
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
         assertIsCommitted(t1);
     }
 
@@ -154,43 +155,41 @@ public class UpdateAlphaTransaction_commitTest {
         IntRef value = new IntRef(10);
         t1.commit();
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         Transaction t2 = startUpdateTransaction();
         value.inc();
         t2.commit();
 
-        IntRefTranlocal stored = (IntRefTranlocal) value.___load(stm.getClockVersion());
+        IntRefTranlocal stored = (IntRefTranlocal) value.___load(stm.getTime());
         assertIsCommitted(t2);
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         assertEquals(11, stored.value);
-        assertEquals(stm.getClockVersion(), stored.___version);
+        assertEquals(stm.getTime(), stored.___writeVersion);
         assertEquals(value, stored.getAtomicObject());
-        assertTrue(stored.___committed);
     }
 
     @Test
     public void commitChangesOnAttachAsNewObjects() {
         Transaction t1 = startUpdateTransaction();
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         IntRef value = new IntRef(10);
         t1.commit();
 
         assertIsCommitted(t1);
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
 
-        IntRefTranlocal stored = (IntRefTranlocal) value.___load(stm.getClockVersion());
+        IntRefTranlocal stored = (IntRefTranlocal) value.___load(stm.getTime());
         assertEquals(10, stored.value);
-        assertEquals(stm.getClockVersion(), stored.___version);
+        assertEquals(stm.getTime(), stored.___writeVersion);
         assertEquals(value, stored.getAtomicObject());
-        assertTrue(stored.___committed);
     }
 
     @Test
     public void commitNoDirtyChanges() {
         IntRef intValue = new IntRef(0);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         Transaction t = startUpdateTransaction();
         intValue.get();
@@ -198,7 +197,7 @@ public class UpdateAlphaTransaction_commitTest {
 
         assertIsCommitted(t);
         //this part is going to work when the isDirty functionality is added.
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
     }
 
     @Test
@@ -207,7 +206,7 @@ public class UpdateAlphaTransaction_commitTest {
         IntRef v2 = new IntRef(2);
         IntRef v3 = new IntRef(3);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         Transaction t = startUpdateTransaction();
         v1.inc();
@@ -220,7 +219,7 @@ public class UpdateAlphaTransaction_commitTest {
 
         setThreadLocalTransaction(null);
 
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         assertIsCommitted(t);
         assertEquals(2, v1.get());
         assertEquals(3, v2.get());
@@ -238,13 +237,13 @@ public class UpdateAlphaTransaction_commitTest {
         intValue.inc();
         t.commit();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         t.commit();
 
         setThreadLocalTransaction(null);
 
         assertIsCommitted(t);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(2, intValue.get());
     }
 
@@ -256,7 +255,7 @@ public class UpdateAlphaTransaction_commitTest {
         value.inc();
         t.abort();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         try {
             t.commit();
             fail();
@@ -266,7 +265,7 @@ public class UpdateAlphaTransaction_commitTest {
         setThreadLocalTransaction(null);
 
         assertIsAborted(t);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(1, value.get());
     }
 }

@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Peter Veentjer
  */
 public class AtomicObject_ConstructorTest {
+
     private AlphaStm stm;
 
     @Before
@@ -37,6 +38,7 @@ public class AtomicObject_ConstructorTest {
 
     @AtomicObject
     public static class ConflictingConstructor {
+
         private int field;
 
         public ConflictingConstructor() {
@@ -56,6 +58,7 @@ public class AtomicObject_ConstructorTest {
 
     @AtomicObject
     static class NoArgConstructor {
+
         private int value;
 
         public NoArgConstructor() {
@@ -69,15 +72,16 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void testEmptyConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         testEmptyConstructor o = new testEmptyConstructor();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @AtomicObject
     static class testEmptyConstructor {
+
         private int value;
 
         public testEmptyConstructor() {
@@ -86,30 +90,32 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void testNoConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         NoConstructor noConstructor = new NoConstructor();
 
-        assertEquals(version , stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @AtomicObject
     static class NoConstructor {
+
         private int value;
     }
 
     @Test
     public void testOneArgConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         OneArgConstructor o = new OneArgConstructor(10);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(10, o.getA());
     }
 
     @AtomicObject
     static class OneArgConstructor {
+
         private int a;
 
         public OneArgConstructor(int a) {
@@ -123,17 +129,18 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void testTwoArgConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         TwoArgConstructor o = new TwoArgConstructor(20, 8);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(20, o.getA());
         assertEquals(8, o.getB());
     }
 
     @AtomicObject
     static class TwoArgConstructor {
+
         private int a;
         private int b;
 
@@ -153,11 +160,11 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void testFiveArgConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         FiveArgConstructor fiveArgConstructor = new FiveArgConstructor(10, 40, 2, 9, -1);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(10, fiveArgConstructor.getA());
         assertEquals(40, fiveArgConstructor.getB());
         assertEquals(2, fiveArgConstructor.getC());
@@ -167,6 +174,7 @@ public class AtomicObject_ConstructorTest {
 
     @AtomicObject
     static class FiveArgConstructor {
+
         private int a;
         private int b;
         private int c;
@@ -204,16 +212,17 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void testVarArgsConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         VarArgConstructor varArgConstructor = new VarArgConstructor(1, 2, 3, 4);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertArrayEquals(new int[]{1, 2, 3, 4}, varArgConstructor.getArgs());
     }
 
     @AtomicObject
     static class VarArgConstructor {
+
         private int[] args;
 
         VarArgConstructor(int... args) {
@@ -227,17 +236,18 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void testArrayConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         int[] args = new int[]{1, 2, 3, 4};
         ArrayConstructor o = new ArrayConstructor(args);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertSame(args, o.getArgs());
     }
 
     @AtomicObject
     static class ArrayConstructor {
+
         private int[] args;
 
         ArrayConstructor(int[] args) {
@@ -253,16 +263,17 @@ public class AtomicObject_ConstructorTest {
     public void testTransactionalObjectConstructor() {
         IntRef intValue = new IntRef(10);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         TransactionalObjectConstructor o = new TransactionalObjectConstructor(intValue);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertSame(intValue, o.getIntValue());
     }
 
     @AtomicObject
     static class TransactionalObjectConstructor {
+
         IntRef intValue;
 
         TransactionalObjectConstructor(IntRef intValue) {
@@ -278,16 +289,17 @@ public class AtomicObject_ConstructorTest {
     public void testNormalRefConstructor() {
         String value = "foo";
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         NormalRefConstructor o = new NormalRefConstructor(value);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertSame(value, o.getValue());
     }
 
     @AtomicObject
     static class NormalRefConstructor {
+
         String value;
 
         NormalRefConstructor(String intValue) {
@@ -303,18 +315,19 @@ public class AtomicObject_ConstructorTest {
     public void testCreateAtomicObjectInConstructor() {
         IntRef ref = new IntRef(1);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         MetadataRepository s = MetadataRepository.INSTANCE;
 
         CreateAtomicObjectInConstructor o = new CreateAtomicObjectInConstructor(10);
 
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         assertNotNull(o.getValue());
     }
 
     @AtomicObject
     static class CreateAtomicObjectInConstructor {
+
         private IntRef value;
 
 
@@ -329,7 +342,7 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void testExceptionIsThrownInsideConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         try {
             new ExceptionIsThrownInsideConstructor();
@@ -338,11 +351,12 @@ public class AtomicObject_ConstructorTest {
 
         }
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @AtomicObject
     static class ExceptionIsThrownInsideConstructor {
+
         private int field;
 
         ExceptionIsThrownInsideConstructor() {
@@ -351,19 +365,21 @@ public class AtomicObject_ConstructorTest {
     }
 
     static class MyException extends RuntimeException {
+
     }
 
     @Test
     public void constructorWithExplicitSuperCallingConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         AtomicObjectWithNoArgSuperCallingConstructor o = new AtomicObjectWithNoArgSuperCallingConstructor();
 
-        assertEquals(version , stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     @AtomicObject
     static class AtomicObjectWithNoArgSuperCallingConstructor {
+
         private int value;
 
         AtomicObjectWithNoArgSuperCallingConstructor() {
@@ -384,7 +400,7 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void constructorThatCallsThis() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         //ThisCallingConstructor c = new ThisCallingConstructor();
         //assertEquals(25, c.getValue());
         //assertEquals(version + 1, stm.getClockVersion());
@@ -393,17 +409,18 @@ public class AtomicObject_ConstructorTest {
 
     @AtomicObject
     static class ThisCallingConstructor {
+
         int value;
 
         public ThisCallingConstructor() {
             this(25);
-        //    System.out.println("value = "+value);
+            //    System.out.println("value = "+value);
         }
 
         public ThisCallingConstructor(int value) {
-        //    System.out.println("constructor called with value: "+value);
+            //    System.out.println("constructor called with value: "+value);
             this.value = value;
-        //    System.out.println("value set: "+this.value);
+            //    System.out.println("value set: "+this.value);
         }
 
         public int getValue() {
@@ -421,16 +438,17 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void finalFieldOnAtomicObject() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         AtomicObjectWithFinalField o = new AtomicObjectWithFinalField(10);
         assertFalse(o instanceof AlphaAtomicObject);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(10, o.value);
     }
 
     @AtomicObject
     static class AtomicObjectWithFinalField {
+
         final int value;
 
         AtomicObjectWithFinalField(int value) {
@@ -442,16 +460,17 @@ public class AtomicObject_ConstructorTest {
     public void finalFieldIsAtomicObject() {
         IntRef value = new IntRef(100);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         AtomicObjectWithOtherAtomicObjectAsFinalField o = new AtomicObjectWithOtherAtomicObjectAsFinalField(value);
         assertFalse(o instanceof AlphaAtomicObject);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(value, o.value);
     }
 
     @AtomicObject
     static class AtomicObjectWithOtherAtomicObjectAsFinalField {
+
         final IntRef value;
 
         AtomicObjectWithOtherAtomicObjectAsFinalField(IntRef value) {
@@ -461,16 +480,17 @@ public class AtomicObject_ConstructorTest {
 
     @Test
     public void finalFieldIsAtomicObjectAndCreatedInConstructor() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         AtomicObjectWithFinalRefThatIsCreatedInsideConstructor o = new AtomicObjectWithFinalRefThatIsCreatedInsideConstructor();
         assertFalse(o instanceof AlphaAtomicObject);
         assertEquals(10, o.value.get());
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
     }
 
     @AtomicObject
     static class AtomicObjectWithFinalRefThatIsCreatedInsideConstructor {
+
         final IntRef value;
 
         public AtomicObjectWithFinalRefThatIsCreatedInsideConstructor() {
@@ -503,6 +523,7 @@ public class AtomicObject_ConstructorTest {
 
     @AtomicObject
     public static class InstanceInitializer {
+
         long initCounter = constructorInitCounter.incrementAndGet();
 
         public InstanceInitializer() {

@@ -7,24 +7,25 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.datastructures.refs.Ref;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.LinkedList;
 import java.util.Random;
 
 /**
- * A Test to see how well the MultiversionedStm deals with cycles. In the 0.2 release it was
- * very important because multiverse needed to traverse the object graphs to find the objects that
- * need persistance. But with multiverse 0.3 this is not needed.
+ * A Test to see how well the MultiversionedStm deals with cycles. In the 0.2 release it was very important because
+ * multiverse needed to traverse the object graphs to find the objects that need persistance. But with multiverse 0.3
+ * this is not needed.
  *
  * @author Peter Veentjer.
  */
 public class CycleHandlingTest {
+
     private Stm stm;
 
     @Before
@@ -46,6 +47,7 @@ public class CycleHandlingTest {
 
     @AtomicObject
     public static class SingleLinkedNode {
+
         private SingleLinkedNode next;
 
         public SingleLinkedNode() {
@@ -109,7 +111,7 @@ public class CycleHandlingTest {
     public void complexObjectGraphWithLoadsOfCycles() {
         final int nodeCount = 100000;
 
-        long oldVersion = stm.getClockVersion();
+        long oldVersion = stm.getTime();
 
         new AtomicTemplate() {
             @Override
@@ -119,7 +121,7 @@ public class CycleHandlingTest {
             }
         }.execute();
 
-        assertEquals(oldVersion + 1, stm.getClockVersion());
+        assertEquals(oldVersion + 1, stm.getTime());
     }
 
 
@@ -128,7 +130,7 @@ public class CycleHandlingTest {
         final int nodeCount = 100000;
 
 
-        long oldVersion = stm.getClockVersion();
+        long oldVersion = stm.getTime();
         //long oldWriteCount = stm.getProfiler().sumKey1("updatetransaction.individualwrite.count");
 
         new AtomicTemplate() {
@@ -141,7 +143,7 @@ public class CycleHandlingTest {
 
         //multiply by 3 because each complexnode needs 3 references
         //assertEquals(oldWriteCount + 3 * nodeCount, stm.getProfiler().sumKey1("updatetransaction.individualwrite.count"));
-        assertEquals(oldVersion + 1, stm.getClockVersion());
+        assertEquals(oldVersion + 1, stm.getTime());
     }
 
 
@@ -189,8 +191,9 @@ public class CycleHandlingTest {
                     workList.push(children[i]);
                     backreferences.addFirst(children[i]);
                     --nodeCount;
-                    if (backreferences.size() > maxReferenceListSize)
+                    if (backreferences.size() > maxReferenceListSize) {
                         backreferences.removeLast();
+                    }
                 }
             }
 

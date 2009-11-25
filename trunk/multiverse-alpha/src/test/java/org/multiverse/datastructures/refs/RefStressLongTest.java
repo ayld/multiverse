@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RefStressLongTest {
 
     private int threadCount = 5;
-    private int transactionCount = 1000*1000;
+    private int transactionCount = 2 * 1000 * 1000;
     private int refCount = 20;
     private IntRef[] refs;
     private AtomicInteger total = new AtomicInteger();
@@ -29,8 +29,8 @@ public class RefStressLongTest {
             threads[k] = new StressThread(k);
         }
         refs = new IntRef[refCount];
-        for(int k=0;k<refs.length;k++){
-           refs[k] =new IntRef(0);
+        for (int k = 0; k < refs.length; k++) {
+            refs[k] = new IntRef(0);
         }
     }
 
@@ -62,7 +62,7 @@ public class RefStressLongTest {
                 int count = doIt();
                 total.addAndGet(count);
 
-                if(k % 100000 == 0){
+                if (k % 100000 == 0) {
                     System.out.printf("%s is at %s\n", getName(), k);
                 }
             }

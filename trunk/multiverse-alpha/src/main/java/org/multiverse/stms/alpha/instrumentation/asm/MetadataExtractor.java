@@ -13,10 +13,9 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.List;
 
 /**
- * An Extractor responsible for collecting information about a ClassNode and
- * storeAndReleaseLock it in the {@link MetadataRepository}. This is one of the first things
- * that should be run, so that the other transformers/factories have their
- * information in place.
+ * An Extractor responsible for collecting information about a ClassNode and storeAndReleaseLock it in the {@link
+ * MetadataRepository}. This is one of the first things that should be run, so that the other transformers/factories
+ * have their information in place.
  * <p/>
  * An instance should not be reused.
  *
@@ -105,7 +104,7 @@ public final class MetadataExtractor implements Opcodes {
             if (hasAtomicMethodAnnotation(method)) {
                 params = getParams(method);
                 isAtomicMethod = true;
-            } else if (hasCorrectMethodAccessForAtomicMethod(method.access)) {
+            } else if (hasCorrectMethodAccessForAtomicMethod(method.access) && !isStatic(method)) {
                 isAtomicMethod = true;
                 params = createDefaultParams(method);
             }
@@ -164,7 +163,7 @@ public final class MetadataExtractor implements Opcodes {
         sb.append("(");
         Type[] argTypes = Type.getArgumentTypes(method.desc);
         for (int k = 0; k < argTypes.length; k++) {
-           sb.append(argTypes[k].getClassName());
+            sb.append(argTypes[k].getClassName());
             if (k < argTypes.length - 1) {
                 sb.append(",");
             }

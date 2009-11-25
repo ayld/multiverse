@@ -10,12 +10,26 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 public class TestUtils {
+
+    public static void resetInstrumentationProblemMonitor() {
+        try {
+            Field field = InstrumentationProblemMonitor.class.getDeclaredField(
+                    "problemFound");
+            field.setAccessible(true);
+            field.set(InstrumentationProblemMonitor.INSTANCE, false);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void assertIsInterrupted(Thread t) {
         assertTrue(t.isInterrupted());
@@ -33,7 +47,7 @@ public class TestUtils {
 
         System.out.println("============================================================================");
         System.out.printf("Test '%s' incomplete in file '%s' at line %s\n",
-                caller.getMethodName(), caller.getFileName(), caller.getLineNumber());
+                          caller.getMethodName(), caller.getFileName(), caller.getLineNumber());
         System.out.println("============================================================================");
     }
 
@@ -43,7 +57,7 @@ public class TestUtils {
 
         System.out.println("============================================================================");
         System.out.printf("Test '%s' incomplete in file '%s' at line %s\n",
-                caller.getMethodName(), caller.getFileName(), caller.getLineNumber());
+                          caller.getMethodName(), caller.getFileName(), caller.getLineNumber());
         System.out.printf("Reason: %s\n", reason);
         System.out.println("============================================================================");
     }
@@ -113,8 +127,7 @@ public class TestUtils {
 
 
     /**
-     * Joins all threads. If this can't be done within 5 minutes, an assertion failure
-     * is thrown.
+     * Joins all threads. If this can't be done within 5 minutes, an assertion failure is thrown.
      *
      * @param threads
      */
@@ -146,15 +159,16 @@ public class TestUtils {
                         it.remove();
 
                         if (thread.getThrowable() == null) {
-                            System.out.printf("Thread '%s' completed successfully\n", thread.getName());
+                            System.out.printf("%s completed successfully\n", thread.getName());
                         } else {
+                            System.out.printf("%s encountered the following error\n", thread.getName());
                             thread.getThrowable().printStackTrace();
-                            fail(String.format("Thread '%s' completed with failure",thread.getName()));
+                            fail(String.format("%s completed with failure", thread.getName()));
                         }
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new RuntimeException("Joining thread was interrupted", e);
+                    throw new RuntimeException(String.format("Joining %s was interrupted", thread), e);
                 }
             }
         }

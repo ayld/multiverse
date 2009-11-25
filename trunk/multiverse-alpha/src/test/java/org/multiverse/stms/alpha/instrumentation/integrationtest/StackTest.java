@@ -55,8 +55,8 @@ public class StackTest {
                 Stack stack = new Stack();
                 AlphaTransaction alphaTransaction = (AlphaTransaction) t;
                 AlphaTranlocal tranlocal = alphaTransaction.load((AlphaAtomicObject) ((Object) stack));
-                assertFalse(tranlocal.___committed);
-                assertEquals((long) Long.MIN_VALUE, tranlocal.___version);
+                assertEquals(0, tranlocal.___writeVersion);
+                assertEquals((long) 0, tranlocal.___writeVersion);
                 assertSame(stack, tranlocal.getAtomicObject());
                 return null;
             }
@@ -73,8 +73,7 @@ public class StackTest {
             public Object execute(Transaction t) throws Exception {
                 AlphaTransaction alphaTransaction = (AlphaTransaction) t;
                 AlphaTranlocal tranlocal = alphaTransaction.load((AlphaAtomicObject) ((Object) stack));
-                assertEquals(stm.getClockVersion(), tranlocal.___version);
-                assertFalse(tranlocal.___committed);
+                assertEquals(0, tranlocal.___writeVersion);
                 assertSame(stack, tranlocal.getAtomicObject());
                 return null;
             }
@@ -93,9 +92,8 @@ public class StackTest {
             public Object execute(Transaction t) throws Exception {
                 AlphaTransaction alphaTransaction = (AlphaTransaction) t;
                 AlphaTranlocal tranlocal = alphaTransaction.load((AlphaAtomicObject) ((Object) stack));
-                assertEquals(stm.getClockVersion(), tranlocal.___version);
+                assertEquals(stm.getTime(), tranlocal.___writeVersion);
                 assertSame(storedTranlocal, tranlocal);
-                assertTrue(tranlocal.___committed);
                 assertSame(stack, tranlocal.getAtomicObject());
                 return null;
             }
@@ -104,11 +102,11 @@ public class StackTest {
 
     @Test
     public void test() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Stack stack = new Stack();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertTrue(stack.isEmpty());
         assertEquals(0, stack.size());
     }
@@ -144,7 +142,7 @@ public class StackTest {
     public void testRollback() {
         Stack<String> stack = new Stack<String>();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Transaction t = stm.startUpdateTransaction("testRollback");
         ThreadLocalTransaction.setThreadLocalTransaction(t);
@@ -154,7 +152,7 @@ public class StackTest {
 
         t.abort();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertTrue(stack.isEmpty());
     }
 }

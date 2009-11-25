@@ -15,7 +15,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                IntStackTranlocal tranlocal = (IntStackTranlocal)((AlphaTransaction)t).load(IntStack.this);
+                IntStackTranlocal tranlocal = (IntStackTranlocal) ((AlphaTransaction) t).load(IntStack.this);
                 return null;
             }
         }.execute();
@@ -77,7 +77,7 @@ public final class IntStack extends FastAtomicObjectMixin {
         IntStackTranlocal origin = (IntStackTranlocal) ___load(version);
         if (origin == null) {
             return new IntStackTranlocal(this);
-        }else{
+        } else {
             return new IntStackTranlocal(origin);
         }
     }
@@ -91,27 +91,27 @@ public final class IntStack extends FastAtomicObjectMixin {
     }
 
     public void push(IntStackTranlocal tranlocal, int value) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.head = new IntNode(value, tranlocal.head);
-            tranlocal.size++;
         }
+
+        tranlocal.head = new IntNode(value, tranlocal.head);
+        tranlocal.size++;
     }
 
     public int pop(IntStackTranlocal tranlocal) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            if (tranlocal.head == null) {
-                retry();
-            }
-
-            tranlocal.size--;
-            IntNode oldHead = tranlocal.head;
-            tranlocal.head = oldHead.next;
-            return oldHead.value;
         }
+
+        if (tranlocal.head == null) {
+            retry();
+        }
+
+        tranlocal.size--;
+        IntNode oldHead = tranlocal.head;
+        tranlocal.head = oldHead.next;
+        return oldHead.value;
     }
 }
 

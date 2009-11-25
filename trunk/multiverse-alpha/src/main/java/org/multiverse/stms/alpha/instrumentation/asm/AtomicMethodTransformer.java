@@ -4,7 +4,8 @@ import org.multiverse.api.Transaction;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import static org.objectweb.asm.Type.*;
+import static org.objectweb.asm.Type.getArgumentTypes;
+import static org.objectweb.asm.Type.getInternalName;
 import org.objectweb.asm.tree.*;
 
 import static java.lang.String.format;
@@ -57,6 +58,10 @@ public class AtomicMethodTransformer implements Opcodes {
         }
 
         for (MethodNode originalAtomicMethod : metadataService.getAtomicMethods(classNode)) {
+            if (originalAtomicMethod.name.equals("<clinit>")) {
+                throw new RuntimeException();
+            }
+
             MethodNode donor;
             if (isConstructor(originalAtomicMethod)) {
                 donor = donorConstructor;
@@ -217,6 +222,10 @@ public class AtomicMethodTransformer implements Opcodes {
     }
 
     private static LocalVariableNode findThisVariable(MethodNode methodNode) {
+        if (methodNode.localVariables == null) {
+            return null;
+        }
+
         for (LocalVariableNode localVar : (List<LocalVariableNode>) methodNode.localVariables) {
             if (localVar.name.equals("this")) {
                 return localVar;

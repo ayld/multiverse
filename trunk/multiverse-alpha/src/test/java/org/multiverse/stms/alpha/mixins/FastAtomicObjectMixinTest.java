@@ -11,8 +11,10 @@ import org.multiverse.api.exceptions.LoadLockedException;
 import org.multiverse.api.exceptions.LoadTooOldVersionException;
 import org.multiverse.stms.alpha.*;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
+import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
 
 public class FastAtomicObjectMixinTest {
+
     private AlphaStm stm;
 
     @Before
@@ -79,7 +81,7 @@ public class FastAtomicObjectMixinTest {
     public void loadTooNewVersion() {
         IntRef intValue = new IntRef(0);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         intValue.inc();
 
         try {
@@ -93,15 +95,20 @@ public class FastAtomicObjectMixinTest {
     public void loadWhileLockedSucceedsIfCommittedVersionIsEqualToReadVersion() {
         IntRef intValue = new IntRef(0);
 
-        long readVersion = stm.getClockVersion();
+        long readVersion = stm.getTime();
 
         Transaction owner = new DummyTransaction();
-        AlphaTranlocal expected = intValue.___load(readVersion);
-
+        IntRefTranlocal old = (IntRefTranlocal) intValue.___load();
         intValue.___tryLock(owner);
 
-        AlphaTranlocal found = intValue.___load(readVersion);
-        assertSame(expected, found);
+        try {
+            intValue.___load(readVersion);
+            fail();
+        } catch (LoadLockedException expected) {
+        }
+
+        intValue.___releaseLock(owner);
+        assertSame(old, intValue.___load());
     }
 
     @Test
@@ -111,7 +118,7 @@ public class FastAtomicObjectMixinTest {
         Transaction owner = new DummyTransaction();
         intValue.___tryLock(owner);
 
-        long readVersion = stm.getClockVersion() + 1;
+        long readVersion = stm.getTime() + 1;
 
         try {
             intValue.___load(readVersion);
@@ -123,7 +130,7 @@ public class FastAtomicObjectMixinTest {
     @Test
     public void loadWhileLockedFailsIfTheCommittedVersionIsNewerThanReadVersion() {
         IntRef intValue = new IntRef(0);
-        long readVersion = stm.getClockVersion();
+        long readVersion = stm.getTime();
         intValue.inc();
 
         Transaction owner = new DummyTransaction();
@@ -132,7 +139,7 @@ public class FastAtomicObjectMixinTest {
         try {
             intValue.___load(readVersion);
             fail();
-        } catch (LoadTooOldVersionException ex) {
+        } catch (LoadLockedException ex) {
         }
     }
 
@@ -220,7 +227,7 @@ public class FastAtomicObjectMixinTest {
 
         @Override
         public void prepareForCommit(long writeVersion) {
-            ___committed = true;
+            ___writeVersion = writeVersion;
         }
 
         @Override

@@ -4,14 +4,15 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
  */
 public class AtomicClassTransformerIntegrationTest {
+
     private AlphaStm stm;
 
     @Before
@@ -55,7 +56,7 @@ public class AtomicClassTransformerIntegrationTest {
         LongRef v2 = new LongRef(1);
         LongRef v3 = new LongRef(2);
 
-        long clockVersion = stm.getClockVersion();
+        long clockVersion = stm.getTime();
 
         updateToStmClockVersion(v1, v2, v3);
 
@@ -67,7 +68,7 @@ public class AtomicClassTransformerIntegrationTest {
     @AtomicMethod
     public void updateToStmClockVersion(LongRef... values) {
         for (LongRef value : values) {
-            value.set(stm.getClockVersion());
+            value.set(stm.getTime());
         }
     }
 }

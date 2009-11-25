@@ -7,15 +7,16 @@ import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import static org.multiverse.TestUtils.testIncomplete;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
 import org.multiverse.templates.AtomicTemplate;
-import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class AtomicMethod_MiscTest {
+
     private AlphaStm stm;
 
     @Before
@@ -44,21 +45,21 @@ public class AtomicMethod_MiscTest {
         abstract void doIt();
     }
 
-    @Test
-    public void nativeMethodIsIgnored() {
-        testIncomplete();
-
-        //NativeMethod nativeMethod = new NativeMethod();
-        //nativeMethod.doIt();
-    }
+    //@Test
+    //public void nativeMethodIsIgnored() {
+    //    testIncomplete();
+    //
+    //    //NativeMethod nativeMethod = new NativeMethod();
+    //    //nativeMethod.doIt();
+    //}
 
     public static class NativeMethod {
+
         native void doIt();
     }
 
     /**
-     * Tests if the system is able to deal with method that have the same name, but different
-     * signatures.
+     * Tests if the system is able to deal with method that have the same name, but different signatures.
      */
     @Test
     public void clashingAtomicMethodNames() {
@@ -84,9 +85,9 @@ public class AtomicMethod_MiscTest {
     public void atomicMethodOnAtomicObjectDoesntCauseHarm() {
         AtomicMethodOnAtomicObject o = new AtomicMethodOnAtomicObject();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.inc();
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(11, o.getValue());
     }
 
@@ -109,14 +110,15 @@ public class AtomicMethod_MiscTest {
     public void atomicObjectCreatedInAtomicMethod() {
         AtomicObjectCreated o = new AtomicObjectCreated();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.doit(100);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(100, o.getIntRef().get());
     }
 
     public static class AtomicObjectCreated {
+
         private IntRef intRef;
 
         @AtomicMethod
@@ -133,9 +135,9 @@ public class AtomicMethod_MiscTest {
     public void atomicMethodWithAtomicTemplateDoesntCauseHarm() {
         ObjectWithAtomicMethodAndAtomicTemplate o = new ObjectWithAtomicMethodAndAtomicTemplate();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         o.inc();
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(1, o.getValue());
     }
 

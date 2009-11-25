@@ -14,11 +14,12 @@ import org.multiverse.utils.clock.StrictClock;
  * @author Peter Veentjer
  */
 public class AbstractTransaction_abortTest {
+
     private StrictClock clock;
 
     @Before
-    public void setUp(){
-           clock = new StrictClock();
+    public void setUp() {
+        clock = new StrictClock(1);
     }
 
     @Test

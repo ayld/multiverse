@@ -1,40 +1,34 @@
 package org.multiverse.integrationtests.classicproblems;
 
+import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.multiverse.TestUtils.joinAll;
-import static org.multiverse.TestUtils.sleepRandomMs;
-import static org.multiverse.TestUtils.startAll;
+import org.junit.Before;
+import org.junit.Test;
+import org.multiverse.TestThread;
+import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.ThreadLocalTransaction.clearThreadLocalTransaction;
+import org.multiverse.api.annotations.AtomicMethod;
+import org.multiverse.datastructures.collections.TransactionalLinkedList;
+import org.multiverse.datastructures.refs.IntRef;
+import org.multiverse.datastructures.refs.Ref;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.multiverse.TestThread;
-import org.multiverse.api.annotations.AtomicMethod;
-import org.multiverse.datastructures.collections.StrictLinkedBlockingDeque;
-import org.multiverse.datastructures.refs.IntRef;
-import org.multiverse.datastructures.refs.Ref;
-
 /**
- * The Sleeping Barber problem, due to legendary Dutch computer scientist
- * <a href="http://en.wikipedia.org/wiki/Edsger_Dijkstra">E.W. Dijkstra</a>, is stated
- * on <a href="http://en.wikipedia.org/wiki/Sleeping_barber">Wikipedia</a>) as follows:
+ * The Sleeping Barber problem, due to legendary Dutch computer scientist <a href="http://en.wikipedia.org/wiki/Edsger_Dijkstra">E.W.
+ * Dijkstra</a>, is stated on <a href="http://en.wikipedia.org/wiki/Sleeping_barber">Wikipedia</a>) as follows:
  * <p/>
- * &quot;A hypothetical barber shop with one barber, one barber chair, and a number
- * of chairs for waiting customers. When there are no customers, the barber sits
- * in his chair and sleeps. As soon as a customer arrives, he either awakens the
- * barber or, if the barber is cutting someone else's hair, sits down in one of
- * the vacant chairs. If all of the chairs are occupied, the newly arrived customer
- * simply leaves.&quot;
+ * &quot;A hypothetical barber shop with one barber, one barber chair, and a number of chairs for waiting customers.
+ * When there are no customers, the barber sits in his chair and sleeps. As soon as a customer arrives, he either
+ * awakens the barber or, if the barber is cutting someone else's hair, sits down in one of the vacant chairs. If all of
+ * the chairs are occupied, the newly arrived customer simply leaves.&quot;
  * <p/>
- * The problem is trivially modelled using a fixed-size {@linkplain BlockingQueue blocking queue}
- * to represent the chairs, with customers adding themselves to the queue and the
- * barber doing a series of {@link BlockingQueue#take() takes}:
+ * The problem is trivially modelled using a fixed-size {@linkplain BlockingQueue blocking queue} to represent the
+ * chairs, with customers adding themselves to the queue and the barber doing a series of {@link BlockingQueue#take()
+ * takes}:
  * <p/>
  * <pre>
  * BlockingQueue chairs = new BlockingQueue(chairCount);
@@ -58,28 +52,24 @@ import org.multiverse.datastructures.refs.Ref;
  * }
  * </pre>
  * <p/>
- * This is very close to the algorithm given in Dijkstra's
- * <a href="http://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html#4.2.%20The%20Superfluity%20of%20the%20General%20Semaphore.">original paper</a>,
- * which is a producer/consumer example in which the consumer waits when the queue
- * is empty and consumers notify the producer when they add an element to an <em>empty</em>
- * queue.
+ * This is very close to the algorithm given in Dijkstra's <a href="http://www.cs.utexas.edu/users/EWD/transcriptions/EWD01xx/EWD123.html#4.2.%20The%20Superfluity%20of%20the%20General%20Semaphore.">original
+ * paper</a>, which is a producer/consumer example in which the consumer waits when the queue is empty and consumers
+ * notify the producer when they add an element to an <em>empty</em> queue.
  * <p/>
- * But using a blocking queue would be &quot;cheating&quot;, sort-of, because the tricky
- * part of the problem - getting the handover between the customers and barber right -
- * is encapsulated in the queue.
+ * But using a blocking queue would be &quot;cheating&quot;, sort-of, because the tricky part of the problem - getting
+ * the handover between the customers and barber right - is encapsulated in the queue.
  * <p/>
- * Also, the model is slightly odd: the barber sleeps standing up or, at any rate, not in
- * one of the chairs, a customer sitting down in a chair magically wakes the barber, the
- * barber &quot;pulls&quot; customers out of their chairs etc.
+ * Also, the model is slightly odd: the barber sleeps standing up or, at any rate, not in one of the chairs, a customer
+ * sitting down in a chair magically wakes the barber, the barber &quot;pulls&quot; customers out of their chairs etc.
  * <p/>
- * So, instead, we'll here implement the &quot;canonical&quot; solution given in the
- * Wikipedia article, which uses two flags to coordinate handover. The third semaphore
- * of the canonical solution is replaced by transactions, which after all is the point
- * of this example.
+ * So, instead, we'll here implement the &quot;canonical&quot; solution given in the Wikipedia article, which uses two
+ * flags to coordinate handover. The third semaphore of the canonical solution is replaced by transactions, which after
+ * all is the point of this example.
  *
  * @author Andrew Phillips
  */
 public class SleepingBarberLongTest {
+
     // the chairs are used by the customers *and* the barber
     private final int chairCount = 5;
     private BlockingQueue<TestThread> chairs;
@@ -97,7 +87,7 @@ public class SleepingBarberLongTest {
     @Before
     public void setUp() {
         clearThreadLocalTransaction();
-        chairs = new StrictLinkedBlockingDeque<TestThread>(chairCount);
+        chairs = new TransactionalLinkedList<TestThread>(chairCount);
     }
 
     @After
@@ -133,6 +123,7 @@ public class SleepingBarberLongTest {
     }
 
     public class BarberThread extends TestThread {
+
         private Ref<Boolean> closingTime = new Ref<Boolean>();
 
         // 0 == asleep, 1 == awake
@@ -233,6 +224,7 @@ public class SleepingBarberLongTest {
     }
 
     public class CustomerThread extends TestThread {
+
         // 0 == sat down, 1 == beckoned by barber, 2 == got up for haircut, 3 == left shop
         private final IntRef state = new IntRef();
 
@@ -307,19 +299,26 @@ public class SleepingBarberLongTest {
 
             // walk over to the barber
             int wasCalled = state.set(2);
-            assert (wasCalled == 1) : String.format("Customer %s stood up but wasn't called (state: %d)?!?", getName(), wasCalled);
+            assert (wasCalled == 1) : String.format("Customer %s stood up but wasn't called (state: %d)?!?",
+                                                    getName(),
+                                                    wasCalled);
         }
 
         public void askForward() {
             int wasWaiting = state.set(1);
-            assert (wasWaiting == 0) : String.format("The barber signalled a customer (%s) who wasn't waiting (state: %d)?!?", getName(), wasWaiting);
+            assert (wasWaiting == 0) : String.format(
+                    "The barber signalled a customer (%s) who wasn't waiting (state: %d)?!?",
+                    getName(),
+                    wasWaiting);
 
             state.await(2);
         }
 
         public void showOut() {
             int wasHavingHairCut = leaveShop();
-            assert (wasHavingHairCut == 2) : String.format("Customer %s was shown out without having his/her hair cut?!?", getName());
+            assert (wasHavingHairCut == 2) : String.format(
+                    "Customer %s was shown out without having his/her hair cut?!?",
+                    getName());
         }
     }
 }

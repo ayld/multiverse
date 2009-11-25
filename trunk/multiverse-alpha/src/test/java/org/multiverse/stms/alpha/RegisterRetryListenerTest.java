@@ -15,6 +15,7 @@ import org.multiverse.utils.latches.CheapLatch;
 import org.multiverse.utils.latches.Latch;
 
 public class RegisterRetryListenerTest {
+
     private AlphaStm stm;
 
     @Before
@@ -31,7 +32,7 @@ public class RegisterRetryListenerTest {
     @Test
     public void testNothingRead() {
         Transaction t = startUpdateTransaction();
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         Latch latch = new CheapLatch();
         try {
             t.abortAndRegisterRetryLatch(latch);
@@ -39,7 +40,7 @@ public class RegisterRetryListenerTest {
         } catch (NoRetryPossibleException ex) {
         }
 
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
         assertFalse(latch.isOpen());
         assertEquals(TransactionStatus.aborted, t.getStatus());
     }

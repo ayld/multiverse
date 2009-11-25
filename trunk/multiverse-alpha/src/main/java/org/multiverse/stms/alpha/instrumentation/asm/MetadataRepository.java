@@ -15,8 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A repository (singleton) that stores alle metadata needed for the instrumentation
- * process.
+ * A repository (singleton) that stores alle metadata needed for the instrumentation process.
  *
  * @author Peter Veentjer
  */
@@ -44,11 +43,11 @@ public final class MetadataRepository {
             return;
         }
 
-        if(logger.isLoggable(Level.FINER)){
-            logger.finer(format("Extracing metadata from class: %s" , className));
+        if (logger.isLoggable(Level.FINER)) {
+            logger.finer(format("Extracing metadata from class: %s", className));
         }
 
-         String fileName = Type.getObjectType(className).getInternalName() + ".class";
+        String fileName = Type.getObjectType(className).getInternalName() + ".class";
         InputStream is = classLoader.getResourceAsStream(fileName);
         if (is == null) {
             return;
@@ -57,7 +56,7 @@ public final class MetadataRepository {
         ClassNode node = AsmUtils.loadAsClassNode(classLoader, Type.getObjectType(className).getInternalName());
         MetadataExtractor extractor = new MetadataExtractor(node);
         extractor.extract();
-   }
+    }
 
     public boolean isAtomicMethod(ClassNode owner, MethodNode method) {
         return isAtomicMethod(owner.name, method.name, method.desc);

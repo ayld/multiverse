@@ -7,12 +7,13 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.assertIsActive;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.datastructures.refs.IntRef;
 import org.multiverse.stms.alpha.AlphaStm;
-import static org.multiverse.api.ThreadLocalTransaction.getThreadLocalTransaction;
 
 public class AtomicMethod_StaticMethodTest {
+
     private AlphaStm stm;
 
     @Before
@@ -32,11 +33,11 @@ public class AtomicMethod_StaticMethodTest {
 
     @Test
     public void testSimpleStaticMethod() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         StaticNoArgMethod.doIt();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
     }
 
     public static class StaticNoArgMethod {
@@ -62,6 +63,7 @@ public class AtomicMethod_StaticMethodTest {
     }
 
     public static class StaticComplexMethod {
+
         static int aExpected;
         static long bExpected;
         static String cExpected;
@@ -82,9 +84,9 @@ public class AtomicMethod_StaticMethodTest {
         IntRef a = new IntRef(10);
         IntRef b = new IntRef(20);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         swap(a, b);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(20, a.get());
         assertEquals(10, b.get());
     }

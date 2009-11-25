@@ -67,7 +67,9 @@ public class ExponentialRestartBackoffPolicyTest {
         long sleepNs = TimeUnit.MILLISECONDS.toNanos(100);
         long startNs = System.nanoTime();
         ExponentialRestartBackoffPolicy.sleep(sleepNs);
-        long elapsedNs = System.nanoTime()-startNs;
-        assertTrue(elapsedNs>sleepNs);
+        long elapsedNs = System.nanoTime() - startNs;
+
+        //we need to build in some room for systems non perfect delays and time measurements. 
+        assertTrue(elapsedNs > (0.95 * sleepNs));
     }
 }

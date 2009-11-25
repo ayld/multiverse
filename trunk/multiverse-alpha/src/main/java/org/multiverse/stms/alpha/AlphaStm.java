@@ -86,6 +86,11 @@ public final class AlphaStm implements Stm, ProfilerAware {
 
         this.profiler = config.profiler;
         this.clock = config.clock;
+        //the abstracttransaction requires the clock to be at least 1, requirement from the
+        //abstracttransaction.
+        if (clock.getTime() == 0) {
+            clock.tick();
+        }
         this.loggingPossible = config.loggingPossible;
         this.logIdGenerator = loggingPossible ? new AtomicLong() : null;
         this.commitLockPolicy = config.commitLockPolicy;
@@ -141,7 +146,9 @@ public final class AlphaStm implements Stm, ProfilerAware {
                     logIdGenerator.incrementAndGet(),
                     Level.FINE);
         } else {
-            return new UpdateAlphaTransaction(updateTransactionDependencies, familyName);
+            return new UpdateAlphaTransaction(
+                    updateTransactionDependencies,
+                    familyName);
         }
     }
 
@@ -161,7 +168,7 @@ public final class AlphaStm implements Stm, ProfilerAware {
     }
 
     @Override
-    public long getClockVersion() {
+    public long getTime() {
         return clock.getTime();
     }
 }

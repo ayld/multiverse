@@ -14,6 +14,7 @@ import org.multiverse.stms.alpha.AlphaStm;
  * @author Peter Veentjer
  */
 public class AtomicObject_WithFinalsTest {
+
     private AlphaStm stm;
 
     @Before
@@ -29,11 +30,11 @@ public class AtomicObject_WithFinalsTest {
 
     @Test
     public void atomicObjectWithNoFieldsIsNotManaged() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         NoFields noFields = new NoFields();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertFalse(noFields instanceof AlphaAtomicObject);
     }
 
@@ -46,11 +47,11 @@ public class AtomicObject_WithFinalsTest {
 
     @Test
     public void atomicObjectWithOneFinalFieldIsNotManaged() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         OneFinalField o = new OneFinalField(20);
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertFalse(o instanceof AlphaAtomicObject);
         assertEquals(20, o.getValue());
     }
@@ -71,12 +72,12 @@ public class AtomicObject_WithFinalsTest {
 
     @Test
     public void atomicObjectWithSomeFinalFieldsIsManaged() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         SomeFinalFields o = new SomeFinalFields(10, 20);
 
         assertTrue(o instanceof AlphaAtomicObject);
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(10, o.getFinalValue());
         assertEquals(10, o.finalValue);
         assertEquals(20, o.getNonFinalValue());
@@ -84,6 +85,7 @@ public class AtomicObject_WithFinalsTest {
 
     @AtomicObject
     public static class SomeFinalFields {
+
         private final int finalValue;
         private int nonFinalValue;
 
@@ -103,11 +105,11 @@ public class AtomicObject_WithFinalsTest {
 
     @Test
     public void atomicObjectWithAllFinalFieldsIsNotManaged() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         AllFinalFields o = new AllFinalFields(10, 20, 30);
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(10, o.getValue1());
         assertEquals(20, o.getValue2());
         assertEquals(30, o.getValue3());
@@ -116,6 +118,7 @@ public class AtomicObject_WithFinalsTest {
 
     @AtomicObject
     public static class AllFinalFields {
+
         final int value1;
         final int value2;
         final int value3;
@@ -154,6 +157,7 @@ public class AtomicObject_WithFinalsTest {
 
     @AtomicObject
     public static class ChainedRef {
+
         int someValue;
         final ChainedRef next;
 
@@ -180,7 +184,7 @@ public class AtomicObject_WithFinalsTest {
     }
 
     //todo: test with multiple refs.
-    public void testMissing(){
+    public void testMissing() {
         testIncomplete();
     }
     //a.b.c.d of the same type and finals.

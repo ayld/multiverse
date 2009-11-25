@@ -5,11 +5,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import org.multiverse.api.ThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.stms.alpha.AlphaAtomicObject;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.instrumentation.AlphaReflectionUtils.*;
-import org.multiverse.api.ThreadLocalTransaction;
 
 /**
  * @author Peter Veentjer
@@ -47,10 +47,10 @@ public class QueueTest {
 
     @Test
     public void testConstruction() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         Queue queue = new Queue(100);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(0, queue.size());
         assertTrue(queue.isEmpty());
     }
@@ -73,7 +73,7 @@ public class QueueTest {
     public void testRollback() {
         Queue<String> queue = new Queue<String>();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Transaction t = stm.startUpdateTransaction("testRollback");
         ThreadLocalTransaction.setThreadLocalTransaction(t);
@@ -83,7 +83,7 @@ public class QueueTest {
 
         t.abort();
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertTrue(queue.isEmpty());
     }
 }

@@ -18,7 +18,7 @@ public class AbstractTransaction_startOrTest {
 
     @Before
     public void setUp() {
-        clock = new StrictClock();
+        clock = new StrictClock(1);
     }
 
     @Test

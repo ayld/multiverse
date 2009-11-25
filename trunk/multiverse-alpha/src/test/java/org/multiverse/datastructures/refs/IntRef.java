@@ -5,6 +5,7 @@ import org.multiverse.api.annotations.AtomicObject;
 
 @AtomicObject
 public class IntRef {
+
     private int value;
 
     public IntRef() {
@@ -21,8 +22,10 @@ public class IntRef {
     }
 
     public int inc() {
-        value++;
-        return value;
+        int v = value;
+        v++;
+        value = v;
+        return v;
     }
 
     public int set(int newValue) {

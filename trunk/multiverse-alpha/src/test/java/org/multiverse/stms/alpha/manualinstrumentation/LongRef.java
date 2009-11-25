@@ -18,7 +18,7 @@ public class LongRef extends FastAtomicObjectMixin {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) {
-                LongRefTranlocal tranlocal = (LongRefTranlocal)((AlphaTransaction)t).load(LongRef.this);
+                LongRefTranlocal tranlocal = (LongRefTranlocal) ((AlphaTransaction) t).load(LongRef.this);
                 tranlocal.value = value;
                 return null;
             }
@@ -72,17 +72,16 @@ public class LongRef extends FastAtomicObjectMixin {
         LongRefTranlocal origin = (LongRefTranlocal) ___load(version);
         if (origin == null) {
             return new LongRefTranlocal(this);
-        } else{
-        return new LongRefTranlocal(origin);
+        } else {
+            return new LongRefTranlocal(origin);
         }
     }
 
     public void set(LongRefTranlocal tranlocal, long newValue) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.value = newValue;
         }
+        tranlocal.value = newValue;
     }
 
     public long get(LongRefTranlocal tranlocal) {
@@ -90,19 +89,17 @@ public class LongRef extends FastAtomicObjectMixin {
     }
 
     public void inc(LongRefTranlocal tranlocal) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.value++;
         }
+        tranlocal.value++;
     }
 
     public void dec(LongRefTranlocal tranlocal) {
-        if (tranlocal.___committed) {
+        if (tranlocal.___writeVersion > 0) {
             throw new ReadonlyException();
-        } else {
-            tranlocal.value--;
         }
+        tranlocal.value--;
     }
 
     public void await(LongRefTranlocal tranlocal, long expectedValue) {
@@ -113,42 +110,41 @@ public class LongRef extends FastAtomicObjectMixin {
 }
 
 class LongRefTranlocal extends AlphaTranlocal {
-    private final LongRef atomicObject;
+
+    private final LongRef ___atomicObject;
+    LongRefTranlocal ___origin;
     public long value;
-    LongRefTranlocal origin;
 
     public LongRefTranlocal(LongRefTranlocal origin) {
-        this.origin = origin;
-        this.___version = origin.___version;
+        this.___origin = origin;
+        this.___writeVersion = origin.___writeVersion;
+        this.___atomicObject = origin.___atomicObject;
         this.value = origin.value;
-        this.atomicObject = origin.atomicObject;
     }
 
     public LongRefTranlocal(LongRef atomicObject) {
-        this.___version = Long.MIN_VALUE;
-        this.atomicObject = atomicObject;
+        this.___atomicObject = atomicObject;
     }
 
     @Override
     public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
+        return ___atomicObject;
     }
 
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.___version = writeVersion;
-        this.___committed = true;
-        this.origin = null;
+        this.___writeVersion = writeVersion;
+        this.___origin = null;
     }
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (___committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
+        if (___writeVersion > 0) {
+            return DirtinessStatus.readonly;
+        } else if (___origin == null) {
             return DirtinessStatus.fresh;
-        } else if (origin.value != this.value) {
+        } else if (___origin.value != this.value) {
             return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
@@ -165,26 +161,27 @@ class LongRefTranlocal extends AlphaTranlocal {
     }
 
     public static LongRef add(LongRefTranlocal owner, LongRefTranlocal arg) {
-        return owner.atomicObject.add(owner.atomicObject);
+        return owner.___atomicObject.add(owner.___atomicObject);
     }
 }
 
 class LongRefTranlocalSnapshot extends AlphaTranlocalSnapshot {
-    final LongRefTranlocal tranlocal;
+
+    final LongRefTranlocal ___tranlocal;
     final long value;
 
     LongRefTranlocalSnapshot(LongRefTranlocal tranlocal) {
-        this.tranlocal = tranlocal;
+        this.___tranlocal = tranlocal;
         this.value = tranlocal.value;
     }
 
     @Override
     public AlphaTranlocal getTranlocal() {
-        return tranlocal;
+        return ___tranlocal;
     }
 
     @Override
     public void restore() {
-        tranlocal.value = value;
+        ___tranlocal.value = value;
     }
 }

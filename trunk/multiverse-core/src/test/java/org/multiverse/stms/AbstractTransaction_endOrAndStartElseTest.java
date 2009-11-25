@@ -13,11 +13,12 @@ import org.multiverse.utils.clock.StrictClock;
  * @author Peter Veentjer
  */
 public class AbstractTransaction_endOrAndStartElseTest {
-             private StrictClock clock;
+
+    private StrictClock clock;
 
     @Before
     public void setUp() {
-        clock = new StrictClock();
+        clock = new StrictClock(1);
     }
 
     @Test

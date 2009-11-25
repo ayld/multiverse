@@ -1,17 +1,19 @@
 package org.multiverse.stms.alpha.manualinstrumentation;
 
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.stms.alpha.AlphaStm;
 import static org.multiverse.stms.alpha.AlphaStmConfig.createFastConfig;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 import java.util.concurrent.TimeUnit;
 
 public class IntRefPerformanceLongTest {
-    private int count = 3 * 1000 * 1000;
+
+    private int count = 10 * 1000 * 1000;
 
     private AlphaStm stm;
 
@@ -32,14 +34,15 @@ public class IntRefPerformanceLongTest {
 
     @Test
     public void test() {
-        IntRef value = new IntRef(10);
+        IntRef ref = new IntRef();
 
         long startNs = System.nanoTime();
 
         for (int k = 0; k < count; k++) {
-            value.inc();
+            ref.inc();
         }
 
+        assertEquals(count, ref.get());
         long periodNs = System.nanoTime() - startNs;
         double transactionPerSecond = (count * 1.0d * TimeUnit.SECONDS.toNanos(1)) / periodNs;
         System.out.printf("%s Transaction/second\n", transactionPerSecond);

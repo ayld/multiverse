@@ -21,8 +21,9 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
     private final long logId;
     private final Level level;
 
-    public LoggingUpdateAlphaTransaction(UpdateTransactionDependencies dependencies, String familyName, long logId, Level level) {
-        super(dependencies,familyName);
+    public LoggingUpdateAlphaTransaction(UpdateTransactionDependencies dependencies, String familyName, long logId,
+                                         Level level) {
+        super(dependencies, familyName);
         this.logId = logId;
         this.level = level;
 
@@ -33,7 +34,11 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
 
 
     private String toLogString() {
-        return format("UpdateTransaction '%s-%s' with readversion '%s' ", getFamilyName(), logId, readVersion);
+        return format(
+                "UpdateTransaction '%s-%s' with readversion '%s' ",
+                getFamilyName(),
+                logId,
+                getReadVersion());
     }
 
     @Override
@@ -111,7 +116,11 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 return t;
             } finally {
                 if (success) {
-                    logger.log(level, format("%s abortAndReturnRestarted to readversion %s", oldLogString, readVersion));
+                    String msg = format(
+                            "%s abortAndReturnRestarted to readversion %s",
+                            oldLogString,
+                            getReadVersion());
+                    logger.log(level, msg);
                 } else {
                     logger.log(level, format("%s abortAndReturnRestarted failed", oldLogString));
                 }
@@ -150,9 +159,9 @@ public class LoggingUpdateAlphaTransaction extends UpdateAlphaTransaction {
                 success = true;
             } finally {
                 if (success) {
-                    logger.log(level, format("%s scheduleType %s %s", toLogString(), scheduleType,task));
+                    logger.log(level, format("%s scheduleType %s %s", toLogString(), scheduleType, task));
                 } else {
-                    logger.log(level, format("%s scheduleType %s %s failed", toLogString(), scheduleType,task));
+                    logger.log(level, format("%s scheduleType %s %s failed", toLogString(), scheduleType, task));
                 }
             }
         }

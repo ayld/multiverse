@@ -30,14 +30,14 @@ public class AtomicMethod_ReadonlyTransactionTest {
     public void test() {
         IntRef ref = new IntRef(10);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         long readonlyTransactionStarted = profiler.sumKey1("readonlytransaction.started.count");
         long readonlyTransactionAborted = profiler.sumKey1("readonlytransaction.aborted.count");
         long readonlyTransactionCommitted = profiler.sumKey1("readonlytransaction.committed.count");
 
         int value = ref.get();
         assertEquals(10, value);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(readonlyTransactionStarted + 1, profiler.sumKey1("readonlytransaction.started.count"));
         assertEquals(readonlyTransactionAborted, profiler.sumKey1("readonlytransaction.aborted.count"));
         assertEquals(readonlyTransactionCommitted + 1, profiler.sumKey1("readonlytransaction.committed.count"));
@@ -48,7 +48,7 @@ public class AtomicMethod_ReadonlyTransactionTest {
     public void updateIsDetected() {
         IntRef ref = new IntRef(10);
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         long readonlyTransactionStarted = profiler.sumKey1("readonlytransaction.started.count");
         long readonlyTransactionAborted = profiler.sumKey1("readonlytransaction.aborted.count");
         long readonlyTransactionCommitted = profiler.sumKey1("readonlytransaction.committed.count");
@@ -59,7 +59,7 @@ public class AtomicMethod_ReadonlyTransactionTest {
         } catch (ReadonlyException expected) {
         }
 
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertEquals(readonlyTransactionStarted + 1, profiler.sumKey1("readonlytransaction.started.count"));
         assertEquals(readonlyTransactionAborted + 1, profiler.sumKey1("readonlytransaction.aborted.count"));
         assertEquals(readonlyTransactionCommitted, profiler.sumKey1("readonlytransaction.committed.count"));

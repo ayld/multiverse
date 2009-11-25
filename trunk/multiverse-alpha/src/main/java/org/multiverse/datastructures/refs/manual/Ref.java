@@ -14,23 +14,21 @@ import org.multiverse.templates.AtomicTemplate;
 import static java.lang.String.format;
 
 /**
- * A manual instrumented {@link org.multiverse.datastructures.refs.ManagedRef} implementation.
- * If this class is used, you don't need to worry about instrumentation/javaagents and
- * stuff like this.
+ * A manual instrumented {@link org.multiverse.datastructures.refs.ManagedRef} implementation. If this class is used,
+ * you don't need to worry about instrumentation/javaagents and stuff like this.
  * <p/>
- * It is added to get the Akka project up and running, but probably will removed when the instrumentation
- * is 100% up and running and this can be done compiletime instead of messing with javaagents.
+ * It is added to get the Akka project up and running, but probably will removed when the instrumentation is 100% up and
+ * running and this can be done compiletime instead of messing with javaagents.
  *
  * @author Peter Veentjer
  */
 public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E> {
 
-
     /**
-     * Creates a committed ref with a null value using the Stm in the
-     * {@link GlobalStmInstance}.
+     * Creates a committed ref with a null value using the Stm in the {@link GlobalStmInstance}.
      *
      * @return the created ref.
+     *
      * @see #createCommittedRef(Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef() {
@@ -42,6 +40,7 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
      *
      * @param stm the {@link Stm} used for committing the ref.
      * @return the created ref.
+     *
      * @see #createCommittedRef(Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef(Stm stm) {
@@ -49,11 +48,11 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     /**
-     * Creates a committed ref with the given value using the Stm in the
-     * {@link GlobalStmInstance}.
+     * Creates a committed ref with the given value using the Stm in the {@link GlobalStmInstance}.
      *
      * @param value the initial value of the Ref.
      * @return the created ref.
+     *
      * @see #createCommittedRef(Stm, Object)
      */
     public static <E> Ref<E> createCommittedRef(E value) {
@@ -63,14 +62,13 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     /**
      * Creates a committed ref with the given value and using the given Stm.
      * <p/>
-     * This factory method should be called when one doesn't want to lift on the current
-     * transaction, but you want something to be committed whatever happens. In the future
-     * behavior will be added propagation levels. But for the time being this is the 'expect_new'
-     * implementation of this propagation level.
+     * This factory method should be called when one doesn't want to lift on the current transaction, but you want
+     * something to be committed whatever happens. In the future behavior will be added propagation levels. But for the
+     * time being this is the 'expect_new' implementation of this propagation level.
      * <p/>
-     * If the value is an atomicobject or has a reference to it (perhaps indirectly), and
-     * the transaction this atomicobject is created in is aborted (or hasn't committed) yet,
-     * you will get the dreaded {@link org.multiverse.api.exceptions.LoadUncommittedException}.
+     * If the value is an atomicobject or has a reference to it (perhaps indirectly), and the transaction this
+     * atomicobject is created in is aborted (or hasn't committed) yet, you will get the dreaded {@link
+     * org.multiverse.api.exceptions.LoadUncommittedException}.
      *
      * @param stm   the {@link Stm} used for committing the ref.
      * @param value the initial value of the ref. The value is allowed to be null.
@@ -87,30 +85,30 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
+                RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction) t).load(Ref.this);
                 return null;
             }
         }.execute();
     }
 
     public Ref(Transaction t) {
-        RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
+        RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction) t).load(Ref.this);
     }
 
     public Ref(final E value) {
         new AtomicTemplate() {
             @Override
             public Object execute(Transaction t) throws Exception {
-                RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
-                tranlocal.ref = value;
+                RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction) t).load(Ref.this);
+                tranlocal.value = value;
                 return null;
             }
         }.execute();
     }
 
     public Ref(Transaction t, E value) {
-        RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction)t).load(Ref.this);
-        tranlocal.ref = value;
+        RefTranlocal<E> tranlocal = (RefTranlocal<E>) ((AlphaTransaction) t).load(Ref.this);
+        tranlocal.value = value;
     }
 
     public E get() {
@@ -123,8 +121,8 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     public E get(Transaction t) {
-        RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-        return tranlocalRef.get();
+        RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+        return tranlocal.value;
     }
 
     @Override
@@ -138,8 +136,12 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     public E getOrAwait(Transaction t) {
-        RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-        return tranlocalRef.getOrAwait();
+        RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+        if (tranlocal.value == null) {
+            retry();
+        }
+
+        return tranlocal.value;
     }
 
 
@@ -153,9 +155,16 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
         }.execute();
     }
 
-    public E set(Transaction t, final E newRef) {
-        RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-        return tranlocalRef.set(newRef);
+    public E set(Transaction t, E newValue) {
+        RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+
+        if (tranlocal.___writeVersion > 0) {
+            throw new ReadonlyException();
+        }
+
+        E oldValue = tranlocal.value;
+        tranlocal.value = newValue;
+        return oldValue;
     }
 
     @Override
@@ -169,8 +178,8 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     public boolean isNull(Transaction t) {
-        RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-        return tranlocalRef.isNull();
+        RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+        return tranlocal.value == null;
     }
 
     @Override
@@ -184,8 +193,14 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     public E clear(Transaction t) {
-        RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-        return tranlocalRef.clear();
+        RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+        if (tranlocal.___writeVersion > 0) {
+            throw new ReadonlyException();
+        }
+
+        E oldValue = tranlocal.value;
+        tranlocal.value = null;
+        return oldValue;
     }
 
     @Override
@@ -200,8 +215,12 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
     }
 
     public String toString(Transaction t) {
-        RefTranlocal<E> tranlocalRef = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
-        return tranlocalRef.toString();
+        RefTranlocal<E> tranlocal = (RefTranlocal) ((AlphaTransaction) t).load(Ref.this);
+        if (tranlocal.value == null) {
+            return "Ref(reference=null)";
+        } else {
+            return format("Ref(reference=%s)", tranlocal.value);
+        }
     }
 
     @Override
@@ -209,87 +228,44 @@ public final class Ref<E> extends FastAtomicObjectMixin implements ManagedRef<E>
         RefTranlocal<E> origin = (RefTranlocal<E>) ___load(readVersion);
         if (origin == null) {
             return new RefTranlocal<E>(this);
-        }else{
+        } else {
             return new RefTranlocal<E>(origin);
         }
     }
-
 }
 
 class RefTranlocal<E> extends AlphaTranlocal {
-    //field belonging to the stm.
-    Ref atomicObject;
-    RefTranlocal origin;
 
-    E ref;
+    //field belonging to the stm.
+    Ref ___atomicObject;
+    RefTranlocal ___origin;
+
+    E value;
 
     RefTranlocal(RefTranlocal<E> origin) {
-        this.___version = origin.___version;
-        this.atomicObject = origin.atomicObject;
-        this.ref = origin.ref;
-        this.origin = origin;
+        this.___origin = origin;
+        this.___atomicObject = origin.___atomicObject;
+        this.value = origin.value;
     }
 
     RefTranlocal(Ref<E> owner) {
         this(owner, null);
     }
 
-    RefTranlocal(Ref<E> owner, E ref) {
-        this.___version = Long.MIN_VALUE;
-        this.atomicObject = owner;
-        this.ref = ref;
+    RefTranlocal(Ref<E> owner, E value) {
+        this.___atomicObject = owner;
+        this.value = value;
     }
 
     @Override
     public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
-    }
-
-    public E clear() {
-        E oldValue = ref;
-        ref = null;
-        return oldValue;
-    }
-
-    public boolean isNull() {
-        return ref == null;
-    }
-
-    public E get() {
-        return ref;
-    }
-
-    public E set(E newValue) {
-        if (___committed) {
-            throw new ReadonlyException();
-        }
-        E oldValue = ref;
-        this.ref = newValue;
-        return oldValue;
-    }
-
-    public E getOrAwait() {
-        if (isNull()) {
-            retry();
-        }
-
-        return ref;
-    }
-
-    @Override
-    public String toString() {
-        if (ref == null) {
-            return "Ref(reference=null)";
-        } else {
-            return format("Ref(reference=%s)", ref);
-        }
+        return ___atomicObject;
     }
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.___version = writeVersion;
-        this.___committed = true;
-        this.origin = null;
+        this.___writeVersion = writeVersion;
+        this.___origin = null;
     }
 
     @Override
@@ -299,11 +275,11 @@ class RefTranlocal<E> extends AlphaTranlocal {
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (___committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
+        if (___writeVersion > 0) {
+            return DirtinessStatus.readonly;
+        } else if (___origin == null) {
             return DirtinessStatus.fresh;
-        } else if (origin.ref != this.ref) {
+        } else if (___origin.value != this.value) {
             return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
@@ -312,21 +288,22 @@ class RefTranlocal<E> extends AlphaTranlocal {
 }
 
 class RefTranlocalSnapshot<E> extends AlphaTranlocalSnapshot {
-    final RefTranlocal tranlocal;
+
+    final RefTranlocal ___tranlocal;
     final E value;
 
     RefTranlocalSnapshot(RefTranlocal<E> tranlocal) {
-        this.tranlocal = tranlocal;
-        this.value = tranlocal.ref;
+        this.___tranlocal = tranlocal;
+        this.value = tranlocal.value;
     }
 
     @Override
     public AlphaTranlocal getTranlocal() {
-        return tranlocal;
+        return ___tranlocal;
     }
 
     @Override
     public void restore() {
-        tranlocal.ref = value;
+        ___tranlocal.value = value;
     }
 }

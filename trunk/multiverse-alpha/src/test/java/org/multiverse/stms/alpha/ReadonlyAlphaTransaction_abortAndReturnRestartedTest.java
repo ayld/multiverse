@@ -39,10 +39,10 @@ public class ReadonlyAlphaTransaction_abortAndReturnRestartedTest {
     public void callActiveTransaction() {
         AlphaTransaction t = startReadonlyTransaction();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         Transaction result = t.abortAndReturnRestarted();
         assertSame(t, result);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertIsActive(t);
     }
 
@@ -51,10 +51,10 @@ public class ReadonlyAlphaTransaction_abortAndReturnRestartedTest {
         AlphaTransaction t = startReadonlyTransaction();
         t.abort();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         Transaction result = t.abortAndReturnRestarted();
         assertSame(t, result);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertIsActive(t);
     }
 
@@ -63,10 +63,10 @@ public class ReadonlyAlphaTransaction_abortAndReturnRestartedTest {
         AlphaTransaction t = startReadonlyTransaction();
         t.commit();
 
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
         Transaction result = t.abortAndReturnRestarted();
         assertSame(t, result);
-        assertEquals(version, stm.getClockVersion());
+        assertEquals(version, stm.getTime());
         assertIsActive(t);
     }
 }

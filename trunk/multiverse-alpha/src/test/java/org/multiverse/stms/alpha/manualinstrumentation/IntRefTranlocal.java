@@ -6,45 +6,44 @@ import org.multiverse.stms.alpha.AlphaTranlocalSnapshot;
 import org.multiverse.stms.alpha.DirtinessStatus;
 
 /**
- * access modifiers for fields are public because this object is used for testing purposes. For the
- * instrumentation the fields don't need to be this public.
+ * access modifiers for fields are public because this object is used for testing purposes. For the instrumentation the
+ * fields don't need to be this public.
  */
 public class IntRefTranlocal extends AlphaTranlocal {
-    public IntRef atomicObject;
+
+    public IntRef ___atomicObject;
     public int value;
-    private IntRefTranlocal origin;
+    private IntRefTranlocal ___origin;
 
     public IntRefTranlocal(IntRefTranlocal origin) {
-        this.origin = origin;
-        this.___version = origin.___version;
+        this.___origin = origin;
+        this.___atomicObject = origin.___atomicObject;
         this.value = origin.value;
-        this.atomicObject = origin.atomicObject;
     }
 
     public IntRefTranlocal(IntRef atomicObject) {
-        this.atomicObject = atomicObject;
+        this.___atomicObject = atomicObject;
     }
 
     @Override
     public AlphaAtomicObject getAtomicObject() {
-        return atomicObject;
+        return ___atomicObject;
     }
 
 
     @Override
     public void prepareForCommit(long writeVersion) {
-        this.___version = writeVersion;
-        this.___committed = true;
-        this.origin = null;
+        this.___writeVersion = writeVersion;
+        this.___origin = null;
     }
 
     @Override
     public DirtinessStatus getDirtinessStatus() {
-        if (___committed) {
-            return DirtinessStatus.committed;
-        } else if (origin == null) {
+        if (___writeVersion > 0) {
+            return DirtinessStatus.readonly;
+        } else if (___origin == null) {
             return DirtinessStatus.fresh;
-        } else if (origin.value != this.value) {
+        } else if (___origin.value != this.value) {
             return DirtinessStatus.dirty;
         } else {
             return DirtinessStatus.clean;
@@ -59,21 +58,21 @@ public class IntRefTranlocal extends AlphaTranlocal {
 
 class IntRefTranlocalSnapshot extends AlphaTranlocalSnapshot {
 
-    final IntRefTranlocal tranlocal;
+    final IntRefTranlocal ___tranlocal;
     final int value;
 
     public IntRefTranlocalSnapshot(IntRefTranlocal tranlocal) {
-        this.tranlocal = tranlocal;
+        this.___tranlocal = tranlocal;
         this.value = tranlocal.value;
     }
 
     @Override
     public AlphaTranlocal getTranlocal() {
-        return tranlocal;
+        return ___tranlocal;
     }
 
     @Override
     public void restore() {
-        tranlocal.value = value;
+        ___tranlocal.value = value;
     }
 }

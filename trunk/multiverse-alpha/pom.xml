@@ -12,7 +12,7 @@
 
     <parent>
         <groupId>org.multiverse</groupId>
-        <artifactId>multiverse</artifactId>        
+        <artifactId>multiverse</artifactId>
         <version>0.3-SNAPSHOT</version>
     </parent>
 
@@ -99,8 +99,9 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" />
-                                <jarjar destfile="${build.directory}/${build.finalName}-jar-with-dependencies.jar" update="true">
+                                <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask"/>
+                                <jarjar destfile="${build.directory}/${build.finalName}-jar-with-dependencies.jar"
+                                        update="true">
                                     <!-- Replace "org.objectweb.asm.x.y.." with "org.multiverse.repackaged.org.objectweb.asm.x.y..".
                                       See http://code.google.com/p/jarjar/wiki/CommandLineDocs for more informtion on jarjar rules. -->
                                     <rule pattern="org.objectweb.asm.**" result="${groupId}.repackaged.@0"/>
@@ -121,9 +122,9 @@
     </build>
 
     <properties>
-      <multiverse.agentname>alphaagent</multiverse.agentname>
-      <multiverse.agentclass>org.multiverse.stms.alpha.instrumentation.MultiverseJavaAgent</multiverse.agentclass>
-      <asm.version>3.2</asm.version>
+        <multiverse.agentname>alphaagent</multiverse.agentname>
+        <multiverse.agentclass>org.multiverse.stms.alpha.instrumentation.MultiverseJavaAgent</multiverse.agentclass>
+        <asm.version>3.2</asm.version>
     </properties>
 
     <dependencies>
@@ -132,6 +133,13 @@
             <groupId>org.multiverse</groupId>
             <artifactId>multiverse-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <!-- Multiverse dependencies -->
+        <dependency>
+            <groupId>org.multiverse</groupId>
+            <artifactId>multiverse-benchy</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- we also want access to the jar containing the test code from the multiverse-core project -->
         <dependency>
@@ -163,6 +171,7 @@
             <artifactId>asm-util</artifactId>
             <version>${asm.version}</version>
         </dependency>
+
     </dependencies>
 
 </project>

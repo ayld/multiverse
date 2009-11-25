@@ -2,7 +2,6 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 
 import org.multiverse.stms.alpha.AlphaTranlocal;
 import static org.multiverse.stms.alpha.instrumentation.asm.AsmUtils.*;
-import org.multiverse.utils.TodoException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -82,8 +81,8 @@ public class AtomicObjectTransformer implements Opcodes {
         }
 
         //check for conflicting method names
-        for(MethodNode methodNode: (List<MethodNode>)atomicObject.methods){
-            if(methodNode.name.startsWith("___")){
+        for (MethodNode methodNode : (List<MethodNode>) atomicObject.methods) {
+            if (methodNode.name.startsWith("___")) {
                 String msg = format("Method '%s.%s%s' begins with illegal patterns '___'",
                                     atomicObject.name,
                                     methodNode.name,
@@ -118,10 +117,44 @@ public class AtomicObjectTransformer implements Opcodes {
     }
 
     private void mergeMixin() {
+        mergeStaticInitializers();
         mergeMixinInterfaces();
         mergeMixinFields();
         mergeMixinMethods();
     }
+
+    private void mergeStaticInitializers() {
+        Remapper remapper = new SimpleRemapper(mixin.name, atomicObject.name);
+
+        MethodNode mixinInit = findStaticInitializer(mixin);
+        MethodNode atomicObjectInit = findStaticInitializer(atomicObject);
+
+        if (mixinInit != null) {
+            if (atomicObjectInit == null) {
+                MethodNode remappedInit = remap(mixinInit, remapper);
+                atomicObject.methods.add(remappedInit);
+            } else {
+                MethodNode remappedInit = remap(mixinInit, remapper);
+                remappedInit.name = "___clinit_mixin";
+                atomicObjectInit.name = "___clinit_atomicobject";
+
+                MethodNode newInit = new MethodNode();
+                newInit.name = "<clinit>";
+                newInit.desc = atomicObjectInit.desc;
+                newInit.access = mixinInit.access;
+                newInit.tryCatchBlocks = new LinkedList();
+                newInit.exceptions = new LinkedList();
+                newInit.localVariables = new LinkedList();
+                newInit.visitMethodInsn(INVOKESTATIC, atomicObject.name, remappedInit.name, "()V");
+                newInit.visitMethodInsn(INVOKESTATIC, atomicObject.name, atomicObjectInit.name, "()V");
+                newInit.visitInsn(RETURN);
+
+                atomicObject.methods.add(newInit);
+                atomicObject.methods.add(remappedInit);
+            }
+        }
+    }
+
 
     private void mergeMixinInterfaces() {
         Set<String> interfaces = new HashSet<String>();
@@ -142,12 +175,22 @@ public class AtomicObjectTransformer implements Opcodes {
         Remapper remapper = new SimpleRemapper(mixin.name, atomicObject.name);
 
         for (MethodNode mixinMethod : (List<MethodNode>) mixin.methods) {
-            if (!isConstructor(mixinMethod)) {
+            //all constructors and static constructors of the mixin are dropped
+            if (!mixinMethod.name.equals("<init>") && !mixinMethod.name.equals("<clinit>")) {
                 MethodNode remappedMethod = remap(mixinMethod, remapper);
-                //todo: synthetic
                 atomicObject.methods.add(remappedMethod);
             }
         }
+    }
+
+    private MethodNode findStaticInitializer(ClassNode classNode) {
+        for (MethodNode methodNode : (List<MethodNode>) classNode.methods) {
+            if (methodNode.name.equals("<clinit>")) {
+                return methodNode;
+            }
+        }
+
+        return null;
     }
 
     private MethodNode createLoadUpdatableMethod() {

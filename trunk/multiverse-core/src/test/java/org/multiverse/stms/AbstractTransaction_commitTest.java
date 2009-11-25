@@ -23,7 +23,7 @@ public class AbstractTransaction_commitTest {
 
     @Before
     public void setUp() {
-        clock = new StrictClock();
+        clock = new StrictClock(1);
     }
 
     @Ignore
@@ -80,6 +80,4 @@ public class AbstractTransaction_commitTest {
         assertIsAborted(t);
         assertEquals(version, clock.getTime());
     }
-
-
 }

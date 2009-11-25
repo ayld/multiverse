@@ -5,7 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
-import static org.multiverse.TestUtils.*;
+import static org.multiverse.TestUtils.assertIsAborted;
+import static org.multiverse.TestUtils.assertIsCommitted;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
 import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
@@ -51,7 +52,7 @@ public class ReadonlyAlphaTransaction_abortAndRegisterRetryLatchTest {
         }
 
         assertFalse(latch.isOpen());
-        assertIsActive(t);
+        assertIsAborted(t);
     }
 
     @Test

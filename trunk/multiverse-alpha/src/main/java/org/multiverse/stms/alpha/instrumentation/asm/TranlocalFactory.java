@@ -19,14 +19,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A factory responsible for creating the {@link AlphaTranlocal} class based on an
- * {@link AlphaAtomicObject}.
+ * A factory responsible for creating the {@link AlphaTranlocal} class based on an {@link AlphaAtomicObject}.
  * <p/>
  * TranlocalClassNodeFactory should not be reused.
  *
  * @author Peter Veentjer
  */
 public final class TranlocalFactory implements Opcodes {
+
     private final ClassNode atomicObject;
     private String tranlocalSnapshotName;
     private String tranlocalName;
@@ -139,12 +139,6 @@ public final class TranlocalFactory implements Opcodes {
         m.visitVarInsn(ALOAD, 1);
         m.visitFieldInsn(PUTFIELD, tranlocalName, "___origin", internalFormToDescriptor(tranlocalName));
 
-        //placement of the version
-        m.visitVarInsn(ALOAD, 0);
-        m.visitVarInsn(ALOAD, 1);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "___version", "J");
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "___version", "J");
-
         //placement of the rest of the fields.
         for (FieldNode managedField : metadataService.getManagedInstanceFields(atomicObject)) {
             m.visitVarInsn(ALOAD, 0);
@@ -168,12 +162,8 @@ public final class TranlocalFactory implements Opcodes {
                 new String[]{});
 
         m.visitVarInsn(ALOAD, 0);
-        m.visitInsn(ICONST_1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "___committed", "Z");
-
-        m.visitVarInsn(ALOAD, 0);
         m.visitVarInsn(LLOAD, 1);
-        m.visitFieldInsn(PUTFIELD, tranlocalName, "___version", "J");
+        m.visitFieldInsn(PUTFIELD, tranlocalName, "___writeVersion", "J");
 
         m.visitVarInsn(ALOAD, 0);
         m.visitInsn(ACONST_NULL);
@@ -211,10 +201,17 @@ public final class TranlocalFactory implements Opcodes {
 
         //check on committed
         m.visitVarInsn(ALOAD, 0);
-        m.visitFieldInsn(GETFIELD, tranlocalName, "___committed", Type.BOOLEAN_TYPE.getDescriptor());
+        m.visitFieldInsn(GETFIELD, tranlocalName, "___writeVersion", "J");
         Label failure = new Label();
+
+        m.visitLdcInsn(new Long(0));
+        m.visitInsn(LCMP);
+
         m.visitJumpInsn(IFEQ, failure);
-        m.visitFieldInsn(GETSTATIC, getInternalName(DirtinessStatus.class), "___committed", getDescriptor(DirtinessStatus.class));
+        m.visitFieldInsn(GETSTATIC,
+                         getInternalName(DirtinessStatus.class),
+                         "committed",
+                         getDescriptor(DirtinessStatus.class));
         m.visitInsn(ARETURN);
 
         //check on original
@@ -223,7 +220,10 @@ public final class TranlocalFactory implements Opcodes {
         m.visitFieldInsn(GETFIELD, tranlocalName, "___origin", internalFormToDescriptor(tranlocalName));
         failure = new Label();
         m.visitJumpInsn(IFNONNULL, failure);
-        m.visitFieldInsn(GETSTATIC, getInternalName(DirtinessStatus.class), "fresh", getDescriptor(DirtinessStatus.class));
+        m.visitFieldInsn(GETSTATIC,
+                         getInternalName(DirtinessStatus.class),
+                         "fresh",
+                         getDescriptor(DirtinessStatus.class));
         m.visitInsn(ARETURN);
 
         //check on arguments
@@ -265,13 +265,19 @@ public final class TranlocalFactory implements Opcodes {
                     throw new RuntimeException("Unhandled type: " + managedField.desc);
             }
 
-            m.visitFieldInsn(GETSTATIC, getInternalName(DirtinessStatus.class), "fresh", getDescriptor(DirtinessStatus.class));
+            m.visitFieldInsn(GETSTATIC,
+                             getInternalName(DirtinessStatus.class),
+                             "fresh",
+                             getDescriptor(DirtinessStatus.class));
             m.visitInsn(ARETURN);
         }
 
         //this is the last part, where the clean value is returned.
         m.visitLabel(failure);
-        m.visitFieldInsn(GETSTATIC, getInternalName(DirtinessStatus.class), "clean", getDescriptor(DirtinessStatus.class));
+        m.visitFieldInsn(GETSTATIC,
+                         getInternalName(DirtinessStatus.class),
+                         "clean",
+                         getDescriptor(DirtinessStatus.class));
         m.visitInsn(ARETURN);
         m.visitMaxs(0, 0);//value's don't matter, will be reculculated, but call is needed
         m.visitEnd();

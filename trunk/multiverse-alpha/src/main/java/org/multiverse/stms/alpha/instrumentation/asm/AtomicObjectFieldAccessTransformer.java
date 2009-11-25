@@ -11,26 +11,26 @@ import java.util.List;
 
 public class AtomicObjectFieldAccessTransformer implements Opcodes {
 
-    private final ClassNode originalObject;
+    private final ClassNode originalClass;
 
-    public AtomicObjectFieldAccessTransformer(ClassNode originalObject) {
-        this.originalObject = originalObject;
+    public AtomicObjectFieldAccessTransformer(ClassNode originalClass) {
+        this.originalClass = originalClass;
     }
 
     public ClassNode transform() {
         fixMethods();
-        return originalObject;
+        return originalClass;
     }
 
     private void fixMethods() {
         List<MethodNode> methods = new LinkedList<MethodNode>();
 
-        for (MethodNode originalMethod : (List<MethodNode>) originalObject.methods) {
+        for (MethodNode originalMethod : (List<MethodNode>) originalClass.methods) {
             MethodNode fixedMethod = fixMethod(originalMethod);
             methods.add(fixedMethod);
         }
 
-        originalObject.methods = methods;
+        originalClass.methods = methods;
     }
 
     private MethodNode fixMethod(MethodNode originalMethod) {

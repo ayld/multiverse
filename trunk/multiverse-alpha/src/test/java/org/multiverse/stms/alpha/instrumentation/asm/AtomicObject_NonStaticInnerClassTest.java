@@ -23,28 +23,28 @@ public class AtomicObject_NonStaticInnerClassTest {
     }
 
     @Test
-    public void nonStaticStructure(){
-        assertFalse(existsField(NonStaticAtomicObject.class,"value"));
+    public void nonStaticStructure() {
+        assertFalse(existsField(NonStaticAtomicObject.class, "value"));
 
         assertTrue(existsTranlocalClass(NonStaticAtomicObject.class));
-        assertTrue(existsTranlocalField(NonStaticAtomicObject.class,"value"));
+        assertTrue(existsTranlocalField(NonStaticAtomicObject.class, "value"));
 
         assertTrue(existsTranlocalSnapshotClass(NonStaticAtomicObject.class));
-        assertTrue(existsTranlocalSnapshotField(NonStaticAtomicObject.class,"value"));
+        assertTrue(existsTranlocalSnapshotField(NonStaticAtomicObject.class, "value"));
     }
 
     @Test
     public void nonStaticAtomicObjectUsage() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         NonStaticAtomicObject innerClass = new NonStaticAtomicObject(10);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertEquals(10, innerClass.getValue());
     }
 
-    @AtomicObject
-    class NonStaticAtomicObject {
+    @AtomicObject class NonStaticAtomicObject {
+
         int value;
 
         NonStaticAtomicObject(int value) {
@@ -62,27 +62,28 @@ public class AtomicObject_NonStaticInnerClassTest {
 
     @Test
     public void outerWithInner() {
-        long version = stm.getClockVersion();
+        long version = stm.getTime();
 
         Outer outer = new Outer();
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertNull(outer.getInner());
 
-        version = stm.getClockVersion();
+        version = stm.getTime();
 
         outer.newInner(10);
 
-        assertEquals(version + 1, stm.getClockVersion());
+        assertEquals(version + 1, stm.getTime());
         assertNotNull(outer.getInner());
         assertEquals(10, outer.getInner().getValue());
     }
 
     @AtomicObject
     static class Outer {
+
         private Inner inner;
 
-        public Outer(){
+        public Outer() {
             inner = null;
         }
 
@@ -95,8 +96,8 @@ public class AtomicObject_NonStaticInnerClassTest {
             inner = new Inner(value);
         }
 
-        @AtomicObject
-        class Inner {
+        @AtomicObject class Inner {
+
             private int value;
 
             Inner(int value) {

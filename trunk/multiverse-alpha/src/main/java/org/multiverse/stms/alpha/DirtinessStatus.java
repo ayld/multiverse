@@ -6,5 +6,6 @@ package org.multiverse.stms.alpha;
  * @author Peter Veentjer.
  */
 public enum DirtinessStatus {
-    fresh, dirty, clean, committed, conflict
+
+    fresh, dirty, clean, readonly, conflict
 }

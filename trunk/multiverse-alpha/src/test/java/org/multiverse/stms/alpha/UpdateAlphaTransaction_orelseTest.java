@@ -5,13 +5,14 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.multiverse.TestUtils.*;
 import static org.multiverse.api.GlobalStmInstance.setGlobalStmInstance;
+import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 import org.multiverse.api.Transaction;
 import org.multiverse.api.exceptions.DeadTransactionException;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRef;
 import org.multiverse.stms.alpha.manualinstrumentation.IntRefTranlocal;
-import static org.multiverse.api.ThreadLocalTransaction.setThreadLocalTransaction;
 
 public class UpdateAlphaTransaction_orelseTest {
+
     private AlphaStm stm;
 
     @Before
@@ -108,7 +109,7 @@ public class UpdateAlphaTransaction_orelseTest {
     public void multipleLevelsOfEndOr() {
         IntRef v = new IntRef(0);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         Transaction t = startUpdateTransaction();
         v.inc();
         t.startOr();
@@ -126,7 +127,7 @@ public class UpdateAlphaTransaction_orelseTest {
 
         t.commit();
 
-        assertEquals(startVersion + 1, stm.getClockVersion());
+        assertEquals(startVersion + 1, stm.getTime());
         setThreadLocalTransaction(null);
         assertEquals(2, v.get());
     }
@@ -135,7 +136,7 @@ public class UpdateAlphaTransaction_orelseTest {
     public void scenarioWithNothingToCommitAfterARollback() {
         IntRef v = new IntRef(0);
 
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
         Transaction t = startUpdateTransaction();
         t.startOr();
         v.inc();
@@ -144,7 +145,7 @@ public class UpdateAlphaTransaction_orelseTest {
 
         setThreadLocalTransaction(null);
 
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
         assertIsCommitted(t);
         assertEquals(0, v.get());
     }
@@ -177,7 +178,7 @@ public class UpdateAlphaTransaction_orelseTest {
 
     @Test
     public void emptyStartOrEndOrDoesNotFail() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         Transaction t = startUpdateTransaction();
         t.startOr();
@@ -185,12 +186,12 @@ public class UpdateAlphaTransaction_orelseTest {
         t.commit();
 
         assertIsCommitted(t);
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
     }
 
     @Test
     public void emptyStartOrEndOrAndStartElseDoesNotFail() {
-        long startVersion = stm.getClockVersion();
+        long startVersion = stm.getTime();
 
         Transaction t = startUpdateTransaction();
         t.startOr();
@@ -198,7 +199,7 @@ public class UpdateAlphaTransaction_orelseTest {
         t.commit();
 
         assertIsCommitted(t);
-        assertEquals(startVersion, stm.getClockVersion());
+        assertEquals(startVersion, stm.getTime());
     }
 
     @Test
