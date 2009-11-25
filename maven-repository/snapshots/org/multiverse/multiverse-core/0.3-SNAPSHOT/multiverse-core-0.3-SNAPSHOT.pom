@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>multiverse-core</artifactId>
-    <name>The multiverse core package</name>
-    <description>Contains the core interfaces/classes of the Multiverse project. So no stm implementations</description>
+    <name>The Multiverse core package</name>
+    <description>Contains the core interfaces/classes of the Multiverse project. So no STM implementations</description>
 
     <parent>
         <groupId>org.multiverse</groupId>
@@ -14,10 +14,9 @@
     </parent>
     
     <build>
-         <plugins>
+        <plugins>
             <!-- creates a jar containing the test-code so that this can be reused --> 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
