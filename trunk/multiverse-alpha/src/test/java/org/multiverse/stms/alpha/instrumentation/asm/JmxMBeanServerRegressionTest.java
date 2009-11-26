@@ -2,6 +2,7 @@ package org.multiverse.stms.alpha.instrumentation.asm;
 
 import static org.junit.Assert.assertFalse;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.multiverse.utils.instrumentation.InstrumentationProblemMonitor;
 
@@ -23,7 +24,7 @@ public class JmxMBeanServerRegressionTest {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void test() {
         Bean bean = new Bean();
         assertFalse(InstrumentationProblemMonitor.INSTANCE.isProblemFound());

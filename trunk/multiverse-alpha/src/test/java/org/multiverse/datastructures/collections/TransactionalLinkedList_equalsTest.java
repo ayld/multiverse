@@ -3,7 +3,6 @@ package org.multiverse.datastructures.collections;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.multiverse.api.GlobalStmInstance.getGlobalStmInstance;
 import org.multiverse.api.Stm;
@@ -23,7 +22,7 @@ public class TransactionalLinkedList_equalsTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testNonEqualLists() {
         TransactionalLinkedList<String> list1 = new TransactionalLinkedList<String>();
         list1.add("1");

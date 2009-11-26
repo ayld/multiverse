@@ -2,6 +2,7 @@ package org.multiverse.datastructures.collections;
 
 import org.multiverse.api.annotations.AtomicMethod;
 import org.multiverse.api.annotations.AtomicObject;
+import org.multiverse.utils.TodoException;
 
 import java.util.*;
 
@@ -14,10 +15,12 @@ import java.util.*;
  * Each operation on this TransactionalLinkedList is atomic by default, and of course can participate in already running
  * transactions.
  * <p/>
- * There is a scalability issue with this structure and it has to do with the size. Although a take and put can be
- * executed concurrently because there is a seperate tail and head to place items on, one of the transactions is going
- * to fail because of a write conflict caused by the size field. This is an issue that is going to be solved in the
- * future, but for the moment
+ * There is a scalability issue with this structure and it has to do with unwanted writeconflicts. Although a take and
+ * put can be executed concurrently because there is a seperate tail and head to place items on, one of the transactions
+ * is going to fail because of a write conflict on the size field, or on the head/tail because of the object granularity
+ * of the stm.  This is an issue that is going to be solved in the future, but for the moment this structure will not be
+ * very concurrent. This even gets worse with longer transactions that are typical for stm's, compared to classic
+ * concurrency (the synchronized block could be seen as a transaction).
  *
  * @author Peter Veentjer.
  * @param <E>
@@ -281,7 +284,7 @@ public class TransactionalLinkedList<E> extends AbstractBlockingDeque<E> impleme
             throw new IndexOutOfBoundsException();
         }
 
-        throw new UnsupportedOperationException();
+        return new ListIteratorImpl(index, getNode(index));
     }
 
     @Override
@@ -362,6 +365,79 @@ public class TransactionalLinkedList<E> extends AbstractBlockingDeque<E> impleme
             }
         }
         return !(e1.hasNext() || e2.hasNext());
+    }
+
+    @AtomicObject
+    public class ListIteratorImpl implements ListIterator<E> {
+
+        private int index;
+        private Node<E> node;
+
+        public ListIteratorImpl(int index, Node<E> node) {
+            this.index = index;
+            this.node = node;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return node.next != null;
+        }
+
+        @Override
+        public E next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+
+            E value = node.value;
+            node = node.next;
+            return value;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return node.prev != null;
+        }
+
+        @Override
+        public E previous() {
+            if (!hasPrevious()) {
+                throw new NoSuchElementException();
+            }
+
+            E value = node.value;
+            node = node.prev;
+            return value;
+        }
+
+        @Override
+        public int nextIndex() {
+            throw new TodoException();
+        }
+
+        @Override
+        public int previousIndex() {
+            throw new TodoException();
+        }
+
+        @Override
+        public void remove() {
+            if (node == null) {
+                throw new NoSuchElementException();
+            }
+
+            TransactionalLinkedList.this.removeNode(node);
+        }
+
+        @Override
+        public void set(E e) {
+            throw new TodoException();
+        }
+
+        @Override
+        public void add(E e) {
+            throw new TodoException();
+        }
     }
 
     @AtomicObject
