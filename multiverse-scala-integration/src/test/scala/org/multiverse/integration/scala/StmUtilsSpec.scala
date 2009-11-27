@@ -23,7 +23,7 @@ class StmUtilsSpec extends Spec {
         it("throws a RetryError") {
             intercept[RetryError] {
                 setThreadLocalTransaction(
-                    new AbstractTransaction(new AbstractTransactionDependencies(),null) {})
+                    new AbstractTransaction(new AbstractTransactionDependencies(), null) {})
                 retry()
             }            
         }

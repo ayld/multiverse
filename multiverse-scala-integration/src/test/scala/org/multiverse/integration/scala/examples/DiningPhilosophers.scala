@@ -103,6 +103,5 @@ object DiningPhilosophersRunner {
     
     def main(args: Array[String]) {
         new DiningPhilosophers().run()
-        println(GlobalStmInstance.getGlobalStmInstance.asInstanceOf[AlphaStm].getProfiler);        
     }
 }
