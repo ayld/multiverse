@@ -80,8 +80,10 @@ public abstract class AbstractClassFileTransformer implements ClassFileTransform
 
     private static boolean isIgnoredPackage(String className) {
         return className.startsWith("java/") ||
+                className.startsWith("javax/management/") ||
                 className.startsWith("com/jprofiler/") ||
                 className.startsWith("org/junit") ||
+                className.startsWith("com/sun/jmx/") ||
                 className.startsWith("sun/") ||
                 className.startsWith("org/apache/") ||
                 className.startsWith("org/hamcrest/") ||
