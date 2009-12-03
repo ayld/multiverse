@@ -102,21 +102,26 @@
         <module>multiverse-project-archetype</module>
     </modules>
 
+    <properties>
+        <sourceEncoding>UTF-8</sourceEncoding>
+        <targetJdk>1.6</targetJdk>
+    </properties>
+    
     <build>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
-                        <encoding>UTF-8</encoding>
-                        <source>1.6</source>
-                        <target>1.6</target>
+                        <encoding>${sourceEncoding}</encoding>
+                        <source>${targetJdk}</source>
+                        <target>${targetJdk}</target>
                     </configuration>
                 </plugin>
                 <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
                     <configuration>
-                        <encoding>UTF-8</encoding>
+                        <encoding>${sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -145,7 +150,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>1.6.0</version>
+                                    <version>${targetJdk}</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -262,25 +267,6 @@
     <reporting>
         <plugins>
             <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <quiet>true</quiet>
-                    <links>
-                        <link>http://java.sun.com/javase/6/docs/api/</link>
-                        <link>http://java.sun.com/javaee/6/docs/api/</link>
-                    </links>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <id>default</id>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jxr-maven-plugin</artifactId>
             </plugin>
@@ -289,7 +275,7 @@
                 <artifactId>taglist-maven-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>${sourceEncoding}</encoding>
                     <tags>
                         <tag>FIXME</tag>
                         <tag>Fixme</tag>
@@ -341,7 +327,8 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <targetJdk>1.6</targetJdk>
+                    <sourceEncoding>${sourceEncoding}</sourceEncoding>
+                    <targetJdk>${targetJdk}</targetJdk>
                 </configuration>
             </plugin>
             <plugin>
@@ -377,6 +364,7 @@
                     <!-- should only be executed at the top-level POM -->
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.6.1</version>
                         <inherited>false</inherited>
                         <executions>
                             <execution>
@@ -387,12 +375,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <encoding>UTF-8</encoding>
+                            <encoding>${sourceEncoding}</encoding>
                             <quiet>true</quiet>
-                            <links>
-                                <link>http://java.sun.com/javase/6/docs/api/</link>
-                                <link>http://java.sun.com/javaee/6/docs/api/</link>
-                            </links>
                         </configuration>
                     </plugin>
                     <plugin>
