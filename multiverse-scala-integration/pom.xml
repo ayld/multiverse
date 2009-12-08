@@ -5,7 +5,6 @@
     <name>Multiverse Scala Integration</name>
     <description>Scala classes to allow more elegant use of Multiverse from Scala</description>
     <artifactId>multiverse-scala-integration</artifactId>
-    <version>0.3-SNAPSHOT</version>
 
     <parent>
         <groupId>org.multiverse</groupId>
@@ -66,9 +65,9 @@
       
     <dependencies>
         <dependency>
-            <groupId>org.multiverse</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>multiverse-core</artifactId>        
-            <version>0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -83,9 +82,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.multiverse</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>multiverse-alpha</artifactId>        
-            <version>0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
