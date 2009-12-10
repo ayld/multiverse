@@ -55,6 +55,9 @@ For multiverse it doesn't matter if a field is or isn't volatile.
 == What about transient fields? ==
 For multiverse it doesn't matter if a field is or isn't transient.
 
+== What about integration with other JVM languages ==
+Although Multiverse is written in Java, it can be combined with other languages. So even if the instrumentation process is not suitable for that specific language, it always is possible to make use of a <a href="http://www.multiversestm.org/~mvn-site/apidocs/org/multiverse/datastructures/refs/manual/Ref.html">Managed Reference</a> that doesn't rely on instrumentation. Changes on managed references will be atomic and isolated and you can make use of all the features of Multiverse.
+
 == What about integration with Scala? ==
 I'm working on integrating Multiverse with Scala, so you can say stuff like:
 
