@@ -4,70 +4,78 @@
   	<formats>
     		<format>zip</format>
   	</formats>
+  	<!-- 
+      license.css
+      *.html
+      lib
+        + alpha
+        + scala integration
+      src
+        + sources
+      doc
+        + javadoc
+      archetype
+        + archetypes
+  	-->
   	<fileSets>
     		<fileSet>
+            <directory />
       			<includes>
+                <include>*.html</include>
         				<include>license.css</include>
-                <include>license.html</include>
       			</includes>
+      			<outputDirectory /> 
     		</fileSet>
     		<fileSet>
-            <outputDirectory />
       			<directory>multiverse-alpha/target</directory>
       			<includes>
         				<include>multiverse-alpha-${project.version}-jar-with-dependencies.jar</include>
       			</includes>
+            <outputDirectory>lib</outputDirectory>      			
     		</fileSet>
         <fileSet>
-            <outputDirectory>doc</outputDirectory>
-            <includes>
-                <include>*.html</include>
-            </includes>
-            <excludes>
-                <exclude>license.html</exclude>
-            </excludes>      
-        </fileSet>
-        <fileSet>
-            <outputDirectory>doc/javadoc</outputDirectory>
-            <directory>target/site/apidocs</directory>
-            <includes>
-                <include>**/*</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <outputDirectory />
-            <directory>multiverse-scala-integration/target</directory>
-            <includes>
-                <include>multiverse-scala-integration-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <outputDirectory>archetypes</outputDirectory>
-            <directory>multiverse-project-archetype/target</directory>
-            <includes>
-                <include>multiverse-project-archetype-${project.version}.jar</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <outputDirectory>sources</outputDirectory>
             <directory>multiverse-alpha/target</directory>
             <includes>
                 <include>multiverse-alpha-${project.version}-sources.jar</include>
             </includes>
+            <outputDirectory>src</outputDirectory>            
+        </fileSet>    		
+        <fileSet>
+            <directory>target/site/apidocs</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+            <outputDirectory>doc</outputDirectory>            
         </fileSet>
         <fileSet>
-            <outputDirectory>sources</outputDirectory>
+            <directory>multiverse-project-archetype/target</directory>
+            <includes>
+                <include>multiverse-project-archetype-${project.version}.jar</include>
+            </includes>
+            <outputDirectory>archetype</outputDirectory>            
+        </fileSet>
+        <fileSet>
             <directory>multiverse-core/target</directory>
             <includes>
                 <include>multiverse-core-${project.version}-sources.jar</include>
             </includes>
+            <outputDirectory>src</outputDirectory>            
         </fileSet>
+        
+        <!-- Scala integration -->
         <fileSet>
-            <outputDirectory>sources</outputDirectory>
+            <directory>multiverse-scala-integration/target</directory>
+            <includes>
+                <include>multiverse-scala-integration-${project.version}.jar</include>
+            </includes>
+            <outputDirectory>lib</outputDirectory>
+        </fileSet>        
+        <fileSet>
             <directory>multiverse-scala-integration/target</directory>
             <includes>
                 <include>multiverse-scala-integration-${project.version}-sources.jar</include>
             </includes>
+            <outputDirectory>src</outputDirectory>            
         </fileSet>    
   	</fileSets>
 </assembly>
