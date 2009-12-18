@@ -12,7 +12,7 @@
     </description>
     <groupId>org.multiverse</groupId>
     <artifactId>multiverse</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOT</version>
     <inceptionYear>2008</inceptionYear>
     <packaging>pom</packaging>
 
@@ -254,9 +254,9 @@
     </dependencies>
 
     <scm>
-        <connection>scm:svn:https://multiverse.googlecode.com/svn/tags/multiverse-0.3</connection>
-        <developerConnection>scm:svn:https://multiverse.googlecode.com/svn/tags/multiverse-0.3</developerConnection>
-        <url>http://code.google.com/p/multiverse/source/browse/tags/multiverse-0.3</url>
+        <connection>scm:svn:https://multiverse.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://multiverse.googlecode.com/svn/trunk</developerConnection>
+        <url>http://code.google.com/p/multiverse/source/browse/trunk</url>
     </scm>
     <issueManagement>
         <system>Google Code</system>
