@@ -4,10 +4,11 @@
   <artifactId>multiverse-project-archetype</artifactId>
   <version>0.3-SNAPSHOT</version>
   <versioning>
-    <latest>0.3-SNAPSHOT</latest>
+    <latest>0.4-SNAPSHOT</latest>
     <versions>
       <version>0.3-SNAPSHOT</version>
+      <version>0.4-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20091127133216</lastUpdated>
+    <lastUpdated>20091218122214</lastUpdated>
   </versioning>
 </metadata>
