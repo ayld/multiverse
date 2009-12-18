@@ -352,7 +352,7 @@
             <name>Multiverse Maven site</name>
             <url>ftp://multiversestm.org</url>
         </site>
-        <downloadUrl>http://code.google.com/p/multiverse/downloads</downloadUrl>
+        <downloadUrl>http://code.google.com/p/multiverse/wiki/Download</downloadUrl>
     </distributionManagement>
 
     <profiles>
