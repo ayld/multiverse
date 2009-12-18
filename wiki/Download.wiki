@@ -1,5 +1,5 @@
 #summary Downloading Multiverse
-#labels Phase-Deploy
+#labels Phase-Deploy,Featured
 
 == Releases ==
 
