@@ -101,7 +101,7 @@
                                 <taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" />
                                 <jarjar destfile="${build.directory}/${build.finalName}-jar-with-dependencies.jar" update="true">
                                     <!-- Replace "org.objectweb.asm.x.y.." with "org.multiverse.repackaged.org.objectweb.asm.x.y..".
-                                      See http://code.google.com/p/jarjar/wiki/CommandLineDocs for more informtion on jarjar rules. -->
+                                      See http://code.google.com/p/jarjar/wiki/CommandLineDocs for more information on jarjar rules. -->
                                     <rule pattern="org.objectweb.asm.**" result="${groupId}.repackaged.@0" />
                                 </jarjar>
                             </tasks>
