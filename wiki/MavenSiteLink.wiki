@@ -1,4 +1,4 @@
 #summary Where to find Multiverse's Maven-generated site
 #labels Phase-Support
 
-The most recent version of the Maven-generated site for Multiverse can be found at http://www.multiversestm.org/site/.
+The most recent version of the Maven-generated site for Multiverse can be found at http://multiverse.codehaus.org/maven-site/.
