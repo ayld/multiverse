@@ -1,0 +1,1 @@
+The most recent version of the Maven-generated site for Multiverse can be found at http://multiverse.codehaus.org/maven-site/.
